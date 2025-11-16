@@ -29,13 +29,58 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
+      console.log('Login attempt with:', data.email)
       const response = await authApi.login(data.email, data.password)
-      setUser(response.data.user)
-      setToken(response.data.token)
-      toast.success('Login successful!')
-      navigate('/dashboard')
-    } catch (error) {
-      toast.error('Login failed. Please check your credentials.')
+      console.log('Full login response:', response)
+      console.log('Response data:', response.data)
+      
+      // Backend returns: { success: true, message: string, data: { ...user fields, token } }
+      const responseData = response.data?.data || response.data
+      console.log('Extracted data:', responseData)
+      
+      // Check if token exists directly in responseData
+      if (responseData && responseData.token) {
+        const token = responseData.token
+        // User data is in responseData directly (not nested)
+        let user = { ...responseData }
+        delete user.token // Remove token from user object
+        
+        console.log('Setting user:', user)
+        console.log('Setting token:', token)
+        
+        // Convert _id to id for frontend compatibility
+        if (user._id && !user.id) {
+          user = { ...user, id: user._id }
+        }
+        
+        setUser(user)
+        setToken(token)
+        
+        toast.success('Login successful!')
+        
+        // Small delay to ensure state updates
+        setTimeout(() => {
+          const userRole = user.role || 'user'
+          console.log('User role:', userRole)
+          
+          if (userRole === 'admin') {
+            console.log('Navigating to /admin')
+            navigate('/admin', { replace: true })
+          } else {
+            console.log('Navigating to /dashboard')
+            navigate('/dashboard', { replace: true })
+          }
+        }, 100)
+      } else {
+        console.error('Invalid response structure:', response)
+        console.error('ResponseData:', responseData)
+        toast.error('Invalid response from server')
+      }
+    } catch (error: any) {
+      console.error('Login error:', error)
+      console.error('Error response:', error.response)
+      const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.'
+      toast.error(errorMessage)
     }
   }
 

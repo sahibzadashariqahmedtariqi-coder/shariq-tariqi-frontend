@@ -4,6 +4,7 @@ import FeaturedCourses from '@/components/home/FeaturedCourses'
 import LatestVideos from '@/components/home/LatestVideos'
 import Testimonials from '@/components/home/Testimonials'
 import StatsSection from '@/components/home/StatsSection'
+import LatestUpdates from '@/components/home/LatestUpdates'
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
 
       <div className="space-y-16 pb-16">
         <HeroSection />
+        <LatestUpdates />
         <FeaturedCourses />
         <LatestVideos />
         <Testimonials />

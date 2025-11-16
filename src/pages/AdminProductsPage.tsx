@@ -1,51 +1,63 @@
 import { Helmet } from 'react-helmet-async'
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash2, Save, X } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, X, ShoppingCart, Leaf, Sparkles, BookOpen } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 
 interface Product {
   id: string
   name: string
   description: string
   price: number
-  category: string
+  category: 'herbal' | 'spiritual' | 'books'
   image: string
   stock: number
   featured: boolean
 }
 
 export default function AdminProductsPage() {
+  const { isAuthenticated, user } = useAuthStore()
+
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/login" replace />
+  }
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbal' | 'spiritual' | 'books'>('all')
   const [products, setProducts] = useState<Product[]>([
-    {
-      id: '1',
-      name: 'Islamic Prayer Beads (Tasbih)',
-      description: 'Handcrafted 99-bead tasbih made from premium wood',
-      price: 1500,
-      category: 'Religious Items',
-      image: '/images/tasbih.jpg',
-      stock: 50,
-      featured: true,
-    },
-    {
-      id: '2',
-      name: 'Spiritual Healing Book',
-      description: 'Comprehensive guide to spiritual healing practices',
-      price: 2500,
-      category: 'Books',
-      image: '/images/book.jpg',
-      stock: 30,
-      featured: true,
-    },
-    {
-      id: '3',
-      name: 'Blessed Taveez',
-      description: 'Handwritten taveez for protection and blessings',
-      price: 500,
-      category: 'Amulets',
-      image: '/images/taveez.jpg',
-      stock: 100,
-      featured: false,
-    },
+    // Herbal Medicines
+    { id: 'h1', name: 'Tariqi Jahangiri Hair Oil', description: 'Premium herbal hair oil for hair growth, strength and natural shine.', price: 3500, category: 'herbal', image: '/images/tariqi-jahangiri-hair-oil.jpg', stock: 40, featured: true },
+    { id: 'h2', name: 'Johar E Shifa Extract (Honey)', description: 'Pure honey-based herbal extract with healing properties for overall health.', price: 3500, category: 'herbal', image: '/images/johar-shifa-honey.jpg', stock: 35, featured: true },
+    { id: 'h3', name: 'Herbal Pain Relief Capsules', description: 'Natural herbal capsules for effective pain relief without side effects.', price: 2500, category: 'herbal', image: '/images/herbal-pain-relief-capsules.jpg', stock: 50, featured: false },
+    { id: 'h4', name: 'Neuro Brain Strengthening Course', description: 'Complete herbal treatment course for brain health and memory enhancement.', price: 7500, category: 'herbal', image: '/images/neuro-brain-course.jpg', stock: 25, featured: true },
+    { id: 'h5', name: 'Sugar Course', description: 'Natural herbal treatment course for diabetes management and blood sugar control.', price: 7500, category: 'herbal', image: '/images/sugar-course.jpg', stock: 30, featured: true },
+    { id: 'h6', name: 'Psoriasis Chambal Course', description: 'Specialized herbal treatment course for psoriasis and skin conditions.', price: 7500, category: 'herbal', image: '/images/psoriasis-chambal-course.jpg', stock: 20, featured: false },
+    { id: 'h7', name: 'Uterine Fibroid Treatment Course', description: 'Complete herbal treatment program for uterine fibroids without surgery.', price: 9000, category: 'herbal', image: '/images/uterine-fibroid-course.jpg', stock: 15, featured: true },
+    { id: 'h8', name: 'Weight Loss Course', description: 'Natural herbal weight loss program for healthy and sustainable results.', price: 7500, category: 'herbal', image: '/images/weight-loss-course.jpg', stock: 40, featured: true },
+    { id: 'h9', name: 'Female Infertility Treatment Course', description: 'Comprehensive herbal treatment for female fertility issues and conception.', price: 10000, category: 'herbal', image: '/images/female-infertility-course.jpg', stock: 20, featured: true },
+    { id: 'h10', name: "Women's Fertility & Miscarriage Care Course", description: 'Complete herbal care program for fertility enhancement and miscarriage prevention.', price: 10000, category: 'herbal', image: '/images/women-fertility-miscarriage-course.jpg', stock: 18, featured: true },
+    { id: 'h11', name: 'Stomach & Digestion Care Course', description: 'Herbal treatment course for digestive issues, acidity and stomach problems.', price: 7500, category: 'herbal', image: '/images/stomach-digestion-course.jpg', stock: 35, featured: false },
+    { id: 'h12', name: 'Male Infertility Treatment Course', description: 'Natural herbal treatment program for male fertility and reproductive health.', price: 10000, category: 'herbal', image: '/images/male-infertility-course.jpg', stock: 20, featured: true },
+    { id: 'h13', name: 'Hemorrhoids (Bleeding & Enlarged) Treatment Course', description: 'Effective herbal treatment for hemorrhoids, bleeding and anal fissures.', price: 7500, category: 'herbal', image: '/images/hemorrhoids-treatment-course.jpg', stock: 25, featured: false },
+    { id: 'h14', name: 'Kidney Health Course', description: 'Complete herbal program for kidney health, stones and urinary problems.', price: 7500, category: 'herbal', image: '/images/kidney-health-course.jpg', stock: 22, featured: false },
+    { id: 'h15', name: 'Allergic Rhinitis (Dust) Care Course', description: 'Natural herbal treatment for allergies, dust sensitivity and rhinitis.', price: 7500, category: 'herbal', image: '/images/allergic-rhinitis-course.jpg', stock: 28, featured: false },
+    { id: 'h16', name: 'Joint Pain Relief Course (One Month)', description: 'One month herbal treatment program for joint pain, arthritis and inflammation.', price: 7500, category: 'herbal', image: '/images/joint-pain-relief-course.jpg', stock: 30, featured: false },
+    { id: 'h17', name: 'Muhafiz E Hayat (Treatment of 300+ Diseases)', description: 'Universal herbal medicine for prevention and treatment of 300+ common diseases.', price: 2500, category: 'herbal', image: '/images/muhafiz-hayat.jpg', stock: 60, featured: true },
+    { id: 'h18', name: 'Rohani Shifa Powder (Herbal)', description: 'Powerful spiritual and herbal healing powder for various ailments.', price: 3500, category: 'herbal', image: '/images/rohani-shifa-powder-herbal.jpg', stock: 25, featured: false },
+    { id: 'h19', name: 'Marriage Preparation Course (For Males)', description: 'Complete herbal program for male vitality, strength and marriage preparation.', price: 12000, category: 'herbal', image: '/images/marriage-preparation-males-course.jpg', stock: 15, featured: true },
+    // Spiritual Healing Items
+    { id: 's1', name: 'Naag Phani Hisaar Keel', description: 'Powerful spiritual protection item for removing negative energies and black magic.', price: 4000, category: 'spiritual', image: '/images/naag-phani-keel.jpg', stock: 20, featured: true },
+    { id: 's2', name: 'Bakhoor e Jinaat', description: 'Special incense for spiritual cleansing and protection against jinn.', price: 2000, category: 'spiritual', image: '/images/bakhoor-jinaat.jpg', stock: 50, featured: true },
+    { id: 's3', name: 'Silver Loh e Mushtari', description: 'Premium silver Sharf e Mustari Looh for maximum spiritual benefits and protection.', price: 6500, category: 'spiritual', image: '/images/silver-loh-mushtari.jpg', stock: 10, featured: true },
+    { id: 's4', name: 'Metal Loh e Mushtari', description: 'High-quality metal Sharf e Mustari Looh for spiritual strength and blessings.', price: 3500, category: 'spiritual', image: '/images/metal-loh-mushtari.jpg', stock: 25, featured: false },
+    { id: 's5', name: 'Paper Loh e Mushtari', description: 'Affordable paper version of Sharf e Mustari Looh with authentic spiritual power.', price: 2500, category: 'spiritual', image: '/images/paper-loh-mushtari.jpg', stock: 40, featured: false },
+    { id: 's6', name: 'Bakhoor e Tariqi', description: 'Special Tariqi blend incense for spiritual healing and positive energy.', price: 1500, category: 'spiritual', image: '/images/bakhoor-tariqi.jpg', stock: 60, featured: true },
+    { id: 's7', name: 'Atar e Tariqi', description: 'Blessed spiritual fragrance oil for protection and spiritual enhancement.', price: 3500, category: 'spiritual', image: '/images/atar-tariqi.jpg', stock: 30, featured: true },
+    { id: 's8', name: 'Taweez E Khaas (Asma e Ashab e Badar)', description: 'Special handwritten taveez with blessed names of Companions of Badr for protection.', price: 2000, category: 'spiritual', image: '/images/taweez-khaas-badar.jpg', stock: 35, featured: true },
+    { id: 's9', name: 'Rohani Shifa Powder', description: 'Powerful spiritual healing powder for various ailments and spiritual problems.', price: 3500, category: 'spiritual', image: '/images/rohani-shifa-powder.jpg', stock: 25, featured: true },
+    { id: 's10', name: 'Original Black Aqiq Tasbeeh (100 Beads)', description: 'Authentic black Aqeeq stone prayer beads with 100 beads for spiritual practices and blessings.', price: 2500, category: 'spiritual', image: '/images/black-aqiq-tasbeeh.jpg', stock: 40, featured: true },
+    { id: 's11', name: 'Original Red Aqiq Tasbeeh (100 Beads)', description: 'Authentic red Aqeeq stone prayer beads with 100 beads for spiritual practices and blessings.', price: 2500, category: 'spiritual', image: '/images/red-aqiq-tasbeeh.jpg', stock: 35, featured: true },
+    // Amliyat Books
+    { id: 'b1', name: 'Dua e Hizbul Bahar Juwahir E Amliyat', description: 'Comprehensive collection of 200 powerful spiritual practices and amaals including Dua e Hizbul Bahar.', price: 2000, category: 'books', image: '/images/juwahir-amliyat-hizbul-bahar.jpg', stock: 30, featured: true },
   ])
 
   const [isEditing, setIsEditing] = useState<string | null>(null)
@@ -55,7 +67,7 @@ export default function AdminProductsPage() {
     name: '',
     description: '',
     price: 0,
-    category: 'Religious Items',
+    category: 'herbal',
     image: '',
     stock: 0,
     featured: false,
@@ -90,7 +102,7 @@ export default function AdminProductsPage() {
       name: '',
       description: '',
       price: 0,
-      category: 'Religious Items',
+      category: 'herbal',
       image: '',
       stock: 0,
       featured: false,
@@ -105,7 +117,7 @@ export default function AdminProductsPage() {
       name: '',
       description: '',
       price: 0,
-      category: 'Religious Items',
+      category: 'herbal',
       image: '',
       stock: 0,
       featured: false,
@@ -120,7 +132,7 @@ export default function AdminProductsPage() {
       name: '',
       description: '',
       price: 0,
-      category: 'Religious Items',
+      category: 'herbal',
       image: '',
       stock: 0,
       featured: false,
@@ -132,7 +144,8 @@ export default function AdminProductsPage() {
       <Helmet>
         <title>Admin - Manage Products | Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
-      <div className="container mx-auto px-4 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900">
+        <div className="container mx-auto px-4 py-16">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-primary-800 dark:text-white">
             Manage Products
@@ -141,6 +154,62 @@ export default function AdminProductsPage() {
             <Plus className="h-5 w-5" />
             Add New Product
           </Button>
+        </div>
+
+        {/* Category Filter Buttons */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 transform ${
+              selectedCategory === 'all'
+                ? 'bg-gradient-to-br from-primary-700 to-primary-900 text-gold-400 shadow-2xl scale-105 ring-4 ring-primary-300 dark:ring-primary-600'
+                : 'bg-gradient-to-br from-yellow-100 via-amber-100 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-gray-800 dark:text-gray-200 shadow-lg hover:shadow-2xl hover:scale-105 hover:from-yellow-200 hover:to-amber-200 dark:hover:from-primary-800 dark:hover:to-primary-700 border-2 border-yellow-300 dark:border-gray-600 hover:border-amber-400 dark:hover:border-amber-500'
+            }`}
+          >
+            <div className={`transition-transform duration-300 ${selectedCategory === 'all' ? 'scale-110' : ''}`}>
+              <ShoppingCart className="h-8 w-8" />
+            </div>
+            <span className="text-sm font-semibold text-center">All Products</span>
+          </button>
+          <button
+            onClick={() => setSelectedCategory('herbal')}
+            className={`flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 transform ${
+              selectedCategory === 'herbal'
+                ? 'bg-gradient-to-br from-primary-700 to-primary-900 text-gold-400 shadow-2xl scale-105 ring-4 ring-primary-300 dark:ring-primary-600'
+                : 'bg-gradient-to-br from-yellow-100 via-amber-100 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-gray-800 dark:text-gray-200 shadow-lg hover:shadow-2xl hover:scale-105 hover:from-yellow-200 hover:to-amber-200 dark:hover:from-primary-800 dark:hover:to-primary-700 border-2 border-yellow-300 dark:border-gray-600 hover:border-amber-400 dark:hover:border-amber-500'
+            }`}
+          >
+            <div className={`transition-transform duration-300 ${selectedCategory === 'herbal' ? 'scale-110' : ''}`}>
+              <Leaf className="h-8 w-8" />
+            </div>
+            <span className="text-sm font-semibold text-center">Herbal Medicines</span>
+          </button>
+          <button
+            onClick={() => setSelectedCategory('spiritual')}
+            className={`flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 transform ${
+              selectedCategory === 'spiritual'
+                ? 'bg-gradient-to-br from-primary-700 to-primary-900 text-gold-400 shadow-2xl scale-105 ring-4 ring-primary-300 dark:ring-primary-600'
+                : 'bg-gradient-to-br from-yellow-100 via-amber-100 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-gray-800 dark:text-gray-200 shadow-lg hover:shadow-2xl hover:scale-105 hover:from-yellow-200 hover:to-amber-200 dark:hover:from-primary-800 dark:hover:to-primary-700 border-2 border-yellow-300 dark:border-gray-600 hover:border-amber-400 dark:hover:border-amber-500'
+            }`}
+          >
+            <div className={`transition-transform duration-300 ${selectedCategory === 'spiritual' ? 'scale-110' : ''}`}>
+              <Sparkles className="h-8 w-8" />
+            </div>
+            <span className="text-sm font-semibold text-center">Spiritual Healing Items</span>
+          </button>
+          <button
+            onClick={() => setSelectedCategory('books')}
+            className={`flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 transform ${
+              selectedCategory === 'books'
+                ? 'bg-gradient-to-br from-primary-700 to-primary-900 text-gold-400 shadow-2xl scale-105 ring-4 ring-primary-300 dark:ring-primary-600'
+                : 'bg-gradient-to-br from-yellow-100 via-amber-100 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-gray-800 dark:text-gray-200 shadow-lg hover:shadow-2xl hover:scale-105 hover:from-yellow-200 hover:to-amber-200 dark:hover:from-primary-800 dark:hover:to-primary-700 border-2 border-yellow-300 dark:border-gray-600 hover:border-amber-400 dark:hover:border-amber-500'
+            }`}
+          >
+            <div className={`transition-transform duration-300 ${selectedCategory === 'books' ? 'scale-110' : ''}`}>
+              <BookOpen className="h-8 w-8" />
+            </div>
+            <span className="text-sm font-semibold text-center">Amliyat Books</span>
+          </button>
         </div>
 
         {/* Add/Edit Form */}
@@ -164,14 +233,12 @@ export default function AdminProductsPage() {
                 <label className="block text-sm font-medium mb-2">Category</label>
                 <select
                   value={editForm.category}
-                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value as 'herbal' | 'spiritual' | 'books' })}
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
-                  <option value="Religious Items">Religious Items</option>
-                  <option value="Books">Books</option>
-                  <option value="Amulets">Amulets</option>
-                  <option value="Oils">Oils</option>
-                  <option value="Herbs">Herbs</option>
+                  <option value="herbal">Herbal Medicines</option>
+                  <option value="spiritual">Spiritual Healing Items</option>
+                  <option value="books">Amliyat Books</option>
                 </select>
               </div>
               <div>
@@ -213,8 +280,11 @@ export default function AdminProductsPage() {
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   placeholder="/images/product-image.jpg"
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  Upload image to public/images/ folder and enter path here
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  📏 Recommended: 400x300px (Landscape 4:3 ratio) | Max: 500KB | Format: JPG/PNG
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Upload image to /public/images/ folder and enter path here
                 </p>
               </div>
               <div className="md:col-span-2">
@@ -244,7 +314,9 @@ export default function AdminProductsPage() {
 
         {/* Products List */}
         <div className="grid grid-cols-1 gap-6">
-          {products.map((product) => (
+          {products
+            .filter((product) => selectedCategory === 'all' || product.category === selectedCategory)
+            .map((product) => (
             <div
               key={product.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex items-center gap-6"
@@ -312,6 +384,7 @@ export default function AdminProductsPage() {
             <li>For production: Connect to backend API for inventory management</li>
           </ul>
         </div>
+      </div>
       </div>
     </>
   )

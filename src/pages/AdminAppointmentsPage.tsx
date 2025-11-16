@@ -1,7 +1,9 @@
 import { Helmet } from 'react-helmet-async'
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Plus, Edit, Trash2, Save, X, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 
 interface Appointment {
   id: string
@@ -17,6 +19,11 @@ interface Appointment {
 }
 
 export default function AdminAppointmentsPage() {
+  const { isAuthenticated, user } = useAuthStore()
+
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/login" replace />
+  }
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: '1',

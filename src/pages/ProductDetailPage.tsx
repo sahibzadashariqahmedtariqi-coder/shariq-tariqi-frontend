@@ -1,0 +1,467 @@
+import { Helmet } from 'react-helmet-async'
+import { useParams, Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { ShoppingCart, ArrowLeft, Package, Star, Shield, Truck, CheckCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useState } from 'react'
+
+interface Product {
+  id: string
+  name: string
+  description: string
+  longDescription: string
+  price: number
+  category: 'herbal' | 'spiritual' | 'books'
+  categoryName: string
+  image: string
+  stock: number
+  featured: boolean
+  benefits: string[]
+  ingredients?: string[]
+  usage?: string
+  rating: number
+  reviews: number
+}
+
+const products: Product[] = [
+  {
+    id: 'h1',
+    name: 'Tariqi Jahangiri Hair Oil',
+    description: 'Premium herbal hair oil for hair growth, strength and natural shine.',
+    longDescription: 'Our premium Tariqi Jahangiri Hair Oil is a carefully crafted blend of natural herbs and oils, specifically designed to promote hair growth, strengthen hair roots, and restore natural shine. This traditional formula has been used for generations and is now available with enhanced herbal extracts for maximum effectiveness.',
+    price: 3500,
+    category: 'herbal',
+    categoryName: 'Herbal Medicine',
+    image: '/images/tariqi-jahangiri-hair-oil.jpg',
+    stock: 40,
+    featured: true,
+    rating: 4.8,
+    reviews: 156,
+    benefits: [
+      'Promotes natural hair growth',
+      'Strengthens hair roots and prevents hair fall',
+      'Restores natural shine and luster',
+      'Nourishes scalp and eliminates dandruff',
+      'Made with 100% natural ingredients',
+      'No harmful chemicals or side effects'
+    ],
+    ingredients: ['Coconut Oil', 'Olive Oil', 'Mustard Oil', 'Amla', 'Bhringraj', 'Methi', 'Kalonji'],
+    usage: 'Apply to scalp and hair roots, massage gently for 5-10 minutes. Leave for 1-2 hours or overnight. Wash with mild shampoo. Use 2-3 times per week for best results.'
+  },
+  {
+    id: 'h2',
+    name: 'Johar E Shifa Extract (Honey)',
+    description: 'Pure honey-based herbal extract with healing properties for overall health.',
+    longDescription: 'Johar E Shifa is a premium honey-based herbal extract that combines the natural healing properties of pure honey with powerful herbal ingredients. This unique formula supports overall health, boosts immunity, and promotes natural healing.',
+    price: 3500,
+    category: 'herbal',
+    categoryName: 'Herbal Medicine',
+    image: '/images/johar-shifa-honey.jpg',
+    stock: 35,
+    featured: true,
+    rating: 4.9,
+    reviews: 203,
+    benefits: [
+      'Boosts immune system naturally',
+      'Promotes overall health and wellness',
+      'Natural healing properties',
+      'Rich in antioxidants',
+      'Improves digestion',
+      'Pure and natural ingredients'
+    ],
+    ingredients: ['Pure Honey', 'Turmeric', 'Black Seed', 'Ginger', 'Cinnamon', 'Saffron'],
+    usage: 'Take 1-2 teaspoons daily on empty stomach with lukewarm water. Can also be mixed with milk or tea. Best taken in morning and evening.'
+  },
+  {
+    id: 'h3',
+    name: 'Herbal Pain Relief Capsules',
+    description: 'Natural herbal capsules for effective pain relief without side effects.',
+    longDescription: 'Our Herbal Pain Relief Capsules provide natural and effective relief from various types of pain including joint pain, muscle pain, and chronic pain conditions. Formulated with powerful herbal ingredients, these capsules work naturally with your body to reduce inflammation and provide lasting relief.',
+    price: 2500,
+    category: 'herbal',
+    categoryName: 'Herbal Medicine',
+    image: '/images/herbal-pain-relief-capsules.jpg',
+    stock: 50,
+    featured: false,
+    rating: 4.6,
+    reviews: 142,
+    benefits: [
+      'Natural pain relief without side effects',
+      'Reduces inflammation',
+      'Effective for joint and muscle pain',
+      'Improves mobility and flexibility',
+      '100% herbal formula',
+      'Safe for long-term use'
+    ],
+    ingredients: ['Turmeric', 'Ginger', 'Boswellia', 'Ashwagandha', 'Black Pepper'],
+    usage: 'Take 1-2 capsules twice daily after meals with water. For best results, continue for at least 2-3 months.'
+  },
+  {
+    id: 's1',
+    name: 'Naag Phani Hisaar Keel',
+    description: 'Powerful spiritual protection item for removing negative energies and black magic.',
+    longDescription: 'Naag Phani Hisaar Keel is a powerful spiritual protection item used in traditional Islamic spiritual practices. It is specially prepared with authentic spiritual procedures to provide protection against negative energies, evil eye, black magic, and harmful spiritual influences.',
+    price: 4000,
+    category: 'spiritual',
+    categoryName: 'Spiritual Healing Item',
+    image: '/images/naag-phani-keel.jpg',
+    stock: 20,
+    featured: true,
+    rating: 4.9,
+    reviews: 89,
+    benefits: [
+      'Protection against negative energies',
+      'Removes effects of black magic',
+      'Guards against evil eye',
+      'Spiritually prepared with authentic procedures',
+      'Based on Islamic spiritual traditions',
+      'Provides lasting spiritual protection'
+    ],
+    usage: 'Keep in home or workplace for spiritual protection. Follow the provided instructions for proper placement and activation. Consult with Sahibzada Shariq Ahmed Tariqi for personalized guidance.'
+  },
+  {
+    id: 's2',
+    name: 'Bakhoor e Jinaat',
+    description: 'Special incense for spiritual cleansing and protection against jinn.',
+    longDescription: 'Bakhoor e Jinaat is a specially prepared incense blend for spiritual cleansing and protection. Made with authentic ingredients and prepared with spiritual procedures, this bakhoor helps cleanse your environment from negative spiritual influences and provides protection.',
+    price: 2000,
+    category: 'spiritual',
+    categoryName: 'Spiritual Healing Item',
+    image: '/images/bakhoor-jinaat.jpg',
+    stock: 50,
+    featured: true,
+    rating: 4.7,
+    reviews: 167,
+    benefits: [
+      'Spiritual cleansing of environment',
+      'Protection against negative entities',
+      'Creates positive spiritual atmosphere',
+      'Prepared with authentic spiritual procedures',
+      'Pleasant and pure fragrance',
+      'Suitable for regular use'
+    ],
+    usage: 'Burn on charcoal in a safe incense burner. Use in all rooms of your home or workplace. Best used after sunset and during spiritual practices. Follow Islamic etiquettes while using.'
+  },
+  {
+    id: 'b1',
+    name: 'Dua e Hizbul Bahar Juwahir E Amliyat',
+    description: 'Comprehensive collection of 200 powerful spiritual practices and amaals including Dua e Hizbul Bahar.',
+    longDescription: 'This comprehensive book contains a collection of 200 powerful spiritual practices (amaals) from authentic Islamic sources. It includes the famous Dua e Hizbul Bahar along with detailed instructions for various spiritual practices for different purposes. Written in Urdu with clear explanations and proper procedures.',
+    price: 2000,
+    category: 'books',
+    categoryName: 'Amliyat Book',
+    image: '/images/juwahir-amliyat-hizbul-bahar.jpg',
+    stock: 30,
+    featured: true,
+    rating: 4.8,
+    reviews: 124,
+    benefits: [
+      '200+ authentic spiritual practices',
+      'Includes famous Dua e Hizbul Bahar',
+      'Detailed instructions and procedures',
+      'Based on authentic Islamic sources',
+      'Clear Urdu text with explanations',
+      'Suitable for beginners and advanced practitioners'
+    ],
+    usage: 'Read and follow the instructions carefully. Maintain purity and follow Islamic etiquettes while performing any spiritual practice. Consult with a knowledgeable scholar for guidance on advanced practices.'
+  }
+]
+
+export default function ProductDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const [quantity, setQuantity] = useState(1)
+  const [showFullImage, setShowFullImage] = useState(false)
+  
+  const product = products.find((p) => p.id === id)
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Product Not Found</h1>
+          <Link to="/products">
+            <Button>Back to Products</Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <Helmet>
+        <title>{product.name} | Sahibzada Shariq Ahmed Tariqi</title>
+        <meta name="description" content={product.description} />
+      </Helmet>
+
+      {/* Full Image Modal */}
+      {showFullImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4"
+          onClick={() => setShowFullImage(false)}
+        >
+          <button
+            onClick={() => setShowFullImage(false)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-[101]"
+          >
+            <X className="h-8 w-8" />
+          </button>
+          <img
+            src={product.image}
+            alt={product.name}
+            className="max-w-full max-h-[90vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900">
+        <div className="container mx-auto px-4 py-8">
+          {/* Back Button */}
+          <Link to="/products">
+            <Button variant="outline" className="mb-6 gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Products
+            </Button>
+          </Link>
+
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            {/* Product Image */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-4"
+            >
+              <div 
+                className="relative rounded-2xl overflow-hidden shadow-2xl bg-white dark:bg-gray-800 cursor-pointer group"
+                onClick={() => setShowFullImage(true)}
+              >
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                {product.featured && (
+                  <div className="absolute top-4 right-4">
+                    <span className="bg-gradient-to-r from-gold-400 to-gold-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                      Featured
+                    </span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+                  <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-lg font-semibold">
+                    Click to enlarge
+                  </span>
+                </div>
+              </div>
+
+              {/* Trust Badges */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-md">
+                  <Shield className="h-6 w-6 mx-auto mb-2 text-green-600" />
+                  <p className="text-xs font-semibold">100% Authentic</p>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-md">
+                  <CheckCircle className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                  <p className="text-xs font-semibold">Quality Assured</p>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-md">
+                  <Truck className="h-6 w-6 mx-auto mb-2 text-primary-600" />
+                  <p className="text-xs font-semibold">Fast Delivery</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Product Details */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              {/* Category Badge */}
+              <div className="flex items-center gap-2">
+                <span className="bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-3 py-1 rounded-full text-sm font-semibold">
+                  {product.categoryName}
+                </span>
+                {product.stock > 0 ? (
+                  <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                    <Package className="h-3 w-3" />
+                    In Stock ({product.stock})
+                  </span>
+                ) : (
+                  <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-3 py-1 rounded-full text-sm font-semibold">
+                    Out of Stock
+                  </span>
+                )}
+              </div>
+
+              {/* Product Name */}
+              <h1 className="text-3xl md:text-4xl font-bold text-primary-800 dark:text-white">
+                {product.name}
+              </h1>
+
+              {/* Rating */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-5 w-5 ${
+                        i < Math.floor(product.rating)
+                          ? 'fill-gold-500 text-gold-500'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {product.rating} ({product.reviews} reviews)
+                </span>
+              </div>
+
+              {/* Price */}
+              <div className="bg-gradient-to-r from-primary-50 to-gold-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 border-2 border-primary-200 dark:border-primary-700">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold text-primary-800 dark:text-white">
+                    PKR {product.price.toLocaleString()}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400">per unit</span>
+                </div>
+              </div>
+
+              {/* Short Description */}
+              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                {product.description}
+              </p>
+
+              {/* Quantity Selector & Add to Cart */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center border-2 border-gray-300 dark:border-gray-600 rounded-lg">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="px-6 py-2 font-semibold">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                    className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+                <Button
+                  className="flex-1 gap-2 py-6 text-lg"
+                  disabled={product.stock === 0}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  Add to Cart
+                </Button>
+              </div>
+
+              {/* Contact for Order */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-200 font-semibold mb-2">
+                  📞 Order via WhatsApp
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  Contact us directly to place your order and get personalized consultation.
+                </p>
+                <Link to="/contact">
+                  <Button variant="outline" className="mt-3 w-full">
+                    Contact Now
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Detailed Information Tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-12 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8"
+          >
+            <h2 className="text-2xl font-bold text-primary-800 dark:text-white mb-6">
+              Product Details
+            </h2>
+
+            {/* Long Description */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-primary-700 dark:text-primary-300 mb-3">
+                About This Product
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                {product.longDescription}
+              </p>
+            </div>
+
+            {/* Benefits */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-primary-700 dark:text-primary-300 mb-4">
+                Key Benefits
+              </h3>
+              <div className="grid md:grid-cols-2 gap-3">
+                {product.benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700 dark:text-gray-300">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Ingredients */}
+            {product.ingredients && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-primary-700 dark:text-primary-300 mb-3">
+                  Ingredients
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.ingredients.map((ingredient, index) => (
+                    <span
+                      key={index}
+                      className="bg-gold-100 dark:bg-gold-900/30 text-gold-800 dark:text-gold-200 px-4 py-2 rounded-full text-sm font-medium"
+                    >
+                      {ingredient}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Usage Instructions */}
+            {product.usage && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-primary-700 dark:text-primary-300 mb-3">
+                  How to Use
+                </h3>
+                <div className="bg-gradient-to-r from-primary-50 to-gold-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-6 border-l-4 border-primary-600">
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {product.usage}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Safety Notice */}
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 border border-yellow-200 dark:border-yellow-800">
+              <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                ⚠️ Important Notice
+              </h4>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                For best results and personalized guidance, please consult with Sahibzada Shariq Ahmed Tariqi. 
+                These products are based on traditional Islamic medicine and spiritual practices. 
+                Individual results may vary.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </>
+  )
+}

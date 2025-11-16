@@ -1,8 +1,15 @@
 import { Helmet } from 'react-helmet-async'
-import { Link } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings } from 'lucide-react'
+import { Link, Navigate } from 'react-router-dom'
+import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 
 export default function AdminDashboardPage() {
+  const { isAuthenticated, user } = useAuthStore()
+
+  // Redirect to login if not authenticated or not admin
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/login" replace />
+  }
   const adminSections = [
     {
       title: 'Manage Courses',
@@ -19,11 +26,25 @@ export default function AdminDashboardPage() {
       color: 'bg-green-500',
     },
     {
+      title: 'Appointment Settings',
+      description: 'Configure charges, timings & availability',
+      icon: Settings,
+      path: '/admin/appointment-settings',
+      color: 'bg-teal-500',
+    },
+    {
       title: 'Manage Products',
       description: 'Add, edit, or remove products',
       icon: ShoppingBag,
       path: '/admin/products',
       color: 'bg-purple-500',
+    },
+    {
+      title: 'Manage Updates',
+      description: 'Add, edit, or remove latest updates',
+      icon: Bell,
+      path: '/admin/updates',
+      color: 'bg-amber-500',
     },
     {
       title: 'Manage Videos',
@@ -40,11 +61,11 @@ export default function AdminDashboardPage() {
       color: 'bg-orange-500',
     },
     {
-      title: 'Appointment Settings',
-      description: 'Configure charges, timings & availability',
+      title: 'Account Settings',
+      description: 'Update profile and change password',
       icon: Settings,
       path: '/admin/settings',
-      color: 'bg-teal-500',
+      color: 'bg-gray-500',
     },
     {
       title: 'Manage Users',
@@ -75,15 +96,15 @@ export default function AdminDashboardPage() {
             <Link
               key={section.path}
               to={section.path}
-              className="group bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+              className="group bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:from-primary-100 hover:to-emerald-100 dark:hover:from-primary-800 dark:hover:to-primary-700 border-2 border-yellow-200 dark:border-gray-600 hover:border-primary-400 dark:hover:border-gold-500 active:bg-gradient-to-br active:from-primary-700 active:to-primary-900 active:scale-95"
             >
-              <div className={`${section.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <section.icon className="h-6 w-6 text-white" />
+              <div className={`${section.color} w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md group-active:scale-125`}>
+                <section.icon className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-white">
+              <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-white group-hover:text-primary-700 dark:group-hover:text-gold-400 transition-colors group-active:text-white">
                 {section.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <p className="text-gray-700 dark:text-gray-300 text-sm group-active:text-gray-200">
                 {section.description}
               </p>
             </Link>
@@ -92,21 +113,21 @@ export default function AdminDashboardPage() {
 
         {/* Quick Stats */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-lg p-6">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-300">25+</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">Total Courses</div>
+          <div className="bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-xl p-6 shadow-lg border-2 border-blue-300 dark:border-blue-700">
+            <div className="text-4xl font-bold text-blue-700 dark:text-blue-300">25+</div>
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Total Courses</div>
           </div>
-          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-lg p-6">
-            <div className="text-3xl font-bold text-green-600 dark:text-green-300">150+</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">Appointments</div>
+          <div className="bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 rounded-xl p-6 shadow-lg border-2 border-green-300 dark:border-green-700">
+            <div className="text-4xl font-bold text-green-700 dark:text-green-300">150+</div>
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Appointments</div>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-lg p-6">
-            <div className="text-3xl font-bold text-purple-600 dark:text-purple-300">45+</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">Products</div>
+          <div className="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-xl p-6 shadow-lg border-2 border-purple-300 dark:border-purple-700">
+            <div className="text-4xl font-bold text-purple-700 dark:text-purple-300">45+</div>
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Products</div>
           </div>
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 rounded-lg p-6">
-            <div className="text-3xl font-bold text-orange-600 dark:text-orange-300">4K+</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">Students</div>
+          <div className="bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-xl p-6 shadow-lg border-2 border-orange-300 dark:border-orange-700">
+            <div className="text-4xl font-bold text-orange-700 dark:text-orange-300">4K+</div>
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Students</div>
           </div>
         </div>
       </div>

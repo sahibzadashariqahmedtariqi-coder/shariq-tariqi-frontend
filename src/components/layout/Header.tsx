@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Menu, X, Moon, Sun, Heart } from 'lucide-react'
 import { useUIStore } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -8,6 +8,7 @@ export default function Header() {
   const { isMenuOpen, toggleMenu, closeMenu, theme, toggleTheme } = useUIStore()
   const { isAuthenticated, user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleLogout = () => {
     logout()
@@ -40,15 +41,20 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-3 lg:space-x-4 flex-shrink">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="text-xs lg:text-sm font-medium text-gray-200 transition-colors hover:text-gold-400 whitespace-nowrap"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`text-xs lg:text-sm font-medium transition-colors hover:text-gold-400 whitespace-nowrap ${
+                    isActive ? 'text-gold-400' : 'text-gray-200'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
           </nav>
 
           {/* Right Section */}
@@ -95,16 +101,21 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <nav className="md:hidden pb-4 space-y-2 bg-primary-900">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="block py-2 text-sm font-medium text-gray-200 hover:text-gold-400"
-                onClick={closeMenu}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`block py-2 text-sm font-medium transition-colors hover:text-gold-400 ${
+                    isActive ? 'text-gold-400' : 'text-gray-200'
+                  }`}
+                  onClick={closeMenu}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
             <div className="pt-4 border-t border-primary-700 space-y-2">
               {/* Mobile Donate Link */}
               <Link to="/donate" onClick={closeMenu}>

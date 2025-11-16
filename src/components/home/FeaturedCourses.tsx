@@ -2,34 +2,11 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useCoursesStore } from '@/stores/coursesStore'
 
 export default function FeaturedCourses() {
-  const courses = [
-    {
-      id: '1',
-      title: 'Tarbiyat ul Amileen',
-      description: 'Learn the fundamentals of Spiritual Courses and spiritual energy work',
-      price: 3000,
-      level: 'Beginner to Advanced',
-      image: '/images/tarbiyat-course.jpg',
-    },
-    {
-      id: '2',
-      title: 'Jabl E Amliyat Season 2 Surah e Muzzamil Special',
-      description: 'Deep dive into spiritual sciences and mystical practices',
-      price: 3000,
-      level: 'Advanced',
-      image: '/images/jabl-amliyat.jpg',
-    },
-    {
-      id: '3',
-      title: 'Traditional Hikmat & Healing',
-      description: 'Learn traditional Islamic medicine and natural healing methods',
-      price: 600,
-      level: 'Intermediate',
-      image: '/images/hikmat-tariqi.jpg',
-    },
-  ]
+  const { getFeaturedCourses } = useCoursesStore()
+  const courses = getFeaturedCourses()
 
   return (
     <section className="container mx-auto px-4">
@@ -48,49 +25,58 @@ export default function FeaturedCourses() {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-        {courses.map((course, index) => (
-          <motion.div
-            key={course.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-          >
-            <div className="relative h-48 overflow-hidden">
-              <img
-                src={course.image}
-                alt={course.title}
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute top-4 right-4 bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                {course.level}
-              </div>
-            </div>
-
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                {course.title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
-                {course.description}
-              </p>
-
-              <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold text-primary-600">
-                  PKR {course.price}
-                  <span className="text-sm font-bold text-gray-500 dark:text-gray-400"> / month</span>
+        {courses.length > 0 ? (
+          courses.slice(0, 3).map((course, index) => (
+            <motion.div
+              key={course.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+            >
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={course.image}
+                  alt={course.title}
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://placehold.co/800x450/1B4332/D4AF37?text=Course+Image'
+                  }}
+                />
+                <div className="absolute top-4 right-4 bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  {course.level}
                 </div>
-                <Link to={`/courses/${course.id}`}>
-                  <Button className="gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    View Course
-                  </Button>
-                </Link>
               </div>
-            </div>
-          </motion.div>
-        ))}
+
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                  {course.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                  {course.description}
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold text-primary-600">
+                    PKR {course.price}
+                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400"> / month</span>
+                  </div>
+                  <Link to={`/courses/${course.id}`}>
+                    <Button className="gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      View Course
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="col-span-3 text-center py-12">
+            <p className="text-gray-600 dark:text-gray-400">No featured courses available. Add courses from Admin Dashboard.</p>
+          </div>
+        )}
       </div>
 
       <div className="text-center">

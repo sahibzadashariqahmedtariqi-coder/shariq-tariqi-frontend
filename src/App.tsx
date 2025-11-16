@@ -8,6 +8,8 @@ const HomePage = lazy(() => import('./pages/HomePage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const CoursesPage = lazy(() => import('./pages/CoursesPage'))
 const CourseDetailPage = lazy(() => import('./pages/CourseDetailPage'))
+const ProductsPage = lazy(() => import('./pages/ProductsPage'))
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'))
 const ServicesPage = lazy(() => import('./pages/ServicesPage'))
 const MediaPage = lazy(() => import('./pages/MediaPage'))
 const PrayerTimesPage = lazy(() => import('./pages/PrayerTimesPage'))
@@ -22,7 +24,10 @@ const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'))
 const AdminCoursesPage = lazy(() => import('./pages/AdminCoursesPage'))
 const AdminAppointmentsPage = lazy(() => import('./pages/AdminAppointmentsPage'))
 const AdminProductsPage = lazy(() => import('./pages/AdminProductsPage'))
+const AdminUpdatesPage = lazy(() => import('./pages/AdminUpdatesPage'))
 const AdminSettingsPage = lazy(() => import('./pages/AdminSettingsPage'))
+const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
+const AdminAppointmentSettingsPage = lazy(() => import('./pages/AdminAppointmentSettingsPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function App() {
@@ -34,6 +39,8 @@ function App() {
           <Route path="about" element={<AboutPage />} />
           <Route path="courses" element={<CoursesPage />} />
           <Route path="courses/:id" element={<CourseDetailPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="products/:id" element={<ProductDetailPage />} />
           <Route path="services" element={<ServicesPage />} />
           <Route path="media" element={<MediaPage />} />
           <Route path="prayer-times" element={<PrayerTimesPage />} />
@@ -48,7 +55,10 @@ function App() {
           <Route path="admin/courses" element={<AdminCoursesPage />} />
           <Route path="admin/appointments" element={<AdminAppointmentsPage />} />
           <Route path="admin/products" element={<AdminProductsPage />} />
+          <Route path="admin/updates" element={<AdminUpdatesPage />} />
           <Route path="admin/settings" element={<AdminSettingsPage />} />
+          <Route path="admin/users" element={<AdminUsersPage />} />
+          <Route path="admin/appointment-settings" element={<AdminAppointmentSettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

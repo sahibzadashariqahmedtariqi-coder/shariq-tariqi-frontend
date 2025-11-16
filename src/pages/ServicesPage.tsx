@@ -6,13 +6,6 @@ import { Link } from 'react-router-dom'
 export default function ServicesPage() {
   const services = [
     {
-      icon: <Sparkles className="h-12 w-12" />,
-      title: 'TAQ Healing',
-      description: 'Advanced spiritual healing techniques based on divine energy channeling',
-      features: ['Energy balancing', 'Chakra alignment', 'Spiritual cleansing', 'Aura strengthening'],
-      price: 'From $50/session',
-    },
-    {
       icon: <Heart className="h-12 w-12" />,
       title: 'Istikhara Services',
       description: 'Seeking divine guidance for important life decisions',

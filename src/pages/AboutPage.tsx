@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { motion, useInView } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 // Animated Counter Component
 function AnimatedCounter({ target, duration = 2000 }: { target: number; duration?: number }) {
@@ -35,6 +36,18 @@ export default function AboutPage() {
       <Helmet>
         <title>About Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
+      
+      {/* Blinking Book Appointment Button - Top Right */}
+      <Link to="/appointments" className="fixed top-24 right-4 z-50 animate-pulse">
+        <button className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-6 rounded-full shadow-2xl hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-110 flex items-center gap-2 border-2 border-white">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+          </span>
+          <span className="text-sm md:text-base">Book Appointment</span>
+        </button>
+      </Link>
+
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900">
         <div className="container mx-auto px-4 py-16">
           <motion.h1 
