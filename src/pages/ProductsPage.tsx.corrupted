@@ -20,7 +20,7 @@ interface Product {
 }
 
 export default function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbs' | 'taweez' | 'other'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbs' | 'oils' | 'taweez' | 'other'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,9 +32,9 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const response = await apiClient.get('/products?limit=100')
-      // Backend returns { success, count, total, data }
-      setProducts(response.data.data || response.data || [])
+      const response = await apiClient.get('/products')
+      setProducts(response.data)
+      toast.success('Products loaded successfully')
     } catch (error: any) {
       console.error('Error fetching products:', error)
       toast.error(error.response?.data?.message || 'Failed to load products')
@@ -46,8 +46,9 @@ export default function ProductsPage() {
   const categories = [
     { id: 'all', name: 'All Products', icon: ShoppingCart },
     { id: 'herbs', name: 'Herbal Medicines', icon: Leaf },
-    { id: 'taweez', name: 'Spiritual Healing Items', icon: Sparkles },
-    { id: 'other', name: 'Books', icon: Book },
+    { id: 'oils', name: 'Oils', icon: Sparkles },
+    { id: 'taweez', name: 'Spiritual Items', icon: Sparkles },
+    { id: 'other', name: 'Other', icon: Book },
   ]
 
   const filteredProducts = products.filter((product) => {
@@ -118,7 +119,7 @@ export default function ProductsPage() {
             transition={{ delay: 0.2 }}
             className="mb-12"
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {categories.map((category) => {
                 const Icon = category.icon
                 const isActive = selectedCategory === category.id
