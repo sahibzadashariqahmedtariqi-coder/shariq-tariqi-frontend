@@ -1,8 +1,8 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Save, DollarSign, Clock, Calendar, Info } from 'lucide-react'
+import { Save, DollarSign, Clock, Calendar, Info, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/services/api'
 import toast from 'react-hot-toast'
@@ -112,6 +112,11 @@ export default function AdminAppointmentSettingsPage() {
         <title>Appointment Settings | Admin Dashboard</title>
       </Helmet>
       <div className="container mx-auto px-4 py-16">
+        <Link to="/admin" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6 font-semibold transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          Back to Admin Dashboard
+        </Link>
+        
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-primary-800 dark:text-white mb-2">

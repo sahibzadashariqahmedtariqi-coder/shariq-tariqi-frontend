@@ -1,12 +1,21 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState, useRef } from 'react'
 import { Users, Star, BookOpen, Award, Youtube } from 'lucide-react'
+import apiClient from '@/services/api'
 
 interface StatProps {
   end: number
   suffix?: string
   prefix?: string
   decimal?: boolean
+}
+
+interface StatsData {
+  studentsTrained: number
+  averageRating: number
+  coursesOffered: number
+  subscribers: number
+  yearsOfExperience: number
 }
 
 function AnimatedNumber({ end, suffix = '', prefix = '', decimal = false }: StatProps) {
@@ -67,18 +76,51 @@ function AnimatedNumber({ end, suffix = '', prefix = '', decimal = false }: Stat
 }
 
 export default function StatsSection() {
+  const [statsData, setStatsData] = useState<StatsData>({
+    studentsTrained: 4000,
+    averageRating: 4.9,
+    coursesOffered: 25,
+    subscribers: 27.4,
+    yearsOfExperience: 15,
+  })
+  const [loading, setLoading] = useState(true)
+
+  // Fetch stats from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await apiClient.get('/stats')
+        const data = response.data.data || response.data
+        setStatsData({
+          studentsTrained: data.studentsTrained,
+          averageRating: data.averageRating,
+          coursesOffered: data.coursesOffered,
+          subscribers: data.subscribers,
+          yearsOfExperience: data.yearsOfExperience,
+        })
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+        // Keep default values on error
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchStats()
+  }, [])
+
   const stats = [
     {
       icon: Users,
       label: 'Students Trained',
-      value: 4000,
+      value: statsData.studentsTrained,
       suffix: '+',
       prefix: '',
     },
     {
       icon: Star,
       label: 'Average Rating',
-      value: 4.9,
+      value: statsData.averageRating,
       suffix: '',
       prefix: '',
       decimal: true,
@@ -86,14 +128,14 @@ export default function StatsSection() {
     {
       icon: BookOpen,
       label: 'Courses Offered',
-      value: 25,
+      value: statsData.coursesOffered,
       suffix: '+',
       prefix: '',
     },
     {
       icon: Youtube,
       label: 'Subscribers',
-      value: 27.4,
+      value: statsData.subscribers,
       suffix: 'K+',
       prefix: '',
       decimal: true,
@@ -101,11 +143,21 @@ export default function StatsSection() {
     {
       icon: Award,
       label: 'Years of Experience',
-      value: 15,
+      value: statsData.yearsOfExperience,
       suffix: '+',
       prefix: '',
     },
   ]
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900">
+        <div className="container mx-auto px-4 text-center">
+          <div className="animate-pulse text-white">Loading stats...</div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16 bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900">

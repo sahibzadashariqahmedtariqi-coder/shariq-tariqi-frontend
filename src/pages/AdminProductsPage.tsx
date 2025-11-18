@@ -1,9 +1,12 @@
 import { Helmet } from 'react-helmet-async'
-import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash2, Save, X, ShoppingCart, Leaf, Sparkles, BookOpen } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, X, ShoppingCart, Leaf, Sparkles, BookOpen, Upload, Image as ImageIcon, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
+import toast from 'react-hot-toast'
+import apiClient from '@/services/api'
+import { uploadApi } from '@/services/apiService'
 
 interface Product {
   id: string
@@ -22,44 +25,11 @@ export default function AdminProductsPage() {
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/login" replace />
   }
+  
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbal' | 'spiritual' | 'books'>('all')
-  const [products, setProducts] = useState<Product[]>([
-    // Herbal Medicines
-    { id: 'h1', name: 'Tariqi Jahangiri Hair Oil', description: 'Premium herbal hair oil for hair growth, strength and natural shine.', price: 3500, category: 'herbal', image: '/images/tariqi-jahangiri-hair-oil.jpg', stock: 40, featured: true },
-    { id: 'h2', name: 'Johar E Shifa Extract (Honey)', description: 'Pure honey-based herbal extract with healing properties for overall health.', price: 3500, category: 'herbal', image: '/images/johar-shifa-honey.jpg', stock: 35, featured: true },
-    { id: 'h3', name: 'Herbal Pain Relief Capsules', description: 'Natural herbal capsules for effective pain relief without side effects.', price: 2500, category: 'herbal', image: '/images/herbal-pain-relief-capsules.jpg', stock: 50, featured: false },
-    { id: 'h4', name: 'Neuro Brain Strengthening Course', description: 'Complete herbal treatment course for brain health and memory enhancement.', price: 7500, category: 'herbal', image: '/images/neuro-brain-course.jpg', stock: 25, featured: true },
-    { id: 'h5', name: 'Sugar Course', description: 'Natural herbal treatment course for diabetes management and blood sugar control.', price: 7500, category: 'herbal', image: '/images/sugar-course.jpg', stock: 30, featured: true },
-    { id: 'h6', name: 'Psoriasis Chambal Course', description: 'Specialized herbal treatment course for psoriasis and skin conditions.', price: 7500, category: 'herbal', image: '/images/psoriasis-chambal-course.jpg', stock: 20, featured: false },
-    { id: 'h7', name: 'Uterine Fibroid Treatment Course', description: 'Complete herbal treatment program for uterine fibroids without surgery.', price: 9000, category: 'herbal', image: '/images/uterine-fibroid-course.jpg', stock: 15, featured: true },
-    { id: 'h8', name: 'Weight Loss Course', description: 'Natural herbal weight loss program for healthy and sustainable results.', price: 7500, category: 'herbal', image: '/images/weight-loss-course.jpg', stock: 40, featured: true },
-    { id: 'h9', name: 'Female Infertility Treatment Course', description: 'Comprehensive herbal treatment for female fertility issues and conception.', price: 10000, category: 'herbal', image: '/images/female-infertility-course.jpg', stock: 20, featured: true },
-    { id: 'h10', name: "Women's Fertility & Miscarriage Care Course", description: 'Complete herbal care program for fertility enhancement and miscarriage prevention.', price: 10000, category: 'herbal', image: '/images/women-fertility-miscarriage-course.jpg', stock: 18, featured: true },
-    { id: 'h11', name: 'Stomach & Digestion Care Course', description: 'Herbal treatment course for digestive issues, acidity and stomach problems.', price: 7500, category: 'herbal', image: '/images/stomach-digestion-course.jpg', stock: 35, featured: false },
-    { id: 'h12', name: 'Male Infertility Treatment Course', description: 'Natural herbal treatment program for male fertility and reproductive health.', price: 10000, category: 'herbal', image: '/images/male-infertility-course.jpg', stock: 20, featured: true },
-    { id: 'h13', name: 'Hemorrhoids (Bleeding & Enlarged) Treatment Course', description: 'Effective herbal treatment for hemorrhoids, bleeding and anal fissures.', price: 7500, category: 'herbal', image: '/images/hemorrhoids-treatment-course.jpg', stock: 25, featured: false },
-    { id: 'h14', name: 'Kidney Health Course', description: 'Complete herbal program for kidney health, stones and urinary problems.', price: 7500, category: 'herbal', image: '/images/kidney-health-course.jpg', stock: 22, featured: false },
-    { id: 'h15', name: 'Allergic Rhinitis (Dust) Care Course', description: 'Natural herbal treatment for allergies, dust sensitivity and rhinitis.', price: 7500, category: 'herbal', image: '/images/allergic-rhinitis-course.jpg', stock: 28, featured: false },
-    { id: 'h16', name: 'Joint Pain Relief Course (One Month)', description: 'One month herbal treatment program for joint pain, arthritis and inflammation.', price: 7500, category: 'herbal', image: '/images/joint-pain-relief-course.jpg', stock: 30, featured: false },
-    { id: 'h17', name: 'Muhafiz E Hayat (Treatment of 300+ Diseases)', description: 'Universal herbal medicine for prevention and treatment of 300+ common diseases.', price: 2500, category: 'herbal', image: '/images/muhafiz-hayat.jpg', stock: 60, featured: true },
-    { id: 'h18', name: 'Rohani Shifa Powder (Herbal)', description: 'Powerful spiritual and herbal healing powder for various ailments.', price: 3500, category: 'herbal', image: '/images/rohani-shifa-powder-herbal.jpg', stock: 25, featured: false },
-    { id: 'h19', name: 'Marriage Preparation Course (For Males)', description: 'Complete herbal program for male vitality, strength and marriage preparation.', price: 12000, category: 'herbal', image: '/images/marriage-preparation-males-course.jpg', stock: 15, featured: true },
-    // Spiritual Healing Items
-    { id: 's1', name: 'Naag Phani Hisaar Keel', description: 'Powerful spiritual protection item for removing negative energies and black magic.', price: 4000, category: 'spiritual', image: '/images/naag-phani-keel.jpg', stock: 20, featured: true },
-    { id: 's2', name: 'Bakhoor e Jinaat', description: 'Special incense for spiritual cleansing and protection against jinn.', price: 2000, category: 'spiritual', image: '/images/bakhoor-jinaat.jpg', stock: 50, featured: true },
-    { id: 's3', name: 'Silver Loh e Mushtari', description: 'Premium silver Sharf e Mustari Looh for maximum spiritual benefits and protection.', price: 6500, category: 'spiritual', image: '/images/silver-loh-mushtari.jpg', stock: 10, featured: true },
-    { id: 's4', name: 'Metal Loh e Mushtari', description: 'High-quality metal Sharf e Mustari Looh for spiritual strength and blessings.', price: 3500, category: 'spiritual', image: '/images/metal-loh-mushtari.jpg', stock: 25, featured: false },
-    { id: 's5', name: 'Paper Loh e Mushtari', description: 'Affordable paper version of Sharf e Mustari Looh with authentic spiritual power.', price: 2500, category: 'spiritual', image: '/images/paper-loh-mushtari.jpg', stock: 40, featured: false },
-    { id: 's6', name: 'Bakhoor e Tariqi', description: 'Special Tariqi blend incense for spiritual healing and positive energy.', price: 1500, category: 'spiritual', image: '/images/bakhoor-tariqi.jpg', stock: 60, featured: true },
-    { id: 's7', name: 'Atar e Tariqi', description: 'Blessed spiritual fragrance oil for protection and spiritual enhancement.', price: 3500, category: 'spiritual', image: '/images/atar-tariqi.jpg', stock: 30, featured: true },
-    { id: 's8', name: 'Taweez E Khaas (Asma e Ashab e Badar)', description: 'Special handwritten taveez with blessed names of Companions of Badr for protection.', price: 2000, category: 'spiritual', image: '/images/taweez-khaas-badar.jpg', stock: 35, featured: true },
-    { id: 's9', name: 'Rohani Shifa Powder', description: 'Powerful spiritual healing powder for various ailments and spiritual problems.', price: 3500, category: 'spiritual', image: '/images/rohani-shifa-powder.jpg', stock: 25, featured: true },
-    { id: 's10', name: 'Original Black Aqiq Tasbeeh (100 Beads)', description: 'Authentic black Aqeeq stone prayer beads with 100 beads for spiritual practices and blessings.', price: 2500, category: 'spiritual', image: '/images/black-aqiq-tasbeeh.jpg', stock: 40, featured: true },
-    { id: 's11', name: 'Original Red Aqiq Tasbeeh (100 Beads)', description: 'Authentic red Aqeeq stone prayer beads with 100 beads for spiritual practices and blessings.', price: 2500, category: 'spiritual', image: '/images/red-aqiq-tasbeeh.jpg', stock: 35, featured: true },
-    // Amliyat Books
-    { id: 'b1', name: 'Dua e Hizbul Bahar Juwahir E Amliyat', description: 'Comprehensive collection of 200 powerful spiritual practices and amaals including Dua e Hizbul Bahar.', price: 2000, category: 'books', image: '/images/juwahir-amliyat-hizbul-bahar.jpg', stock: 30, featured: true },
-  ])
-
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [editForm, setEditForm] = useState<Product>({
@@ -73,40 +43,82 @@ export default function AdminProductsPage() {
     featured: false,
   })
 
+  // Fetch products from API
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      const response = await apiClient.get('/products?limit=100')
+      setProducts(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching products:', error)
+      toast.error('Failed to load products')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploading(true)
+      toast.loading('Uploading image to Cloudinary...')
+      
+      const response = await uploadApi.uploadImage(file, 'products')
+      const imageUrl = response.data.data.url
+      
+      setEditForm({ ...editForm, image: imageUrl })
+      toast.dismiss()
+      toast.success('Image uploaded successfully!')
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.response?.data?.message || 'Failed to upload image')
+      console.error('Upload error:', error)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleEdit = (product: Product) => {
     setIsEditing(product.id)
     setEditForm(product)
     setIsAdding(false)
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this product?')) {
-      setProducts(products.filter((p) => p.id !== id))
+      try {
+        await apiClient.delete(`/products/${id}`)
+        toast.success('Product deleted successfully!')
+        fetchProducts()
+      } catch (error) {
+        toast.error('Failed to delete product')
+      }
     }
   }
 
-  const handleSave = () => {
-    if (isAdding) {
-      const newProduct = {
-        ...editForm,
-        id: Date.now().toString(),
-      }
-      setProducts([...products, newProduct])
-      setIsAdding(false)
-    } else {
-      setProducts(products.map((p) => (p.id === editForm.id ? editForm : p)))
-      setIsEditing(null)
+  const handleSave = async () => {
+    if (!editForm.name || !editForm.image) {
+      toast.error('Please fill in required fields!')
+      return
     }
-    setEditForm({
-      id: '',
-      name: '',
-      description: '',
-      price: 0,
-      category: 'herbal',
-      image: '',
-      stock: 0,
-      featured: false,
-    })
+
+    try {
+      if (isAdding) {
+        await apiClient.post('/products', editForm)
+        toast.success('Product added successfully!')
+      } else {
+        await apiClient.put(`/products/${editForm.id}`, editForm)
+        toast.success('Product updated successfully!')
+      }
+      
+      fetchProducts()
+      handleCancel()
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to save product')
+    }
   }
 
   const handleCancel = () => {
@@ -146,6 +158,11 @@ export default function AdminProductsPage() {
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900">
         <div className="container mx-auto px-4 py-16">
+        <Link to="/admin" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6 font-semibold transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          Back to Admin Dashboard
+        </Link>
+        
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-primary-800 dark:text-white">
             Manage Products
@@ -272,20 +289,75 @@ export default function AdminProductsPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">Image Path</label>
-                <input
-                  type="text"
-                  value={editForm.image}
-                  onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                  placeholder="/images/product-image.jpg"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  📏 Recommended: 400x300px (Landscape 4:3 ratio) | Max: 500KB | Format: JPG/PNG
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Upload image to /public/images/ folder and enter path here
-                </p>
+                <label className="block text-sm font-medium mb-2">Product Image *</label>
+                
+                {/* Image Size Instructions */}
+                <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <ImageIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm">
+                      <p className="font-semibold text-blue-800 dark:text-blue-300 mb-1">📐 Recommended Image Size:</p>
+                      <ul className="text-blue-700 dark:text-blue-400 space-y-1 text-xs">
+                        <li>• <strong>Dimensions:</strong> 400x300px (Landscape 4:3 ratio)</li>
+                        <li>• <strong>File Size:</strong> Max 5MB (smaller is better for fast loading)</li>
+                        <li>• <strong>Format:</strong> JPG, PNG, or WebP</li>
+                        <li>• <strong>Tip:</strong> Images will be automatically optimized and converted to WebP</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploading}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          await handleImageUpload(file)
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900 dark:file:text-primary-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                    {uploading && (
+                      <div className="flex items-center gap-2 text-sm text-primary-600">
+                        <Upload className="w-4 h-4 animate-bounce" />
+                        Uploading...
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">OR paste Cloudinary URL</span>
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={editForm.image}
+                    onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                    placeholder="https://res.cloudinary.com/..."
+                  />
+                </div>
+
+                {/* Image Preview */}
+                {editForm.image && (
+                  <div className="mt-3">
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Preview:</p>
+                    <img 
+                      src={editForm.image} 
+                      alt="Preview" 
+                      className="w-32 h-24 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600"
+                    />
+                  </div>
+                )}
               </div>
               <div className="md:col-span-2">
                 <label className="flex items-center gap-2">
@@ -312,11 +384,17 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        {/* Products List */}
-        <div className="grid grid-cols-1 gap-6">
-          {products
-            .filter((product) => selectedCategory === 'all' || product.category === selectedCategory)
-            .map((product) => (
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          </div>
+        ) : (
+          /* Products List */
+          <div className="grid grid-cols-1 gap-6">
+            {products
+              .filter((product) => selectedCategory === 'all' || product.category === selectedCategory)
+              .map((product) => (
             <div
               key={product.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex items-center gap-6"
@@ -370,18 +448,19 @@ export default function AdminProductsPage() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Instructions */}
         <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
           <h3 className="text-lg font-bold mb-2">Instructions:</h3>
           <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
-            <li>Upload product images to <code>public/images/</code> folder first</li>
-            <li>Use descriptive image names like: product-name.jpg</li>
-            <li>Recommended image size: 500x500 pixels (1:1 ratio)</li>
-            <li>Mark important products as "Featured" to highlight them</li>
-            <li>Keep track of stock quantities</li>
-            <li>For production: Connect to backend API for inventory management</li>
+            <li>Click "Choose file" to upload product images directly to Cloudinary</li>
+            <li>Images will be automatically optimized and converted to WebP format</li>
+            <li>Recommended image size: 400x300px (4:3 landscape ratio)</li>
+            <li>Mark important products as "Featured" to highlight them on homepage</li>
+            <li>All products are automatically saved to MongoDB database</li>
+            <li>Changes reflect immediately on the products page</li>
           </ul>
         </div>
       </div>

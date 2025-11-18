@@ -3,10 +3,16 @@ import { Link } from 'react-router-dom'
 import { BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCoursesStore } from '@/stores/coursesStore'
+import { useEffect } from 'react'
 
 export default function FeaturedCourses() {
-  const { getFeaturedCourses } = useCoursesStore()
+  const { getFeaturedCourses, fetchCourses, loading } = useCoursesStore()
   const courses = getFeaturedCourses()
+
+  // Fetch courses from API on mount
+  useEffect(() => {
+    fetchCourses()
+  }, [fetchCourses])
 
   return (
     <section className="container mx-auto px-4">
@@ -25,7 +31,11 @@ export default function FeaturedCourses() {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-        {courses.length > 0 ? (
+        {loading ? (
+          <div className="col-span-3 text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          </div>
+        ) : courses.length > 0 ? (
           courses.slice(0, 3).map((course, index) => (
             <motion.div
               key={course.id}
@@ -44,7 +54,7 @@ export default function FeaturedCourses() {
                     e.currentTarget.src = 'https://placehold.co/800x450/1B4332/D4AF37?text=Course+Image'
                   }}
                 />
-                <div className="absolute top-4 right-4 bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                <div className="absolute top-4 right-4 bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-semibold capitalize">
                   {course.level}
                 </div>
               </div>
@@ -59,8 +69,8 @@ export default function FeaturedCourses() {
 
                 <div className="flex items-center justify-between">
                   <div className="text-2xl font-bold text-primary-600">
-                    PKR {course.price}
-                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400"> / month</span>
+                    {course.price === 0 ? 'FREE' : `PKR ${course.price}`}
+                    {course.price > 0 && <span className="text-sm font-bold text-gray-500 dark:text-gray-400"> / month</span>}
                   </div>
                   <Link to={`/courses/${course.id}`}>
                     <Button className="gap-2">

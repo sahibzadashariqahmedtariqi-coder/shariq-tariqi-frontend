@@ -1,12 +1,14 @@
 import { Helmet } from 'react-helmet-async'
-import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash2, Save, X, Star, RefreshCw } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, X, Star, RefreshCw, Upload, ArrowLeft } from 'lucide-react'
 import { useCoursesStore, type Course } from '@/stores/coursesStore'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import ImageDebugPanel from '@/components/admin/ImageDebugPanel'
+import { uploadApi, coursesApi } from '@/services/apiService'
+import apiClient from '@/services/api'
 
 export default function AdminCoursesPage() {
   const { isAuthenticated, user } = useAuthStore()
@@ -14,11 +16,17 @@ export default function AdminCoursesPage() {
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/login" replace />
   }
-  const { courses, addCourse, updateCourse, deleteCourse } = useCoursesStore()
+  const { courses, addCourse, updateCourse, deleteCourse, fetchCourses } = useCoursesStore()
+
+  // Fetch courses from API on mount
+  useEffect(() => {
+    fetchCourses()
+  }, [fetchCourses])
 
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [showDebug, setShowDebug] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [editForm, setEditForm] = useState<Partial<Course>>({
     title: '',
     description: '',
@@ -31,20 +39,66 @@ export default function AdminCoursesPage() {
     featured: false,
   })
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploading(true)
+      toast.loading('Uploading image to Cloudinary...')
+      
+      const response = await uploadApi.uploadImage(file, 'courses')
+      const imageUrl = response.data.data.url
+      
+      setEditForm({ ...editForm, image: imageUrl })
+      toast.dismiss()
+      toast.success('Image uploaded successfully!')
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.response?.data?.message || 'Failed to upload image')
+      console.error('Upload error:', error)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleEdit = (course: Course) => {
     setIsEditing(course.id)
     setEditForm(course)
     setIsAdding(false)
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this course?')) {
-      deleteCourse(id)
-      toast.success('Course deleted successfully!')
+      try {
+        await deleteCourse(id)
+        toast.success('Course deleted successfully!')
+      } catch (error) {
+        toast.error('Failed to delete course')
+      }
     }
   }
 
-  const handleSave = () => {
+  const handleToggleFeatured = async (course: Course) => {
+    try {
+      const newFeaturedStatus = !course.featured
+      
+      // Update featured status in API and refresh
+      const courseId = course._id || course.id
+      await updateCourse(courseId, { 
+        featured: newFeaturedStatus,
+        isFeatured: newFeaturedStatus 
+      })
+      
+      if (newFeaturedStatus) {
+        toast.success(`⭐ "${course.title}" marked as Featured!`)
+      } else {
+        toast.success(`"${course.title}" removed from Featured`)
+      }
+    } catch (error: any) {
+      console.error('Error toggling featured status:', error)
+      toast.error('Failed to update featured status. Please try again.')
+    }
+  }
+
+  const handleSave = async () => {
     if (!editForm.title || !editForm.description || !editForm.image) {
       toast.error('Please fill in all required fields!')
       return
@@ -132,6 +186,11 @@ export default function AdminCoursesPage() {
         <title>Admin - Manage Courses | Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
       <div className="container mx-auto px-4 py-16">
+        <Link to="/admin" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6 font-semibold transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          Back to Admin Dashboard
+        </Link>
+        
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-primary-800 dark:text-white">
             Manage Courses
@@ -245,15 +304,50 @@ export default function AdminCoursesPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">Image Path *</label>
-                <input
-                  type="text"
-                  value={editForm.image || ''}
-                  onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                  placeholder="/images/course-image.jpg"
-                  required
-                />
+                <label className="block text-sm font-medium mb-2">Course Image *</label>
+                
+                {/* File Upload Button */}
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploading}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          await handleImageUpload(file)
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900 dark:file:text-primary-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                    {uploading && (
+                      <div className="flex items-center gap-2 text-sm text-primary-600">
+                        <Upload className="w-4 h-4 animate-bounce" />
+                        Uploading...
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* OR Text Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">OR enter Cloudinary URL manually</span>
+                    </div>
+                  </div>
+                  
+                  {/* Manual Path Input */}
+                  <input
+                    type="text"
+                    value={editForm.image || ''}
+                    onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                    placeholder="https://res.cloudinary.com/du7qzhimu/image/upload/..."
+                  />
+                </div>
                 
                 {/* Image Preview */}
                 {editForm.image && (
@@ -355,7 +449,10 @@ export default function AdminCoursesPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="text-xl font-bold">{course.title}</h3>
                   {course.featured && (
-                    <Star className="h-5 w-5 text-gold-500 fill-gold-500" />
+                    <span className="bg-gold-100 dark:bg-gold-900 text-gold-700 dark:text-gold-300 px-2 py-1 rounded text-xs font-semibold flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-current" />
+                      Featured
+                    </span>
                   )}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{course.description}</p>
@@ -382,12 +479,26 @@ export default function AdminCoursesPage() {
                   <span className="text-sm font-bold text-gray-500"> / month</span>
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={() => handleToggleFeatured(course)}
+                  variant="outline"
+                  size="icon"
+                  className={`gap-2 transition-all ${
+                    course.featured 
+                      ? 'bg-gold-100 dark:bg-gold-900 text-gold-600 dark:text-gold-400 border-gold-400 hover:bg-gold-200 dark:hover:bg-gold-800' 
+                      : 'hover:bg-gold-50 dark:hover:bg-gold-900/20'
+                  }`}
+                  title={course.featured ? 'Remove from Featured' : 'Mark as Featured'}
+                >
+                  <Star className={`h-5 w-5 ${course.featured ? 'fill-current' : ''}`} />
+                </Button>
                 <Button
                   onClick={() => handleEdit(course)}
                   variant="outline"
                   size="icon"
                   className="gap-2"
+                  title="Edit Course"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -395,7 +506,8 @@ export default function AdminCoursesPage() {
                   onClick={() => handleDelete(course.id)}
                   variant="outline"
                   size="icon"
-                  className="gap-2 text-red-600 hover:text-red-700"
+                  className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  title="Delete Course"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -409,12 +521,13 @@ export default function AdminCoursesPage() {
           <h3 className="text-lg font-bold mb-3 text-primary-800 dark:text-white">✅ Integration Active - Instructions:</h3>
           <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li><strong>✨ Real-time Integration:</strong> All changes are automatically synced to Courses Page and Homepage</li>
+            <li><strong>⭐ Featured Star:</strong> Click the star icon to toggle Featured status - Featured courses show on Homepage</li>
             <li><strong>📸 Images:</strong> Upload to <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">public/images/</code> folder first</li>
             <li><strong>🔤 Filename:</strong> Use exact lowercase filename (e.g., <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">/images/jabl-amliyat.jpg</code>)</li>
-            <li><strong>🎯 Featured:</strong> Check "Featured" to show course on homepage (max 3 recommended)</li>
+            <li><strong>🎯 Homepage:</strong> Only Featured courses (⭐) appear in "Featured Courses" section (max 3 recommended)</li>
             <li><strong>💾 Persistence:</strong> Data saved in browser localStorage (persists on refresh)</li>
             <li><strong>🔄 Reset:</strong> Use "Reset Storage" button to clear localStorage and reload defaults</li>
-            <li><strong>⭐ Image Size:</strong> Recommended 800x450px (16:9 ratio) for best display</li>
+            <li><strong>📐 Image Size:</strong> Recommended 800x450px (16:9 ratio) for best display</li>
           </ul>
         </div>
       </div>

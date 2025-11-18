@@ -1,8 +1,10 @@
 import { Helmet } from 'react-helmet-async'
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
-import { Plus, Edit2, Trash2, Calendar, Megaphone, Bell } from 'lucide-react'
+import { Navigate, Link } from 'react-router-dom'
+import { Plus, Edit2, Trash2, Calendar, Megaphone, Bell, Upload, Image as ImageIcon, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
+import toast from 'react-hot-toast'
+import { uploadApi } from '@/services/apiService'
 
 interface Update {
   id: number
@@ -36,6 +38,8 @@ export default function AdminUpdatesPage() {
 
   const [isEditing, setIsEditing] = useState(false)
   const [currentUpdate, setCurrentUpdate] = useState<Update | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingPromo, setUploadingPromo] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -58,6 +62,35 @@ export default function AdminUpdatesPage() {
       promoImage: update.promoImage || ''
     })
     setIsEditing(true)
+  }
+
+  const handleImageUpload = async (file: File, type: 'image' | 'promoImage') => {
+    try {
+      if (type === 'image') {
+        setUploadingImage(true)
+      } else {
+        setUploadingPromo(true)
+      }
+      
+      toast.loading('Uploading image to Cloudinary...')
+      
+      const response = await uploadApi.uploadImage(file, 'updates')
+      const imageUrl = response.data.data.url
+      
+      setFormData({ ...formData, [type]: imageUrl })
+      toast.dismiss()
+      toast.success('Image uploaded successfully!')
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.response?.data?.message || 'Failed to upload image')
+      console.error('Upload error:', error)
+    } finally {
+      if (type === 'image') {
+        setUploadingImage(false)
+      } else {
+        setUploadingPromo(false)
+      }
+    }
   }
 
   const handleDelete = (id: number) => {
@@ -111,6 +144,11 @@ export default function AdminUpdatesPage() {
       </Helmet>
 
       <div className="container mx-auto px-4 py-16">
+        <Link to="/admin" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6 font-semibold transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          Back to Admin Dashboard
+        </Link>
+        
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-primary-800 dark:text-white mb-2">
             Manage Updates
@@ -203,38 +241,145 @@ export default function AdminUpdatesPage() {
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Image Name (Optional)
               </label>
-              <input
-                type="text"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                placeholder="update-1.jpg"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                📏 Recommended: 200x200px (Square) | Max: 500KB | Format: JPG/PNG
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Save image in /public/images/ folder
-              </p>
+              
+              {/* Image Size Instructions */}
+              <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <ImageIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-semibold text-blue-800 dark:text-blue-300 mb-1">📐 Icon Image:</p>
+                    <ul className="text-blue-700 dark:text-blue-400 space-y-1 text-xs">
+                      <li>• <strong>Dimensions:</strong> 200x200px (Square)</li>
+                      <li>• <strong>Format:</strong> JPG, PNG, or WebP</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingImage}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        await handleImageUpload(file, 'image')
+                      }
+                    }}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900 dark:file:text-primary-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  {uploadingImage && (
+                    <div className="flex items-center gap-2 text-sm text-primary-600">
+                      <Upload className="w-4 h-4 animate-bounce" />
+                      Uploading...
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">OR paste URL</span>
+                  </div>
+                </div>
+
+                <input
+                  type="text"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  placeholder="https://res.cloudinary.com/..."
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              {/* Image Preview */}
+              {formData.image && (
+                <div className="mt-3">
+                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Preview:</p>
+                  <img 
+                    src={formData.image} 
+                    alt="Icon Preview" 
+                    className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Promotional Image (Optional)
               </label>
-              <input
-                type="text"
-                value={formData.promoImage}
-                onChange={(e) => setFormData({ ...formData, promoImage: e.target.value })}
-                placeholder="ruhani-promo.jpg"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                📏 Recommended: 400x600px (Portrait 2:3 ratio) | Max: 500KB | Format: JPG/PNG
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Blinking promotional image shown on right side. Save in /public/images/
-              </p>
+              
+              {/* Promo Image Size Instructions */}
+              <div className="mb-3 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <ImageIcon className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-semibold text-purple-800 dark:text-purple-300 mb-1">📐 Promotional Banner:</p>
+                    <ul className="text-purple-700 dark:text-purple-400 space-y-1 text-xs">
+                      <li>• <strong>Dimensions:</strong> 400x600px (Portrait 2:3 ratio)</li>
+                      <li>• <strong>Format:</strong> JPG, PNG, or WebP</li>
+                      <li>• <strong>Note:</strong> Shown as blinking banner on right side</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingPromo}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        await handleImageUpload(file, 'promoImage')
+                      }
+                    }}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900 dark:file:text-purple-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  {uploadingPromo && (
+                    <div className="flex items-center gap-2 text-sm text-purple-600">
+                      <Upload className="w-4 h-4 animate-bounce" />
+                      Uploading...
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">OR paste URL</span>
+                  </div>
+                </div>
+
+                <input
+                  type="text"
+                  value={formData.promoImage}
+                  onChange={(e) => setFormData({ ...formData, promoImage: e.target.value })}
+                  placeholder="https://res.cloudinary.com/..."
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              {/* Promo Image Preview */}
+              {formData.promoImage && (
+                <div className="mt-3">
+                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Preview:</p>
+                  <img 
+                    src={formData.promoImage} 
+                    alt="Promo Preview" 
+                    className="w-32 h-48 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4">

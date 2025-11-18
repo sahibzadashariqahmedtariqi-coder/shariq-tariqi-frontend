@@ -73,9 +73,6 @@ export default function Header() {
             {/* Auth Buttons */}
             {isAuthenticated ? (
               <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
-                <Link to="/dashboard">
-                  <Button variant="ghost" className="text-gray-200 hover:text-gold-400 hover:bg-primary-800 text-xs lg:text-sm">{user?.name}</Button>
-                </Link>
                 <Button variant="outline" onClick={handleLogout} className="border-gold-400 text-gold-400 hover:bg-gold-400 hover:text-primary-900 text-xs lg:text-sm">
                   Logout
                 </Button>

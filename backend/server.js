@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/database.js';
+import cloudinary from './config/cloudinary.js';
 import errorHandler from './middleware/errorHandler.js';
 
 // Import Routes
@@ -15,6 +16,9 @@ import serviceRoutes from './routes/serviceRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import newsletterRoutes from './routes/newsletterRoutes.js';
 import updateRoutes from './routes/updateRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
+import heroSlideRoutes from './routes/heroSlideRoutes.js';
+import statsRoutes from './routes/statsRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -63,6 +67,9 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/updates', updateRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/hero-slides', heroSlideRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Error Handler Middleware (must be last)
 app.use(errorHandler);

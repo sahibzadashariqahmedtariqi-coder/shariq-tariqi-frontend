@@ -7,6 +7,9 @@ export const coursesApi = {
     apiClient.get<Course[]>('/courses', { params }),
   getById: (id: string) => apiClient.get<Course>(`/courses/${id}`),
   enroll: (courseId: string) => apiClient.post(`/courses/${courseId}/enroll`),
+  update: (id: string, data: Partial<Course>) => apiClient.put(`/courses/${id}`, data),
+  create: (data: Omit<Course, 'id' | '_id'>) => apiClient.post('/courses', data),
+  delete: (id: string) => apiClient.delete(`/courses/${id}`),
 };
 
 // Videos
@@ -83,4 +86,19 @@ export const newsletterApi = {
 export const contactApi = {
   sendMessage: (data: { name: string; email: string; message: string; phone?: string }) =>
     apiClient.post('/contact', data),
+};
+
+// Upload (Admin only)
+export const uploadApi = {
+  uploadImage: (file: File, folder?: string) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return apiClient.post(`/upload/image?folder=${folder || 'general'}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  deleteImage: (publicId: string) =>
+    apiClient.delete('/upload/image', { data: { publicId } }),
 };

@@ -1,8 +1,8 @@
 import { Helmet } from 'react-helmet-async'
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash2, Save, X, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, X, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 interface Appointment {
@@ -104,6 +104,11 @@ export default function AdminAppointmentsPage() {
         <title>Admin - Manage Appointments | Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
       <div className="container mx-auto px-4 py-16">
+        <Link to="/admin" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6 font-semibold transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          Back to Admin Dashboard
+        </Link>
+        
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-primary-800 dark:text-white mb-4">
             Manage Appointments

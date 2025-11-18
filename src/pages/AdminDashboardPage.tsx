@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, Navigate } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell } from 'lucide-react'
+import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 export default function AdminDashboardPage() {
@@ -11,6 +11,20 @@ export default function AdminDashboardPage() {
     return <Navigate to="/login" replace />
   }
   const adminSections = [
+    {
+      title: 'Hero Slides',
+      description: 'Manage home page carousel images',
+      icon: Image,
+      path: '/admin/hero-slides',
+      color: 'bg-pink-500',
+    },
+    {
+      title: 'About Page',
+      description: 'Manage profile image and content',
+      icon: Info,
+      path: '/admin/about',
+      color: 'bg-cyan-500',
+    },
     {
       title: 'Manage Courses',
       description: 'Add, edit, or remove courses',
@@ -47,6 +61,13 @@ export default function AdminDashboardPage() {
       color: 'bg-amber-500',
     },
     {
+      title: 'Website Statistics',
+      description: 'Update homepage achievement stats',
+      icon: TrendingUp,
+      path: '/admin/stats',
+      color: 'bg-indigo-500',
+    },
+    {
       title: 'Manage Videos',
       description: 'Add or remove YouTube videos',
       icon: Video,
@@ -81,7 +102,8 @@ export default function AdminDashboardPage() {
       <Helmet>
         <title>Admin Dashboard | Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
-      <div className="container mx-auto px-4 py-16">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900">
+        <div className="container mx-auto px-4 py-16">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-primary-800 dark:text-white mb-2">
             Admin Dashboard
@@ -129,6 +151,7 @@ export default function AdminDashboardPage() {
             <div className="text-4xl font-bold text-orange-700 dark:text-orange-300">4K+</div>
             <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Students</div>
           </div>
+        </div>
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Save, User, Lock, Mail, Phone } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
@@ -92,6 +93,11 @@ export default function AdminSettingsPage() {
         <title>Account Settings | Admin Dashboard</title>
       </Helmet>
       <div className="container mx-auto px-4 py-16">
+        <Link to="/admin" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6 font-semibold transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          Back to Admin Dashboard
+        </Link>
+        
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-primary-800 dark:text-white mb-2">
             Account Settings

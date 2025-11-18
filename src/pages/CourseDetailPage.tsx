@@ -1,15 +1,29 @@
 import { Helmet } from 'react-helmet-async'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useCoursesStore } from '@/stores/coursesStore'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, BookOpen, Users, Clock, Star } from 'lucide-react'
+import { useEffect } from 'react'
+import { useCoursesStore } from '@/stores/coursesStore'
 
 export default function CourseDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getCourseById } = useCoursesStore()
+  const { getCourseById, fetchCourses, loading } = useCoursesStore()
+
+  // Fetch courses from API to ensure latest data
+  useEffect(() => {
+    fetchCourses()
+  }, [])
   
   const course = getCourseById(id || '')
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
 
   if (!course) {
     return (
@@ -63,13 +77,13 @@ export default function CourseDetailPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                   <div className="absolute bottom-6 left-6 right-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      <span className="bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-semibold capitalize">
                         {course.level}
                       </span>
-                      <span className="bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      <span className="bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-semibold capitalize">
                         {course.category}
                       </span>
-                      {course.featured && (
+                      {(course.featured || course.isFeatured) && (
                         <span className="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
                           <Star className="h-3 w-3" /> Featured
                         </span>
@@ -91,12 +105,14 @@ export default function CourseDetailPage() {
                         </div>
                       </div>
                     )}
-                    {course.students !== undefined && (
+                    {(course.enrolledStudents !== undefined || course.students !== undefined) && (
                       <div className="flex items-center gap-2">
                         <Users className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                         <div>
                           <p className="text-sm text-gray-500 dark:text-gray-400">Students</p>
-                          <p className="font-semibold text-gray-800 dark:text-white">{course.students} enrolled</p>
+                          <p className="font-semibold text-gray-800 dark:text-white">
+                            {course.enrolledStudents || course.students || 0} enrolled
+                          </p>
                         </div>
                       </div>
                     )}
@@ -104,7 +120,7 @@ export default function CourseDetailPage() {
                       <BookOpen className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Level</p>
-                        <p className="font-semibold text-gray-800 dark:text-white">{course.level}</p>
+                        <p className="font-semibold text-gray-800 dark:text-white capitalize">{course.level}</p>
                       </div>
                     </div>
                   </div>
@@ -124,9 +140,11 @@ export default function CourseDetailPage() {
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sticky top-24">
                 <div className="text-center mb-6">
                   <p className="text-4xl font-bold text-primary-600 dark:text-primary-400 mb-2">
-                    PKR {course.price}
+                    {course.price === 0 ? 'FREE' : `PKR ${course.price}`}
                   </p>
-                  <p className="text-gray-500 dark:text-gray-400">per month</p>
+                  {course.price > 0 && (
+                    <p className="text-gray-500 dark:text-gray-400">per month</p>
+                  )}
                 </div>
 
                 <Link to="/appointments">

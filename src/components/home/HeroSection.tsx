@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Video, Heart } from 'lucide-react'
+import api from '@/services/api'
 
 // Typing animation component - Simple and stable
 function TypingText({ text, delay = 0 }: { text: string; delay?: number }) {
@@ -69,66 +70,100 @@ function TypingText({ text, delay = 0 }: { text: string; delay?: number }) {
 
 export default function HeroSection() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [slides, setSlides] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Local images from public/images folder
-  const images = [
-    '/images/hero-1.jpg',
-    '/images/hero-2.jpg',
-    '/images/hero-3.jpg',
-    '/images/hero-4.jpg',
-    '/images/hero-5.jpg',
-    '/images/hero-6.jpg',
-    '/images/hero-7.jpg',
-    '/images/hero-8.jpg',
-    '/images/hero-9.jpg',
-  ]
+  // Fetch hero slides from API
+  useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const response = await api.get('/hero-slides')
+        console.log('Hero Slides Response:', response.data)
+        
+        // API returns {success, count, data: [...]}
+        const slidesData = response.data.data || response.data
+        const activeSlides = slidesData.filter((slide: any) => slide.isActive)
+        
+        console.log('Active Slides:', activeSlides.length)
+        
+        setSlides(activeSlides.length > 0 ? activeSlides : [
+          // Fallback to local images if no slides in database
+          { image: '/images/hero-1.jpg', title: 'Welcome', subtitle: '', buttonText: '', buttonLink: '', order: 1 },
+          { image: '/images/hero-2.jpg', title: 'Spiritual Guidance', subtitle: '', buttonText: '', buttonLink: '', order: 2 },
+          { image: '/images/hero-3.jpg', title: 'Traditional Healing', subtitle: '', buttonText: '', buttonLink: '', order: 3 },
+        ])
+      } catch (error) {
+        console.error('Error fetching hero slides:', error)
+        // Fallback to local images on error
+        setSlides([
+          { image: '/images/hero-1.jpg', title: 'Welcome', subtitle: '', buttonText: '', buttonLink: '', order: 1 },
+          { image: '/images/hero-2.jpg', title: 'Spiritual Guidance', subtitle: '', buttonText: '', buttonLink: '', order: 2 },
+          { image: '/images/hero-3.jpg', title: 'Traditional Healing', subtitle: '', buttonText: '', buttonLink: '', order: 3 },
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSlides()
+  }, [])
 
   useEffect(() => {
+    if (slides.length === 0) return
+    
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length)
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % slides.length)
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [slides.length])
 
   return (
     <section className="relative w-full overflow-hidden">
       {/* Full Width Image Carousel - WITHOUT Text Overlay */}
       <div className="relative w-full h-[280px] md:h-[350px] lg:h-[400px] bg-gradient-to-b from-primary-900 to-primary-800">
-        {images.map((image, index) => (
-          <motion.div
-            key={index}
-            className="absolute inset-0 w-full h-full"
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: currentImageIndex === index ? 1 : 0,
-              scale: currentImageIndex === index ? 1 : 1.05
-            }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          >
-            <img
-              src={image}
-              alt={`Sahibzada Shariq Ahmed Tariqi - Image ${index + 1}`}
-              className="w-full h-full object-contain"
-            />
-          </motion.div>
-        ))}
+        {loading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-400"></div>
+          </div>
+        ) : (
+          <>
+            {slides.map((slide, index) => (
+              <motion.div
+                key={slide._id || index}
+                className="absolute inset-0 w-full h-full"
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: currentImageIndex === index ? 1 : 0,
+                  scale: currentImageIndex === index ? 1 : 1.05
+                }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+              >
+                <img
+                  src={slide.image}
+                  alt={slide.title || `Sahibzada Shariq Ahmed Tariqi - Slide ${index + 1}`}
+                  className="w-full h-full object-contain"
+                />
+              </motion.div>
+            ))}
 
-        {/* Navigation Dots */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={`h-3 rounded-full transition-all duration-300 ${
-                currentImageIndex === index
-                  ? 'w-12 bg-gold-400 shadow-lg'
-                  : 'w-3 bg-white/50 hover:bg-white/80 hover:w-6'
-              }`}
-              aria-label={`Go to image ${index + 1}`}
-            />
-          ))}
-        </div>
+            {/* Navigation Dots */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`h-3 rounded-full transition-all duration-300 ${
+                    currentImageIndex === index
+                      ? 'w-12 bg-gold-400 shadow-lg'
+                      : 'w-3 bg-white/50 hover:bg-white/80 hover:w-6'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Text Content BELOW Images */}

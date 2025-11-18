@@ -22,9 +22,12 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'))
 const AdminCoursesPage = lazy(() => import('./pages/AdminCoursesPage'))
+const AdminHeroSlidesPage = lazy(() => import('./pages/AdminHeroSlidesPage'))
+const AdminAboutPage = lazy(() => import('./pages/AdminAboutPage'))
 const AdminAppointmentsPage = lazy(() => import('./pages/AdminAppointmentsPage'))
 const AdminProductsPage = lazy(() => import('./pages/AdminProductsPage'))
 const AdminUpdatesPage = lazy(() => import('./pages/AdminUpdatesPage'))
+const AdminStatsPage = lazy(() => import('./pages/AdminStatsPage'))
 const AdminSettingsPage = lazy(() => import('./pages/AdminSettingsPage'))
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
 const AdminAppointmentSettingsPage = lazy(() => import('./pages/AdminAppointmentSettingsPage'))
@@ -52,10 +55,13 @@ function App() {
           <Route path="register" element={<RegisterPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="admin" element={<AdminDashboardPage />} />
+          <Route path="admin/hero-slides" element={<AdminHeroSlidesPage />} />
+          <Route path="admin/about" element={<AdminAboutPage />} />
           <Route path="admin/courses" element={<AdminCoursesPage />} />
           <Route path="admin/appointments" element={<AdminAppointmentsPage />} />
           <Route path="admin/products" element={<AdminProductsPage />} />
           <Route path="admin/updates" element={<AdminUpdatesPage />} />
+          <Route path="admin/stats" element={<AdminStatsPage />} />
           <Route path="admin/settings" element={<AdminSettingsPage />} />
           <Route path="admin/users" element={<AdminUsersPage />} />
           <Route path="admin/appointment-settings" element={<AdminAppointmentSettingsPage />} />

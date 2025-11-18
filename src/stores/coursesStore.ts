@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import apiClient from '@/services/api';
 
 export interface Course {
   id: string;
+  _id?: string; // MongoDB ID support
   title: string;
   description: string;
   category: string;
@@ -11,131 +13,143 @@ export interface Course {
   image: string;
   duration?: string;
   students?: number;
+  enrolledStudents?: number;
   featured?: boolean;
+  isFeatured?: boolean;
+  isPaid?: boolean;
+  isActive?: boolean;
 }
 
 interface CoursesState {
   courses: Course[];
-  addCourse: (course: Omit<Course, 'id'>) => void;
-  updateCourse: (id: string, course: Partial<Course>) => void;
-  deleteCourse: (id: string) => void;
+  loading: boolean;
+  lastFetch: number | null;
+  fetchCourses: () => Promise<void>;
+  addCourse: (course: Omit<Course, 'id'>) => Promise<void>;
+  updateCourse: (id: string, course: Partial<Course>) => Promise<void>;
+  deleteCourse: (id: string) => Promise<void>;
   getCourseById: (id: string) => Course | undefined;
   getFeaturedCourses: () => Course[];
   getFilteredCourses: (category?: string, search?: string) => Course[];
 }
 
-// Initial courses data
-const initialCourses: Course[] = [
-  {
-    id: '1',
-    title: 'Tarbiyat ul Amileen',
-    description: 'Learn the fundamentals of Spiritual Courses and spiritual energy work',
-    category: 'spiritual-healing',
-    price: 3000,
-    level: 'Beginner to Advanced',
-    image: '/images/tarbiyat-course.jpg',
-    duration: '8 weeks',
-    students: 234,
-    featured: true,
-  },
-  {
-    id: '2',
-    title: 'Jabl E Amliyat Season 2 Surah e Muzzamil Special',
-    description: 'Deep dive into spiritual sciences and mystical practices',
-    category: 'spiritual-healing',
-    price: 3000,
-    level: 'Advanced',
-    image: '/images/jabl-amliyat.jpg',
-    duration: '12 weeks',
-    students: 156,
-    featured: true,
-  },
-  {
-    id: '3',
-    title: 'Traditional Hikmat & Healing',
-    description: 'Learn traditional Islamic medicine and natural healing methods',
-    category: 'medicine',
-    price: 600,
-    level: 'Intermediate',
-    image: '/images/hikmat-tariqi.jpg',
-    duration: '10 weeks',
-    students: 189,
-    featured: true,
-  },
-  {
-    id: '4',
-    title: 'Pakistan & Overseas Free Amliyat',
-    description: 'Free spiritual practices and amliyat for Pakistan and overseas students',
-    category: 'spiritual-healing',
-    price: 0,
-    level: 'All Levels',
-    image: '/images/free-amliyat.jpg',
-    duration: '6 weeks',
-    students: 312,
-    featured: false,
-  },
-  {
-    id: '5',
-    title: 'India Free Amliyat',
-    description: 'Free spiritual practices and amliyat specifically for students in India',
-    category: 'spiritual-healing',
-    price: 0,
-    level: 'All Levels',
-    image: '/images/free-amliyat.jpg',
-    duration: '6 weeks',
-    students: 278,
-    featured: false,
-  },
-  {
-    id: '6',
-    title: 'Jabl-E-Amliyat-Season-1',
-    description: 'Special Course',
-    category: 'spiritual-healing',
-    price: 5000,
-    level: 'All Levels',
-    image: '/images/jabl-amliyat-1.jpg',
-    duration: '8 weeks',
-    students: 145,
-    featured: true,
-  },
-];
-
 export const useCoursesStore = create<CoursesState>()(
   persist(
     (set, get) => ({
-      courses: initialCourses,
+      courses: [],
+      loading: false,
+      lastFetch: null,
 
-      addCourse: (course) =>
-        set((state) => ({
-          courses: [
-            ...state.courses,
-            {
+      // Fetch courses from API and sync with store
+      fetchCourses: async () => {
+        try {
+          set({ loading: true });
+          const response = await apiClient.get('/courses?limit=100');
+          const coursesData = response.data.data || response.data || [];
+          
+          // Map MongoDB courses to store format
+          const mappedCourses = coursesData
+            .filter((course: any) => course.isActive !== false) // Only active courses
+            .map((course: any) => ({
+              id: course._id || course.id,
+              _id: course._id,
+              title: course.title,
+              description: course.description,
+              category: course.category,
+              price: course.price || 0,
+              level: course.level,
+              image: course.image,
+              duration: course.duration,
+              students: course.enrolledStudents || course.students || 0,
+              enrolledStudents: course.enrolledStudents,
+              featured: course.isFeatured || course.featured || false,
+              isFeatured: course.isFeatured,
+              isPaid: course.isPaid,
+              isActive: course.isActive,
+            }));
+
+          set({ 
+            courses: mappedCourses, 
+            loading: false,
+            lastFetch: Date.now()
+          });
+        } catch (error) {
+          console.error('Error fetching courses:', error);
+          set({ loading: false });
+          // Keep existing courses on error
+        }
+      },
+
+      addCourse: async (course) => {
+        try {
+          const response = await apiClient.post('/courses', course);
+          const newCourse = response.data.data || response.data;
+          
+          set((state) => ({
+            courses: [...state.courses, {
+              id: newCourse._id || newCourse.id,
+              _id: newCourse._id,
               ...course,
-              id: Date.now().toString(),
-              students: course.students || 0,
-              featured: course.featured || false,
-            },
-          ],
-        })),
+              ...newCourse,
+            }],
+          }));
+          
+          // Refresh from API to ensure sync
+          await get().fetchCourses();
+        } catch (error) {
+          console.error('Error adding course:', error);
+          throw error;
+        }
+      },
 
-      updateCourse: (id, updatedCourse) =>
-        set((state) => ({
-          courses: state.courses.map((course) =>
-            course.id === id ? { ...course, ...updatedCourse } : course
-          ),
-        })),
+      updateCourse: async (id, updatedCourse) => {
+        try {
+          // Update in API first
+          await apiClient.put(`/courses/${id}`, updatedCourse);
+          
+          // Then update local store
+          set((state) => ({
+            courses: state.courses.map((course) =>
+              course.id === id || course._id === id 
+                ? { ...course, ...updatedCourse } 
+                : course
+            ),
+          }));
+          
+          // Refresh from API to ensure sync
+          await get().fetchCourses();
+        } catch (error) {
+          console.error('Error updating course:', error);
+          throw error;
+        }
+      },
 
-      deleteCourse: (id) =>
-        set((state) => ({
-          courses: state.courses.filter((course) => course.id !== id),
-        })),
+      deleteCourse: async (id) => {
+        try {
+          // Delete from API first
+          await apiClient.delete(`/courses/${id}`);
+          
+          // Then update local store
+          set((state) => ({
+            courses: state.courses.filter((course) => 
+              course.id !== id && course._id !== id
+            ),
+          }));
+          
+          // Refresh from API to ensure sync
+          await get().fetchCourses();
+        } catch (error) {
+          console.error('Error deleting course:', error);
+          throw error;
+        }
+      },
 
       getCourseById: (id) => {
-        return get().courses.find((course) => course.id === id);
+        return get().courses.find((course) => course.id === id || course._id === id);
       },
 
       getFeaturedCourses: () => {
-        return get().courses.filter((course) => course.featured);
+        return get().courses.filter((course) => course.featured || course.isFeatured);
       },
 
       getFilteredCourses: (category, search) => {
@@ -159,6 +173,11 @@ export const useCoursesStore = create<CoursesState>()(
     }),
     {
       name: 'courses-storage',
+      // Only persist courses and lastFetch, not loading state
+      partialize: (state) => ({ 
+        courses: state.courses,
+        lastFetch: state.lastFetch 
+      }),
     }
   )
 );
