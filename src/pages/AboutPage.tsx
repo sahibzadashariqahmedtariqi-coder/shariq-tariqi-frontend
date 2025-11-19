@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { motion, useInView } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import api from '@/services/api'
 
 // Animated Counter Component
 function AnimatedCounter({ target, duration = 2000 }: { target: number; duration?: number }) {
@@ -31,6 +32,27 @@ function AnimatedCounter({ target, duration = 2000 }: { target: number; duration
 }
 
 export default function AboutPage() {
+  const [stats, setStats] = useState({
+    yearsExperience: 15,
+    peopleHelped: 5000
+  })
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/stats')
+        const data = response.data.data
+        setStats({
+          yearsExperience: data.yearsOfExperience || 15,
+          peopleHelped: data.studentsTrained || 5000
+        })
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      }
+    }
+    fetchStats()
+  }, [])
+
   return (
     <>
       <Helmet>
@@ -121,7 +143,7 @@ export default function AboutPage() {
                     
                     <div className="relative z-10 text-center">
                       <div className="text-5xl md:text-6xl font-extrabold text-white mb-3 drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
-                        <AnimatedCounter target={15} />
+                        <AnimatedCounter target={stats.yearsExperience} />
                       </div>
                       <div className="text-base md:text-lg text-white font-bold uppercase tracking-wider drop-shadow-md">Years Experience</div>
                     </div>
@@ -151,7 +173,7 @@ export default function AboutPage() {
                     
                     <div className="relative z-10 text-center">
                       <div className="text-5xl md:text-6xl font-extrabold text-white mb-3 drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-300">
-                        <AnimatedCounter target={5000} />
+                        <AnimatedCounter target={stats.peopleHelped} />
                       </div>
                       <div className="text-base md:text-lg text-white font-bold uppercase tracking-wider drop-shadow-md">People Helped</div>
                     </div>

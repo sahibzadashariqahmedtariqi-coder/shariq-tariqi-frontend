@@ -6,6 +6,7 @@ import { Save, Upload, ArrowLeft, Image as ImageIcon } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import { uploadApi } from '@/services/apiService'
+import api from '@/services/api'
 
 interface AboutSettings {
   profileImage: string
@@ -35,13 +36,31 @@ export default function AdminAboutPage() {
     loadSettings()
   }, [])
 
-  const loadSettings = () => {
+  const loadSettings = async () => {
     const saved = localStorage.getItem('aboutSettings')
-    if (saved) {
-      try {
-        setSettings(JSON.parse(saved))
-      } catch (error) {
-        console.error('Error loading settings:', error)
+    let localData = saved ? JSON.parse(saved) : {}
+    
+    try {
+      // Fetch from database
+      const response = await api.get('/stats')
+      const stats = response.data.data
+      
+      setSettings({
+        profileImage: localData.profileImage || '/images/about-profile.jpg',
+        yearsExperience: stats.yearsOfExperience || 15,
+        peopleHelped: stats.studentsTrained || 5000,
+        introductionText: localData.introductionText || settings.introductionText,
+        descriptionText: localData.descriptionText || settings.descriptionText
+      })
+    } catch (error) {
+      console.error('Error loading from database:', error)
+      // Fallback to localStorage
+      if (saved) {
+        try {
+          setSettings(JSON.parse(saved))
+        } catch (err) {
+          console.error('Error parsing saved settings:', err)
+        }
       }
     }
   }
@@ -66,12 +85,20 @@ export default function AdminAboutPage() {
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     try {
+      // Save to database
+      await api.put('/stats', {
+        yearsOfExperience: settings.yearsExperience,
+        studentsTrained: settings.peopleHelped
+      })
+      
+      // Save to localStorage
       localStorage.setItem('aboutSettings', JSON.stringify(settings))
       toast.success('About page settings saved successfully!')
-    } catch (error) {
-      toast.error('Failed to save settings')
+    } catch (error: any) {
+      console.error('Save error:', error)
+      toast.error(error.response?.data?.message || 'Failed to save settings')
     }
   }
 
