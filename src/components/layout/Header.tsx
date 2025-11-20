@@ -22,6 +22,7 @@ export default function Header() {
     { path: '/products', label: 'Products' },
     { path: '/services', label: 'Services' },
     { path: '/appointments', label: 'Appointments' },
+    { path: '/track-order', label: 'Track Order' },
     { path: '/admin', label: 'Admin' },
     { path: '/contact', label: 'Contact' },
   ]

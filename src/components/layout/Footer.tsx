@@ -1,8 +1,41 @@
 import { Link } from 'react-router-dom'
 import { Facebook, Youtube, Mail, Phone, MapPin, Instagram } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import api from '../../services/api'
+
+interface Settings {
+  email: string;
+  phone: string;
+  whatsappLink: string;
+  clinicName: string;
+  clinicSubtitle: string;
+  timings: string;
+  address: string;
+  facebookUrl: string;
+  youtubeUrl: string;
+  instagramUrl: string;
+  tiktokUrl: string;
+  whatsappChannelUrl: string;
+  footerDescription: string;
+}
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const [settings, setSettings] = useState<Settings | null>(null)
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await api.get('/settings')
+        if (response.data.success) {
+          setSettings(response.data.data)
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error)
+      }
+    }
+    fetchSettings()
+  }, [])
 
   return (
     <footer className="bg-primary-800 text-white islamic-pattern">
@@ -12,12 +45,11 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4 text-gold-400">Sahibzada Shariq Ahmed Tariqi</h3>
             <p className="text-sm text-gray-300 mb-4">
-              Rooted in the timeless wisdom of Sufism and the healing sciences of Hikmat, 
-              illuminating hearts with divine knowledge of spirituality and traditional healing.
+              {settings?.footerDescription || 'Rooted in the timeless wisdom of Sufism and the healing sciences of Hikmat, illuminating hearts with divine knowledge of spirituality and traditional healing.'}
             </p>
             <div className="flex space-x-4">
               <a
-                href="https://www.facebook.com/profile.php?id=61553408394146"
+                href={settings?.facebookUrl || 'https://www.facebook.com/profile.php?id=61553408394146'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold-400 transition-colors"
@@ -26,7 +58,7 @@ export default function Footer() {
                 <Facebook className="h-5 w-5" />
               </a>
               <a
-                href="https://www.youtube.com/@Sahibzadashariqahmedtariqi"
+                href={settings?.youtubeUrl || 'https://www.youtube.com/@Sahibzadashariqahmedtariqi'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold-400 transition-colors"
@@ -35,7 +67,7 @@ export default function Footer() {
                 <Youtube className="h-5 w-5" />
               </a>
               <a
-                href="https://www.instagram.com/sahibzadashariqtariqi?igsh=MTMweGl1Y2pmb3BxbA=="
+                href={settings?.instagramUrl || 'https://www.instagram.com/sahibzadashariqahmedtariqi?igsh=NDhwc3d2M3Z1cGM1'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold-400 transition-colors"
@@ -44,7 +76,7 @@ export default function Footer() {
                 <Instagram className="h-5 w-5" />
               </a>
               <a
-                href="https://www.tiktok.com/@sahibzadashariqah?_t=ZS-8xYjsuv68xz&_r=1"
+                href={settings?.tiktokUrl || 'https://www.tiktok.com/@sahibzadashariqahmed?_r=1&_t=ZS-91WRMNMm7GM'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold-400 transition-colors"
@@ -55,7 +87,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="https://whatsapp.com/channel/0029VaPkzc89cDDh42CswW3S"
+                href={settings?.whatsappChannelUrl || 'https://whatsapp.com/channel/0029VaPkzc89cDDh42CswW3S'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold-400 transition-colors"
@@ -123,17 +155,24 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start space-x-2 text-sm">
                 <Mail className="h-4 w-4 mt-1 flex-shrink-0" />
-                <a href="mailto:info@shariqahmedtariqi.com" className="hover:text-gold-400">
-                  info@shariqahmedtariqi.com
+                <a href={`mailto:${settings?.email || 'sahibzadashariqahmedtariqi@gmail.com'}`} className="hover:text-gold-400">
+                  {settings?.email || 'sahibzadashariqahmedtariqi@gmail.com'}
                 </a>
               </li>
               <li className="flex items-start space-x-2 text-sm">
                 <Phone className="h-4 w-4 mt-1 flex-shrink-0" />
-                <span className="text-gray-300">Available on WhatsApp</span>
+                <a href={settings?.whatsappLink || 'https://api.whatsapp.com/send/?phone=923182392985&text&type=phone_number&app_absent=0'} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-gold-400">
+                  Available on WhatsApp
+                </a>
               </li>
               <li className="flex items-start space-x-2 text-sm">
                 <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
-                <span className="text-gray-300">Karachi, Pakistan</span>
+                <div className="text-gray-300">
+                  {settings?.clinicName && <p>{settings.clinicName}</p>}
+                  {settings?.clinicSubtitle && <p>{settings.clinicSubtitle}</p>}
+                  {settings?.timings && <p>Timings: {settings.timings}</p>}
+                  <p className="mt-1">{settings?.address || 'Karachi, Pakistan'}</p>
+                </div>
               </li>
             </ul>
           </div>

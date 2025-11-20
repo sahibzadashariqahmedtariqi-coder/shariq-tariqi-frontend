@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, Navigate } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp } from 'lucide-react'
+import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore'
 
 export default function AdminDashboardPage() {
@@ -54,6 +54,20 @@ export default function AdminDashboardPage() {
       color: 'bg-purple-500',
     },
     {
+      title: 'Payment Orders',
+      description: 'Manage & verify payment orders',
+      icon: ShoppingCart,
+      path: '/admin/orders',
+      color: 'bg-pink-500',
+    },
+    {
+      title: 'Trash',
+      description: 'Restore or delete orders permanently',
+      icon: Trash2,
+      path: '/admin/trash',
+      color: 'bg-gray-500',
+    },
+    {
       title: 'Manage Updates',
       description: 'Add, edit, or remove latest updates',
       icon: Bell,
@@ -87,6 +101,13 @@ export default function AdminDashboardPage() {
       icon: Settings,
       path: '/admin/settings',
       color: 'bg-gray-500',
+    },
+    {
+      title: 'Contact & Social Media',
+      description: 'Manage contact info, social links & footer',
+      icon: Mail,
+      path: '/admin/contact-settings',
+      color: 'bg-emerald-500',
     },
     {
       title: 'Manage Users',

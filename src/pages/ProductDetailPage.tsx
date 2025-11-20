@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import CheckoutModal from '@/components/checkout/CheckoutModal'
 
 interface Product {
   _id: string
@@ -27,6 +28,7 @@ export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [quantity, setQuantity] = useState(1)
   const [showFullImage, setShowFullImage] = useState(false)
+  const [showCheckout, setShowCheckout] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   
@@ -72,7 +74,7 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
-    toast.success(`Added ${quantity} ${product.name} to cart!`)
+    setShowCheckout(true)
   }
 
   return (
@@ -307,6 +309,19 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Checkout Modal */}
+      {product && (
+        <CheckoutModal
+          isOpen={showCheckout}
+          onClose={() => setShowCheckout(false)}
+          orderType="product"
+          itemId={product._id}
+          itemTitle={product.name}
+          itemPrice={product.price}
+          quantity={quantity}
+        />
+      )}
     </>
   )
 }

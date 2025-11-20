@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign } from 'lucide-react'
+import CheckoutModal from '@/components/checkout/CheckoutModal'
 
 interface AppointmentSettings {
   consultationFee: number
@@ -29,6 +30,7 @@ export default function AppointmentsPage() {
     message: '',
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [showCheckout, setShowCheckout] = useState(false)
   const [settings, setSettings] = useState<AppointmentSettings>({
     consultationFee: 2000,
     healingFee: 3000,
@@ -73,21 +75,14 @@ export default function AppointmentsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would send the data to your backend
-    console.log('Appointment request:', formData)
-    setIsSubmitted(true)
-    setTimeout(() => {
-      setIsSubmitted(false)
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        date: '',
-        time: '',
-        service: 'Spiritual Consultation',
-        message: '',
-      })
-    }, 3000)
+    
+    // Validate form
+    if (!formData.name || !formData.email || !formData.phone || !formData.date || !formData.time || !formData.service) {
+      return
+    }
+    
+    // Open checkout modal
+    setShowCheckout(true)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -382,6 +377,19 @@ export default function AppointmentsPage() {
           </div>
         </div>
       </section>
+
+      {/* Checkout Modal */}
+      <CheckoutModal
+        isOpen={showCheckout}
+        onClose={() => setShowCheckout(false)}
+        orderType="appointment"
+        itemId="appointment"
+        itemTitle={`${formData.service} - ${formData.date} at ${formData.time}`}
+        itemPrice={services.find(s => s.name === formData.service)?.fee || 0}
+        appointmentDate={formData.date}
+        appointmentTime={formData.time}
+        customerMessage={formData.message}
+      />
     </>
   )
 }

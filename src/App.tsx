@@ -29,8 +29,13 @@ const AdminProductsPage = lazy(() => import('./pages/AdminProductsPage'))
 const AdminUpdatesPage = lazy(() => import('./pages/AdminUpdatesPage'))
 const AdminStatsPage = lazy(() => import('./pages/AdminStatsPage'))
 const AdminSettingsPage = lazy(() => import('./pages/AdminSettingsPage'))
+const AdminContactSettingsPage = lazy(() => import('./pages/AdminContactSettingsPage'))
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
 const AdminAppointmentSettingsPage = lazy(() => import('./pages/AdminAppointmentSettingsPage'))
+const AdminOrdersPage = lazy(() => import('./pages/AdminOrdersPage'))
+const AdminTrashPage = lazy(() => import('./pages/AdminTrashPage'))
+const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'))
+const TrackOrderPage = lazy(() => import('./pages/TrackOrderPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function App() {
@@ -54,6 +59,8 @@ function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="my-orders" element={<MyOrdersPage />} />
+          <Route path="track-order" element={<TrackOrderPage />} />
           <Route path="admin" element={<AdminDashboardPage />} />
           <Route path="admin/hero-slides" element={<AdminHeroSlidesPage />} />
           <Route path="admin/about" element={<AdminAboutPage />} />
@@ -63,8 +70,11 @@ function App() {
           <Route path="admin/updates" element={<AdminUpdatesPage />} />
           <Route path="admin/stats" element={<AdminStatsPage />} />
           <Route path="admin/settings" element={<AdminSettingsPage />} />
+          <Route path="admin/contact-settings" element={<AdminContactSettingsPage />} />
           <Route path="admin/users" element={<AdminUsersPage />} />
           <Route path="admin/appointment-settings" element={<AdminAppointmentSettingsPage />} />
+          <Route path="admin/orders" element={<AdminOrdersPage />} />
+          <Route path="admin/trash" element={<AdminTrashPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

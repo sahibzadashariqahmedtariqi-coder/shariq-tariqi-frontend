@@ -19,6 +19,8 @@ import updateRoutes from './routes/updateRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import heroSlideRoutes from './routes/heroSlideRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -70,6 +72,8 @@ app.use('/api/updates', updateRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/hero-slides', heroSlideRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Error Handler Middleware (must be last)
 app.use(errorHandler);

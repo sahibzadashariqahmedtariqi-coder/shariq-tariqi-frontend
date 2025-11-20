@@ -2,13 +2,15 @@ import { Helmet } from 'react-helmet-async'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, BookOpen, Users, Clock, Star } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useCoursesStore } from '@/stores/coursesStore'
+import CheckoutModal from '@/components/checkout/CheckoutModal'
 
 export default function CourseDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { getCourseById, fetchCourses, loading } = useCoursesStore()
+  const [showCheckout, setShowCheckout] = useState(false)
 
   // Fetch courses from API to ensure latest data
   useEffect(() => {
@@ -147,11 +149,13 @@ export default function CourseDetailPage() {
                   )}
                 </div>
 
-                <Link to="/appointments">
-                  <Button size="lg" className="w-full mb-4">
-                    Enroll Now
-                  </Button>
-                </Link>
+                <Button 
+                  size="lg" 
+                  className="w-full mb-4"
+                  onClick={() => setShowCheckout(true)}
+                >
+                  Enroll Now
+                </Button>
 
                 <div className="space-y-4 text-sm">
                   <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
@@ -191,6 +195,16 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Checkout Modal */}
+      <CheckoutModal
+        isOpen={showCheckout}
+        onClose={() => setShowCheckout(false)}
+        orderType="course"
+        itemId={course._id}
+        itemTitle={course.title}
+        itemPrice={course.price}
+      />
     </>
   )
 }
