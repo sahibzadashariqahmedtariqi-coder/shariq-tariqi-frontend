@@ -1,17 +1,18 @@
 import { Helmet } from 'react-helmet-async'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Plus, Edit2, Trash2, Calendar, Megaphone, Bell, Upload, Image as ImageIcon, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import { uploadApi } from '@/services/apiService'
+import apiClient from '@/services/api'
 
 interface Update {
-  id: number
+  _id: string
   title: string
   description: string
   date: string
-  type: 'announcement' | 'event' | 'news'
+  category: 'announcement' | 'event' | 'news' | 'course' | 'general'
   link?: string
   image?: string
   promoImage?: string
@@ -23,19 +24,9 @@ export default function AdminUpdatesPage() {
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/login" replace />
   }
-  const [updates, setUpdates] = useState<Update[]>([
-    {
-      id: 2,
-      title: "Ruhani Punjab Tour",
-      description: "Join us on an enlightening spiritual journey across Punjab. Experience divine blessings, spiritual healing sessions, and traditional Islamic teachings in multiple cities. A transformative tour to strengthen your connection with Allah.",
-      date: "2025-11-20",
-      type: "announcement",
-      link: "/blog/2",
-      image: "/images/ruhani-tour.jpg",
-      promoImage: "/images/ruhani-promo.jpg"
-    }
-  ])
-
+  
+  const [updates, setUpdates] = useState<Update[]>([])
+  const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [currentUpdate, setCurrentUpdate] = useState<Update | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
@@ -44,11 +35,29 @@ export default function AdminUpdatesPage() {
     title: '',
     description: '',
     date: '',
-    type: 'announcement' as 'announcement' | 'event' | 'news',
+    category: 'announcement' as 'announcement' | 'event' | 'news' | 'course' | 'general',
     link: '',
     image: '',
     promoImage: ''
   })
+
+  useEffect(() => {
+    fetchUpdates()
+  }, [])
+
+  const fetchUpdates = async () => {
+    try {
+      const response = await apiClient.get('/updates')
+      if (response.data.success) {
+        setUpdates(response.data.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch updates:', error)
+      toast.error('Failed to load updates')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleEdit = (update: Update) => {
     setCurrentUpdate(update)
@@ -56,7 +65,7 @@ export default function AdminUpdatesPage() {
       title: update.title,
       description: update.description,
       date: update.date,
-      type: update.type,
+      category: update.category,
       link: update.link || '',
       image: update.image || '',
       promoImage: update.promoImage || ''
@@ -93,28 +102,45 @@ export default function AdminUpdatesPage() {
     }
   }
 
-  const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this update?')) {
-      setUpdates(updates.filter(update => update.id !== id))
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    try {
+      if (currentUpdate) {
+        // Update existing
+        const response = await apiClient.put(`/updates/${currentUpdate._id}`, formData)
+        if (response.data.success) {
+          toast.success('Update edited successfully!')
+          fetchUpdates()
+        }
+      } else {
+        // Create new
+        const response = await apiClient.post('/updates', formData)
+        if (response.data.success) {
+          toast.success('Update added successfully!')
+          fetchUpdates()
+        }
+      }
+      resetForm()
+    } catch (error: any) {
+      console.error('Failed to save update:', error)
+      toast.error(error.response?.data?.message || 'Failed to save update')
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (currentUpdate) {
-      setUpdates(updates.map(update =>
-        update.id === currentUpdate.id
-          ? { ...update, ...formData }
-          : update
-      ))
-    } else {
-      const newUpdate: Update = {
-        id: Math.max(...updates.map(u => u.id), 0) + 1,
-        ...formData
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this update?')) return
+    
+    try {
+      const response = await apiClient.delete(`/updates/${id}`)
+      if (response.data.success) {
+        toast.success('Update deleted successfully!')
+        fetchUpdates()
       }
-      setUpdates([...updates, newUpdate])
+    } catch (error: any) {
+      console.error('Failed to delete update:', error)
+      toast.error(error.response?.data?.message || 'Failed to delete update')
     }
-    resetForm()
   }
 
   const resetForm = () => {
@@ -122,7 +148,7 @@ export default function AdminUpdatesPage() {
       title: '',
       description: '',
       date: '',
-      type: 'announcement',
+      category: 'announcement',
       link: '',
       image: '',
       promoImage: ''
@@ -134,7 +160,9 @@ export default function AdminUpdatesPage() {
   const typeConfig = {
     announcement: { icon: Megaphone, color: 'text-amber-600', bg: 'bg-amber-100' },
     event: { icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-100' },
-    news: { icon: Bell, color: 'text-green-600', bg: 'bg-green-100' }
+    news: { icon: Bell, color: 'text-green-600', bg: 'bg-green-100' },
+    course: { icon: Bell, color: 'text-purple-600', bg: 'bg-purple-100' },
+    general: { icon: Bell, color: 'text-gray-600', bg: 'bg-gray-100' }
   }
 
   return (
@@ -209,17 +237,19 @@ export default function AdminUpdatesPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Type *
+                  Category *
                 </label>
                 <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
                   required
                 >
                   <option value="announcement">Announcement</option>
                   <option value="event">Event</option>
                   <option value="news">News</option>
+                  <option value="course">Course</option>
+                  <option value="general">General</option>
                 </select>
               </div>
 
@@ -410,34 +440,45 @@ export default function AdminUpdatesPage() {
             Current Updates ({updates.length})
           </h2>
           
-          {updates.map((update) => {
-            const config = typeConfig[update.type]
-            const Icon = config.icon
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">Loading updates...</p>
+            </div>
+          ) : updates.length === 0 ? (
+            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl">
+              <Bell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">No updates found. Add your first update above!</p>
+            </div>
+          ) : (
+            updates.map((update) => {
+              const config = typeConfig[update.category]
+              const Icon = config.icon
 
-            return (
-              <div
-                key={update.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-2 border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className={`${config.bg} p-3 rounded-lg`}>
-                      <Icon className={`h-6 w-6 ${config.color}`} />
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className={`text-xs font-semibold uppercase px-2 py-1 rounded ${config.bg} ${config.color}`}>
-                          {update.type}
-                        </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(update.date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </span>
+              return (
+                <div
+                  key={update._id}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-2 border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className={`${config.bg} p-3 rounded-lg`}>
+                        <Icon className={`h-6 w-6 ${config.color}`} />
                       </div>
+                    
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className={`text-xs font-semibold uppercase px-2 py-1 rounded ${config.bg} ${config.color}`}>
+                            {update.category}
+                          </span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(update.date).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        </div>
                       
                       <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
                         {update.title}
@@ -464,30 +505,31 @@ export default function AdminUpdatesPage() {
                           Promo Image: {update.promoImage} (Blinking on homepage)
                         </p>
                       )}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(update)}
+                        className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors duration-200"
+                        title="Edit"
+                      >
+                        <Edit2 className="h-5 w-5" />
+                      </button>
+                    
+                      <button
+                        onClick={() => handleDelete(update._id)}
+                        className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg transition-colors duration-200"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     </div>
                   </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(update)}
-                      className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors duration-200"
-                      title="Edit"
-                    >
-                      <Edit2 className="h-5 w-5" />
-                    </button>
-                    
-                    <button
-                      onClick={() => handleDelete(update.id)}
-                      className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg transition-colors duration-200"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
       </div>
     </>

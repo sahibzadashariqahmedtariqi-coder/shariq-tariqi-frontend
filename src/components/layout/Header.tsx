@@ -24,7 +24,7 @@ export default function Header() {
     { path: '/appointments', label: 'Appointments' },
     { path: '/track-order', label: 'Track Order' },
     { path: '/admin', label: 'Admin' },
-    { path: '/contact', label: 'Contact' },
+    { path: '#footer', label: 'Contact', scrollTo: true },
   ]
 
   return (
@@ -44,6 +44,37 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-3 lg:space-x-4 flex-shrink">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path
+              
+              if (link.scrollTo) {
+                return (
+                  <a
+                    key={link.path}
+                    href={link.path}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className="text-xs lg:text-sm font-medium transition-colors hover:text-gold-400 whitespace-nowrap text-gray-200 cursor-pointer"
+                  >
+                    {link.label}
+                  </a>
+                )
+              }
+              
+              if (link.external) {
+                return (
+                  <a
+                    key={link.path}
+                    href={link.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs lg:text-sm font-medium transition-colors hover:text-gold-400 whitespace-nowrap text-gray-200"
+                  >
+                    {link.label}
+                  </a>
+                )
+              }
+              
               return (
                 <Link
                   key={link.path}
@@ -101,6 +132,39 @@ export default function Header() {
           <nav className="md:hidden pb-4 space-y-2 bg-primary-900">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path
+              
+              if (link.scrollTo) {
+                return (
+                  <a
+                    key={link.path}
+                    href={link.path}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })
+                      closeMenu()
+                    }}
+                    className="block py-2 text-sm font-medium transition-colors hover:text-gold-400 text-gray-200 cursor-pointer"
+                  >
+                    {link.label}
+                  </a>
+                )
+              }
+              
+              if (link.external) {
+                return (
+                  <a
+                    key={link.path}
+                    href={link.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-gold-400 text-gray-200"
+                    onClick={closeMenu}
+                  >
+                    {link.label}
+                  </a>
+                )
+              }
+              
               return (
                 <Link
                   key={link.path}

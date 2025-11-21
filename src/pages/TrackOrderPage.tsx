@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Package, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import api from '../services/api';
 import { format } from 'date-fns';
 

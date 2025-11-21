@@ -24,6 +24,9 @@ const updateSchema = new mongoose.Schema({
   image: {
     type: String
   },
+  promoImage: {
+    type: String
+  },
   link: {
     type: String
   },

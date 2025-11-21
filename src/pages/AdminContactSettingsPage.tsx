@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Mail, Phone, MapPin, Clock, Facebook, Youtube, Instagram, Music2, MessageCircle, CreditCard } from 'lucide-react';
+import { Save, Mail, MapPin, Clock, Facebook, Youtube, Instagram, Music2, MessageCircle, CreditCard } from 'lucide-react';
 import api from '../services/api';
 
 interface SettingsData {

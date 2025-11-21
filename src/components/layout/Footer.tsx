@@ -38,7 +38,7 @@ export default function Footer() {
   }, [])
 
   return (
-    <footer className="bg-primary-800 text-white islamic-pattern">
+    <footer id="footer" className="bg-primary-800 text-white islamic-pattern">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}
@@ -130,9 +130,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-sm hover:text-gold-400 transition-colors">
+                <a href="https://api.whatsapp.com/send/?phone=923182392985&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" className="text-sm hover:text-gold-400 transition-colors">
                   Contact
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

@@ -16,7 +16,6 @@ const PrayerTimesPage = lazy(() => import('./pages/PrayerTimesPage'))
 const AppointmentsPage = lazy(() => import('./pages/AppointmentsPage'))
 const BlogPage = lazy(() => import('./pages/BlogPage'))
 const BlogDetailPage = lazy(() => import('./pages/BlogDetailPage'))
-const ContactPage = lazy(() => import('./pages/ContactPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
@@ -55,7 +54,6 @@ function App() {
           <Route path="appointments" element={<AppointmentsPage />} />
           <Route path="blog" element={<BlogPage />} />
           <Route path="blog/:id" element={<BlogDetailPage />} />
-          <Route path="contact" element={<ContactPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="dashboard" element={<DashboardPage />} />

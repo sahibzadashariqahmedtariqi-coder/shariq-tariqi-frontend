@@ -1,25 +1,27 @@
 import { motion } from 'framer-motion'
 import { Bell, Calendar, ArrowRight, Megaphone, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import apiClient from '@/services/api'
 
 interface Update {
-  id: number
+  _id: string
   title: string
   description: string
   date: string
-  type: 'announcement' | 'event' | 'news'
+  category: 'announcement' | 'event' | 'news' | 'course' | 'general'
   link?: string
+  image?: string
   promoImage?: string
 }
 
-const updates: Update[] = [
+const fallbackUpdates: Update[] = [
   {
-    id: 2,
+    _id: '2',
     title: "Ruhani Punjab Tour",
     description: "Join us on an enlightening spiritual journey across Punjab. Experience divine blessings, spiritual healing sessions, and traditional Islamic teachings in multiple cities. A transformative tour to strengthen your connection with Allah.",
     date: "2025-11-20",
-    type: "announcement",
+    category: "announcement",
     link: "/blog/2",
     promoImage: "/images/ruhani-promo.jpg"
   }
@@ -43,12 +45,44 @@ const typeConfig = {
     color: 'text-green-600 dark:text-green-400',
     bg: 'bg-green-50 dark:bg-green-900/20',
     border: 'border-green-200 dark:border-green-800'
+  },
+  course: {
+    icon: Bell,
+    color: 'text-purple-600 dark:text-purple-400',
+    bg: 'bg-purple-50 dark:bg-purple-900/20',
+    border: 'border-purple-200 dark:border-purple-800'
+  },
+  general: {
+    icon: Bell,
+    color: 'text-gray-600 dark:text-gray-400',
+    bg: 'bg-gray-50 dark:bg-gray-900/20',
+    border: 'border-gray-200 dark:border-gray-800'
   }
 }
 
 export default function LatestUpdates() {
+  const [updates, setUpdates] = useState<Update[]>(fallbackUpdates)
+  const [loading, setLoading] = useState(true)
   const [showFullImage, setShowFullImage] = useState(false)
   const [fullImageSrc, setFullImageSrc] = useState('')
+
+  useEffect(() => {
+    fetchUpdates()
+  }, [])
+
+  const fetchUpdates = async () => {
+    try {
+      const response = await apiClient.get('/updates?limit=3')
+      if (response.data.success && response.data.data.length > 0) {
+        setUpdates(response.data.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch updates:', error)
+      // Keep fallback updates
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleImageClick = (src: string) => {
     setFullImageSrc(src)
@@ -80,7 +114,7 @@ export default function LatestUpdates() {
         )}
 
         {/* Blinking Promotional Image - Right Side */}
-        {updates[0]?.promoImage && (
+        {(updates[0]?.promoImage || updates[0]?.image) && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -90,10 +124,10 @@ export default function LatestUpdates() {
           >
             <div className="relative animate-pulse">
               <img
-                src={updates[0].promoImage}
+                src={`${updates[0].promoImage || updates[0].image}?t=${Date.now()}`}
                 alt="Promotional Banner"
                 className="w-56 h-auto rounded-xl shadow-2xl border-4 border-gold-400 hover:scale-105 transition-transform duration-300 cursor-pointer"
-                onClick={() => handleImageClick(updates[0].promoImage!)}
+                onClick={() => handleImageClick(updates[0].promoImage || updates[0].image || '')}
                 onError={(e) => {
                   e.currentTarget.src = 'https://placehold.co/400x600/8B0000/FFD700?text=Ruhani+Tour+Promo'
                 }}
@@ -124,77 +158,91 @@ export default function LatestUpdates() {
         </motion.div>
 
         <div className="grid md:grid-cols-1 gap-6 max-w-3xl mx-auto lg:mr-80">
-          {updates.map((update, index) => {
-            const config = typeConfig[update.type]
-            const Icon = config.icon
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">Loading updates...</p>
+            </div>
+          ) : updates.length === 0 ? (
+            <div className="text-center py-12">
+              <Bell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">No updates available at the moment.</p>
+            </div>
+          ) : (
+            updates.map((update, index) => {
+              const config = typeConfig[update.category]
+              const Icon = config.icon
 
-            return (
-              <motion.div
-                key={update.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className={`${config.bg} ${config.border} border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group`}>
-                  <div className="flex items-start gap-6">
-                    {/* Image */}
-                    <div className="flex-shrink-0">
-                      <img 
-                        src="/images/ruhani-tour.jpg" 
-                        alt="Ruhani Punjab Tour"
-                        className="w-32 h-32 object-cover rounded-lg shadow-md"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://placehold.co/200x200/1B4332/D4AF37?text=Ruhani+Tour'
-                        }}
-                      />
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-start gap-4">
-                        <div className={`${config.color} p-3 rounded-lg ${config.bg} group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className="h-6 w-6" />
+              return (
+                <motion.div
+                  key={update._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <div className={`${config.bg} ${config.border} border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group`}>
+                    <div className="flex items-start gap-6">
+                      {/* Image */}
+                      {update.image && (
+                        <div className="flex-shrink-0 cursor-pointer" onClick={() => handleImageClick(update.image || '')}>
+                          <img 
+                            src={`${update.image}?t=${Date.now()}`}
+                            alt={update.title}
+                            className="w-32 h-32 object-cover rounded-lg shadow-md hover:opacity-80 transition-opacity"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://placehold.co/200x200/1B4332/D4AF37?text=Update+Image'
+                            }}
+                          />
                         </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={`text-xs font-semibold uppercase tracking-wider ${config.color}`}>
-                              {update.type}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(update.date).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                year: 'numeric' 
-                              })}
-                            </span>
+                      )}
+                      
+                      <div className="flex-1">
+                        <div className="flex items-start gap-4">
+                          <div className={`${config.color} p-3 rounded-lg ${config.bg} group-hover:scale-110 transition-transform duration-300`}>
+                            <Icon className="h-6 w-6" />
                           </div>
                           
-                          <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                            {update.title}
-                          </h3>
-                          
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                            {update.description}
-                          </p>
-                          
-                          {update.link && (
-                            <Link 
-                              to={update.link}
-                              className={`inline-flex items-center gap-2 text-sm font-semibold ${config.color} hover:gap-3 transition-all duration-300`}
-                            >
-                              Learn More
-                              <ArrowRight className="h-4 w-4" />
-                            </Link>
-                          )}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className={`text-xs font-semibold uppercase tracking-wider ${config.color}`}>
+                                {update.category}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {new Date(update.date).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric',
+                                  year: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                            
+                            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                              {update.title}
+                            </h3>
+                            
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                              {update.description}
+                            </p>
+                            
+                            {update.link && (
+                              <Link 
+                                to={update.link}
+                                className={`inline-flex items-center gap-2 text-sm font-semibold ${config.color} hover:gap-3 transition-all duration-300`}
+                              >
+                                Learn More
+                                <ArrowRight className="h-4 w-4" />
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            )
-          })}
+                </motion.div>
+              )
+            })
+          )}
         </div>
 
         {/* View All Updates Button */}
