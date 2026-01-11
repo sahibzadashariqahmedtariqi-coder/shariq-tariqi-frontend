@@ -1,0 +1,982 @@
+import { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link, Navigate } from 'react-router-dom';
+import {
+  BookOpen, Play, Lock, CheckCircle, Clock, Award,
+  ChevronRight, Search, GraduationCap,
+  BarChart3, User, CheckCircle2, LogOut, Sparkles,
+  Zap, Target, Flame, Trophy, Gift, Rocket
+} from 'lucide-react';
+import api from '../services/api';
+import { useAuthStore } from '../stores/authStore';
+
+interface Course {
+  _id: string;
+  title: string;
+  description: string;
+  image?: string;
+  instructor: string;
+  category: string;
+  level: string;
+  duration: string;
+  isPaid: boolean;
+  totalClasses: number;
+  enrollmentCount: number;
+  certificateEnabled: boolean;
+}
+
+interface Enrollment {
+  _id: string;
+  course: Course;
+  status: string;
+  progress: {
+    completedClasses: number;
+    totalClasses: number;
+    percentage: number;
+    lastAccessedAt?: string;
+  };
+  accessBlocked: boolean;
+  blockedReason?: string;
+  enrolledAt: string;
+  certificateIssued: boolean;
+  certificateId?: string;
+}
+
+// Animated Counter Component
+const AnimatedCounter = ({ value, duration = 2000 }: { value: number; duration?: number }) => {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    let startTime: number;
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      setCount(Math.floor(progress * value));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [value, duration]);
+  
+  return <>{count}</>;
+};
+
+// Floating Particles Component
+const FloatingParticles = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {[...Array(20)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-1 h-1 bg-emerald-400/30 rounded-full"
+        initial={{ 
+          x: Math.random() * 100 + '%', 
+          y: '100%',
+          opacity: 0 
+        }}
+        animate={{ 
+          y: '-100%',
+          opacity: [0, 1, 0],
+        }}
+        transition={{
+          duration: Math.random() * 10 + 10,
+          repeat: Infinity,
+          delay: Math.random() * 5,
+          ease: 'linear'
+        }}
+      />
+    ))}
+  </div>
+);
+
+// Glowing Orb Component
+const GlowingOrb = ({ color, size, position }: { color: string; size: string; position: string }) => (
+  <div 
+    className={`absolute ${position} ${size} rounded-full blur-3xl opacity-20 animate-pulse`}
+    style={{ background: color }}
+  />
+);
+
+const StudentLMSPage = () => {
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-courses' | 'certificates'>('dashboard');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const isLMSStudent = (user as any)?.isLMSStudent || (user as any)?.role === 'lms_student';
+
+  const { data: enrollmentsData, isLoading: loadingEnrollments } = useQuery({
+    queryKey: ['my-lms-enrollments'],
+    queryFn: async () => {
+      const endpoint = isLMSStudent ? '/lms/my-enrolled-courses' : '/lms/my-courses';
+      const res = await api.get(endpoint);
+      return res.data.data;
+    }
+  });
+
+  const { data: certificatesData, isLoading: loadingCertificates } = useQuery({
+    queryKey: ['my-certificates'],
+    queryFn: async () => {
+      const res = await api.get('/lms/certificates/my');
+      return res.data.data;
+    },
+    enabled: activeTab === 'certificates'
+  });
+
+  const filteredEnrollments = enrollmentsData?.filter((enrollment: Enrollment) => 
+    enrollment.course?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  const dashboardStats = useMemo(() => {
+    const enrollments = enrollmentsData || [];
+    const totalCourses = enrollments.length;
+    const completedCourses = enrollments.filter((e: Enrollment) => e.status === 'completed').length;
+    const inProgressCourses = enrollments.filter((e: Enrollment) => e.status === 'active').length;
+    const blockedCourses = enrollments.filter((e: Enrollment) => e.accessBlocked).length;
+    const totalProgress = enrollments.reduce((acc: number, e: Enrollment) => acc + (e.progress?.percentage || 0), 0);
+    const avgProgress = totalCourses > 0 ? Math.round(totalProgress / totalCourses) : 0;
+    const totalClasses = enrollments.reduce((acc: number, e: Enrollment) => acc + (e.progress?.totalClasses || 0), 0);
+    const completedClasses = enrollments.reduce((acc: number, e: Enrollment) => acc + (e.progress?.completedClasses || 0), 0);
+    
+    return { totalCourses, completedCourses, inProgressCourses, blockedCourses, avgProgress, totalClasses, completedClasses };
+  }, [enrollmentsData]);
+
+  const recentCourses = useMemo(() => {
+    return (enrollmentsData || [])
+      .filter((e: Enrollment) => e.progress?.lastAccessedAt)
+      .sort((a: Enrollment, b: Enrollment) => 
+        new Date(b.progress.lastAccessedAt!).getTime() - new Date(a.progress.lastAccessedAt!).getTime()
+      )
+      .slice(0, 3);
+  }, [enrollmentsData]);
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return { text: 'Good Morning', emoji: '🌅' };
+    if (hour < 17) return { text: 'Good Afternoon', emoji: '☀️' };
+    return { text: 'Good Evening', emoji: '🌙' };
+  };
+
+  const greeting = getGreeting();
+
+  return (
+    <div className="min-h-screen bg-[#0a0f1a] relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#0d1524] to-[#0a1628]" />
+        <GlowingOrb color="#10b981" size="w-96 h-96" position="top-0 -left-48" />
+        <GlowingOrb color="#0ea5e9" size="w-80 h-80" position="bottom-0 right-0" />
+        <GlowingOrb color="#8b5cf6" size="w-64 h-64" position="top-1/2 left-1/2" />
+        <FloatingParticles />
+        
+        {/* Grid Pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+            backgroundSize: '50px 50px'
+          }}
+        />
+      </div>
+
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-0 h-full w-72 bg-slate-900/80 backdrop-blur-2xl border-r border-white/5 z-50 hidden lg:block">
+        {/* Logo with Glow */}
+        <div className="p-6 border-b border-white/5">
+          <Link to="/" className="flex items-center gap-4 group">
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-emerald-400 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="relative w-12 h-12 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <GraduationCap className="w-7 h-7 text-white" />
+              </div>
+            </motion.div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                رُوحانی علم
+              </h1>
+              <p className="text-emerald-400/70 text-xs font-medium">Student Portal</p>
+            </div>
+          </Link>
+        </div>
+
+        {/* Student Info Card */}
+        <div className="p-4 m-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5">
+          <div className="flex items-center gap-4">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="relative"
+            >
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <User className="w-7 h-7 text-white" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-slate-900 flex items-center justify-center">
+                <CheckCircle className="w-3 h-3 text-white" />
+              </div>
+            </motion.div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-semibold truncate">{user?.name}</p>
+              <p className="text-emerald-400/80 text-sm">{(user as any)?.lmsStudentId || 'Student'}</p>
+            </div>
+          </div>
+          
+          {/* Mini Stats */}
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="text-center p-2 rounded-xl bg-white/5">
+              <p className="text-lg font-bold text-white">{dashboardStats.totalCourses}</p>
+              <p className="text-[10px] text-gray-400">Courses</p>
+            </div>
+            <div className="text-center p-2 rounded-xl bg-white/5">
+              <p className="text-lg font-bold text-emerald-400">{dashboardStats.avgProgress}%</p>
+              <p className="text-[10px] text-gray-400">Progress</p>
+            </div>
+            <div className="text-center p-2 rounded-xl bg-white/5">
+              <p className="text-lg font-bold text-amber-400">{certificatesData?.length || 0}</p>
+              <p className="text-[10px] text-gray-400">Certs</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="px-4 space-y-2">
+          {[
+            { id: 'dashboard', icon: BarChart3, label: 'Dashboard', color: 'emerald' },
+            { id: 'my-courses', icon: BookOpen, label: 'My Courses', color: 'blue', badge: dashboardStats.totalCourses },
+            { id: 'certificates', icon: Award, label: 'Certificates', color: 'amber' },
+          ].map((item) => (
+            <motion.button
+              key={item.id}
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setActiveTab(item.id as any)}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all relative overflow-hidden ${
+                activeTab === item.id
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {activeTab === item.id && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl"
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <item.icon className={`w-5 h-5 relative z-10 ${activeTab === item.id ? 'text-white' : ''}`} />
+              <span className="relative z-10 font-medium">{item.label}</span>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className={`ml-auto relative z-10 px-2 py-0.5 rounded-full text-xs font-bold ${
+                  activeTab === item.id ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-400'
+                }`}>
+                  {item.badge}
+                </span>
+              )}
+            </motion.button>
+          ))}
+        </nav>
+
+        {/* Bottom Section */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+          <motion.button
+            whileHover={{ x: 4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition group"
+          >
+            <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            <span className="font-medium">Logout</span>
+          </motion.button>
+        </div>
+      </aside>
+
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-2xl border-b border-white/5 z-50 px-4 py-3 safe-area-top">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <span className="text-white font-bold">رُوحانی علم</span>
+              <p className="text-emerald-400 text-xs">Student Portal</p>
+            </div>
+          </div>
+          <motion.button 
+            whileTap={{ scale: 0.9 }}
+            onClick={handleLogout} 
+            className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400"
+          >
+            <LogOut className="w-5 h-5" />
+          </motion.button>
+        </div>
+        
+        {/* Mobile Tabs */}
+        <div className="flex gap-2 mt-4">
+          {[
+            { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+            { id: 'my-courses', label: 'Courses', icon: BookOpen },
+            { id: 'certificates', label: 'Certificates', icon: Award },
+          ].map((tab) => (
+            <motion.button
+              key={tab.id}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex-1 py-2.5 text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20'
+                  : 'bg-white/5 text-gray-400'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="lg:ml-72 pt-36 lg:pt-8 pb-8 px-4 lg:px-8 relative z-10">
+        <AnimatePresence mode="wait">
+          {/* Dashboard Tab */}
+          {activeTab === 'dashboard' && (
+            <motion.div
+              key="dashboard"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              {/* Welcome Header with Animation */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative overflow-hidden rounded-3xl"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600" />
+                <div className="absolute inset-0 opacity-50" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E")` }} />
+                
+                <div className="relative p-8 lg:p-10">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div>
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="flex items-center gap-2 mb-2"
+                      >
+                        <span className="text-2xl">{greeting.emoji}</span>
+                        <span className="text-emerald-100">{greeting.text}</span>
+                      </motion.div>
+                      <motion.h1
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-3xl lg:text-4xl font-bold text-white mb-2"
+                      >
+                        Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-400">{user?.name?.split(' ')[0]}</span>!
+                      </motion.h1>
+                      <motion.p
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-emerald-100/80 text-lg"
+                      >
+                        Continue your spiritual learning journey ✨
+                      </motion.p>
+                      
+                      {isLMSStudent && (user as any)?.lmsStudentId && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 }}
+                          className="mt-6 inline-flex items-center gap-3 px-5 py-2.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"
+                        >
+                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                            <GraduationCap className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-white/70 text-xs">Student ID</p>
+                            <p className="text-white font-semibold">{(user as any).lmsStudentId}</p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                    
+                    {/* Decorative Element */}
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.6 }}
+                      className="hidden lg:block"
+                    >
+                      <div className="relative w-40 h-40">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                          className="absolute inset-0 rounded-full border-2 border-dashed border-white/20"
+                        />
+                        <motion.div
+                          animate={{ rotate: -360 }}
+                          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                          className="absolute inset-4 rounded-full border-2 border-dashed border-white/30"
+                        />
+                        <div className="absolute inset-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                          <Rocket className="w-12 h-12 text-white" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Stats Grid with Hover Effects */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { label: 'Enrolled Courses', value: dashboardStats.totalCourses, icon: BookOpen, color: 'emerald', gradient: 'from-emerald-500 to-teal-500' },
+                  { label: 'In Progress', value: dashboardStats.inProgressCourses, icon: Play, color: 'blue', gradient: 'from-blue-500 to-cyan-500', badge: `${dashboardStats.avgProgress}%` },
+                  { label: 'Completed', value: dashboardStats.completedCourses, icon: CheckCircle2, color: 'amber', gradient: 'from-amber-500 to-orange-500' },
+                  { label: 'Certificates', value: certificatesData?.length || 0, icon: Trophy, color: 'purple', gradient: 'from-purple-500 to-pink-500' },
+                ].map((stat, index) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    onHoverStart={() => setHoveredCard(stat.label)}
+                    onHoverEnd={() => setHoveredCard(null)}
+                    className="relative group cursor-pointer"
+                  >
+                    <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity`} />
+                    <div className="relative bg-slate-800/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10 group-hover:border-white/20 transition-all">
+                      <div className="flex items-center justify-between mb-4">
+                        <motion.div 
+                          animate={hoveredCard === stat.label ? { rotate: [0, -10, 10, 0] } : {}}
+                          transition={{ duration: 0.5 }}
+                          className={`w-12 h-12 bg-gradient-to-br ${stat.gradient} rounded-xl flex items-center justify-center shadow-lg`}
+                        >
+                          <stat.icon className="w-6 h-6 text-white" />
+                        </motion.div>
+                        {stat.badge && (
+                          <span className="text-sm font-semibold bg-white/10 px-2 py-1 rounded-lg text-gray-300">
+                            {stat.badge}
+                          </span>
+                        )}
+                      </div>
+                      <motion.p 
+                        className="text-4xl font-bold text-white mb-1"
+                        key={stat.value}
+                      >
+                        <AnimatedCounter value={stat.value} />
+                      </motion.p>
+                      <p className="text-gray-400 text-sm">{stat.label}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Progress & Activity Grid */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Learning Progress */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="relative group"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                          <Target className="w-4 h-4 text-emerald-400" />
+                        </div>
+                        Learning Progress
+                      </h3>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                        className="w-8 h-8 rounded-full border-2 border-emerald-400/30 border-t-emerald-400"
+                      />
+                    </div>
+                    
+                    <div className="space-y-6">
+                      {/* Circular Progress */}
+                      <div className="flex items-center gap-6">
+                        <div className="relative w-24 h-24">
+                          <svg className="w-24 h-24 -rotate-90">
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-slate-700" />
+                            <motion.circle
+                              cx="48" cy="48" r="40"
+                              stroke="url(#progressGradient)"
+                              strokeWidth="8"
+                              fill="none"
+                              strokeLinecap="round"
+                              initial={{ strokeDasharray: '0 251.2' }}
+                              animate={{ strokeDasharray: `${dashboardStats.avgProgress * 2.512} 251.2` }}
+                              transition={{ duration: 1.5, ease: 'easeOut' }}
+                            />
+                            <defs>
+                              <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#10b981" />
+                                <stop offset="100%" stopColor="#06b6d4" />
+                              </linearGradient>
+                            </defs>
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-2xl font-bold text-white">{dashboardStats.avgProgress}%</span>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-gray-400 mb-1">Overall Completion</p>
+                          <p className="text-white text-lg font-semibold">
+                            {dashboardStats.completedClasses} / {dashboardStats.totalClasses} Classes
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Flame className="w-4 h-4 text-orange-400" />
+                            <span className="text-orange-400 text-sm font-medium">Keep going!</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div>
+                        <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${dashboardStats.avgProgress}%` }}
+                            transition={{ duration: 1.5, ease: 'easeOut' }}
+                            className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full relative"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-shimmer" />
+                          </motion.div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Recent Activity */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="relative group"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-white/10 h-full">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-blue-400" />
+                        </div>
+                        Recent Activity
+                      </h3>
+                      <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
+                    </div>
+                    
+                    {recentCourses.length > 0 ? (
+                      <div className="space-y-3">
+                        {recentCourses.map((enrollment: Enrollment, index: number) => (
+                          <motion.div
+                            key={enrollment._id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.7 + index * 0.1 }}
+                            whileHover={{ x: 4 }}
+                          >
+                            <Link
+                              to={`/lms/course/${enrollment.course._id}`}
+                              className="flex items-center gap-4 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all group/item"
+                            >
+                              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                <Play className="w-5 h-5 text-white" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white font-medium truncate group-hover/item:text-emerald-400 transition-colors">
+                                  {enrollment.course.title}
+                                </p>
+                                <p className="text-gray-400 text-sm">{enrollment.progress?.percentage || 0}% complete</p>
+                              </div>
+                              <ChevronRight className="w-5 h-5 text-gray-500 group-hover/item:text-emerald-400 group-hover/item:translate-x-1 transition-all" />
+                            </Link>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <motion.div
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          <Clock className="w-16 h-16 text-gray-600 mx-auto mb-3" />
+                        </motion.div>
+                        <p className="text-gray-400">No recent activity</p>
+                        <p className="text-gray-500 text-sm mt-1">Start learning to see your progress here</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Continue Learning Section */}
+              {dashboardStats.totalCourses > 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="relative"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-semibold text-white flex items-center gap-3">
+                      <Zap className="w-6 h-6 text-yellow-400" />
+                      Continue Learning
+                    </h3>
+                    <button 
+                      onClick={() => setActiveTab('my-courses')}
+                      className="text-emerald-400 hover:text-emerald-300 text-sm font-medium flex items-center gap-1 group"
+                    >
+                      View All
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {(enrollmentsData || []).slice(0, 3).map((enrollment: Enrollment, index: number) => (
+                      <motion.div
+                        key={enrollment._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.9 + index * 0.1 }}
+                        whileHover={{ y: -8 }}
+                        className="group"
+                      >
+                        <Link
+                          to={`/lms/course/${enrollment.course._id}`}
+                          className="block bg-slate-800/50 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 group-hover:border-emerald-500/30 transition-all"
+                        >
+                          <div className="h-32 bg-gradient-to-br from-emerald-600 to-teal-600 relative overflow-hidden">
+                            {enrollment.course?.image && (
+                              <img
+                                src={enrollment.course.image}
+                                alt={enrollment.course.title}
+                                className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-500"
+                              />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                            <div className="absolute bottom-3 left-3 right-3">
+                              <p className="text-white font-semibold truncate">{enrollment.course?.title}</p>
+                            </div>
+                            <div className="absolute top-3 right-3">
+                              <motion.div
+                                whileHover={{ rotate: 180 }}
+                                className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center"
+                              >
+                                <Play className="w-4 h-4 text-white" />
+                              </motion.div>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="flex items-center justify-between text-sm mb-3">
+                              <span className="text-gray-400">{enrollment.progress?.completedClasses || 0}/{enrollment.progress?.totalClasses || 0} classes</span>
+                              <span className="text-emerald-400 font-semibold">{enrollment.progress?.percentage || 0}%</span>
+                            </div>
+                            <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${enrollment.progress?.percentage || 0}%` }}
+                                transition={{ duration: 1, delay: 1 + index * 0.1 }}
+                                className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
+                              />
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="relative"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-3xl blur-xl" />
+                  <div className="relative bg-slate-800/50 backdrop-blur-xl rounded-3xl p-12 border border-white/10 text-center">
+                    <motion.div
+                      animate={{ y: [0, -10, 0] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      <div className="w-24 h-24 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <BookOpen className="w-12 h-12 text-emerald-400" />
+                      </div>
+                    </motion.div>
+                    <h3 className="text-2xl font-bold text-white mb-3">No Courses Yet</h3>
+                    <p className="text-gray-400 max-w-md mx-auto mb-6">
+                      You haven't been enrolled in any courses yet. Contact the admin to get started on your learning journey.
+                    </p>
+                    <div className="flex items-center justify-center gap-2 text-emerald-400">
+                      <Gift className="w-5 h-5" />
+                      <span className="font-medium">Great courses await you!</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* My Courses Tab */}
+          {activeTab === 'my-courses' && (
+            <motion.div
+              key="courses"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <BookOpen className="w-8 h-8 text-emerald-400" />
+                  My Courses
+                </h2>
+                {enrollmentsData?.length > 0 && (
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search courses..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full md:w-72 pl-12 pr-4 py-3 bg-slate-800/50 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {loadingEnrollments ? (
+                <div className="flex justify-center py-16">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full border-4 border-emerald-500/20 border-t-emerald-500 animate-spin" />
+                    <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-emerald-400" />
+                  </div>
+                </div>
+              ) : filteredEnrollments?.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-16 bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-white/10"
+                >
+                  <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+                    <BookOpen className="w-20 h-20 text-gray-600 mx-auto mb-4" />
+                  </motion.div>
+                  <h3 className="text-xl font-semibold text-white">No courses assigned yet</h3>
+                  <p className="text-gray-400 mt-2 max-w-md mx-auto">
+                    Your courses will appear here once admin enrolls you.
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredEnrollments?.map((enrollment: Enrollment, index: number) => (
+                    <motion.div
+                      key={enrollment._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -8 }}
+                      className={`group bg-slate-800/50 backdrop-blur-xl rounded-2xl overflow-hidden border ${
+                        enrollment.accessBlocked ? 'border-red-500/50' : 'border-white/10 hover:border-emerald-500/30'
+                      } transition-all`}
+                    >
+                      <div className="relative h-44">
+                        {enrollment.course?.image ? (
+                          <img
+                            src={enrollment.course.image}
+                            alt={enrollment.course.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
+                            <BookOpen className="w-16 h-16 text-white/80" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent" />
+                        
+                        {/* Progress Overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <div className="flex items-center justify-between text-white text-sm mb-2">
+                            <span>{enrollment.progress?.percentage || 0}% Complete</span>
+                            <span>{enrollment.progress?.completedClasses || 0}/{enrollment.progress?.totalClasses || 0}</span>
+                          </div>
+                          <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${enrollment.progress?.percentage || 0}%` }}
+                              transition={{ duration: 1, delay: index * 0.1 }}
+                              className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full"
+                            />
+                          </div>
+                        </div>
+                        
+                        {enrollment.accessBlocked && (
+                          <div className="absolute inset-0 bg-red-900/90 flex items-center justify-center">
+                            <div className="text-center text-white">
+                              <Lock className="w-12 h-12 mx-auto mb-2" />
+                              <p className="font-semibold">Access Blocked</p>
+                              <p className="text-sm opacity-80">{enrollment.blockedReason}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="p-5">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="px-2.5 py-1 text-xs bg-emerald-500/20 text-emerald-400 rounded-lg font-medium">
+                            {enrollment.course?.category}
+                          </span>
+                          <span className="px-2.5 py-1 text-xs bg-slate-700 text-gray-300 rounded-lg">
+                            {enrollment.course?.level}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-white text-lg mb-1 group-hover:text-emerald-400 transition-colors">
+                          {enrollment.course?.title}
+                        </h3>
+                        <p className="text-gray-400 text-sm">{enrollment.course?.instructor}</p>
+
+                        {enrollment.accessBlocked ? (
+                          <button disabled className="w-full mt-4 py-3 bg-red-500/20 text-red-400 rounded-xl cursor-not-allowed font-medium">
+                            Access Blocked
+                          </button>
+                        ) : (
+                          <Link
+                            to={`/lms/course/${enrollment.course?._id}`}
+                            className="flex items-center justify-center gap-2 w-full mt-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-500 hover:to-teal-500 transition-all font-medium group/btn"
+                          >
+                            <Play className="w-4 h-4" />
+                            Continue Learning
+                            <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                          </Link>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Certificates Tab */}
+          {activeTab === 'certificates' && (
+            <motion.div
+              key="certificates"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <Trophy className="w-8 h-8 text-amber-400" />
+                My Certificates
+              </h2>
+              
+              {loadingCertificates ? (
+                <div className="flex justify-center py-16">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin" />
+                    <Award className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-amber-400" />
+                  </div>
+                </div>
+              ) : certificatesData?.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-16 bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-white/10"
+                >
+                  <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+                    <Trophy className="w-20 h-20 text-gray-600 mx-auto mb-4" />
+                  </motion.div>
+                  <h3 className="text-xl font-semibold text-white">No certificates yet</h3>
+                  <p className="text-gray-400 mt-2">Complete a course to earn your first certificate! 🎉</p>
+                </motion.div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {certificatesData?.map((cert: any, index: number) => (
+                    <motion.div
+                      key={cert._id}
+                      initial={{ opacity: 0, y: 20, rotateY: -10 }}
+                      animate={{ opacity: 1, y: 0, rotateY: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -8, rotateY: 5 }}
+                      className="group perspective-1000"
+                    >
+                      <div className="relative bg-gradient-to-br from-amber-500/20 via-yellow-500/10 to-orange-500/20 backdrop-blur-xl rounded-2xl p-6 border border-amber-500/30 overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl" />
+                        <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-orange-400/10 rounded-full blur-2xl" />
+                        
+                        <div className="relative text-center">
+                          <motion.div
+                            animate={{ rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                          >
+                            <Trophy className="w-16 h-16 text-amber-400 mx-auto mb-4" />
+                          </motion.div>
+                          <h3 className="font-bold text-white text-lg">{cert.courseTitle}</h3>
+                          <p className="text-gray-400 mt-1">{cert.course?.category}</p>
+                          <div className="mt-4 py-3 px-4 bg-slate-900/50 rounded-xl inline-block">
+                            <p className="text-xs text-gray-400">Certificate Number</p>
+                            <p className="font-mono font-bold text-emerald-400 text-lg">{cert.certificateNumber}</p>
+                          </div>
+                          <p className="text-sm text-gray-400 mt-4">
+                            Issued on {new Date(cert.issuedAt).toLocaleDateString('en-US', {
+                              year: 'numeric', month: 'long', day: 'numeric'
+                            })}
+                          </p>
+                          <Link
+                            to={`/lms/certificate/${cert._id}`}
+                            className="flex items-center justify-center gap-2 w-full mt-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all font-medium group/btn"
+                          >
+                            <Award className="w-4 h-4" />
+                            View Certificate
+                            <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* Custom Styles */}
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .safe-area-top {
+          padding-top: env(safe-area-inset-top);
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default StudentLMSPage;

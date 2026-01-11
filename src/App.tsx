@@ -33,8 +33,18 @@ const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
 const AdminAppointmentSettingsPage = lazy(() => import('./pages/AdminAppointmentSettingsPage'))
 const AdminOrdersPage = lazy(() => import('./pages/AdminOrdersPage'))
 const AdminTrashPage = lazy(() => import('./pages/AdminTrashPage'))
+const AdminFeeManagementPage = lazy(() => import('./pages/AdminFeeManagementPage'))
+const AdminServicesPage = lazy(() => import('./pages/AdminServicesPage'))
+const AdminLMSPage = lazy(() => import('./pages/admin/AdminLMSPage'))
 const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'))
 const TrackOrderPage = lazy(() => import('./pages/TrackOrderPage'))
+const StudentLMSPage = lazy(() => import('./pages/StudentLMSPage'))
+const LMSCoursePage = lazy(() => import('./pages/LMSCoursePage'))
+const LMSClassPage = lazy(() => import('./pages/LMSClassPage'))
+const LMSCertificatePage = lazy(() => import('./pages/LMSCertificatePage'))
+const MureedRegistrationPage = lazy(() => import('./pages/MureedRegistrationPage'))
+const MureedCardPage = lazy(() => import('./pages/MureedCardPage'))
+const AdminMureedsPage = lazy(() => import('./pages/AdminMureedsPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function App() {
@@ -73,8 +83,19 @@ function App() {
           <Route path="admin/appointment-settings" element={<AdminAppointmentSettingsPage />} />
           <Route path="admin/orders" element={<AdminOrdersPage />} />
           <Route path="admin/trash" element={<AdminTrashPage />} />
+          <Route path="admin/fee-management" element={<AdminFeeManagementPage />} />
+          <Route path="admin/services" element={<AdminServicesPage />} />
+          <Route path="admin/lms" element={<AdminLMSPage />} />
+          <Route path="admin/mureeds" element={<AdminMureedsPage />} />
+          <Route path="mureed" element={<MureedRegistrationPage />} />
+          <Route path="mureed/card/:id" element={<MureedCardPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+        {/* LMS Routes outside Layout for different design */}
+        <Route path="lms" element={<StudentLMSPage />} />
+        <Route path="lms/course/:courseId" element={<LMSCoursePage />} />
+        <Route path="lms/watch/:classId" element={<LMSClassPage />} />
+        <Route path="lms/certificate/:certificateId" element={<LMSCertificatePage />} />
       </Routes>
     </Suspense>
   )

@@ -2,7 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/database.js';
+import connectMureedDB from './config/mureedDatabase.js';
 import cloudinary from './config/cloudinary.js';
+import { configureMureedCloudinary } from './config/mureedCloudinary.js';
 import errorHandler from './middleware/errorHandler.js';
 
 // Import Routes
@@ -21,6 +23,10 @@ import heroSlideRoutes from './routes/heroSlideRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import feeRoutes from './routes/feeRoutes.js';
+import lmsRoutes from './routes/lmsRoutes.js';
+import lmsFeeRoutes from './routes/lmsFeeRoutes.js';
+import mureedRoutes from './routes/mureedRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -28,8 +34,14 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
-// Connect to MongoDB
+// Connect to MongoDB (Main Database)
 connectDB();
+
+// Connect to Mureed MongoDB (Separate Database)
+connectMureedDB();
+
+// Configure Mureed Cloudinary (Separate Account)
+configureMureedCloudinary();
 
 // Middleware
 app.use(express.json());
@@ -74,6 +86,10 @@ app.use('/api/hero-slides', heroSlideRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/fee', feeRoutes);
+app.use('/api/lms', lmsRoutes);
+app.use('/api/lms/fees', lmsFeeRoutes);
+app.use('/api/mureeds', mureedRoutes);
 
 // Error Handler Middleware (must be last)
 app.use(errorHandler);

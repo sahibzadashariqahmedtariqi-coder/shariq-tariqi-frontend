@@ -109,6 +109,41 @@ export default function StatsSection() {
     fetchStats()
   }, [])
 
+  // Fetch YouTube subscribers count automatically
+  useEffect(() => {
+    const fetchYouTubeSubscribers = async () => {
+      const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY
+      const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID
+      
+      if (!apiKey || !channelId) {
+        console.warn('YouTube API key or Channel ID not configured')
+        return
+      }
+
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`
+        )
+        const data = await response.json()
+        
+        if (data.items && data.items[0]?.statistics?.subscriberCount) {
+          const subscriberCount = parseInt(data.items[0].statistics.subscriberCount)
+          // Convert to K format (e.g., 27400 -> 27.4)
+          const subscribersInK = subscriberCount / 1000
+          setStatsData(prev => ({
+            ...prev,
+            subscribers: parseFloat(subscribersInK.toFixed(1))
+          }))
+        }
+      } catch (error) {
+        console.error('Error fetching YouTube subscribers:', error)
+        // Keep existing value on error
+      }
+    }
+
+    fetchYouTubeSubscribers()
+  }, [])
+
   const stats = [
     {
       icon: Users,

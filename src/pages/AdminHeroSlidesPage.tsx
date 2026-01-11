@@ -48,7 +48,7 @@ export default function AdminHeroSlidesPage() {
   const fetchSlides = async () => {
     try {
       setLoading(true)
-      const response = await apiClient.get('/hero-slides')
+      const response = await apiClient.get('/hero-slides?all=true')
       setSlides(response.data.data || [])
     } catch (error) {
       console.error('Error fetching slides:', error)

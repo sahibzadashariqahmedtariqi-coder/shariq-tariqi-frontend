@@ -1,4 +1,6 @@
 import cloudinary from '../config/cloudinary.js';
+import { getMureedCloudinaryConfig } from '../config/mureedCloudinary.js';
+import cloudinaryModule from 'cloudinary';
 import { Readable } from 'stream';
 
 // Helper function to convert buffer to stream
@@ -99,6 +101,82 @@ export const deleteImage = async (req, res, next) => {
     }
   } catch (error) {
     console.error('Delete error:', error);
+    next(error);
+  }
+};
+
+// @desc    Upload Mureed profile picture to separate Cloudinary
+// @route   POST /api/upload/mureed-image
+// @access  Public
+export const uploadMureedImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload an image file'
+      });
+    }
+
+    // Get Mureed Cloudinary config
+    const mureedConfig = getMureedCloudinaryConfig();
+    
+    // Configure a fresh cloudinary instance for this upload
+    const mureedCloudinary = cloudinaryModule.v2;
+    mureedCloudinary.config(mureedConfig);
+
+    // Upload to Mureed's separate Cloudinary account
+    const uploadPromise = new Promise((resolve, reject) => {
+      const uploadStream = mureedCloudinary.uploader.upload_stream(
+        {
+          folder: 'mureed-profiles',
+          resource_type: 'image',
+          transformation: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+            { quality: 'auto:good' },
+            { fetch_format: 'auto' }
+          ]
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+
+      bufferToStream(req.file.buffer).pipe(uploadStream);
+    });
+
+    const result = await uploadPromise;
+
+    // Re-configure main cloudinary after upload
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Mureed image uploaded successfully',
+      data: {
+        url: result.secure_url,
+        publicId: result.public_id,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        size: result.bytes
+      }
+    });
+  } catch (error) {
+    console.error('Mureed upload error:', error);
+    // Re-configure main cloudinary on error too
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
     next(error);
   }
 };

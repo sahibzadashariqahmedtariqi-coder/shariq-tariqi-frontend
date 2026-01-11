@@ -23,7 +23,7 @@ const courseSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please provide course category'],
-    enum: ['spiritual', 'roohani', 'jismani', 'nafsiati', 'all']
+    enum: ['healing', 'spirituality', 'medicine']
   },
   duration: {
     type: String,
@@ -86,7 +86,30 @@ const courseSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  // ========== LMS INTEGRATION FIELDS ==========
+  isLMSEnabled: {
+    type: Boolean,
+    default: false
+  },
+  lmsStatus: {
+    type: String,
+    enum: ['draft', 'published', 'archived'],
+    default: 'draft'
+  },
+  certificateEnabled: {
+    type: Boolean,
+    default: false
+  },
+  certificateTemplate: {
+    type: String,
+    default: 'default'
+  },
+  totalClasses: {
+    type: Number,
+    default: 0
   }
+  // ========== END LMS FIELDS ==========
 }, {
   timestamps: true
 });

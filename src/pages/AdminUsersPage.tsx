@@ -2,10 +2,27 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Trash2, Edit, UserCheck, UserX, Search, Mail, Phone, User as UserIcon, ArrowLeft } from 'lucide-react'
+import { Plus, Trash2, Edit, UserCheck, UserX, Search, Mail, Phone, User as UserIcon, ArrowLeft, BookOpen, Key, X } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/services/api'
 import toast from 'react-hot-toast'
+
+interface GrantedCourse {
+  courseId: {
+    _id: string
+    title: string
+    image?: string
+    isPaid?: boolean
+    price?: number
+  }
+  grantedBy?: {
+    name: string
+    email: string
+  }
+  grantedAt: string
+  expiresAt?: string
+  notes?: string
+}
 
 interface User {
   _id: string
@@ -15,6 +32,15 @@ interface User {
   role: 'user' | 'admin'
   createdAt: string
   enrolledCourses?: string[]
+  grantedCourses?: GrantedCourse[]
+}
+
+interface Course {
+  _id: string
+  title: string
+  image: string
+  isPaid: boolean
+  price: number
 }
 
 interface NewUserForm {
@@ -34,6 +60,15 @@ export default function AdminUsersPage() {
   const [showModal, setShowModal] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   
+  // Course Access Modal State
+  const [showCourseAccessModal, setShowCourseAccessModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [userCourseAccess, setUserCourseAccess] = useState<{grantedCourses: GrantedCourse[], enrolledCourses: any[]}>({grantedCourses: [], enrolledCourses: []})
+  const [selectedCourseId, setSelectedCourseId] = useState('')
+  const [accessNotes, setAccessNotes] = useState('')
+  const [accessExpiry, setAccessExpiry] = useState('')
+  
   const [formData, setFormData] = useState<NewUserForm>({
     name: '',
     email: '',
@@ -48,6 +83,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers()
+    fetchCourses()
   }, [])
 
   useEffect(() => {
@@ -74,6 +110,79 @@ export default function AdminUsersPage() {
       toast.error('Failed to load users')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCourses = async () => {
+    try {
+      const response = await apiClient.get('/courses?limit=100')
+      const coursesData = response.data?.data || response.data || []
+      // Filter only paid courses for access management
+      const paidCourses = coursesData.filter((c: Course) => c.isPaid)
+      setCourses(paidCourses)
+    } catch (error) {
+      console.error('Error fetching courses:', error)
+    }
+  }
+
+  const fetchUserCourseAccess = async (userId: string) => {
+    try {
+      const response = await apiClient.get(`/auth/users/${userId}/courses`)
+      if (response.data?.data) {
+        setUserCourseAccess({
+          grantedCourses: response.data.data.grantedCourses || [],
+          enrolledCourses: response.data.data.enrolledCourses || []
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching user course access:', error)
+      setUserCourseAccess({grantedCourses: [], enrolledCourses: []})
+    }
+  }
+
+  const handleOpenCourseAccess = async (userData: User) => {
+    setSelectedUser(userData)
+    await fetchUserCourseAccess(userData._id)
+    setShowCourseAccessModal(true)
+  }
+
+  const handleGrantAccess = async () => {
+    if (!selectedUser || !selectedCourseId) {
+      toast.error('Please select a course')
+      return
+    }
+
+    try {
+      await apiClient.post(`/auth/users/${selectedUser._id}/grant-course`, {
+        courseId: selectedCourseId,
+        notes: accessNotes,
+        expiresAt: accessExpiry || undefined
+      })
+      toast.success('Course access granted successfully!')
+      await fetchUserCourseAccess(selectedUser._id)
+      setSelectedCourseId('')
+      setAccessNotes('')
+      setAccessExpiry('')
+    } catch (error: any) {
+      console.error('Error granting access:', error)
+      toast.error(error.response?.data?.message || 'Failed to grant access')
+    }
+  }
+
+  const handleRevokeAccess = async (courseId: string) => {
+    if (!selectedUser) return
+    
+    if (!window.confirm('Are you sure you want to revoke access to this course?')) {
+      return
+    }
+
+    try {
+      await apiClient.delete(`/auth/users/${selectedUser._id}/revoke-course/${courseId}`)
+      toast.success('Course access revoked!')
+      await fetchUserCourseAccess(selectedUser._id)
+    } catch (error: any) {
+      console.error('Error revoking access:', error)
+      toast.error(error.response?.data?.message || 'Failed to revoke access')
     }
   }
 
@@ -278,6 +387,15 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          {userData.role === 'user' && (
+                            <button
+                              onClick={() => handleOpenCourseAccess(userData)}
+                              className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                              title="Manage Course Access"
+                            >
+                              <Key className="h-5 w-5" />
+                            </button>
+                          )}
                           <button
                             onClick={() => handleToggleRole(userData._id, userData.role)}
                             className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -407,6 +525,163 @@ export default function AdminUsersPage() {
                   Cancel
                 </Button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Course Access Modal */}
+        {showCourseAccessModal && selectedUser && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-primary-800 dark:text-white">
+                  <Key className="inline h-6 w-6 mr-2 text-gold-500" />
+                  Manage Course Access
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowCourseAccessModal(false)
+                    setSelectedUser(null)
+                    setSelectedCourseId('')
+                    setAccessNotes('')
+                    setAccessExpiry('')
+                  }}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* User Info */}
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-800 flex items-center justify-center">
+                    <UserIcon className="h-6 w-6 text-primary-600 dark:text-primary-300" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{selectedUser.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{selectedUser.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grant New Access */}
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-6">
+                <h3 className="font-semibold text-green-800 dark:text-green-300 mb-4">
+                  <Plus className="inline h-5 w-5 mr-1" />
+                  Grant Course Access
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Select Course *</label>
+                    <select
+                      value={selectedCourseId}
+                      onChange={(e) => setSelectedCourseId(e.target.value)}
+                      className="w-full px-4 py-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">-- Select a paid course --</option>
+                      {courses.map((course) => (
+                        <option key={course._id} value={course._id}>
+                          {course.title} (Rs. {course.price})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Access Expiry (Optional)</label>
+                      <input
+                        type="date"
+                        value={accessExpiry}
+                        onChange={(e) => setAccessExpiry(e.target.value)}
+                        className="w-full px-4 py-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Notes</label>
+                      <input
+                        type="text"
+                        value={accessNotes}
+                        onChange={(e) => setAccessNotes(e.target.value)}
+                        placeholder="e.g., Special student discount"
+                        className="w-full px-4 py-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleGrantAccess}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    <Key className="h-4 w-4 mr-2" />
+                    Grant Access
+                  </Button>
+                </div>
+              </div>
+
+              {/* Current Granted Courses */}
+              <div className="mb-6">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                  <BookOpen className="inline h-5 w-5 mr-1 text-gold-500" />
+                  Granted Courses ({userCourseAccess.grantedCourses.length})
+                </h3>
+                {userCourseAccess.grantedCourses.length > 0 ? (
+                  <div className="space-y-3">
+                    {userCourseAccess.grantedCourses.map((grant, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gold-50 dark:bg-gold-900/20 rounded-lg p-4">
+                        <div className="flex items-center gap-4">
+                          {grant.courseId?.image && (
+                            <img src={grant.courseId.image} alt="" className="w-12 h-12 rounded object-cover" />
+                          )}
+                          <div>
+                            <h4 className="font-medium text-gray-900 dark:text-white">
+                              {grant.courseId?.title || 'Course'}
+                            </h4>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Granted: {new Date(grant.grantedAt).toLocaleDateString()}
+                              {grant.expiresAt && ` | Expires: ${new Date(grant.expiresAt).toLocaleDateString()}`}
+                            </p>
+                            {grant.notes && (
+                              <p className="text-xs text-gray-400 italic">Note: {grant.notes}</p>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRevokeAccess(grant.courseId?._id)}
+                          className="text-red-600 hover:text-red-800 p-2"
+                          title="Revoke Access"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
+                    No courses granted to this user yet
+                  </p>
+                )}
+              </div>
+
+              {/* Enrolled Courses (Paid) */}
+              {userCourseAccess.enrolledCourses.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                    <BookOpen className="inline h-5 w-5 mr-1 text-primary-500" />
+                    Paid/Enrolled Courses ({userCourseAccess.enrolledCourses.length})
+                  </h3>
+                  <div className="space-y-2">
+                    {userCourseAccess.enrolledCourses.map((course: any, index: number) => (
+                      <div key={index} className="flex items-center gap-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg p-3">
+                        {course?.image && (
+                          <img src={course.image} alt="" className="w-10 h-10 rounded object-cover" />
+                        )}
+                        <span className="text-gray-900 dark:text-white">{course?.title || 'Course'}</span>
+                        <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Paid</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

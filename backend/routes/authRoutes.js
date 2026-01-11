@@ -8,7 +8,10 @@ import {
   changePassword,
   getAllUsers,
   deleteUser,
-  updateUserRole
+  updateUserRole,
+  grantCourseAccess,
+  revokeCourseAccess,
+  getUserCourseAccess
 } from '../controllers/authController.js';
 import { protect, admin } from '../middleware/auth.js';
 
@@ -39,5 +42,10 @@ router.put('/change-password', protect, changePassword);
 router.get('/users', protect, admin, getAllUsers);
 router.delete('/users/:id', protect, admin, deleteUser);
 router.put('/users/:id/role', protect, admin, updateUserRole);
+
+// Course Access Management (Admin only)
+router.post('/users/:id/grant-course', protect, admin, grantCourseAccess);
+router.delete('/users/:id/revoke-course/:courseId', protect, admin, revokeCourseAccess);
+router.get('/users/:id/courses', protect, admin, getUserCourseAccess);
 
 export default router;

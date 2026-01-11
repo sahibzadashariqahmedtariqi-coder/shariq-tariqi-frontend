@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign } from 'lucide-react'
@@ -20,13 +21,16 @@ interface AppointmentSettings {
 }
 
 export default function AppointmentsPage() {
+  const [searchParams] = useSearchParams()
+  const preSelectedService = searchParams.get('service') || 'Spiritual Consultation'
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     date: '',
     time: '',
-    service: 'Spiritual Consultation',
+    service: preSelectedService,
     message: '',
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -125,6 +129,22 @@ export default function AppointmentsPage() {
       {/* Main Content */}
       <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
+          {/* Pre-selected Service Banner */}
+          {searchParams.get('service') && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl p-4 mb-8 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <CheckCircle className="h-6 w-6" />
+                <div>
+                  <p className="font-semibold">Selected Service: {preSelectedService}</p>
+                  <p className="text-sm text-primary-100">Please fill in your details to complete the booking</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Appointment Form */}
             <motion.div
@@ -384,11 +404,11 @@ export default function AppointmentsPage() {
         onClose={() => setShowCheckout(false)}
         orderType="appointment"
         itemId="appointment"
-        itemTitle={`${formData.service} - ${formData.date} at ${formData.time}`}
+        itemTitle={formData.service}
         itemPrice={services.find(s => s.name === formData.service)?.fee || 0}
         appointmentDate={formData.date}
         appointmentTime={formData.time}
-        customerMessage={formData.message}
+        customerMessage={`Service: ${formData.service}\n${formData.message ? `Message: ${formData.message}` : ''}`}
       />
     </>
   )

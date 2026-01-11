@@ -260,3 +260,120 @@ export const updateUserRole = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Grant course access to user
+// @route   POST /api/auth/users/:id/grant-course
+// @access  Private/Admin
+export const grantCourseAccess = async (req, res, next) => {
+  try {
+    const { courseId, expiresAt, notes } = req.body;
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if course access already granted
+    const existingGrant = user.grantedCourses?.find(
+      grant => grant.courseId.toString() === courseId
+    );
+
+    if (existingGrant) {
+      // Update existing grant
+      existingGrant.expiresAt = expiresAt;
+      existingGrant.notes = notes;
+      existingGrant.grantedAt = new Date();
+      existingGrant.grantedBy = req.user._id;
+    } else {
+      // Add new grant
+      user.grantedCourses.push({
+        courseId,
+        grantedBy: req.user._id,
+        grantedAt: new Date(),
+        expiresAt,
+        notes
+      });
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Course access granted successfully',
+      data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Revoke course access from user
+// @route   DELETE /api/auth/users/:id/revoke-course/:courseId
+// @access  Private/Admin
+export const revokeCourseAccess = async (req, res, next) => {
+  try {
+    const { id, courseId } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Remove course from grantedCourses
+    user.grantedCourses = user.grantedCourses.filter(
+      grant => grant.courseId.toString() !== courseId
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Course access revoked successfully',
+      data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get user with course access details
+// @route   GET /api/auth/users/:id/courses
+// @access  Private/Admin
+export const getUserCourseAccess = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate('grantedCourses.courseId', 'title image isPaid price')
+      .populate('grantedCourses.grantedBy', 'name email')
+      .populate('enrolledCourses', 'title image isPaid price');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email
+        },
+        grantedCourses: user.grantedCourses,
+        enrolledCourses: user.enrolledCourses
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

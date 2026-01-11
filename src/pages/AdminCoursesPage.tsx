@@ -32,7 +32,7 @@ export default function AdminCoursesPage() {
     description: '',
     category: 'healing',
     price: 0,
-    level: 'Beginner',
+    level: 'beginner',
     image: '',
     duration: '',
     students: 0,
@@ -104,9 +104,12 @@ export default function AdminCoursesPage() {
       return
     }
 
-    // Auto-fix image path - convert full path to relative path
+    // Auto-fix image path - convert full path to relative path (skip Cloudinary URLs)
     let imagePath = editForm.image
-    if (imagePath.includes('\\public\\images\\') || imagePath.includes('/public/images/')) {
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      // Keep Cloudinary and external URLs as-is
+      // No modification needed
+    } else if (imagePath.includes('\\public\\images\\') || imagePath.includes('/public/images/')) {
       // Extract filename from full path
       const filename = imagePath.split(/[\\\/]/).pop()
       imagePath = `/images/${filename}`
@@ -132,7 +135,7 @@ export default function AdminCoursesPage() {
       description: '',
       category: 'healing',
       price: 0,
-      level: 'Beginner',
+      level: 'beginner',
       image: '',
       duration: '',
       students: 0,
@@ -148,7 +151,7 @@ export default function AdminCoursesPage() {
       description: '',
       category: 'healing',
       price: 0,
-      level: 'Beginner',
+      level: 'beginner',
       image: '',
       duration: '',
       students: 0,
@@ -164,7 +167,7 @@ export default function AdminCoursesPage() {
       description: '',
       category: 'healing',
       price: 0,
-      level: 'Beginner',
+      level: 'beginner',
       image: '',
       duration: '',
       students: 0,
@@ -274,11 +277,9 @@ export default function AdminCoursesPage() {
                   onChange={(e) => setEditForm({ ...editForm, level: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                  <option value="All Levels">All Levels</option>
-                  <option value="Beginner to Advanced">Beginner to Advanced</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
                 </select>
               </div>
               <div>
@@ -354,7 +355,9 @@ export default function AdminCoursesPage() {
                   <div className="mt-3">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Preview:</p>
                     <img
-                      src={editForm.image.includes('\\public\\images\\') || editForm.image.includes('/public/images/') 
+                      src={editForm.image.startsWith('http://') || editForm.image.startsWith('https://')
+                        ? editForm.image
+                        : editForm.image.includes('\\public\\images\\') || editForm.image.includes('/public/images/') 
                         ? `/images/${editForm.image.split(/[\\\/]/).pop()}` 
                         : editForm.image.startsWith('/images/') 
                         ? editForm.image 

@@ -4,12 +4,15 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, BookOpen, Users, Clock, Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useCoursesStore } from '@/stores/coursesStore'
+import { useAuthStore } from '@/stores/authStore'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
+import toast from 'react-hot-toast'
 
 export default function CourseDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { getCourseById, fetchCourses, loading } = useCoursesStore()
+  const { isAuthenticated } = useAuthStore()
   const [showCheckout, setShowCheckout] = useState(false)
 
   // Fetch courses from API to ensure latest data
@@ -18,6 +21,16 @@ export default function CourseDetailPage() {
   }, [])
   
   const course = getCourseById(id || '')
+
+  // Handle enroll click - require login for courses
+  const handleEnrollClick = () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to enroll in courses. Your Student ID will be your tracking number.')
+      navigate('/login', { state: { from: `/courses/${id}` } })
+      return
+    }
+    setShowCheckout(true)
+  }
 
   if (loading) {
     return (
@@ -152,9 +165,9 @@ export default function CourseDetailPage() {
                 <Button 
                   size="lg" 
                   className="w-full mb-4"
-                  onClick={() => setShowCheckout(true)}
+                  onClick={handleEnrollClick}
                 >
-                  Enroll Now
+                  {isAuthenticated ? 'Enroll Now' : 'Login to Enroll'}
                 </Button>
 
                 <div className="space-y-4 text-sm">

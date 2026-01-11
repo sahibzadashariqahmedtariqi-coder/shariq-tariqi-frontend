@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Menu, X, Moon, Sun, Heart } from 'lucide-react'
+import { Menu, X, Moon, Sun, Heart, Settings } from 'lucide-react'
 import { useUIStore } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
@@ -21,9 +21,9 @@ export default function Header() {
     { path: '/courses', label: 'Courses' },
     { path: '/products', label: 'Products' },
     { path: '/services', label: 'Services' },
+    { path: '/mureed', label: 'Mureed Card' },
     { path: '/appointments', label: 'Appointments' },
     { path: '/track-order', label: 'Track Order' },
-    { path: '/admin', label: 'Admin' },
     { path: '#footer', label: 'Contact', scrollTo: true },
   ]
 
@@ -105,6 +105,12 @@ export default function Header() {
             {/* Auth Buttons */}
             {isAuthenticated ? (
               <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
+                {user?.role === 'admin' && (
+                  <Link to="/admin" className="flex items-center space-x-1.5 text-xs lg:text-sm font-medium text-gray-200 transition-colors hover:text-gold-400 whitespace-nowrap">
+                    <Settings className="h-4 w-4" />
+                    <span>Admin</span>
+                  </Link>
+                )}
                 <Button variant="outline" onClick={handleLogout} className="border-gold-400 text-gold-400 hover:bg-gold-400 hover:text-primary-900 text-xs lg:text-sm">
                   Logout
                 </Button>
@@ -189,6 +195,14 @@ export default function Header() {
               
               {isAuthenticated ? (
                 <>
+                  {user?.role === 'admin' && (
+                    <Link to="/admin" onClick={closeMenu}>
+                      <Button variant="ghost" className="w-full text-gray-200 hover:text-gold-400 hover:bg-primary-800 flex items-center justify-center gap-2">
+                        <Settings className="h-4 w-4" />
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
                   <Link to="/dashboard" onClick={closeMenu}>
                     <Button variant="ghost" className="w-full text-gray-200 hover:text-gold-400 hover:bg-primary-800">
                       Dashboard

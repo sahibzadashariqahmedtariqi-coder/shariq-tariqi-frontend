@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { X, Upload, CreditCard, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Upload, CreditCard, AlertCircle, CheckCircle2, Clock, Download } from 'lucide-react';
 import { apiClient } from '@/services/api';
+import html2canvas from 'html2canvas';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -41,6 +42,8 @@ const CheckoutModal = ({
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<string>('');
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
+  const receiptRef = useRef<HTMLDivElement>(null);
   
   // Form data
   const [customerName, setCustomerName] = useState('');
@@ -176,7 +179,12 @@ const CheckoutModal = ({
       const formData = new FormData();
       formData.append('image', paymentProof);
 
-      const uploadResponse = await apiClient.post('/upload/image?folder=payments', formData, {
+      // Use public endpoint for products and appointments, authenticated for courses
+      const uploadEndpoint = (orderType === 'product' || orderType === 'appointment')
+        ? '/upload/payment-proof?folder=payments' 
+        : '/upload/image?folder=payments';
+
+      const uploadResponse = await apiClient.post(uploadEndpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -200,6 +208,33 @@ const CheckoutModal = ({
       alert(error.response?.data?.message || 'Failed to upload payment proof');
     } finally {
       setUploadLoading(false);
+    }
+  };
+
+  // Download receipt as image
+  const handleDownloadReceipt = async () => {
+    if (!receiptRef.current) return;
+    
+    try {
+      setDownloadingReceipt(true);
+      
+      const canvas = await html2canvas(receiptRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2, // Higher quality
+        useCORS: true,
+        logging: false,
+      });
+      
+      // Convert to image and download
+      const link = document.createElement('a');
+      link.download = `Receipt-${orderNumber}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Failed to download receipt:', error);
+      alert('Failed to download receipt. Please take a screenshot instead.');
+    } finally {
+      setDownloadingReceipt(false);
     }
   };
 
@@ -503,26 +538,85 @@ const CheckoutModal = ({
           {/* Success Screen */}
           {step === 'success' && (
             <div className="text-center py-8">
-              {/* Success Icon */}
-              <div className="mb-6 flex justify-center">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="w-12 h-12 text-green-600" />
+              {/* Receipt Container - This will be captured as image */}
+              <div 
+                ref={receiptRef}
+                className="bg-white rounded-xl p-6 mb-6"
+                style={{ minWidth: '350px' }}
+              >
+                {/* Receipt Header with Logo */}
+                <div className="border-b-2 border-emerald-500 pb-4 mb-4">
+                  <div className="flex items-center justify-center gap-3 mb-2">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900">Sahibzada Shariq Ahmed Tariqi</h2>
+                  <p className="text-sm text-gray-500">Spiritual Healing & Guidance</p>
                 </div>
-              </div>
 
-              {/* Thank You Message */}
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank You for Choosing Us!</h3>
-              <p className="text-gray-600 mb-6">Your order has been placed successfully</p>
+                {/* Order Confirmed Badge */}
+                <div className="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-semibold inline-block mb-4">
+                  ✓ ORDER CONFIRMED
+                </div>
 
-              {/* Order Number Box */}
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-300 rounded-xl p-6 mb-6 shadow-lg">
-                <p className="text-sm text-gray-600 mb-2">Your Order Number</p>
-                <div className="bg-white rounded-lg px-6 py-4 mb-4">
-                  <p className="text-3xl font-bold text-emerald-600 font-mono tracking-wider">
+                {/* Order Details */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-4 text-left">
+                  <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">Order Details</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Item:</span>
+                      <span className="font-medium text-gray-900 text-right max-w-[200px]">{itemTitle}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Type:</span>
+                      <span className="font-medium text-gray-900 capitalize">{orderType}</span>
+                    </div>
+                    {quantity > 1 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Quantity:</span>
+                        <span className="font-medium text-gray-900">{quantity}</span>
+                      </div>
+                    )}
+                    {appointmentDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Appointment:</span>
+                        <span className="font-medium text-gray-900">{appointmentDate} at {appointmentTime}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between pt-2 border-t border-gray-200 mt-2">
+                      <span className="text-gray-700 font-semibold">Total Amount:</span>
+                      <span className="font-bold text-emerald-600 text-lg">Rs. {totalAmount.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Order Number */}
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-300 rounded-xl p-4 mb-4">
+                  <p className="text-xs text-gray-500 mb-1">Order Number</p>
+                  <p className="text-2xl font-bold text-emerald-600 font-mono tracking-wider">
                     {orderNumber}
                   </p>
                 </div>
-                <p className="text-xs text-gray-500">Please save this number for tracking your order</p>
+
+                {/* Customer Info */}
+                <div className="text-left text-xs text-gray-500 mb-4">
+                  <p><span className="font-medium">Customer:</span> {customerName}</p>
+                  <p><span className="font-medium">Email:</span> {customerEmail}</p>
+                  <p><span className="font-medium">Date:</span> {new Date().toLocaleDateString('en-PK', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</p>
+                </div>
+
+                {/* Footer */}
+                <div className="border-t border-gray-200 pt-3">
+                  <p className="text-xs text-gray-400">Thank you for your trust in us</p>
+                  <p className="text-xs text-emerald-600 font-medium">www.shariqahmedtariqi.com</p>
+                </div>
               </div>
 
               {/* Processing Time Info */}
@@ -541,6 +635,16 @@ const CheckoutModal = ({
 
               {/* Action Buttons */}
               <div className="space-y-3">
+                {/* Download Receipt Button */}
+                <button
+                  onClick={handleDownloadReceipt}
+                  disabled={downloadingReceipt}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-green-600 text-white py-3 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all font-medium flex items-center justify-center gap-2 shadow-lg"
+                >
+                  <Download className="w-5 h-5" />
+                  {downloadingReceipt ? 'Generating Receipt...' : 'Download Receipt as Image'}
+                </button>
+                
                 <button
                   onClick={() => window.location.href = `/track-order`}
                   className="w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 transition-colors font-medium"

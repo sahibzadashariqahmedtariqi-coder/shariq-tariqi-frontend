@@ -5,7 +5,9 @@ import HeroSlide from '../models/HeroSlide.js';
 // @access  Public
 export const getHeroSlides = async (req, res, next) => {
   try {
-    const slides = await HeroSlide.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+    // If admin requests all slides (including inactive), use query param ?all=true
+    const query = req.query.all === 'true' ? {} : { isActive: true };
+    const slides = await HeroSlide.find(query).sort({ order: 1, createdAt: -1 });
 
     res.status(200).json({
       success: true,

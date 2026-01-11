@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, Navigate } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2 } from 'lucide-react';
+import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore'
 
 export default function AdminDashboardPage() {
@@ -115,6 +115,27 @@ export default function AdminDashboardPage() {
       icon: Users,
       path: '/admin/users',
       color: 'bg-indigo-500',
+    },
+    {
+      title: 'Fee Management',
+      description: 'Manage paid students & monthly fees',
+      icon: DollarSign,
+      path: '/admin/fee-management',
+      color: 'bg-green-600',
+    },
+    {
+      title: 'LMS Management',
+      description: 'Manage courses, classes & certificates',
+      icon: BookOpen,
+      path: '/admin/lms',
+      color: 'bg-purple-600',
+    },
+    {
+      title: 'Manage Mureeds',
+      description: 'View all registered mureeds & cards',
+      icon: UserCheck,
+      path: '/admin/mureeds',
+      color: 'bg-gold-500',
     },
   ]
 
