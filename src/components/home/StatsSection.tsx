@@ -47,31 +47,43 @@ function AnimatedNumber({ end, suffix = '', prefix = '', decimal = false }: Stat
   useEffect(() => {
     if (!hasAnimated) return
 
-    const duration = 2000 // 2 seconds
-    const steps = 60
-    const increment = end / steps
-    const stepDuration = duration / steps
+    const duration = 2500 // 2.5 seconds for smoother animation
+    const startTime = Date.now()
+    
+    // Easing function for smooth deceleration (ease-out-cubic)
+    const easeOutCubic = (t: number): number => {
+      return 1 - Math.pow(1 - t, 3)
+    }
 
-    let current = 0
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= end) {
-        setCount(end)
-        clearInterval(timer)
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easedProgress = easeOutCubic(progress)
+      const currentValue = easedProgress * end
+
+      if (progress < 1) {
+        setCount(currentValue)
+        requestAnimationFrame(animate)
       } else {
-        setCount(current)
+        setCount(end)
       }
-    }, stepDuration)
+    }
 
-    return () => clearInterval(timer)
+    requestAnimationFrame(animate)
   }, [hasAnimated, end])
 
   return (
-    <div ref={ref} className="text-4xl md:text-5xl font-bold text-gold-400">
+    <motion.div 
+      ref={ref} 
+      className="text-4xl md:text-5xl font-bold text-gold-400"
+      initial={{ scale: 0.5, opacity: 0 }}
+      animate={hasAnimated ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       {prefix}
       {decimal ? count.toFixed(1) : Math.floor(count).toLocaleString()}
       {suffix}
-    </div>
+    </motion.div>
   )
 }
 
@@ -84,32 +96,9 @@ export default function StatsSection() {
     yearsOfExperience: 15,
   })
   const [loading, setLoading] = useState(true)
+  const [youtubeSubscribers, setYoutubeSubscribers] = useState<number | null>(null)
 
-  // Fetch stats from API
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await apiClient.get('/stats')
-        const data = response.data.data || response.data
-        setStatsData({
-          studentsTrained: data.studentsTrained,
-          averageRating: data.averageRating,
-          coursesOffered: data.coursesOffered,
-          subscribers: data.subscribers,
-          yearsOfExperience: data.yearsOfExperience,
-        })
-      } catch (error) {
-        console.error('Error fetching stats:', error)
-        // Keep default values on error
-      } finally {
-        setLoading(false)
-      }
-    }
-    
-    fetchStats()
-  }, [])
-
-  // Fetch YouTube subscribers count automatically
+  // Fetch YouTube subscribers count first (priority)
   useEffect(() => {
     const fetchYouTubeSubscribers = async () => {
       const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY
@@ -130,10 +119,7 @@ export default function StatsSection() {
           const subscriberCount = parseInt(data.items[0].statistics.subscriberCount)
           // Convert to K format (e.g., 27400 -> 27.4)
           const subscribersInK = subscriberCount / 1000
-          setStatsData(prev => ({
-            ...prev,
-            subscribers: parseFloat(subscribersInK.toFixed(1))
-          }))
+          setYoutubeSubscribers(parseFloat(subscribersInK.toFixed(1)))
         }
       } catch (error) {
         console.error('Error fetching YouTube subscribers:', error)
@@ -143,6 +129,41 @@ export default function StatsSection() {
 
     fetchYouTubeSubscribers()
   }, [])
+
+  // Fetch stats from API (but don't override YouTube subscribers)
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await apiClient.get('/stats')
+        const data = response.data.data || response.data
+        setStatsData(prev => ({
+          studentsTrained: data.studentsTrained,
+          averageRating: data.averageRating,
+          coursesOffered: data.coursesOffered,
+          // Keep YouTube API value if available, otherwise use API value
+          subscribers: youtubeSubscribers !== null ? youtubeSubscribers : data.subscribers,
+          yearsOfExperience: data.yearsOfExperience,
+        }))
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+        // Keep default values on error
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchStats()
+  }, [youtubeSubscribers])
+
+  // Update statsData when YouTube subscribers changes (always override)
+  useEffect(() => {
+    if (youtubeSubscribers !== null) {
+      setStatsData(prev => ({
+        ...prev,
+        subscribers: youtubeSubscribers
+      }))
+    }
+  }, [youtubeSubscribers])
 
   const stats = [
     {

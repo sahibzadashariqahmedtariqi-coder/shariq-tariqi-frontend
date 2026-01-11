@@ -3,7 +3,74 @@ import { Heart, BookOpen, Stethoscope, MessageCircle, Star, Users, Clock, Shield
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+
+// Animated Number Component for counting animation
+interface AnimatedCounterProps {
+  end: number
+  suffix?: string
+  decimal?: boolean
+}
+
+function AnimatedCounter({ end, suffix = '', decimal = false }: AnimatedCounterProps) {
+  const [count, setCount] = useState(0)
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current)
+      }
+    }
+  }, [hasAnimated])
+
+  useEffect(() => {
+    if (!hasAnimated) return
+
+    const duration = 2000
+    const startTime = Date.now()
+    
+    const easeOutCubic = (t: number): number => {
+      return 1 - Math.pow(1 - t, 3)
+    }
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easedProgress = easeOutCubic(progress)
+      const currentValue = easedProgress * end
+
+      if (progress < 1) {
+        setCount(currentValue)
+        requestAnimationFrame(animate)
+      } else {
+        setCount(end)
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [hasAnimated, end])
+
+  return (
+    <span ref={ref} className="text-3xl font-bold">
+      {decimal ? count.toFixed(1) : Math.floor(count).toLocaleString()}{suffix}
+    </span>
+  )
+}
 
 // Default services data
 const defaultServices = [
@@ -218,21 +285,21 @@ export default function ServicesPage() {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
                   <Users className="h-5 w-5" />
-                  <span className="text-3xl font-bold">12,000+</span>
+                  <AnimatedCounter end={12000} suffix="+" />
                 </div>
                 <p className="text-gray-400 text-sm mt-1">Happy Clients</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
                   <Star className="h-5 w-5 fill-current" />
-                  <span className="text-3xl font-bold">4.9</span>
+                  <AnimatedCounter end={4.9} decimal />
                 </div>
                 <p className="text-gray-400 text-sm mt-1">Average Rating</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
                   <Clock className="h-5 w-5" />
-                  <span className="text-3xl font-bold">15+</span>
+                  <AnimatedCounter end={15} suffix="+" />
                 </div>
                 <p className="text-gray-400 text-sm mt-1">Years Experience</p>
               </div>

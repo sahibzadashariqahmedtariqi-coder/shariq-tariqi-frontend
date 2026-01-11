@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Search, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Package, Clock, CheckCircle, XCircle, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import api from '../services/api';
 import { format } from 'date-fns';
 
@@ -84,59 +85,117 @@ const TrackOrderPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900 py-12 px-4 relative overflow-hidden">
+      {/* Background Logo Watermark */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.12] pointer-events-none">
+        <img 
+          src="/images/logo.png" 
+          alt="Background Logo" 
+          className="w-[500px] h-[500px] md:w-[600px] md:h-[600px] object-contain"
+        />
+      </div>
+
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-72 h-72 bg-gold-500/10 rounded-full filter blur-3xl"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full filter blur-3xl"></div>
+      
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Package className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Track Your Order</h1>
-          <p className="text-gray-600">Enter your order number to check payment status</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="inline-flex items-center gap-2 bg-primary-100 dark:bg-primary-800/50 text-primary-700 dark:text-gold-400 px-4 py-2 rounded-full mb-4"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="text-sm font-medium">Order Tracking</span>
+          </motion.div>
+          
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-xl mb-6"
+          >
+            <Package className="w-10 h-10 text-white" />
+          </motion.div>
+          
+          <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-700 via-primary-600 to-primary-800 mb-3">
+            Track Your Order
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">Enter your order number to check payment status</p>
+        </motion.div>
 
         {/* Search Form */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <form onSubmit={handleTrackOrder} className="flex gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8 border border-gold-200/50 dark:border-primary-700/50"
+        >
+          <form onSubmit={handleTrackOrder} className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <input
                 type="text"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
                 placeholder="Enter Order Number (e.g., C12345678901)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-lg"
+                className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white text-lg transition-all"
               />
             </div>
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="bg-emerald-600 text-white px-8 py-3 rounded-lg hover:bg-emerald-700 transition-colors disabled:bg-gray-400 flex items-center gap-2 font-medium"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-4 rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center gap-2 font-semibold text-lg shadow-lg"
             >
               <Search className="w-5 h-5" />
               {loading ? 'Searching...' : 'Track Order'}
-            </button>
+            </motion.button>
           </form>
 
           {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="mt-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3"
+            >
               <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-red-800">{error}</p>
-            </div>
+              <p className="text-red-800 dark:text-red-300">{error}</p>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Order Details */}
         {order && (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gold-200/50 dark:border-primary-700/50"
+          >
             {/* Status Banner */}
             <div className={`${getStatusInfo(order.paymentStatus).bgColor} border-b ${getStatusInfo(order.paymentStatus).borderColor} p-6`}>
               <div className="flex items-center gap-4">
-                <div className={getStatusInfo(order.paymentStatus).color}>
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                  className={getStatusInfo(order.paymentStatus).color}
+                >
                   {getStatusInfo(order.paymentStatus).icon}
-                </div>
+                </motion.div>
                 <div>
                   <h2 className={`text-2xl font-bold ${getStatusInfo(order.paymentStatus).color}`}>
                     {getStatusInfo(order.paymentStatus).title}
                   </h2>
-                  <p className="text-gray-600 mt-1">
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
                     {getStatusInfo(order.paymentStatus).message}
                   </p>
                 </div>
@@ -147,8 +206,8 @@ const TrackOrderPage = () => {
               {/* Admin Notes - TOP */}
               {order.paymentStatus === 'verified' && order.adminNotes && (
                 <div>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-green-900 mb-2">Admin Notes</h4>
+                  <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-4">
+                    <h4 className="text-sm font-semibold text-green-900 dark:text-green-300 mb-2">Admin Notes</h4>
                     <p className="text-gray-700">{order.adminNotes}</p>
                     {order.verifiedAt && (
                       <p className="text-sm text-green-600 mt-2">
@@ -272,11 +331,15 @@ const TrackOrderPage = () => {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className={`flex-shrink-0 w-8 h-8 ${
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.3, type: "spring" }}
+                      className={`flex-shrink-0 w-8 h-8 ${
                       order.paymentStatus === 'verified' ? 'bg-green-600' : 
                       order.paymentStatus === 'rejected' ? 'bg-red-600' : 
                       'bg-yellow-500'
-                    } rounded-full flex items-center justify-center`}>
+                    } rounded-full flex items-center justify-center shadow-lg`}>
                       {order.paymentStatus === 'verified' ? (
                         <CheckCircle className="w-5 h-5 text-white" />
                       ) : order.paymentStatus === 'rejected' ? (
@@ -284,18 +347,18 @@ const TrackOrderPage = () => {
                       ) : (
                         <Clock className="w-5 h-5 text-white" />
                       )}
-                    </div>
+                    </motion.div>
                     <div>
-                      <p className="font-medium text-gray-900 capitalize">{order.paymentStatus}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100 capitalize">{order.paymentStatus}</p>
                       {order.verifiedAt && (
-                        <p className="text-sm text-gray-600">{format(new Date(order.verifiedAt), 'MMM dd, yyyy HH:mm')}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{format(new Date(order.verifiedAt), 'MMM dd, yyyy HH:mm')}</p>
                       )}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

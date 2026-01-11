@@ -156,113 +156,175 @@ export default function MureedCardPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="rounded-3xl shadow-2xl overflow-hidden"
           >
             {/* Mureed Card - This is what gets downloaded */}
-            <div ref={cardRef} className="bg-white p-8">
-              {/* Card Header with Islamic Design */}
-              <div className="text-center mb-6 pb-6 border-b-2 border-primary-500">
-                {/* Logo and Arabic Text */}
-                <div className="flex items-center justify-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary-600 to-primary-800 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-gold-400 font-arabic">ش</span>
-                  </div>
-                  <div>
-                    <h1 className="text-3xl md:text-4xl font-arabic text-primary-800 leading-tight">
-                      طریقی روحانی درسگاہ
-                    </h1>
-                  </div>
-                </div>
-                
-                {/* English Title */}
-                <p className="text-lg text-gray-600">
-                  Oath Taken Under: <span className="font-bold text-primary-800">Sahibzada Shariq Ahmed Tariqi</span>
-                </p>
-                <p className="text-sm text-gold-600 font-arabic">( دامت برکاتہم العالیہ )</p>
+            <div ref={cardRef} className="relative bg-gradient-to-br from-[#fefefe] via-[#f8f6f0] to-[#f0ebe0] overflow-hidden">
+              {/* Decorative Top Border */}
+              <div className="h-3 bg-gradient-to-r from-primary-600 via-gold-500 to-primary-600"></div>
+              
+              {/* Background Logo - Watermark Style - Like Homepage */}
+              <div 
+                className="absolute pointer-events-none"
+                style={{ 
+                  top: '50%', 
+                  left: '50%', 
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 0,
+                  opacity: 0.18
+                }}
+              >
+                <img 
+                  src="/images/logo.png" 
+                  alt="Background Watermark" 
+                  className="w-[550px] h-[550px] object-contain"
+                  style={{ display: 'block', filter: 'none' }}
+                />
               </div>
 
-              {/* Mureed ID */}
-              <div className="text-center mb-6">
-                <span className="bg-primary-100 text-primary-800 px-4 py-2 rounded-full text-lg font-bold">
-                  Reg. No: Mureed ID - {mureed.mureedId}
-                </span>
-              </div>
-
-              {/* Card Body */}
-              <div className="flex flex-col md:flex-row gap-8">
-                {/* Details */}
-                <div className="flex-1 space-y-4">
-                  <div className="border-b border-gray-200 pb-3">
-                    <span className="text-sm text-gray-500 font-medium">Full Name:</span>
-                    <p className="text-lg font-semibold text-gray-900">{mureed.fullName}</p>
-                  </div>
-                  
-                  <div className="border-b border-gray-200 pb-3">
-                    <span className="text-sm text-gray-500 font-medium">Father Name:</span>
-                    <p className="text-lg font-semibold text-gray-900">{mureed.fatherName}</p>
-                  </div>
-                  
-                  <div className="border-b border-gray-200 pb-3">
-                    <span className="text-sm text-gray-500 font-medium">Date Of Birth:</span>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {new Date(mureed.dateOfBirth).toISOString().split('T')[0]}
-                    </p>
-                  </div>
-                  
-                  <div className="border-b border-gray-200 pb-3">
-                    <span className="text-sm text-gray-500 font-medium">Country:</span>
-                    <p className="text-lg font-semibold text-gray-900">{mureed.country}</p>
-                  </div>
-                  
-                  <div className="border-b border-gray-200 pb-3">
-                    <span className="text-sm text-gray-500 font-medium">City:</span>
-                    <p className="text-lg font-semibold text-gray-900">{mureed.city}</p>
-                  </div>
-                  
-                  <div className="border-b border-gray-200 pb-3">
-                    <span className="text-sm text-gray-500 font-medium">Address:</span>
-                    <p className="text-gray-900">{mureed.address}</p>
-                  </div>
-                  
-                  <div className="pb-3">
-                    <span className="text-sm text-gray-500 font-medium">Contact:</span>
-                    <p className="text-lg font-semibold text-gray-900">{mureed.contactNumber}</p>
-                  </div>
-                </div>
-
-                {/* Profile Picture */}
-                <div className="flex-shrink-0 flex flex-col items-center">
-                  <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-primary-500 shadow-lg">
-                    <img
-                      src={mureed.profilePicture}
-                      alt={mureed.fullName}
-                      className="w-full h-full object-cover"
-                      crossOrigin="anonymous"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Footer */}
-              <div className="mt-8 pt-6 border-t-2 border-primary-500">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                  <div className="text-center md:text-left">
-                    <p className="text-sm text-gray-500 font-arabic">
-                      ہراسلامی ماہ کی چوتھی تاریخ کو شائع کو شیخ شانی و روحانی درس گاہ پر عزائے کا اہتمام کیا جاتا ہے۔
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      www.shariqahmedtariqi.com
-                    </p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-20 h-20 border-2 border-primary-600 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary-50 to-white">
-                      <span className="text-2xl font-arabic text-primary-700">ش</span>
+              {/* Corner Decorations */}
+              <div className="absolute top-0 left-0 w-24 h-24 border-l-4 border-t-4 border-gold-400/30 rounded-tl-3xl" style={{ zIndex: 5 }}></div>
+              <div className="absolute top-0 right-0 w-24 h-24 border-r-4 border-t-4 border-gold-400/30 rounded-tr-3xl" style={{ zIndex: 5 }}></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 border-l-4 border-b-4 border-gold-400/30 rounded-bl-3xl" style={{ zIndex: 5 }}></div>
+              <div className="absolute bottom-0 right-0 w-24 h-24 border-r-4 border-b-4 border-gold-400/30 rounded-br-3xl" style={{ zIndex: 5 }}></div>
+              
+              <div className="p-8 md:p-10">
+                {/* Card Header with Islamic Design */}
+                <div className="text-center mb-8 pb-6 border-b-2 border-gradient relative z-10" style={{borderImage: 'linear-gradient(to right, transparent, #1B4332, #D4AF37, #1B4332, transparent) 1'}}>
+                  {/* Logo and Arabic Text */}
+                  <div className="flex items-center justify-center gap-4 mb-4">
+                    <div className="p-2 bg-gradient-to-br from-primary-100 to-gold-100 rounded-2xl shadow-lg">
+                      <img 
+                        src="/images/logo.png" 
+                        alt="Tariqi Logo" 
+                        className="w-16 h-16 object-contain"
+                      />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Signature</p>
+                    <div>
+                      <h1 className="text-3xl md:text-4xl font-arabic text-transparent bg-clip-text bg-gradient-to-r from-primary-800 via-primary-600 to-primary-800 leading-tight">
+                        طارقی روحانی درسگاہ
+                      </h1>
+                    </div>
+                  </div>
+                  
+                  {/* English Title */}
+                  <p className="text-lg text-gray-600">
+                    Oath Taken Under: <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-700 to-primary-900">Sahibzada Shariq Ahmed Tariqi</span>
+                  </p>
+                  <p className="text-xl text-transparent bg-clip-text bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 font-arabic mt-2 tracking-wide font-semibold">( دامت برکاتہم العالیہ )</p>
+                </div>
+
+                {/* Mureed ID */}
+                <div className="text-center mb-8 relative z-10">
+                  <span className="inline-block bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 text-white px-6 py-3 rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-transform">
+                    ✨ Reg. No: Mureed ID - {mureed.mureedId} ✨
+                  </span>
+                </div>
+
+                {/* Card Body */}
+                <div className="flex flex-col md:flex-row gap-8 relative" style={{ zIndex: 10 }}>
+                  {/* Details */}
+                  <div className="flex-1 space-y-4 bg-transparent rounded-2xl p-6 border border-gold-200/30">
+                    <div className="border-b border-gold-200 pb-3 group">
+                      <span className="text-sm text-primary-600 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-gold-400"></span>
+                        Full Name:
+                      </span>
+                      <p className="text-lg font-semibold text-gray-800 mt-1">{mureed.fullName}</p>
+                    </div>
+                    
+                    <div className="border-b border-gold-200 pb-3">
+                      <span className="text-sm text-primary-600 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-gold-400"></span>
+                        Father Name:
+                      </span>
+                      <p className="text-lg font-semibold text-gray-800 mt-1">{mureed.fatherName}</p>
+                    </div>
+                    
+                    <div className="border-b border-gold-200 pb-3">
+                      <span className="text-sm text-primary-600 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-gold-400"></span>
+                        Date Of Birth:
+                      </span>
+                      <p className="text-lg font-semibold text-gray-800 mt-1">
+                        {new Date(mureed.dateOfBirth).toISOString().split('T')[0]}
+                      </p>
+                    </div>
+                    
+                    <div className="border-b border-gold-200 pb-3">
+                      <span className="text-sm text-primary-600 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-gold-400"></span>
+                        Country:
+                      </span>
+                      <p className="text-lg font-semibold text-gray-800 mt-1">{mureed.country}</p>
+                    </div>
+                    
+                    <div className="border-b border-gold-200 pb-3">
+                      <span className="text-sm text-primary-600 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-gold-400"></span>
+                        City:
+                      </span>
+                      <p className="text-lg font-semibold text-gray-800 mt-1">{mureed.city}</p>
+                    </div>
+                    
+                    <div className="border-b border-gold-200 pb-3">
+                      <span className="text-sm text-primary-600 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-gold-400"></span>
+                        Address:
+                      </span>
+                      <p className="text-gray-800 mt-1">{mureed.address}</p>
+                    </div>
+                    
+                    <div className="pb-2">
+                      <span className="text-sm text-primary-600 font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-gold-400"></span>
+                        Contact:
+                      </span>
+                      <p className="text-lg font-semibold text-gray-800 mt-1">{mureed.contactNumber}</p>
+                    </div>
+                  </div>
+
+                  {/* Profile Picture */}
+                  <div className="flex-shrink-0 flex flex-col items-center justify-start pt-4">
+                    <div className="relative">
+                      {/* Decorative ring */}
+                      <div className="absolute -inset-2 bg-gradient-to-br from-gold-400 via-primary-500 to-gold-400 rounded-full opacity-75 blur-sm"></div>
+                      <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-2xl">
+                        <img
+                          src={mureed.profilePicture}
+                          alt={mureed.fullName}
+                          className="w-full h-full object-cover"
+                          crossOrigin="anonymous"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer */}
+                <div className="mt-8 pt-6 border-t-2 relative z-10" style={{borderImage: 'linear-gradient(to right, transparent, #1B4332, #D4AF37, #1B4332, transparent) 1'}}>
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="text-center md:text-left">
+                      <p className="text-sm text-primary-700 font-arabic leading-relaxed">
+                        ہراسلامی ماہ کی چوتھی تاریخ کو شائع کو شیخ شانی و روحانی درس گاہ پر عزائے کا اہتمام کیا جاتا ہے۔
+                      </p>
+                      <p className="text-sm text-gold-600 mt-2 font-medium">
+                        🌐 www.shariqahmedtariqi.com
+                      </p>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="w-20 h-20 border-3 border-primary-600 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-gold-50 shadow-lg">
+                        <span className="text-3xl font-arabic text-transparent bg-clip-text bg-gradient-to-br from-primary-700 to-gold-600">ش</span>
+                      </div>
+                      <p className="text-xs text-primary-600 mt-2 font-medium">Official Signature</p>
+                    </div>
                   </div>
                 </div>
               </div>
+              
+              {/* Decorative Bottom Border */}
+              <div className="h-3 bg-gradient-to-r from-primary-600 via-gold-500 to-primary-600"></div>
             </div>
           </motion.div>
 

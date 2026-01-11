@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
@@ -10,6 +10,73 @@ import {
 import { Button } from '@/components/ui/button'
 import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
+
+// Animated Number Component
+interface AnimatedCounterProps {
+  end: number
+  suffix?: string
+  decimal?: boolean
+}
+
+function AnimatedCounter({ end, suffix = '', decimal = false }: AnimatedCounterProps) {
+  const [count, setCount] = useState(0)
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current)
+      }
+    }
+  }, [hasAnimated])
+
+  useEffect(() => {
+    if (!hasAnimated) return
+
+    const duration = 2000
+    const startTime = Date.now()
+    
+    const easeOutCubic = (t: number): number => {
+      return 1 - Math.pow(1 - t, 3)
+    }
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easedProgress = easeOutCubic(progress)
+      const currentValue = easedProgress * end
+
+      if (progress < 1) {
+        setCount(currentValue)
+        requestAnimationFrame(animate)
+      } else {
+        setCount(end)
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [hasAnimated, end])
+
+  return (
+    <span ref={ref} className="text-3xl font-bold">
+      {decimal ? count.toFixed(1) : Math.floor(count).toLocaleString()}{suffix}
+    </span>
+  )
+}
 
 // Countries list
 const countries = [
@@ -97,6 +164,29 @@ export default function MureedRegistrationPage() {
   
   // UI state
   const [loading, setLoading] = useState(false)
+  const [checkingContact, setCheckingContact] = useState(false)
+
+  // Check if contact already exists when user leaves the contact field
+  const checkExistingMureed = async (contact: string) => {
+    if (!contact || contact.length < 10) return
+    
+    try {
+      setCheckingContact(true)
+      const response = await apiClient.get(`/mureeds/check-contact/${contact}`)
+      
+      if (response.data.exists) {
+        toast.success(`You are already registered! Redirecting to your card...`)
+        setTimeout(() => {
+          navigate(`/mureed/card/${response.data.mureedId}`)
+        }, 1500)
+      }
+    } catch (error) {
+      // Contact not found, user can continue registration
+      console.log('Contact not found, new registration allowed')
+    } finally {
+      setCheckingContact(false)
+    }
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -105,6 +195,12 @@ export default function MureedRegistrationPage() {
     // Reset city when country changes
     if (name === 'country') {
       setFormData(prev => ({ ...prev, city: '' }))
+    }
+  }
+
+  const handleContactBlur = () => {
+    if (formData.contactNumber) {
+      checkExistingMureed(formData.contactNumber)
     }
   }
 
@@ -266,21 +362,21 @@ export default function MureedRegistrationPage() {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
                   <Users className="h-5 w-5" />
-                  <span className="text-3xl font-bold">5000+</span>
+                  <AnimatedCounter end={5000} suffix="+" />
                 </div>
                 <p className="text-gray-300 text-sm mt-1">Registered Mureeds</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
                   <Heart className="h-5 w-5 fill-current" />
-                  <span className="text-3xl font-bold">50+</span>
+                  <AnimatedCounter end={50} suffix="+" />
                 </div>
                 <p className="text-gray-300 text-sm mt-1">Countries</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
                   <Star className="h-5 w-5 fill-current" />
-                  <span className="text-3xl font-bold">100%</span>
+                  <AnimatedCounter end={100} suffix="%" />
                 </div>
                 <p className="text-gray-300 text-sm mt-1">Blessed Family</p>
               </div>
@@ -354,12 +450,14 @@ export default function MureedRegistrationPage() {
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <Phone className="h-4 w-4" />
                       Contact Number *
+                      {checkingContact && <span className="text-xs text-gold-500 ml-2">Checking...</span>}
                     </label>
                     <input
                       type="tel"
                       name="contactNumber"
                       value={formData.contactNumber}
                       onChange={handleInputChange}
+                      onBlur={handleContactBlur}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white transition-all"
                       placeholder="e.g., 03001234567"
                       required
