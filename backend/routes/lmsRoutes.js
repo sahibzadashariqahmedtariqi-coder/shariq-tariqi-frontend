@@ -32,7 +32,12 @@ import {
   verifyCertificate,
   getCertificateDetails,
   getAllCertificates,
-  revokeCertificate
+  revokeCertificate,
+  toggleStudentClassLock,
+  getEnrollmentClasses,
+  bulkUpdateStudentClassAccess,
+  issueCertificateManually,
+  restoreCertificate
 } from '../controllers/lmsEnrollmentController.js';
 import {
   createLMSStudent,
@@ -114,9 +119,16 @@ router.put('/enrollments/:enrollmentId/block', protect, admin, toggleEnrollmentA
 router.delete('/enrollments/:enrollmentId', protect, admin, removeEnrollment);
 router.put('/courses/:courseId/block-defaulters', protect, admin, blockFeeDefaulters);
 
+// Per-Student Class Access Control
+router.get('/enrollments/:enrollmentId/classes', protect, admin, getEnrollmentClasses);
+router.put('/enrollments/:enrollmentId/class/:classId/toggle-lock', protect, admin, toggleStudentClassLock);
+router.put('/enrollments/:enrollmentId/bulk-class-access', protect, admin, bulkUpdateStudentClassAccess);
+
 // Certificate Management (Admin)
 router.get('/certificates', protect, admin, getAllCertificates);
+router.post('/certificates/issue', protect, admin, issueCertificateManually);
 router.put('/certificates/:id/revoke', protect, admin, revokeCertificate);
+router.put('/certificates/:id/restore', protect, admin, restoreCertificate);
 
 // ==================== LMS STUDENT MANAGEMENT (Admin) ====================
 router.post('/students', protect, admin, createLMSStudent);

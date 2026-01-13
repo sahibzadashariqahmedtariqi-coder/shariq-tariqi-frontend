@@ -1,11 +1,10 @@
 import mongoose from 'mongoose';
 
 const lmsCertificateSchema = new mongoose.Schema({
-  // Unique certificate number
+  // Unique certificate number (auto-generated in pre-save hook)
   certificateNumber: {
     type: String,
-    unique: true,
-    required: true
+    unique: true
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,

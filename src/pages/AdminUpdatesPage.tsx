@@ -11,6 +11,9 @@ interface Update {
   _id: string
   title: string
   description: string
+  fullContent?: string
+  detailImage1?: string
+  detailImage2?: string
   date: string
   category: 'announcement' | 'event' | 'news' | 'course' | 'general'
   link?: string
@@ -34,6 +37,9 @@ export default function AdminUpdatesPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    fullContent: '',
+    detailImage1: '',
+    detailImage2: '',
     date: '',
     category: 'announcement' as 'announcement' | 'event' | 'news' | 'course' | 'general',
     link: '',
@@ -64,6 +70,9 @@ export default function AdminUpdatesPage() {
     setFormData({
       title: update.title,
       description: update.description,
+      fullContent: update.fullContent || '',
+      detailImage1: update.detailImage1 || '',
+      detailImage2: update.detailImage2 || '',
       date: update.date,
       category: update.category,
       link: update.link || '',
@@ -73,11 +82,11 @@ export default function AdminUpdatesPage() {
     setIsEditing(true)
   }
 
-  const handleImageUpload = async (file: File, type: 'image' | 'promoImage') => {
+  const handleImageUpload = async (file: File, type: 'image' | 'promoImage' | 'detailImage1' | 'detailImage2') => {
     try {
       if (type === 'image') {
         setUploadingImage(true)
-      } else {
+      } else if (type === 'promoImage') {
         setUploadingPromo(true)
       }
       
@@ -96,7 +105,7 @@ export default function AdminUpdatesPage() {
     } finally {
       if (type === 'image') {
         setUploadingImage(false)
-      } else {
+      } else if (type === 'promoImage') {
         setUploadingPromo(false)
       }
     }
@@ -147,6 +156,9 @@ export default function AdminUpdatesPage() {
     setFormData({
       title: '',
       description: '',
+      fullContent: '',
+      detailImage1: '',
+      detailImage2: '',
       date: '',
       category: 'announcement',
       link: '',
@@ -231,7 +243,93 @@ export default function AdminUpdatesPage() {
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
                 required
+                placeholder="Short description shown on homepage cards"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Full Content (Optional - for "Learn More" page)
+              </label>
+              <textarea
+                value={formData.fullContent}
+                onChange={(e) => setFormData({ ...formData, fullContent: e.target.value })}
+                rows={10}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Detailed content shown when user clicks 'Learn More'. Leave empty to use description only."
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                This content will be displayed on the full update detail page (/blog/ID)
+              </p>
+            </div>
+
+            {/* Detail Page Images */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Detail Page Image 1 (Optional)
+                </label>
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg mb-2">
+                  <p className="text-xs text-indigo-700 dark:text-indigo-400">📸 First image for "Learn More" detail page</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleImageUpload(file, 'detailImage1' as any)
+                  }}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                />
+                <div className="mt-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">OR paste URL:</p>
+                  <input
+                    type="text"
+                    value={formData.detailImage1}
+                    onChange={(e) => setFormData({ ...formData, detailImage1: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white text-sm"
+                  />
+                </div>
+                {formData.detailImage1 && (
+                  <div className="mt-2">
+                    <img src={formData.detailImage1} alt="Preview 1" className="w-24 h-24 object-cover rounded-lg border-2 border-gray-200 pointer-events-none" />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Detail Page Image 2 (Optional)
+                </label>
+                <div className="p-3 bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 rounded-lg mb-2">
+                  <p className="text-xs text-pink-700 dark:text-pink-400">📸 Second image for "Learn More" detail page</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleImageUpload(file, 'detailImage2' as any)
+                  }}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 cursor-pointer"
+                />
+                <div className="mt-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">OR paste URL:</p>
+                  <input
+                    type="text"
+                    value={formData.detailImage2}
+                    onChange={(e) => setFormData({ ...formData, detailImage2: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white text-sm"
+                  />
+                </div>
+                {formData.detailImage2 && (
+                  <div className="mt-2">
+                    <img src={formData.detailImage2} alt="Preview 2" className="w-24 h-24 object-cover rounded-lg border-2 border-gray-200 pointer-events-none" />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -333,7 +431,8 @@ export default function AdminUpdatesPage() {
                   <img 
                     src={formData.image} 
                     alt="Icon Preview" 
-                    className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600"
+                    className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600 pointer-events-none select-none"
+                    draggable={false}
                   />
                 </div>
               )}
@@ -406,7 +505,8 @@ export default function AdminUpdatesPage() {
                   <img 
                     src={formData.promoImage} 
                     alt="Promo Preview" 
-                    className="w-32 h-48 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600"
+                    className="w-32 h-48 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600 pointer-events-none select-none"
+                    draggable={false}
                   />
                 </div>
               )}

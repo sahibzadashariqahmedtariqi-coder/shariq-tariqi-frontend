@@ -1,6 +1,9 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   Award, Download, Share2, Calendar,
   BookOpen, Shield, ChevronLeft
@@ -11,6 +14,8 @@ import api from '../services/api';
 
 const LMSCertificatePage = () => {
   const { certificateId } = useParams();
+  const [searchParams] = useSearchParams();
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   const { data: certificate, isLoading, error } = useQuery({
     queryKey: ['certificate', certificateId],
@@ -20,10 +25,35 @@ const LMSCertificatePage = () => {
     }
   });
 
-  const handleDownload = () => {
-    // In production, this would generate a PDF
-    window.print();
+  const handleDownload = async () => {
+    if (!certificateRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      const link = document.createElement('a');
+      link.download = `Certificate-${certificate?.studentName}-${certificate?.courseTitle}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Error generating certificate image:', error);
+      window.print();
+    }
   };
+
+  // Auto download if ?download=true
+  useEffect(() => {
+    if (searchParams.get('download') === 'true' && certificate && certificateRef.current) {
+      setTimeout(() => {
+        handleDownload();
+      }, 1000);
+    }
+  }, [certificate, searchParams]);
 
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/verify-certificate/${certificate?.verificationCode}`;
@@ -88,90 +118,150 @@ const LMSCertificatePage = () => {
 
           {/* Certificate Card */}
           <motion.div
+            ref={certificateRef}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl shadow-2xl overflow-hidden print:shadow-none print:rounded-none"
+            className="relative bg-gradient-to-br from-amber-50 via-white to-emerald-50 border-8 border-double border-amber-600 rounded-lg shadow-2xl p-8 overflow-hidden print:shadow-none print:rounded-none"
           >
-            {/* Certificate Header */}
-            <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 p-8 text-center text-white print:py-12">
-              <div className="flex justify-center mb-4">
-                <div className="p-4 bg-white/20 rounded-full">
-                  <Award className="w-12 h-12" />
-                </div>
-              </div>
-              <h1 className="text-3xl font-bold mb-2">Certificate of Completion</h1>
-              <p className="text-emerald-100">Sahibzada Shariq Ahmed Tariqi - Spiritual Healing Academy</p>
+            {/* Background Logo Watermark */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+              <img 
+                src="/images/logo.png" 
+                alt="Background Seal" 
+                className="w-[350px] h-[350px] object-contain"
+              />
             </div>
 
-            {/* Certificate Body */}
-            <div className="p-8 lg:p-12 text-center">
-              <p className="text-gray-600 text-lg mb-4">This is to certify that</p>
+            {/* Corner Decorations */}
+            <div className="absolute top-4 left-4 w-20 h-20">
+              <div className="w-full h-full border-l-4 border-t-4 border-amber-600 rounded-tl-lg" />
+            </div>
+            <div className="absolute top-4 right-4 w-20 h-20">
+              <div className="w-full h-full border-r-4 border-t-4 border-amber-600 rounded-tr-lg" />
+            </div>
+            <div className="absolute bottom-4 left-4 w-20 h-20">
+              <div className="w-full h-full border-l-4 border-b-4 border-amber-600 rounded-bl-lg" />
+            </div>
+            <div className="absolute bottom-4 right-4 w-20 h-20">
+              <div className="w-full h-full border-r-4 border-b-4 border-amber-600 rounded-br-lg" />
+            </div>
 
-              <h2 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Georgia, serif' }}>
-                {certificate.studentName}
-              </h2>
+            {/* Content */}
+            <div className="relative z-10 text-center space-y-4">
+              {/* Bismillah */}
+              <p className="text-amber-700 text-xl font-arabic" style={{ fontFamily: 'serif' }}>
+                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+              </p>
 
-              {certificate.studentId && (
-                <p className="text-gray-500 mb-6">Student ID: {certificate.studentId}</p>
-              )}
-
-              <p className="text-gray-600 text-lg mb-4">has successfully completed the course</p>
-
-              <h3 className="text-2xl font-bold text-emerald-600 mb-6" style={{ fontFamily: 'Georgia, serif' }}>
-                {certificate.courseTitle}
-              </h3>
-
-              <div className="flex items-center justify-center gap-2 text-gray-600 mb-8">
-                <BookOpen className="w-5 h-5" />
-                <span>{certificate.courseCategory}</span>
+              {/* Logo and Name */}
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-600 shadow-lg bg-emerald-800 flex items-center justify-center">
+                  <img 
+                    src="/images/logo.png" 
+                    alt="Logo" 
+                    className="w-10 h-10 object-contain"
+                  />
+                </div>
+                <div className="text-center">
+                  <h2 className="text-lg font-bold text-emerald-700 italic" style={{ fontFamily: 'Georgia, serif' }}>
+                    Sahibzada Shariq Ahmed Tariqi
+                  </h2>
+                  <p className="text-xs text-emerald-600 tracking-wider">
+                    Spiritual Healing & Guidance
+                  </p>
+                </div>
               </div>
 
-              {/* Completion Date */}
-              <div className="inline-flex items-center gap-2 px-6 py-3 bg-amber-50 rounded-full text-amber-700 mb-8">
-                <Calendar className="w-5 h-5" />
-                <span>
-                  Completed on{' '}
-                  {new Date(certificate.completionDate).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </span>
+              {/* Award Icon */}
+              <div className="flex items-center justify-center gap-4">
+                <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-amber-600 to-amber-600" />
+                <Award className="w-10 h-10 text-amber-600" />
+                <div className="w-12 h-0.5 bg-gradient-to-l from-transparent via-amber-600 to-amber-600" />
+              </div>
+
+              {/* Title */}
+              <h1 className="text-3xl font-bold text-emerald-800 tracking-wide">
+                Certificate of Completion
+              </h1>
+              <p className="text-amber-700 text-xs tracking-widest uppercase font-semibold">
+                Sahibzada Shariq Ahmed Tariqi Academy
+              </p>
+
+              {/* Main Content */}
+              <div className="space-y-3 py-4">
+                <p className="text-gray-600 text-base">This is to certify that</p>
+                
+                <h2 className="text-2xl font-bold text-emerald-700 border-b-2 border-amber-400 pb-1 inline-block px-6">
+                  {certificate.studentName}
+                </h2>
+                
+                <p className="text-gray-600 text-base">has successfully completed the course</p>
+                
+                <h3 className="text-xl font-semibold text-gray-800 italic">
+                  "{certificate.courseTitle}"
+                </h3>
+
+                {/* Completion Date */}
+                <div className="text-gray-600">
+                  <p className="text-xs">Completed on</p>
+                  <p className="font-semibold text-gray-800 text-sm">
+                    {new Date(certificate.completionDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
               </div>
 
               {/* Signature Section */}
-              <div className="border-t pt-8 mt-8">
-                <div className="max-w-xs mx-auto">
-                  <div className="h-16 flex items-center justify-center">
-                    <span className="text-2xl text-gray-400 italic" style={{ fontFamily: 'cursive' }}>
-                      Shariq Ahmed Tariqi
-                    </span>
+              <div className="flex justify-between items-end px-6 pt-4">
+                {/* Instructor Signature */}
+                <div className="text-center flex-1">
+                  <div className="w-32 border-b-2 border-gray-400 mb-1 mx-auto" />
+                  <p className="text-xs font-semibold text-gray-700">Sahibzada Shariq Ahmed Tariqi</p>
+                  <p className="text-[10px] text-gray-500">Spiritual Guide & Teacher</p>
+                </div>
+
+                {/* Official Stamp */}
+                <div className="flex flex-col items-center flex-1">
+                  <div className="relative">
+                    <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-amber-50 via-white to-amber-100 p-1.5 shadow-xl border-2 border-amber-400">
+                      <img 
+                        src="/images/certificate-stamp.png" 
+                        alt="Official Stamp" 
+                        className="w-full h-full object-contain rounded-full"
+                      />
+                    </div>
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[6px] font-bold px-2 py-0.5 rounded-full shadow-md">
+                      ✓ VERIFIED
+                    </div>
                   </div>
-                  <div className="border-t border-gray-300 pt-2">
-                    <p className="font-medium text-gray-900">Sahibzada Shariq Ahmed Tariqi</p>
-                    <p className="text-sm text-gray-500">Instructor & Spiritual Healer</p>
+                </div>
+
+                {/* QR Code and Certificate Number */}
+                <div className="text-center flex-1 flex flex-col items-center">
+                  <div className="bg-white p-1 rounded-md shadow-sm border border-gray-200 mb-1">
+                    <QRCodeSVG 
+                      value={`https://shariqtariqi.com/verify-certificate/${certificate.verificationCode}`}
+                      size={40}
+                      level="M"
+                      fgColor="#1f2937"
+                      bgColor="#ffffff"
+                    />
                   </div>
+                  <p className="text-xs font-mono text-gray-600 mb-1">
+                    {certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber}
+                  </p>
+                  <div className="w-32 border-b-2 border-gray-400 mb-1 mx-auto" />
+                  <p className="text-[10px] text-gray-500">Certificate Number</p>
                 </div>
               </div>
 
-              {/* Verification Info */}
-              <div className="mt-8 p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-center justify-center gap-2 text-gray-600 mb-2">
-                  <Shield className="w-5 h-5 text-emerald-600" />
-                  <span className="font-medium">Verified Certificate</span>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500">Certificate Number</p>
-                    <p className="font-mono font-bold text-gray-900">{certificate.certificateNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Verification Code</p>
-                    <p className="font-mono font-bold text-gray-900">{certificate.verificationCode}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-400 mt-4">
-                  Verify at: {window.location.origin}/verify-certificate/{certificate.verificationCode}
+              {/* Verification Code */}
+              <div className="text-center pt-2">
+                <p className="text-[10px] text-gray-400">
+                  Verify at: shariqtariqi.com/verify • Code: {certificate.verificationCode}
                 </p>
               </div>
             </div>

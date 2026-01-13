@@ -1,298 +1,249 @@
 import { Helmet } from 'react-helmet-async'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Calendar, User, Tag } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { ArrowLeft, Calendar, User, X, ZoomIn, BookOpen, Heart, Share2, Star, Sparkles } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import apiClient from '@/services/api'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
-interface UpdateDetail {
-  id: number
+interface Update {
+  _id: string
   title: string
   description: string
-  fullContent: string
+  fullContent?: string
+  detailImage1?: string
+  detailImage2?: string
   date: string
-  type: 'announcement' | 'event' | 'news'
-  author: string
+  category: string
   image?: string
 }
 
-const updatesData: UpdateDetail[] = [
-  {
-    id: 1,
-    title: "New Spiritual Healing Course Starting",
-    description: "Join our comprehensive spiritual healing course beginning next month. Learn authentic Islamic healing methods and spiritual practices.",
-    fullContent: `We are excited to announce the launch of our comprehensive Spiritual Healing Course starting from December 1st, 2025. This course is designed to provide you with deep insights into authentic Islamic healing methods and spiritual practices.
-
-    Course Highlights:
-    • Learn traditional Islamic healing techniques
-    • Understand the spiritual dimensions of well-being
-    • Practice authentic Ruqyah and spiritual healing methods
-    • Gain knowledge of Quranic verses for healing
-    • Study the prophetic medicine (Tibb-e-Nabawi)
-    • Interactive sessions with experienced spiritual healers
-    
-    Duration: 3 Months
-    Schedule: Every weekend (Saturday & Sunday)
-    Mode: Both online and in-person sessions available
-    
-    This course is perfect for those who wish to deepen their spiritual connection and learn how to help others through Islamic healing practices. Limited seats available, so register early to secure your spot.
-    
-    What You Will Learn:
-    - The foundations of Islamic spiritual healing
-    - Practical application of Quranic verses and supplications
-    - Diagnosis and treatment of spiritual ailments
-    - Protection from evil eye and black magic
-    - Building a strong connection with Allah through spiritual practices
-    
-    Our experienced instructors have years of knowledge in traditional Islamic healing and will guide you through every step of your spiritual journey.`,
-    date: "2025-12-01",
-    type: "event",
-    author: "Sahibzada Shariq Ahmed Tariqi"
-  },
-  {
-    id: 2,
-    title: "Ruhani Punjab Tour",
-    description: "Join us on an enlightening spiritual journey across Punjab. Experience divine blessings, spiritual healing sessions, and traditional Islamic teachings in multiple cities.",
-    fullContent: `Assalamu Alaikum wa Rahmatullahi wa Barakatuhu,
-
-    We are pleased to announce the Ruhani Punjab Tour - a transformative spiritual journey across the blessed land of Punjab. This tour is designed to bring spiritual healing, divine blessings, and authentic Islamic teachings to communities across multiple cities.
-
-    Tour Details:
-    Starting Date: November 20, 2025
-    Duration: 2 Weeks
-    Cities Covered: Lahore, Faisalabad, Multan, Gujranwala, Sialkot, and more
-    
-    What to Expect:
-    • Daily Spiritual Gatherings (Majalis) after Maghrib prayer
-    • Individual spiritual healing sessions
-    • TAQ healing and Ruqyah sessions
-    • Traditional Hikmat consultations
-    • Distribution of blessed herbal medicines
-    • Question & Answer sessions on Islamic spirituality
-    • Special prayers and supplications for attendees
-    
-    Program Schedule:
-    - Morning: Individual consultations and healing sessions
-    - Afternoon: Group spiritual discussions and Islamic teachings
-    - Evening: Main Majlis with spiritual guidance and collective prayers
-    
-    Special Features:
-    • Free consultation for those in need
-    • Distribution of blessed items and spiritual protection amulets
-    • Traditional Hikmat medicine prescriptions
-    • Spiritual guidance for personal and family matters
-    • Special focus on healing from spiritual ailments
-    
-    Cities and Dates:
-    - Lahore: Nov 20-22
-    - Faisalabad: Nov 23-25
-    - Multan: Nov 26-28
-    - Gujranwala: Nov 29-30
-    - Sialkot: Dec 1-3
-    
-    This is a blessed opportunity to strengthen your connection with Allah, seek spiritual healing, and receive guidance from experienced spiritual scholars. All are welcome to attend - no prior registration required for the main gatherings.
-    
-    For individual consultation appointments during the tour, please book in advance through our appointments page.
-    
-    May Allah accept this humble effort and shower His blessings upon all attendees. Ameen.`,
-    date: "2025-11-20",
-    type: "announcement",
-    author: "Sahibzada Shariq Ahmed Tariqi"
-  },
-  {
-    id: 3,
-    title: "New Herbal Medicine Products Available",
-    description: "We have added new authentic herbal medicines and spiritual healing items to our products collection.",
-    fullContent: `Alhamdulillah, we are delighted to announce the addition of new authentic herbal medicines and spiritual healing items to our products collection. These carefully prepared products combine traditional Hikmat wisdom with spiritual blessings.
-
-    New Products Added:
-    
-    Herbal Medicines:
-    • Premium Honey with Black Seed (Kalonji)
-    • Saffron Extract for Mental Clarity
-    • Digestive Health Herbal Mix
-    • Joint Pain Relief Oil
-    • Memory Enhancement Capsules
-    • Immunity Booster Syrup
-    • Stress Relief Herbal Tea
-    • Sleep Enhancement Formula
-    
-    Spiritual Healing Items:
-    • Blessed Protection Amulets (Ta'weez)
-    • Spiritual Cleansing Water (Dum water)
-    • Blessed Rose Water
-    • Incense for Home Purification
-    • Protection Oil with Quranic verses
-    • Blessed Black Seed Oil
-    
-    Why Choose Our Products:
-    ✓ Prepared according to traditional Hikmat methods
-    ✓ All herbal medicines use natural, high-quality ingredients
-    ✓ Spiritual items blessed with Quranic recitation
-    ✓ No harmful chemicals or artificial additives
-    ✓ Tested and trusted by thousands of satisfied customers
-    ✓ Prepared under strict quality control
-    
-    Special Introductory Offers:
-    - 15% off on all new products for the first month
-    - Free consultation with product purchase
-    - Free home delivery on orders above PKR 3000
-    - Special bundle packages available
-    
-    Each product comes with:
-    • Detailed usage instructions in Urdu and English
-    • Recommended prayers and supplications
-    • Storage guidelines
-    • Authenticity certificate
-    
-    How to Order:
-    Visit our Products page to browse the complete collection. Each product listing includes detailed information about ingredients, benefits, usage instructions, and pricing.
-    
-    Customer Support:
-    Our team is available to answer your questions and provide guidance on product selection. Contact us through:
-    • WhatsApp: [Contact Number]
-    • Email: support@shariqtariqi.com
-    • Phone: Available during business hours
-    
-    Note: These products are meant to complement spiritual practices and medical treatment, not replace them. For serious health conditions, please consult with qualified medical professionals.
-    
-    May Allah grant healing and wellness to all. Ameen.`,
-    date: "2025-11-18",
-    type: "news",
-    author: "Admin Team"
-  },
-  {
-    id: 4,
-    title: "Appointment Booking Now Open",
-    description: "Book your personal consultation sessions for spiritual guidance, TAQ healing, and traditional Hikmat treatment.",
-    fullContent: `Assalamu Alaikum,
-
-    We are pleased to announce that appointment bookings are now open for personal consultation sessions with Sahibzada Shariq Ahmed Tariqi.
-
-    Available Services:
-    
-    1. Spiritual Guidance & Counseling
-    - Personal spiritual development
-    - Islamic lifestyle guidance
-    - Family matters and relationships
-    - Business and career guidance from Islamic perspective
-    
-    2. TAQ Healing Sessions
-    - Energy healing based on Quranic principles
-    - Chakra balancing through Islamic methods
-    - Spiritual cleansing and protection
-    - Removal of negative energies
-    
-    3. Traditional Hikmat Treatment
-    - Herbal medicine prescriptions
-    - Natural healing remedies
-    - Chronic disease management
-    - Preventive healthcare guidance
-    
-    4. Ruqyah and Spiritual Healing
-    - Treatment for evil eye (Nazar)
-    - Protection from black magic (Sihr)
-    - Relief from Jinn possession
-    - Spiritual ailments diagnosis and treatment
-    
-    Appointment Types:
-    
-    In-Person Consultation:
-    - Duration: 30-60 minutes
-    - Location: Main Center, Lahore
-    - Charges: PKR 2000-5000 (based on service type)
-    - Includes: Face-to-face consultation, personalized treatment plan
-    
-    Online Consultation:
-    - Duration: 30 minutes
-    - Platform: WhatsApp Video Call / Zoom
-    - Charges: PKR 1500-3000
-    - Includes: Video consultation, follow-up via messages
-    
-    Phone Consultation:
-    - Duration: 20 minutes
-    - Charges: PKR 1000
-    - Suitable for: Quick guidance and follow-ups
-    
-    How to Book:
-    1. Visit our Appointments page
-    2. Select your preferred service type
-    3. Choose date and time slot
-    4. Fill in your details and concerns
-    5. Submit booking request
-    6. Receive confirmation via SMS/Email
-    
-    Important Information:
-    • Limited slots available each day
-    • Advance booking recommended
-    • Cancellation policy: 24 hours notice required
-    • Payment can be made online or at the time of appointment
-    • For emergency cases, please call our helpline
-    
-    Special Notes:
-    - First-time visitors get 20% discount
-    - Free follow-up consultation within 15 days
-    - Family package deals available
-    - Special rates for students and elderly
-    
-    Preparation for Your Appointment:
-    • Be in a state of Wudhu if possible
-    • Prepare a list of your concerns/questions
-    • Bring any previous medical reports if relevant
-    • Ensure a quiet environment for online consultations
-    
-    Testimonials:
-    Thousands of people have benefited from these consultations, finding relief from spiritual, emotional, and physical ailments. Read their stories on our testimonials page.
-    
-    Contact Information:
-    For any queries regarding appointments:
-    • Phone: [Contact Number]
-    • WhatsApp: [WhatsApp Number]
-    • Email: appointments@shariqtariqi.com
-    
-    Available Hours:
-    Monday - Saturday: 10 AM - 8 PM
-    Sunday: 2 PM - 6 PM
-    Friday: After Jummah prayer - 8 PM
-    
-    We look forward to serving you on your spiritual journey. May Allah grant you healing, guidance, and peace.
-    
-    JazakAllahu Khairan,
-    Sahibzada Shariq Ahmed Tariqi Team`,
-    date: "2025-11-15",
-    type: "announcement",
-    author: "Admin Team"
-  }
-]
-
 export default function BlogDetailPage() {
   const { id } = useParams()
-  const updateDetail = updatesData.find(update => update.id === Number(id))
+  const [update, setUpdate] = useState<Update | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [showFullImage, setShowFullImage] = useState(false)
+  const [fullImageSrc, setFullImageSrc] = useState('')
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 100) + 50)
 
-  if (!updateDetail) {
+  useEffect(() => {
+    const fetchUpdate = async () => {
+      try {
+        setLoading(true)
+        const response = await apiClient.get(`/updates/${id}`)
+        if (response.data.success) {
+          setUpdate(response.data.data)
+        } else {
+          setError(true)
+        }
+      } catch (err) {
+        console.error('Failed to fetch update:', err)
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (id) {
+      fetchUpdate()
+    }
+  }, [id])
+
+  const handleImageClick = (src: string) => {
+    setFullImageSrc(src)
+    setShowFullImage(true)
+  }
+
+  const handleLike = () => {
+    setLiked(!liked)
+    setLikeCount(prev => liked ? prev - 1 : prev + 1)
+  }
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: update?.title,
+        text: update?.description,
+        url: window.location.href,
+      })
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+      alert('Link copied to clipboard!')
+    }
+  }
+
+  const typeColors: Record<string, string> = {
+    announcement: 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 dark:from-amber-900/40 dark:to-orange-900/40 dark:text-amber-400 border border-amber-200 dark:border-amber-700',
+    event: 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 dark:from-blue-900/40 dark:to-cyan-900/40 dark:text-blue-400 border border-blue-200 dark:border-blue-700',
+    news: 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 dark:from-green-900/40 dark:to-emerald-900/40 dark:text-green-400 border border-green-200 dark:border-green-700',
+    course: 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 dark:from-purple-900/40 dark:to-pink-900/40 dark:text-purple-400 border border-purple-200 dark:border-purple-700',
+    general: 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 dark:from-gray-900/40 dark:to-slate-900/40 dark:text-gray-400 border border-gray-200 dark:border-gray-700'
+  }
+
+  if (loading) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Update Not Found</h1>
-        <Link to="/" className="text-primary-600 hover:text-primary-700 font-semibold">
-          Return to Home
-        </Link>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-primary-50 dark:from-gray-900 dark:to-gray-800">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <LoadingSpinner size="large" />
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-4 text-gray-600 dark:text-gray-400 font-medium"
+          >
+            Loading spiritual content...
+          </motion.p>
+        </motion.div>
       </div>
     )
   }
 
-  const typeColors = {
-    announcement: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    event: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    news: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+  if (error || !update) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-primary-50 dark:from-gray-900 dark:to-gray-800">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <div className="text-6xl mb-4">🕌</div>
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Update Not Found</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The content you're looking for doesn't exist.</p>
+          <Link to="/" className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-full transition-colors">
+            Return to Home
+          </Link>
+        </motion.div>
+      </div>
+    )
   }
+
+  const displayContent = update.fullContent || update.description
+  const hasDetailImages = update.detailImage1 || update.detailImage2
 
   return (
     <>
       <Helmet>
-        <title>{updateDetail.title} | Sahibzada Shariq Ahmed Tariqi</title>
-        <meta name="description" content={updateDetail.description} />
+        <title>{update.title} | Sahibzada Shariq Ahmed Tariqi</title>
+        <meta name="description" content={update.description} />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-white to-primary-50 dark:from-gray-900 dark:to-gray-800 py-16">
-        <div className="container mx-auto px-4">
+      {/* Full Image Modal */}
+      <AnimatePresence>
+        {showFullImage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4"
+            onClick={() => setShowFullImage(false)}
+          >
+            <motion.button
+              initial={{ opacity: 0, rotate: -90 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: 90 }}
+              onClick={() => setShowFullImage(false)}
+              className="absolute top-6 right-6 text-white hover:text-primary-400 transition-colors z-[101] bg-white/10 p-2 rounded-full backdrop-blur-sm"
+            >
+              <X className="h-8 w-8" />
+            </motion.button>
+            <motion.img
+              initial={{ scale: 0.5, opacity: 0, rotateY: -30 }}
+              animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+              exit={{ scale: 0.5, opacity: 0, rotateY: 30 }}
+              transition={{ type: "spring", damping: 25 }}
+              src={fullImageSrc}
+              alt="Full view"
+              className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="min-h-screen bg-gradient-to-b from-primary-50/50 via-gold-50/30 to-primary-50/40 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-16 relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Animated floating shapes */}
+          <motion.div
+            animate={{ 
+              rotate: 360,
+              scale: [1, 1.1, 1],
+              x: [0, 20, 0],
+              y: [0, -20, 0]
+            }}
+            transition={{ 
+              rotate: { duration: 60, repeat: Infinity, ease: "linear" },
+              scale: { duration: 10, repeat: Infinity, ease: "easeInOut" },
+              x: { duration: 15, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 12, repeat: Infinity, ease: "easeInOut" }
+            }}
+            className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-gradient-to-br from-primary-200/40 to-gold-200/40 dark:from-primary-900/30 dark:to-gold-900/30 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ 
+              rotate: -360,
+              scale: [1, 1.2, 1],
+              x: [0, -30, 0],
+              y: [0, 30, 0]
+            }}
+            transition={{ 
+              rotate: { duration: 50, repeat: Infinity, ease: "linear" },
+              scale: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+              x: { duration: 18, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 14, repeat: Infinity, ease: "easeInOut" }
+            }}
+            className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-tr from-gold-200/40 to-primary-200/40 dark:from-gold-900/30 dark:to-primary-900/30 rounded-full blur-3xl"
+          />
+          {/* Additional floating elements */}
+          <motion.div
+            animate={{ 
+              y: [0, -40, 0],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ 
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute top-1/4 left-10 w-32 h-32 bg-gradient-to-br from-primary-300/30 to-transparent rounded-full blur-2xl"
+          />
+          <motion.div
+            animate={{ 
+              y: [0, 30, 0],
+              opacity: [0.2, 0.5, 0.2]
+            }}
+            transition={{ 
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute bottom-1/4 right-10 w-40 h-40 bg-gradient-to-tl from-gold-300/30 to-transparent rounded-full blur-2xl"
+          />
+          <motion.div
+            animate={{ 
+              scale: [1, 1.3, 1],
+              opacity: [0.2, 0.4, 0.2]
+            }}
+            transition={{ 
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute top-1/2 right-1/4 w-24 h-24 bg-gradient-to-br from-amber-200/30 to-transparent rounded-full blur-xl"
+          />
+          {/* Subtle pattern overlay */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23166534' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }} />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -300,89 +251,270 @@ export default function BlogDetailPage() {
             className="max-w-4xl mx-auto"
           >
             {/* Back Button */}
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 font-semibold mb-8 group"
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
             >
-              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-              Back to Home
-            </Link>
-
-            {/* Article Header */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${typeColors[updateDetail.type]}`}>
-                  {updateDetail.type}
-                </span>
-                <span className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                  <Calendar className="h-4 w-4" />
-                  {new Date(updateDetail.date).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
-                <span className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                  <User className="h-4 w-4" />
-                  {updateDetail.author}
-                </span>
-              </div>
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                {updateDetail.title}
-              </h1>
-
-              <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                {updateDetail.description}
-              </p>
-            </div>
-
-            {/* Article Content */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12">
-              <div className="prose prose-lg dark:prose-invert max-w-none">
-                {updateDetail.fullContent.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-line">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-
-              {/* Call to Action */}
-              <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <div className="bg-gradient-to-r from-primary-50 to-gold-50 dark:from-primary-900/30 dark:to-gold-900/30 rounded-xl p-6 text-center">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                    Want to Learn More?
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Book an appointment or explore our services to get personalized guidance
-                  </p>
-                  <div className="flex flex-wrap gap-4 justify-center">
-                    <Link
-                      to="/appointments"
-                      className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                      Book Appointment
-                    </Link>
-                    <Link
-                      to="/services"
-                      className="px-6 py-3 bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-400 font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-primary-600"
-                    >
-                      View Services
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Share Section */}
-            <div className="mt-8 text-center">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 font-semibold"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full text-primary-600 hover:text-primary-700 dark:text-primary-400 font-semibold mb-8 group shadow-lg hover:shadow-xl transition-all duration-300 border border-primary-100 dark:border-primary-800"
               >
-                ← View All Updates
+                <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+                Back to Home
               </Link>
-            </div>
+            </motion.div>
+
+            {/* Article Header */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl shadow-2xl p-8 md:p-10 mb-8 border border-white/50 dark:border-gray-700/50 relative overflow-hidden"
+            >
+              {/* Decorative corner element */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary-100/50 to-transparent dark:from-primary-900/30 rounded-bl-full" />
+              <Sparkles className="absolute top-4 right-4 h-6 w-6 text-primary-400/50" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6 flex-wrap">
+                  <motion.span 
+                    initial={{ scale: 0, rotate: -10 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", delay: 0.3 }}
+                    className={`px-5 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-md ${typeColors[update.category] || typeColors.general}`}
+                  >
+                    ✨ {update.category}
+                  </motion.span>
+                  <motion.span 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full"
+                  >
+                    <Calendar className="h-4 w-4 text-primary-500" />
+                    {new Date(update.date).toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </motion.span>
+                  <motion.span 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full"
+                  >
+                    <User className="h-4 w-4 text-primary-500" />
+                    Sahibzada Shariq Ahmed Tariqi
+                  </motion.span>
+                </div>
+
+                <motion.h1 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-primary-800 to-gray-900 dark:from-white dark:via-primary-200 dark:to-white bg-clip-text text-transparent mb-6 leading-tight"
+                >
+                  {update.title}
+                </motion.h1>
+
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed"
+                >
+                  {update.description}
+                </motion.p>
+
+                {/* Reading & Interaction Bar */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between flex-wrap gap-4"
+                >
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span className="flex items-center gap-2 bg-primary-50 dark:bg-primary-900/30 px-3 py-1.5 rounded-full">
+                      <BookOpen className="h-4 w-4 text-primary-600" />
+                      <span className="font-medium">{Math.ceil(displayContent.length / 1000)} min read</span>
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleLike}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+                        liked 
+                          ? 'bg-red-100 dark:bg-red-900/30 text-red-600' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                      }`}
+                    >
+                      <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+                      <span className="font-semibold">{likeCount}</span>
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleShare}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-300"
+                    >
+                      <Share2 className="h-5 w-5" />
+                      <span className="font-semibold">Share</span>
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Call to Action */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mb-8"
+            >
+              <div className="bg-gradient-to-r from-primary-600 via-primary-700 to-gold-600 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
+                {/* Decorative patterns */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 left-0 w-full h-full" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                  }} />
+                </div>
+                
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="inline-block mb-4"
+                >
+                  <Star className="h-12 w-12 text-gold-300 fill-gold-300" />
+                </motion.div>
+                
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 relative z-10">
+                  Want to Learn More?
+                </h3>
+                <p className="text-primary-100 mb-6 text-lg relative z-10">
+                  Book an appointment or explore our services for personalized spiritual guidance
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center relative z-10">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Link
+                      to="/appointments"
+                      className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-700 font-bold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300"
+                    >
+                      🕌 Book Appointment
+                    </Link>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Link
+                      to="/services"
+                      className="inline-flex items-center gap-2 px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-bold rounded-full border-2 border-white/50 hover:bg-white/30 transition-all duration-300"
+                    >
+                      ✨ View Services
+                    </Link>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Article Content */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl shadow-2xl p-10 md:p-16 border border-white/50 dark:border-gray-700/50 mb-8 min-h-[300px] relative overflow-hidden"
+            >
+              {/* Decorative quote mark */}
+              <div className="absolute top-6 left-6 text-8xl text-primary-100 dark:text-primary-900/30 font-serif leading-none">"</div>
+              
+              <div className="prose prose-xl dark:prose-invert max-w-none relative z-10">
+                {displayContent.split('\n\n').map((paragraph, index) => (
+                  <motion.p 
+                    key={index} 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 + (index * 0.1) }}
+                    className="text-xl md:text-2xl font-medium text-gray-800 dark:text-gray-200 leading-relaxed mb-8 whitespace-pre-line first-letter:text-4xl first-letter:font-bold first-letter:text-primary-600 first-letter:mr-1"
+                  >
+                    {paragraph}
+                  </motion.p>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Detail Images Gallery */}
+            {hasDetailImages && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.35 }}
+                className="grid md:grid-cols-2 gap-6 mb-8"
+              >
+                {update.detailImage1 && (
+                  <motion.div 
+                    whileHover={{ y: -8 }}
+                    className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl shadow-2xl p-4 overflow-hidden group cursor-pointer border border-white/50 dark:border-gray-700/50"
+                    onClick={() => handleImageClick(update.detailImage1!)}
+                  >
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                      <img 
+                        src={update.detailImage1} 
+                        alt={`${update.title} - Image 1`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
+                        <span className="text-white text-lg font-semibold flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                          <ZoomIn className="h-5 w-5" /> Click to view
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+                {update.detailImage2 && (
+                  <motion.div 
+                    whileHover={{ y: -8 }}
+                    className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl shadow-2xl p-4 overflow-hidden group cursor-pointer border border-white/50 dark:border-gray-700/50"
+                    onClick={() => handleImageClick(update.detailImage2!)}
+                  >
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                      <img 
+                        src={update.detailImage2} 
+                        alt={`${update.title} - Image 2`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
+                        <span className="text-white text-lg font-semibold flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                          <ZoomIn className="h-5 w-5" /> Click to view
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Bottom Navigation */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-12 text-center"
+            >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md text-gray-700 dark:text-gray-300 font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  Back to All Updates
+                </Link>
+              </motion.div>
+            </motion.div>
           </motion.div>
         </div>
       </div>

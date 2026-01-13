@@ -12,6 +12,16 @@ const updateSchema = new mongoose.Schema({
     required: [true, 'Please provide update description'],
     maxlength: [1000, 'Description cannot exceed 1000 characters']
   },
+  fullContent: {
+    type: String,
+    maxlength: [10000, 'Full content cannot exceed 10000 characters']
+  },
+  detailImage1: {
+    type: String
+  },
+  detailImage2: {
+    type: String
+  },
   category: {
     type: String,
     enum: ['event', 'announcement', 'news', 'course', 'general'],

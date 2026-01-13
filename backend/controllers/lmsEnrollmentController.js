@@ -84,7 +84,7 @@ export const getCourseEnrollments = async (req, res) => {
     const { courseId } = req.params;
 
     const enrollments = await LMSEnrollment.find({ course: courseId })
-      .populate('user', 'name email phone studentId isPaidStudent feeStatus')
+      .populate('user', 'name email phone studentId isPaidStudent feeStatus isLMSStudent lmsStudentId')
       .populate('enrolledBy', 'name')
       .sort({ enrolledAt: -1 });
 
@@ -721,6 +721,342 @@ export const revokeCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error('Error revoking certificate:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Toggle class lock for a specific student enrollment
+// @route   PUT /api/lms/enrollments/:enrollmentId/class/:classId/toggle-lock
+// @access  Admin
+export const toggleStudentClassLock = async (req, res) => {
+  try {
+    const { enrollmentId, classId } = req.params;
+    const { action } = req.body; // 'lock' or 'unlock'
+
+    const enrollment = await LMSEnrollment.findById(enrollmentId)
+      .populate('user', 'name email lmsStudentId');
+    
+    if (!enrollment) {
+      return res.status(404).json({ success: false, message: 'Enrollment not found' });
+    }
+
+    const classItem = await LMSClass.findById(classId);
+    if (!classItem) {
+      return res.status(404).json({ success: false, message: 'Class not found' });
+    }
+
+    // Initialize arrays if not exist
+    if (!enrollment.unlockedClasses) enrollment.unlockedClasses = [];
+    if (!enrollment.lockedClasses) enrollment.lockedClasses = [];
+
+    const unlockedIndex = enrollment.unlockedClasses.findIndex(id => id.toString() === classId);
+    const lockedIndex = enrollment.lockedClasses.findIndex(id => id.toString() === classId);
+
+    if (action === 'unlock') {
+      // Add to unlockedClasses if not already there
+      if (unlockedIndex === -1) {
+        enrollment.unlockedClasses.push(classId);
+      }
+      // Remove from lockedClasses if there
+      if (lockedIndex !== -1) {
+        enrollment.lockedClasses.splice(lockedIndex, 1);
+      }
+    } else if (action === 'lock') {
+      // Remove from unlockedClasses if there
+      if (unlockedIndex !== -1) {
+        enrollment.unlockedClasses.splice(unlockedIndex, 1);
+      }
+      // Add to lockedClasses if not already there
+      if (lockedIndex === -1) {
+        enrollment.lockedClasses.push(classId);
+      }
+    }
+
+    await enrollment.save();
+
+    res.json({
+      success: true,
+      message: `Class ${action}ed for student successfully`,
+      data: {
+        enrollmentId: enrollment._id,
+        classId,
+        action,
+        unlockedClasses: enrollment.unlockedClasses,
+        lockedClasses: enrollment.lockedClasses
+      }
+    });
+  } catch (error) {
+    console.error('Error toggling student class lock:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get enrollment details with all classes and their lock status for a student
+// @route   GET /api/lms/enrollments/:enrollmentId/classes
+// @access  Admin
+export const getEnrollmentClasses = async (req, res) => {
+  try {
+    const { enrollmentId } = req.params;
+
+    const enrollment = await LMSEnrollment.findById(enrollmentId)
+      .populate('user', 'name email lmsStudentId phone')
+      .populate('course', 'title');
+    
+    if (!enrollment) {
+      return res.status(404).json({ success: false, message: 'Enrollment not found' });
+    }
+
+    // Get all classes for this course
+    const classes = await LMSClass.find({ course: enrollment.course._id })
+      .sort({ section: 1, order: 1 })
+      .select('title section order duration isLocked isPublished videoUrl');
+
+    // Get progress for each class
+    const progress = await LMSProgress.find({
+      user: enrollment.user._id,
+      course: enrollment.course._id
+    }).select('class status watchProgress');
+
+    const progressMap = {};
+    progress.forEach(p => {
+      progressMap[p.class.toString()] = {
+        status: p.status,
+        watchProgress: p.watchProgress
+      };
+    });
+
+    // Build classes with lock status
+    const classesWithStatus = classes.map(cls => {
+      const classId = cls._id.toString();
+      
+      // Determine lock status for this student
+      // Priority: lockedClasses > unlockedClasses > global isLocked
+      let isLockedForStudent = cls.isLocked; // Start with global lock status
+      
+      // Check if specifically unlocked for this student
+      if (enrollment.unlockedClasses?.some(id => id.toString() === classId)) {
+        isLockedForStudent = false;
+      }
+      
+      // Check if specifically locked for this student (overrides unlock)
+      if (enrollment.lockedClasses?.some(id => id.toString() === classId)) {
+        isLockedForStudent = true;
+      }
+
+      return {
+        _id: cls._id,
+        title: cls.title,
+        section: cls.section,
+        order: cls.order,
+        duration: cls.duration,
+        globalLocked: cls.isLocked,
+        isLockedForStudent,
+        isUnlockedForStudent: enrollment.unlockedClasses?.some(id => id.toString() === classId) || false,
+        isManuallyLocked: enrollment.lockedClasses?.some(id => id.toString() === classId) || false,
+        isPublished: cls.isPublished,
+        progress: progressMap[classId] || { status: 'not-started', watchProgress: 0 }
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        enrollment: {
+          _id: enrollment._id,
+          user: enrollment.user,
+          course: enrollment.course,
+          progress: enrollment.progress,
+          accessBlocked: enrollment.accessBlocked
+        },
+        classes: classesWithStatus
+      }
+    });
+  } catch (error) {
+    console.error('Error getting enrollment classes:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Bulk unlock/lock classes for a student
+// @route   PUT /api/lms/enrollments/:enrollmentId/bulk-class-access
+// @access  Admin
+export const bulkUpdateStudentClassAccess = async (req, res) => {
+  try {
+    const { enrollmentId } = req.params;
+    const { classIds, action } = req.body; // action: 'unlock' or 'lock'
+
+    const enrollment = await LMSEnrollment.findById(enrollmentId);
+    
+    if (!enrollment) {
+      return res.status(404).json({ success: false, message: 'Enrollment not found' });
+    }
+
+    // Initialize arrays if not exist
+    if (!enrollment.unlockedClasses) enrollment.unlockedClasses = [];
+    if (!enrollment.lockedClasses) enrollment.lockedClasses = [];
+
+    for (const classId of classIds) {
+      const unlockedIndex = enrollment.unlockedClasses.findIndex(id => id.toString() === classId);
+      const lockedIndex = enrollment.lockedClasses.findIndex(id => id.toString() === classId);
+
+      if (action === 'unlock') {
+        if (unlockedIndex === -1) {
+          enrollment.unlockedClasses.push(classId);
+        }
+        if (lockedIndex !== -1) {
+          enrollment.lockedClasses.splice(lockedIndex, 1);
+        }
+      } else if (action === 'lock') {
+        if (unlockedIndex !== -1) {
+          enrollment.unlockedClasses.splice(unlockedIndex, 1);
+        }
+        if (lockedIndex === -1) {
+          enrollment.lockedClasses.push(classId);
+        }
+      }
+    }
+
+    await enrollment.save();
+
+    res.json({
+      success: true,
+      message: `${classIds.length} classes ${action}ed for student`,
+      data: {
+        unlockedClasses: enrollment.unlockedClasses,
+        lockedClasses: enrollment.lockedClasses
+      }
+    });
+  } catch (error) {
+    console.error('Error bulk updating class access:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Issue certificate manually (Admin)
+// @route   POST /api/lms/certificates/issue
+// @access  Admin
+export const issueCertificateManually = async (req, res) => {
+  try {
+    const { 
+      userId, 
+      courseId, 
+      enrollmentId,
+      grade = 'pass', 
+      template = 'islamic',
+      instructorName = 'Sahibzada Shariq Ahmed Tariqi',
+      instructorTitle = 'Spiritual Guide & Teacher'
+    } = req.body;
+
+    // Check if certificate already exists
+    const existingCert = await LMSCertificate.findOne({
+      user: userId,
+      course: courseId,
+      status: 'issued'
+    });
+
+    if (existingCert) {
+      return res.status(400).json({
+        success: false,
+        message: 'Certificate already issued for this student and course',
+        data: existingCert
+      });
+    }
+
+    // Get user and course details
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    // Get or find enrollment
+    let enrollment = null;
+    if (enrollmentId) {
+      enrollment = await LMSEnrollment.findById(enrollmentId);
+    } else {
+      enrollment = await LMSEnrollment.findOne({ user: userId, course: courseId });
+    }
+
+    // Create certificate
+    const certificate = await LMSCertificate.create({
+      user: userId,
+      course: courseId,
+      enrollment: enrollment?._id || null,
+      studentName: user.name,
+      studentId: user.lmsStudentId || user.studentId || null,
+      courseTitle: course.title,
+      courseCategory: course.category,
+      completionDate: enrollment?.completedAt || new Date(),
+      template,
+      grade,
+      instructorName,
+      instructorTitle,
+      issuedBy: req.user._id,
+      issuedAt: new Date()
+    });
+
+    // Update enrollment if exists
+    if (enrollment) {
+      enrollment.certificateIssued = true;
+      enrollment.certificateId = certificate._id;
+      enrollment.status = 'completed';
+      enrollment.completedAt = enrollment.completedAt || new Date();
+      await enrollment.save();
+    }
+
+    // Populate the certificate before sending response
+    const populatedCert = await LMSCertificate.findById(certificate._id)
+      .populate('user', 'name email lmsStudentId')
+      .populate('course', 'title category')
+      .populate('issuedBy', 'name');
+
+    res.status(201).json({
+      success: true,
+      message: 'Certificate issued successfully',
+      data: populatedCert
+    });
+  } catch (error) {
+    console.error('Error issuing certificate manually:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Reissue/Restore a revoked certificate (Admin)
+// @route   PUT /api/lms/certificates/:id/restore
+// @access  Admin
+export const restoreCertificate = async (req, res) => {
+  try {
+    const certificate = await LMSCertificate.findById(req.params.id);
+    if (!certificate) {
+      return res.status(404).json({ success: false, message: 'Certificate not found' });
+    }
+
+    if (certificate.status === 'issued') {
+      return res.status(400).json({ success: false, message: 'Certificate is already active' });
+    }
+
+    certificate.status = 'issued';
+    certificate.revokedAt = null;
+    certificate.revokedBy = null;
+    certificate.revocationReason = null;
+
+    await certificate.save();
+
+    const populatedCert = await LMSCertificate.findById(certificate._id)
+      .populate('user', 'name email lmsStudentId')
+      .populate('course', 'title category');
+
+    res.json({
+      success: true,
+      message: 'Certificate restored successfully',
+      data: populatedCert
+    });
+  } catch (error) {
+    console.error('Error restoring certificate:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

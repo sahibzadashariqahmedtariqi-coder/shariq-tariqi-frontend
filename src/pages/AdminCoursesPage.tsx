@@ -27,10 +27,13 @@ export default function AdminCoursesPage() {
   const [isAdding, setIsAdding] = useState(false)
   const [showDebug, setShowDebug] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [customCategory, setCustomCategory] = useState('')
+  const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false)
+  const [categories, setCategories] = useState<string[]>(['spiritual', 'hikmat'])
   const [editForm, setEditForm] = useState<Partial<Course>>({
     title: '',
     description: '',
-    category: 'healing',
+    category: 'spiritual',
     price: 0,
     level: 'beginner',
     image: '',
@@ -38,6 +41,9 @@ export default function AdminCoursesPage() {
     students: 0,
     featured: false,
   })
+
+  // Only allow spiritual and hikmat categories (plus any custom ones admin adds)
+  // Don't auto-load categories from existing courses
 
   const handleImageUpload = async (file: File) => {
     try {
@@ -133,7 +139,7 @@ export default function AdminCoursesPage() {
     setEditForm({
       title: '',
       description: '',
-      category: 'healing',
+      category: 'spiritual',
       price: 0,
       level: 'beginner',
       image: '',
@@ -149,7 +155,7 @@ export default function AdminCoursesPage() {
     setEditForm({
       title: '',
       description: '',
-      category: 'healing',
+      category: 'spiritual',
       price: 0,
       level: 'beginner',
       image: '',
@@ -165,7 +171,7 @@ export default function AdminCoursesPage() {
     setEditForm({
       title: '',
       description: '',
-      category: 'healing',
+      category: 'spiritual',
       price: 0,
       level: 'beginner',
       image: '',
@@ -173,6 +179,19 @@ export default function AdminCoursesPage() {
       students: 0,
       featured: false,
     })
+  }
+
+  const handleAddCustomCategory = () => {
+    if (customCategory.trim() && !categories.includes(customCategory.toLowerCase().trim())) {
+      const newCat = customCategory.toLowerCase().trim()
+      setCategories([...categories, newCat])
+      setEditForm({ ...editForm, category: newCat })
+      setCustomCategory('')
+      setShowCustomCategoryInput(false)
+      toast.success(`Category "${customCategory}" added!`)
+    } else if (categories.includes(customCategory.toLowerCase().trim())) {
+      toast.error('Category already exists!')
+    }
   }
 
   const handleResetStorage = () => {
@@ -250,15 +269,44 @@ export default function AdminCoursesPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Category</label>
-                <select
-                  value={editForm.category}
-                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                >
-                  <option value="healing">Healing</option>
-                  <option value="spirituality">Spirituality</option>
-                  <option value="medicine">Medicine</option>
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    value={editForm.category}
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomCategoryInput(!showCustomCategoryInput)}
+                    className="px-3 py-2 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+                    title="Add custom category"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                {showCustomCategoryInput && (
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      type="text"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      placeholder="Enter new category..."
+                      className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddCustomCategory()}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomCategory}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    >
+                      Add
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Price (PKR/month)</label>

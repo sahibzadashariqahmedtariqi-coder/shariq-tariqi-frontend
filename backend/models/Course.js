@@ -23,7 +23,7 @@ const courseSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please provide course category'],
-    enum: ['healing', 'spirituality', 'medicine']
+    default: 'spiritual'
   },
   duration: {
     type: String,

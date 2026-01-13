@@ -100,7 +100,18 @@ const lmsEnrollmentSchema = new mongoose.Schema({
   notes: {
     type: String,
     default: ''
-  }
+  },
+  // Per-student class access control
+  // Array of class IDs that are unlocked for this specific student
+  unlockedClasses: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'LMSClass'
+  }],
+  // Array of class IDs that are specifically locked for this student (overrides global unlock)
+  lockedClasses: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'LMSClass'
+  }]
 }, {
   timestamps: true
 });

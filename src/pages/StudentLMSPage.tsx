@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, Navigate } from 'react-router-dom';
 import {
   BookOpen, Play, Lock, CheckCircle, Clock, Award,
-  ChevronRight, Search, GraduationCap,
+  ChevronRight, Search, GraduationCap, Download,
   BarChart3, User, CheckCircle2, LogOut, Sparkles,
   Zap, Target, Flame, Trophy, Gift, Rocket
 } from 'lucide-react';
@@ -940,14 +940,22 @@ const StudentLMSPage = () => {
                               year: 'numeric', month: 'long', day: 'numeric'
                             })}
                           </p>
-                          <Link
-                            to={`/lms/certificate/${cert._id}`}
-                            className="flex items-center justify-center gap-2 w-full mt-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all font-medium group/btn"
-                          >
-                            <Award className="w-4 h-4" />
-                            View Certificate
-                            <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                          </Link>
+                          <div className="flex gap-2 mt-4">
+                            <Link
+                              to={`/lms/certificate/${cert._id}`}
+                              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all font-medium group/btn"
+                            >
+                              <Award className="w-4 h-4" />
+                              View
+                            </Link>
+                            <Link
+                              to={`/lms/certificate/${cert._id}?download=true`}
+                              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl hover:from-emerald-400 hover:to-teal-400 transition-all font-medium group/btn"
+                            >
+                              <Download className="w-4 h-4" />
+                              Download
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </motion.div>

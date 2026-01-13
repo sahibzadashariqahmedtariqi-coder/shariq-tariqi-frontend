@@ -72,11 +72,11 @@ export const getPublishedCourses = async (req, res) => {
 };
 
 // @desc    Get single course details
-// @route   GET /api/lms/courses/:id
+// @route   GET /api/lms/courses/:courseId
 // @access  Public
 export const getCourseDetails = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.courseId);
 
     if (!course) {
       return res.status(404).json({
@@ -192,11 +192,11 @@ export const getCourseForStudent = async (req, res) => {
 };
 
 // @desc    Enable LMS for a course
-// @route   PUT /api/lms/courses/:id/enable-lms
+// @route   PUT /api/lms/courses/:courseId/enable-lms
 // @access  Admin
 export const enableLMS = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.courseId);
     if (!course) {
       return res.status(404).json({ success: false, message: 'Course not found' });
     }
@@ -219,11 +219,11 @@ export const enableLMS = async (req, res) => {
 };
 
 // @desc    Update course LMS settings
-// @route   PUT /api/lms/courses/:id
+// @route   PUT /api/lms/courses/:courseId
 // @access  Admin
 export const updateCourse = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.courseId);
     if (!course) {
       return res.status(404).json({ success: false, message: 'Course not found' });
     }

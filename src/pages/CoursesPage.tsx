@@ -54,7 +54,18 @@ export default function CoursesPage() {
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory
+    // Map related categories: spiritual includes roohani, nafsiati; hikmat includes jismani, medicine, healing
+    let matchesCategory = selectedCategory === 'all'
+    if (!matchesCategory) {
+      const courseCat = course.category?.toLowerCase() || ''
+      if (selectedCategory === 'spiritual') {
+        matchesCategory = ['spiritual', 'roohani', 'nafsiati', 'spirituality'].includes(courseCat)
+      } else if (selectedCategory === 'hikmat') {
+        matchesCategory = ['hikmat', 'jismani', 'medicine', 'healing'].includes(courseCat)
+      } else {
+        matchesCategory = courseCat === selectedCategory.toLowerCase()
+      }
+    }
     return matchesSearch && matchesCategory && course.isActive
   })
 
@@ -96,9 +107,7 @@ export default function CoursesPage() {
           >
             <option value="all">All Categories</option>
             <option value="spiritual">Spiritual</option>
-            <option value="roohani">Roohani</option>
-            <option value="jismani">Jismani (Medicine)</option>
-            <option value="nafsiati">Nafsiati</option>
+            <option value="hikmat">Hikmat</option>
           </select>
         </div>
 

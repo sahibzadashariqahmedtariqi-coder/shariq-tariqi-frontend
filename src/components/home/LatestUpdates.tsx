@@ -225,15 +225,13 @@ export default function LatestUpdates() {
                               {update.description}
                             </p>
                             
-                            {update.link && (
-                              <Link 
-                                to={update.link}
-                                className={`inline-flex items-center gap-2 text-sm font-semibold ${config.color} hover:gap-3 transition-all duration-300`}
-                              >
-                                Learn More
-                                <ArrowRight className="h-4 w-4" />
-                              </Link>
-                            )}
+                            <Link 
+                              to={update.link || `/blog/${update._id}`}
+                              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                            >
+                              Learn More
+                              <ArrowRight className="h-4 w-4" />
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -244,23 +242,6 @@ export default function LatestUpdates() {
             })
           )}
         </div>
-
-        {/* View All Updates Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-10"
-        >
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-          >
-            View All Updates
-            <ArrowRight className="h-5 w-5" />
-          </Link>
-        </motion.div>
       </div>
     </section>
   )
