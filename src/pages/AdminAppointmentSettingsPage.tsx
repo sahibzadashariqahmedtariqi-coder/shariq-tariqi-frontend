@@ -2,9 +2,10 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Save, DollarSign, Clock, Calendar, Info, ArrowLeft } from 'lucide-react'
+import { Save, DollarSign, Clock, Calendar, Info, ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
+import apiClient from '@/lib/apiClient'
 
 interface AppointmentSettings {
   consultationFee: number
@@ -46,37 +47,40 @@ export default function AdminAppointmentSettingsPage() {
   })
 
   const [loading, setLoading] = useState(false)
+  const [loadingSettings, setLoadingSettings] = useState(true)
 
   useEffect(() => {
     loadSettings()
   }, [])
 
-  const loadSettings = () => {
-    // Load from localStorage for now
-    const saved = localStorage.getItem('appointmentSettings')
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        setSettings({ ...settings, ...parsed })
-      } catch (error) {
-        console.error('Error loading settings:', error)
+  const loadSettings = async () => {
+    try {
+      setLoadingSettings(true)
+      const response = await apiClient.get('/settings/appointments')
+      if (response.data.success && response.data.data) {
+        setSettings({ ...settings, ...response.data.data })
       }
+    } catch (error) {
+      console.error('Error loading settings:', error)
+      toast.error('Failed to load settings from server')
+    } finally {
+      setLoadingSettings(false)
     }
   }
 
   const handleSave = async () => {
     setLoading(true)
     try {
-      // Save to localStorage for now (you can add API call later)
-      localStorage.setItem('appointmentSettings', JSON.stringify(settings))
+      const response = await apiClient.put('/settings/appointments', settings)
       
-      // Optional: Save to backend
-      // await apiClient.post('/settings/appointments', settings)
-      
-      toast.success('Settings saved successfully!')
+      if (response.data.success) {
+        toast.success('Settings saved successfully!')
+      } else {
+        toast.error('Failed to save settings')
+      }
     } catch (error: any) {
       console.error('Save error:', error)
-      toast.error('Failed to save settings')
+      toast.error(error.response?.data?.message || 'Failed to save settings')
     } finally {
       setLoading(false)
     }
@@ -104,6 +108,15 @@ export default function AdminAppointmentSettingsPage() {
   }
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+  if (loadingSettings) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <span className="ml-2 text-lg">Loading settings...</span>
+      </div>
+    )
+  }
 
   return (
     <>

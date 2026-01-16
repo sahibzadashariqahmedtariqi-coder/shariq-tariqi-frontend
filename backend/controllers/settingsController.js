@@ -16,6 +16,104 @@ export const getSettings = async (req, res, next) => {
   }
 };
 
+// @desc    Get appointment settings
+// @route   GET /api/settings/appointments
+// @access  Public
+export const getAppointmentSettings = async (req, res, next) => {
+  try {
+    const settings = await Settings.getInstance();
+    
+    // Return only appointment-related settings
+    res.status(200).json({
+      success: true,
+      data: {
+        consultationFee: settings.consultationFee,
+        healingFee: settings.healingFee,
+        hikmatFee: settings.hikmatFee,
+        ruqyahFee: settings.ruqyahFee,
+        taveezFee: settings.taveezFee,
+        workingHoursStart: settings.workingHoursStart,
+        workingHoursEnd: settings.workingHoursEnd,
+        workingDays: settings.workingDays,
+        appointmentDuration: settings.appointmentDuration,
+        advanceBookingDays: settings.advanceBookingDays,
+        instructions: settings.appointmentInstructions,
+        phone: settings.phone,
+        email: settings.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update appointment settings
+// @route   PUT /api/settings/appointments
+// @access  Private/Admin
+export const updateAppointmentSettings = async (req, res, next) => {
+  try {
+    const {
+      consultationFee,
+      healingFee,
+      hikmatFee,
+      ruqyahFee,
+      taveezFee,
+      workingHoursStart,
+      workingHoursEnd,
+      workingDays,
+      appointmentDuration,
+      advanceBookingDays,
+      instructions,
+      phone,
+      email,
+    } = req.body;
+
+    let settings = await Settings.getInstance();
+
+    // Update appointment fields if provided
+    if (consultationFee !== undefined) settings.consultationFee = consultationFee;
+    if (healingFee !== undefined) settings.healingFee = healingFee;
+    if (hikmatFee !== undefined) settings.hikmatFee = hikmatFee;
+    if (ruqyahFee !== undefined) settings.ruqyahFee = ruqyahFee;
+    if (taveezFee !== undefined) settings.taveezFee = taveezFee;
+    if (workingHoursStart !== undefined) settings.workingHoursStart = workingHoursStart;
+    if (workingHoursEnd !== undefined) settings.workingHoursEnd = workingHoursEnd;
+    if (workingDays !== undefined) settings.workingDays = workingDays;
+    if (appointmentDuration !== undefined) settings.appointmentDuration = appointmentDuration;
+    if (advanceBookingDays !== undefined) settings.advanceBookingDays = advanceBookingDays;
+    if (instructions !== undefined) settings.appointmentInstructions = instructions;
+    if (phone !== undefined) settings.phone = phone;
+    if (email !== undefined) settings.email = email;
+
+    settings.lastUpdatedBy = req.user._id;
+    settings.lastUpdatedAt = Date.now();
+
+    await settings.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment settings updated successfully',
+      data: {
+        consultationFee: settings.consultationFee,
+        healingFee: settings.healingFee,
+        hikmatFee: settings.hikmatFee,
+        ruqyahFee: settings.ruqyahFee,
+        taveezFee: settings.taveezFee,
+        workingHoursStart: settings.workingHoursStart,
+        workingHoursEnd: settings.workingHoursEnd,
+        workingDays: settings.workingDays,
+        appointmentDuration: settings.appointmentDuration,
+        advanceBookingDays: settings.advanceBookingDays,
+        instructions: settings.appointmentInstructions,
+        phone: settings.phone,
+        email: settings.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Update settings
 // @route   PUT /api/settings
 // @access  Private/Admin

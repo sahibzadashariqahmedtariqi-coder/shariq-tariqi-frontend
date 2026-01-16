@@ -65,6 +65,52 @@ const settingsSchema = new mongoose.Schema(
       default: 'Rooted in the timeless wisdom of Sufism and the healing sciences of Hikmat, illuminating hearts with divine knowledge of spirituality and traditional healing.',
     },
     
+    // Appointment Settings
+    consultationFee: {
+      type: Number,
+      default: 2000,
+    },
+    healingFee: {
+      type: Number,
+      default: 3000,
+    },
+    hikmatFee: {
+      type: Number,
+      default: 2500,
+    },
+    ruqyahFee: {
+      type: Number,
+      default: 3500,
+    },
+    taveezFee: {
+      type: Number,
+      default: 1500,
+    },
+    workingHoursStart: {
+      type: String,
+      default: '09:00',
+    },
+    workingHoursEnd: {
+      type: String,
+      default: '18:00',
+    },
+    workingDays: {
+      type: [String],
+      default: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    },
+    appointmentDuration: {
+      type: Number,
+      default: 60,
+    },
+    advanceBookingDays: {
+      type: Number,
+      default: 1,
+    },
+    appointmentInstructions: {
+      type: String,
+      default: 'Please arrive 10 minutes before your scheduled appointment. Bring any relevant medical documents or previous prescriptions.',
+    },
+    
     // Bank Payment Details
     bankName: {
       type: String,

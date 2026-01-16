@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign, Loader2 } from 'lucide-react'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
+import apiClient from '@/lib/apiClient'
 
 interface AppointmentSettings {
   consultationFee: number
@@ -18,6 +19,8 @@ interface AppointmentSettings {
   appointmentDuration: number
   advanceBookingDays: number
   instructions: string
+  phone: string
+  email: string
 }
 
 export default function AppointmentsPage() {
@@ -35,6 +38,7 @@ export default function AppointmentsPage() {
   })
   const [isSubmitted, _setIsSubmitted] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
+  const [loadingSettings, setLoadingSettings] = useState(true)
   const [settings, setSettings] = useState<AppointmentSettings>({
     consultationFee: 2000,
     healingFee: 3000,
@@ -47,14 +51,25 @@ export default function AppointmentsPage() {
     appointmentDuration: 60,
     advanceBookingDays: 1,
     instructions: 'Please arrive 10 minutes before your scheduled appointment. Bring any relevant medical documents or previous prescriptions.',
+    phone: '+92 318 2392985',
+    email: 'sahibzadashariqahmedtariqi@gmail.com',
   })
 
   useEffect(() => {
-    // Load settings from localStorage
-    const savedSettings = localStorage.getItem('appointmentSettings')
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings))
+    // Load settings from API
+    const loadSettings = async () => {
+      try {
+        const response = await apiClient.get('/settings/appointments')
+        if (response.data.success && response.data.data) {
+          setSettings({ ...settings, ...response.data.data })
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error)
+      } finally {
+        setLoadingSettings(false)
+      }
     }
+    loadSettings()
   }, [])
 
   const services = [
@@ -333,14 +348,14 @@ export default function AppointmentsPage() {
                     <Phone className="h-5 w-5 text-primary-600 mt-1" />
                     <div>
                       <p className="font-medium">Phone</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">+92 300 1234567</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{settings.phone}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <Mail className="h-5 w-5 text-primary-600 mt-1" />
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">info@shariqahmedtariqi.com</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{settings.email}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
