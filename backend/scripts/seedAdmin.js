@@ -27,14 +27,14 @@ const seedAdmin = async () => {
     const admin = await User.create({
       name: 'Admin',
       email: 'admin@shariqahmedtariqi.com',
-      password: 'Admin@123456',
+      password: 'Azeen@29336',
       phone: '+92-300-0000000',
       role: 'admin'
     });
 
     console.log('✅ Admin user created successfully!');
     console.log('📧 Email:', admin.email);
-    console.log('🔒 Password: Admin@123456');
+    console.log('🔒 Password: Azeen@29336');
     console.log('🔑 Role:', admin.role);
     console.log('\n🎉 You can now login with these credentials!');
 

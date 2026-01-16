@@ -46,7 +46,7 @@ Authorization: Bearer <your_jwt_token>
 ```json
 {
   "email": "admin@shariqahmedtariqi.com",
-  "password": "Admin@123456"
+  "password": "Azeen@29336"
 }
 ```
 

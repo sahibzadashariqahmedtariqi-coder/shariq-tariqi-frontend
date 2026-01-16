@@ -19,7 +19,7 @@ const seedData = async () => {
     const admin = await User.create({
       name: 'Admin',
       email: process.env.ADMIN_EMAIL || 'admin@shariqahmedtariqi.com',
-      password: process.env.ADMIN_PASSWORD || 'Admin@123456',
+      password: process.env.ADMIN_PASSWORD || 'Azeen@29336',
       role: 'admin'
     });
     console.log(`✅ Admin created: ${admin.email}`);
@@ -93,7 +93,7 @@ const seedData = async () => {
     console.log('\n✅ Database seeded successfully!');
     console.log('\n📝 Admin Credentials:');
     console.log(`Email: ${admin.email}`);
-    console.log(`Password: ${process.env.ADMIN_PASSWORD || 'Admin@123456'}`);
+    console.log(`Password: ${process.env.ADMIN_PASSWORD || 'Azeen@29336'}`);
     console.log('\n⚠️  Please change these credentials after first login!\n');
 
     process.exit(0);

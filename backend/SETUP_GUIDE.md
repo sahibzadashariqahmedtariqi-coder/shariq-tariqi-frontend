@@ -74,7 +74,7 @@ FRONTEND_PRODUCTION_URL=https://yourdomain.com
 
 # Admin Default Credentials - Change after first login
 ADMIN_EMAIL=admin@shariqahmedtariqi.com
-ADMIN_PASSWORD=Admin@123456
+ADMIN_PASSWORD=Azeen@29336
 ```
 
 **Important Notes:**

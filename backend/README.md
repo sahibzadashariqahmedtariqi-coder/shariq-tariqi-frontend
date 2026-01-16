@@ -57,7 +57,7 @@ npm run dev
 
 ```
 Email: admin@shariqahmedtariqi.com
-Password: Admin@123456
+Password: Azeen@29336
 ```
 
 ⚠️ **Change these after first login!**
