@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign, Loader2 } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign } from 'lucide-react'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
-import apiClient from '@/lib/apiClient'
+import apiClient from '@/services/api'
 
 // Settings are now fetched from backend API - v2
 interface AppointmentSettings {
@@ -39,7 +39,7 @@ export default function AppointmentsPage() {
   })
   const [isSubmitted, _setIsSubmitted] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
-  const [loadingSettings, setLoadingSettings] = useState(true)
+  const [_loadingSettings, setLoadingSettings] = useState(true)
   const [settings, setSettings] = useState<AppointmentSettings>({
     consultationFee: 2000,
     healingFee: 3000,

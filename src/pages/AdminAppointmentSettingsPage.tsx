@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Save, DollarSign, Clock, Calendar, Info, ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
-import apiClient from '@/lib/apiClient'
+import apiClient from '@/services/api'
 
 interface AppointmentSettings {
   consultationFee: number
