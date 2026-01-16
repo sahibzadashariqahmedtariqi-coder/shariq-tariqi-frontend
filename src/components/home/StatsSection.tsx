@@ -97,7 +97,7 @@ export default function StatsSection() {
   })
   const [loading, setLoading] = useState(true)
 
-  // Fetch stats from API - Admin Panel values have priority
+  // Fetch stats from API first
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -112,13 +112,45 @@ export default function StatsSection() {
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
-        // Keep default values on error
       } finally {
         setLoading(false)
       }
     }
     
     fetchStats()
+  }, [])
+
+  // Fetch YouTube subscribers - overrides database value with live data
+  useEffect(() => {
+    const fetchYouTubeSubscribers = async () => {
+      const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY
+      const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID
+      
+      if (!apiKey || !channelId) {
+        console.warn('YouTube API key or Channel ID not configured')
+        return
+      }
+
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`
+        )
+        const data = await response.json()
+        
+        if (data.items && data.items[0]?.statistics?.subscriberCount) {
+          const subscriberCount = parseInt(data.items[0].statistics.subscriberCount)
+          const subscribersInK = subscriberCount / 1000
+          setStatsData(prev => ({
+            ...prev,
+            subscribers: parseFloat(subscribersInK.toFixed(1))
+          }))
+        }
+      } catch (error) {
+        console.error('Error fetching YouTube subscribers:', error)
+      }
+    }
+
+    fetchYouTubeSubscribers()
   }, [])
 
   const stats = [
