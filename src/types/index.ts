@@ -78,6 +78,9 @@ export interface User {
   enrolledCourses: string[];
   appointments: Appointment[];
   role: 'user' | 'admin';
+  isSuperAdmin?: boolean;
+  isPaidStudent?: boolean;
+  studentId?: string;
 }
 
 export interface PrayerTimes {

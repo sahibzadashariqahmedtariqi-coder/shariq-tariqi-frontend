@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Trash2, Edit, UserCheck, UserX, Search, Mail, Phone, User as UserIcon, ArrowLeft, BookOpen, Key, X } from 'lucide-react'
+import { Plus, Trash2, UserCheck, UserX, Search, Mail, Phone, User as UserIcon, ArrowLeft, BookOpen, Key, X } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/services/api'
 import toast from 'react-hot-toast'
@@ -30,6 +30,7 @@ interface User {
   email: string
   phone?: string
   role: 'user' | 'admin'
+  isSuperAdmin?: boolean
   createdAt: string
   enrolledCourses?: string[]
   grantedCourses?: GrantedCourse[]
@@ -58,7 +59,6 @@ export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [editingUser, setEditingUser] = useState<User | null>(null)
   
   // Course Access Modal State
   const [showCourseAccessModal, setShowCourseAccessModal] = useState(false)
@@ -68,6 +68,11 @@ export default function AdminUsersPage() {
   const [selectedCourseId, setSelectedCourseId] = useState('')
   const [accessNotes, setAccessNotes] = useState('')
   const [accessExpiry, setAccessExpiry] = useState('')
+  
+  // Password Change Modal State (Super Admin only)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [passwordChangeUser, setPasswordChangeUser] = useState<User | null>(null)
+  const [newPassword, setNewPassword] = useState('')
   
   const [formData, setFormData] = useState<NewUserForm>({
     name: '',
@@ -240,6 +245,32 @@ export default function AdminUsersPage() {
     }
   }
 
+  // Super Admin: Change user password
+  const handleChangePassword = async () => {
+    if (!passwordChangeUser || !newPassword) {
+      toast.error('Please enter a new password')
+      return
+    }
+
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters')
+      return
+    }
+
+    try {
+      await apiClient.put(`/auth/users/${passwordChangeUser._id}/change-password`, {
+        newPassword
+      })
+      toast.success(`Password changed successfully for ${passwordChangeUser.name}!`)
+      setShowPasswordModal(false)
+      setPasswordChangeUser(null)
+      setNewPassword('')
+    } catch (error: any) {
+      console.error('Error changing password:', error)
+      toast.error(error.response?.data?.message || 'Failed to change password')
+    }
+  }
+
   return (
     <>
       <Helmet>
@@ -375,11 +406,13 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                          userData.role === 'admin' 
+                          userData.isSuperAdmin
+                            ? 'bg-gold-100 text-gold-800 dark:bg-gold-900 dark:text-gold-300'
+                            : userData.role === 'admin' 
                             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
                             : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                         }`}>
-                          {userData.role === 'admin' ? '👑 Admin' : '👤 Student'}
+                          {userData.isSuperAdmin ? '👑 Super Admin' : userData.role === 'admin' ? '👑 Admin' : '👤 Student'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -396,20 +429,39 @@ export default function AdminUsersPage() {
                               <Key className="h-5 w-5" />
                             </button>
                           )}
-                          <button
-                            onClick={() => handleToggleRole(userData._id, userData.role)}
-                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                            title={`Change to ${userData.role === 'admin' ? 'User' : 'Admin'}`}
-                          >
-                            {userData.role === 'admin' ? <UserX className="h-5 w-5" /> : <UserCheck className="h-5 w-5" />}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteUser(userData._id)}
-                            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                            title="Delete User"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </button>
+                          {/* Super Admin password change button - only visible to super admin */}
+                          {user?.isSuperAdmin && (
+                            <button
+                              onClick={() => {
+                                setPasswordChangeUser(userData)
+                                setNewPassword('')
+                                setShowPasswordModal(true)
+                              }}
+                              className="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
+                              title="Change Password"
+                            >
+                              <Key className="h-5 w-5" />
+                            </button>
+                          )}
+                          {/* Hide role change and delete for Super Admin users */}
+                          {!userData.isSuperAdmin && (
+                            <>
+                              <button
+                                onClick={() => handleToggleRole(userData._id, userData.role)}
+                                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                title={`Change to ${userData.role === 'admin' ? 'User' : 'Admin'}`}
+                              >
+                                {userData.role === 'admin' ? <UserX className="h-5 w-5" /> : <UserCheck className="h-5 w-5" />}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteUser(userData._id)}
+                                className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                title="Delete User"
+                              >
+                                <Trash2 className="h-5 w-5" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -682,6 +734,75 @@ export default function AdminUsersPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Password Change Modal - Super Admin Only */}
+        {showPasswordModal && passwordChangeUser && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  🔐 Change Password
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowPasswordModal(false)
+                    setPasswordChangeUser(null)
+                    setNewPassword('')
+                  }}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Changing password for:
+                  </p>
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {passwordChangeUser.name}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {passwordChangeUser.email}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Enter new password (min 6 characters)"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowPasswordModal(false)
+                      setPasswordChangeUser(null)
+                      setNewPassword('')
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleChangePassword}
+                    className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    Change Password
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

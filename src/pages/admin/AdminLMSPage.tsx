@@ -63,6 +63,8 @@ interface Enrollment {
     phone?: string;
     studentId?: string;
     isPaidStudent: boolean;
+    isLMSStudent?: boolean;
+    lmsStudentId?: string;
   };
   enrollmentType: string;
   status: string;
@@ -196,7 +198,7 @@ const AdminLMSPage = () => {
   });
 
   // Fetch all users for enrollment
-  const { data: usersData } = useQuery({
+  const { data: _usersData } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
       const res = await api.get('/auth/users');
@@ -738,9 +740,9 @@ const AdminLMSPage = () => {
                               </span>
                             )}
                             <span className={`px-2 py-0.5 text-xs rounded-full ${
-                              (course.isPaid || course.price > 0) ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'
+                              (course.isPaid || (course.price ?? 0) > 0) ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'
                             }`}>
-                              {(course.isPaid || course.price > 0) ? `₨${course.price?.toLocaleString() || 0}` : 'Free'}
+                              {(course.isPaid || (course.price ?? 0) > 0) ? `₨${course.price?.toLocaleString() || 0}` : 'Free'}
                             </span>
                           </div>
                           <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
@@ -1160,7 +1162,7 @@ const CourseModal = ({ isOpen, onClose, course, onSave, isLoading }: {
               <p><span className="font-medium">Title:</span> {course.title}</p>
               <p><span className="font-medium">Category:</span> {course.category}</p>
               <p><span className="font-medium">Level:</span> {course.level}</p>
-              <p><span className="font-medium">Type:</span> {(course.isPaid || course.price > 0) ? `Paid (₨${course.price?.toLocaleString() || 0})` : 'Free'}</p>
+              <p><span className="font-medium">Type:</span> {(course.isPaid || (course.price ?? 0) > 0) ? `Paid (₨${course.price?.toLocaleString() || 0})` : 'Free'}</p>
             </div>
             <p className="text-xs text-emerald-600 mt-2">
               To edit course details, go to Course Management
@@ -1224,7 +1226,7 @@ const CourseModal = ({ isOpen, onClose, course, onSave, isLoading }: {
 };
 
 // Class Modal Component
-const ClassModal = ({ isOpen, onClose, classItem, courseId, onSave, isLoading }: {
+const ClassModal = ({ isOpen, onClose, classItem, courseId: _courseId, onSave, isLoading }: {
   isOpen: boolean;
   onClose: () => void;
   classItem: LMSClass | null;
@@ -2780,6 +2782,10 @@ const CertificatePreview = ({ certificate, onClose }: { certificate: any; onClos
                   "{certificate?.courseTitle || 'Course Title'}"
                 </motion.h3>
                 
+                <p className="text-sm font-bold text-gray-800 px-6 leading-relaxed">
+                  Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course and for the implementation of all prescribed practices.
+                </p>
+                
                 {certificate?.grade && certificate.grade !== 'none' && (
                   <motion.div 
                     className="inline-flex items-center gap-2 px-4 py-1 bg-gradient-to-r from-amber-100 to-amber-50 rounded-full border border-amber-300 shadow-sm"
@@ -2881,10 +2887,10 @@ const CertificatePreview = ({ certificate, onClose }: { certificate: any; onClos
                     whileHover={{ scale: 1.05 }}
                   >
                     {/* QR Code */}
-                    <div className="bg-white p-1 rounded-md shadow-sm border border-gray-200 mb-1">
+                    <div className="bg-white p-1.5 rounded-md shadow-sm border border-gray-200 mb-1">
                       <QRCodeSVG 
                         value={`https://shariqtariqi.com/verify-certificate/${certificate?.verificationCode || certificate?.studentId || certificate?.user?.studentId || 'PREVIEW'}`}
-                        size={35}
+                        size={60}
                         level="M"
                         fgColor="#1f2937"
                         bgColor="#ffffff"
@@ -3020,7 +3026,7 @@ const IssueCertificateModal = ({
       });
       return res.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       toast.success('Certificate issued successfully!');
       onSuccess();
       onClose();

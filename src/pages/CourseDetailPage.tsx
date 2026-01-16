@@ -207,7 +207,7 @@ export default function CourseDetailPage() {
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
         orderType="course"
-        itemId={course._id}
+        itemId={course._id || ''}
         itemTitle={course.title}
         itemPrice={course.price}
       />

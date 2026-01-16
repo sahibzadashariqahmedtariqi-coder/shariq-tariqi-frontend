@@ -66,7 +66,7 @@ function AnimatedCounter({ end, suffix = '', decimal = false }: AnimatedCounterP
   }, [hasAnimated, end])
 
   return (
-    <span ref={ref} className="text-3xl font-bold">
+    <span ref={ref} className="text-xl sm:text-3xl font-bold">
       {decimal ? count.toFixed(1) : Math.floor(count).toLocaleString()}{suffix}
     </span>
   )
@@ -245,12 +245,12 @@ export default function ServicesPage() {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 overflow-hidden">
+      <section className="relative py-12 sm:py-20 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/pattern.png')] opacity-5"></div>
         <div className="absolute top-0 left-0 w-72 h-72 bg-gold-500/20 rounded-full filter blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary-500/20 rounded-full filter blur-3xl"></div>
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -261,16 +261,16 @@ export default function ServicesPage() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center gap-2 bg-gold-500/20 text-gold-300 px-4 py-2 rounded-full mb-6"
+              className="inline-flex items-center gap-2 bg-gold-500/20 text-gold-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6"
             >
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">Trusted by Thousands</span>
+              <span className="text-xs sm:text-sm font-medium">Trusted by Thousands</span>
             </motion.div>
             
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
               Our <span className="text-gold-400">Services</span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-2">
               Discover comprehensive spiritual healing and traditional Islamic medicine services 
               guided by authentic knowledge and years of experience
             </p>
@@ -280,7 +280,7 @@ export default function ServicesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="flex flex-wrap justify-center gap-8 mt-12"
+              className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-8 sm:mt-12"
             >
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
@@ -309,8 +309,8 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
+      <section className="py-10 sm:py-20 bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-3 sm:px-4">
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -318,7 +318,7 @@ export default function ServicesPage() {
             viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
           >
-            {services.map((service, index) => (
+            {services.map((service, _index) => (
               <motion.div
                 key={service.id}
                 variants={cardVariants}

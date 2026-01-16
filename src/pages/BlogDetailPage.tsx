@@ -90,7 +90,7 @@ export default function BlogDetailPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <LoadingSpinner size="large" />
+          <LoadingSpinner />
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

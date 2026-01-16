@@ -27,23 +27,23 @@ export default function Testimonials() {
   ]
 
   return (
-    <section className="bg-primary-50 dark:bg-primary-900/20 py-16">
-      <div className="container mx-auto px-4">
+    <section className="bg-primary-50 dark:bg-primary-900/20 py-10 sm:py-16">
+      <div className="container mx-auto px-3 sm:px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-800 dark:text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 dark:text-white mb-3 sm:mb-4">
             What People Say
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-2">
             Hear from those who have benefited from our spiritual guidance and healing services
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.id}
@@ -51,7 +51,7 @@ export default function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg relative"
+              className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg relative"
             >
               <Quote className="absolute top-4 right-4 h-8 w-8 text-gold-400 opacity-50" />
               

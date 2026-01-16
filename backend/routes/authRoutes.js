@@ -11,7 +11,9 @@ import {
   updateUserRole,
   grantCourseAccess,
   revokeCourseAccess,
-  getUserCourseAccess
+  getUserCourseAccess,
+  getUserPasswordInfo,
+  superAdminChangePassword
 } from '../controllers/authController.js';
 import { protect, admin } from '../middleware/auth.js';
 
@@ -47,5 +49,9 @@ router.put('/users/:id/role', protect, admin, updateUserRole);
 router.post('/users/:id/grant-course', protect, admin, grantCourseAccess);
 router.delete('/users/:id/revoke-course/:courseId', protect, admin, revokeCourseAccess);
 router.get('/users/:id/courses', protect, admin, getUserCourseAccess);
+
+// Super Admin Only Routes - Password Management
+router.get('/users/:id/password', protect, admin, getUserPasswordInfo);
+router.put('/users/:id/change-password', protect, admin, superAdminChangePassword);
 
 export default router;

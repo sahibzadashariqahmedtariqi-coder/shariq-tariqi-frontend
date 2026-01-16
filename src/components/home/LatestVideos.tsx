@@ -114,17 +114,17 @@ export default function LatestVideos() {
   }
 
   return (
-    <section className="container mx-auto px-4">
+    <section className="container mx-auto px-3 sm:px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="text-center mb-12"
+        className="text-center mb-8 sm:mb-12"
       >
-        <h2 className="text-3xl md:text-4xl font-bold text-primary-800 dark:text-white mb-4">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 dark:text-white mb-3 sm:mb-4">
           Recently Uploaded Videos
         </h2>
-        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        <p className="text-sm sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-2">
           Watch our latest spiritual lectures and guidance videos
         </p>
       </motion.div>
@@ -138,22 +138,22 @@ export default function LatestVideos() {
         {/* Previous Button */}
         <button
           onClick={handlePrevious}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-primary-600 hover:bg-primary-700 text-white p-3 rounded-full shadow-lg transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="absolute left-1 sm:left-0 top-1/2 -translate-y-1/2 sm:-translate-x-4 z-10 bg-primary-600 hover:bg-primary-700 text-white p-2 sm:p-3 rounded-full shadow-lg transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500"
           aria-label="Previous videos"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6" />
         </button>
 
         {/* Next Button */}
         <button
           onClick={handleNext}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-primary-600 hover:bg-primary-700 text-white p-3 rounded-full shadow-lg transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="absolute right-1 sm:right-0 top-1/2 -translate-y-1/2 sm:translate-x-4 z-10 bg-primary-600 hover:bg-primary-700 text-white p-2 sm:p-3 rounded-full shadow-lg transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500"
           aria-label="Next videos"
         >
           <ChevronRight className="h-6 w-6" />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-8 sm:px-0">
         {videos.map((video, index) => {
           const videoId = getYouTubeVideoId(video.url)
           const thumbnail = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
@@ -174,13 +174,13 @@ export default function LatestVideos() {
                 <img
                   src={thumbnail}
                   alt={video.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-36 sm:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Play className="h-12 w-12 text-white" fill="white" />
+                  <Play className="h-8 w-8 sm:h-12 sm:w-12 text-white" fill="white" />
                 </div>
               </div>
-              <h3 className="mt-3 text-sm font-medium text-gray-800 dark:text-white line-clamp-2">
+              <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-gray-800 dark:text-white line-clamp-2">
                 {video.title}
               </h3>
             </motion.a>

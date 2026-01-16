@@ -7,8 +7,7 @@ import { useCoursesStore, type Course } from '@/stores/coursesStore'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import ImageDebugPanel from '@/components/admin/ImageDebugPanel'
-import { uploadApi, coursesApi } from '@/services/apiService'
-import apiClient from '@/services/api'
+import { uploadApi } from '@/services/apiService'
 
 export default function AdminCoursesPage() {
   const { isAuthenticated, user } = useAuthStore()
@@ -35,6 +34,7 @@ export default function AdminCoursesPage() {
     description: '',
     category: 'spiritual',
     price: 0,
+    priceINR: null,
     level: 'beginner',
     image: '',
     duration: '',
@@ -141,6 +141,7 @@ export default function AdminCoursesPage() {
       description: '',
       category: 'spiritual',
       price: 0,
+      priceINR: null,
       level: 'beginner',
       image: '',
       duration: '',
@@ -157,6 +158,7 @@ export default function AdminCoursesPage() {
       description: '',
       category: 'spiritual',
       price: 0,
+      priceINR: null,
       level: 'beginner',
       image: '',
       duration: '',
@@ -173,6 +175,7 @@ export default function AdminCoursesPage() {
       description: '',
       category: 'spiritual',
       price: 0,
+      priceINR: null,
       level: 'beginner',
       image: '',
       duration: '',
@@ -317,6 +320,17 @@ export default function AdminCoursesPage() {
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   placeholder="Enter price"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">🇮🇳 Price for India (INR/month)</label>
+                <input
+                  type="number"
+                  value={editForm.priceINR || ''}
+                  onChange={(e) => setEditForm({ ...editForm, priceINR: e.target.value ? Number(e.target.value) : null })}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  placeholder="Enter Indian price (optional)"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave empty if not applicable for India</p>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Level</label>
@@ -529,6 +543,12 @@ export default function AdminCoursesPage() {
                   PKR {course.price}
                   <span className="text-sm font-bold text-gray-500"> / month</span>
                 </p>
+                {course.priceINR && (
+                  <p className="text-lg font-semibold text-orange-600 dark:text-orange-400 mt-1">
+                    🇮🇳 ₹{course.priceINR.toLocaleString()}
+                    <span className="text-sm font-bold text-gray-500"> / month</span>
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <Button

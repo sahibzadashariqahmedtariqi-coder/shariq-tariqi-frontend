@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ShoppingCart, ArrowLeft, Package, Shield, Truck, CheckCircle, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,6 @@ import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
-import { useAuthStore } from '@/stores/authStore'
 
 interface Product {
   _id: string
@@ -16,6 +15,7 @@ interface Product {
   description: string
   longDescription?: string
   price: number
+  priceINR?: number
   category: string
   image: string
   stock: number
@@ -27,8 +27,6 @@ interface Product {
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const { isAuthenticated } = useAuthStore()
   const [quantity, setQuantity] = useState(1)
   const [showFullImage, setShowFullImage] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
@@ -76,16 +74,7 @@ export default function ProductDetailPage() {
     )
   }
 
-  // Check if product is a book (requires login for PDF delivery)
-  const isBook = product.category === 'books' || product.category === 'other'
-
   const handleAddToCart = () => {
-    // Books require login for PDF delivery
-    if (isBook && !isAuthenticated) {
-      toast.error('Please login to purchase books. Your account is needed for PDF delivery.')
-      navigate('/login', { state: { from: `/products/${id}` } })
-      return
-    }
     setShowCheckout(true)
   }
 
@@ -240,9 +229,7 @@ export default function ProductDetailPage() {
                 <ShoppingCart className="h-6 w-6" />
                 {product.stock === 0 
                   ? 'Out of Stock' 
-                  : isBook && !isAuthenticated 
-                    ? 'Login to Purchase Book' 
-                    : 'Add to Cart'}
+                  : 'Add to Cart'}
               </Button>
 
               {/* Contact for Order */}
@@ -335,6 +322,7 @@ export default function ProductDetailPage() {
           itemId={product._id}
           itemTitle={product.name}
           itemPrice={product.price}
+          itemPriceINR={product.priceINR}
           quantity={quantity}
         />
       )}

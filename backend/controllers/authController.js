@@ -110,6 +110,7 @@ export const login = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        isSuperAdmin: user.isSuperAdmin,
         token
       }
     });
@@ -221,6 +222,14 @@ export const deleteUser = async (req, res, next) => {
       });
     }
 
+    // Protect super admin from deletion
+    if (user.isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Super Admin cannot be deleted'
+      });
+    }
+
     await user.deleteOne();
 
     res.status(200).json({
@@ -245,6 +254,14 @@ export const updateUserRole = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: 'User not found'
+      });
+    }
+
+    // Protect super admin from role changes
+    if (user.isSuperAdmin && !req.user.isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only Super Admin can modify Super Admin account'
       });
     }
 
@@ -372,6 +389,88 @@ export const getUserCourseAccess = async (req, res, next) => {
         grantedCourses: user.grantedCourses,
         enrolledCourses: user.enrolledCourses
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Super Admin: Get user password (decrypted view not possible, but can reset)
+// @route   GET /api/auth/users/:id/password
+// @access  Private/Super Admin Only
+export const getUserPasswordInfo = async (req, res, next) => {
+  try {
+    // Only super admin can access this
+    if (!req.user.isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only Super Admin can access password information'
+      });
+    }
+
+    const user = await User.findById(req.params.id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // We cannot decrypt bcrypt passwords, but we can confirm it exists
+    res.status(200).json({
+      success: true,
+      message: 'Password is encrypted and cannot be revealed. Use change password to set a new one.',
+      data: {
+        userId: user._id,
+        userName: user.name,
+        email: user.email,
+        hasPassword: !!user.password,
+        isSuperAdmin: user.isSuperAdmin
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Super Admin: Change any user's password
+// @route   PUT /api/auth/users/:id/change-password
+// @access  Private/Super Admin Only
+export const superAdminChangePassword = async (req, res, next) => {
+  try {
+    // Only super admin can change other users' passwords
+    if (!req.user.isSuperAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only Super Admin can change user passwords'
+      });
+    }
+
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Password changed successfully for ${user.name}`
     });
   } catch (error) {
     next(error);

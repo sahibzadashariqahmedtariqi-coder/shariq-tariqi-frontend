@@ -9,10 +9,11 @@ import apiClient from '@/services/api'
 import { uploadApi } from '@/services/apiService'
 
 interface Product {
-  id: string
+  _id: string
   name: string
   description: string
   price: number
+  priceINR: number | null
   category: 'herbal' | 'spiritual' | 'books'
   image: string
   stock: number
@@ -33,10 +34,11 @@ export default function AdminProductsPage() {
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [editForm, setEditForm] = useState<Product>({
-    id: '',
+    _id: '',
     name: '',
     description: '',
     price: 0,
+    priceINR: null,
     category: 'herbal',
     image: '',
     stock: 0,
@@ -82,7 +84,7 @@ export default function AdminProductsPage() {
   }
 
   const handleEdit = (product: Product) => {
-    setIsEditing(product.id)
+    setIsEditing(product._id)
     setEditForm(product)
     setIsAdding(false)
   }
@@ -110,7 +112,7 @@ export default function AdminProductsPage() {
         await apiClient.post('/products', editForm)
         toast.success('Product added successfully!')
       } else {
-        await apiClient.put(`/products/${editForm.id}`, editForm)
+        await apiClient.put(`/products/${editForm._id}`, editForm)
         toast.success('Product updated successfully!')
       }
       
@@ -125,10 +127,11 @@ export default function AdminProductsPage() {
     setIsEditing(null)
     setIsAdding(false)
     setEditForm({
-      id: '',
+      _id: '',
       name: '',
       description: '',
       price: 0,
+      priceINR: null,
       category: 'herbal',
       image: '',
       stock: 0,
@@ -140,10 +143,11 @@ export default function AdminProductsPage() {
     setIsAdding(true)
     setIsEditing(null)
     setEditForm({
-      id: '',
+      _id: '',
       name: '',
       description: '',
       price: 0,
+      priceINR: null,
       category: 'herbal',
       image: '',
       stock: 0,
@@ -259,13 +263,23 @@ export default function AdminProductsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Price (PKR)</label>
+                <label className="block text-sm font-medium mb-2">Price (PKR) 🇵🇰</label>
                 <input
                   type="number"
                   value={editForm.price}
                   onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                  placeholder="Enter price"
+                  placeholder="Enter price in PKR"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Price (INR) 🇮🇳 <span className="text-xs text-gray-500">(For India)</span></label>
+                <input
+                  type="number"
+                  value={editForm.priceINR || ''}
+                  onChange={(e) => setEditForm({ ...editForm, priceINR: e.target.value ? Number(e.target.value) : null })}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  placeholder="Enter price in INR (optional)"
                 />
               </div>
               <div>
@@ -396,7 +410,7 @@ export default function AdminProductsPage() {
               .filter((product) => selectedCategory === 'all' || product.category === selectedCategory)
               .map((product) => (
             <div
-              key={product.id}
+              key={product._id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex items-center gap-6"
             >
               <img
@@ -426,6 +440,11 @@ export default function AdminProductsPage() {
                 </div>
                 <p className="text-2xl font-bold text-primary-600 mt-3">
                   PKR {product.price}
+                  {product.priceINR && (
+                    <span className="text-lg text-orange-600 ml-3">
+                      🇮🇳 ₹{product.priceINR}
+                    </span>
+                  )}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -438,7 +457,7 @@ export default function AdminProductsPage() {
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
-                  onClick={() => handleDelete(product.id)}
+                  onClick={() => handleDelete(product._id)}
                   variant="outline"
                   size="icon"
                   className="gap-2 text-red-600 hover:text-red-700"

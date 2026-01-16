@@ -39,12 +39,12 @@ export default function Footer() {
 
   return (
     <footer id="footer" className="bg-primary-800 text-white islamic-pattern">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* About Section */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-gold-400">Sahibzada Shariq Ahmed Tariqi</h3>
-            <p className="text-sm text-gray-300 mb-4">
+            <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-gold-400">Sahibzada Shariq Ahmed Tariqi</h3>
+            <p className="text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4">
               {settings?.footerDescription || 'Rooted in the timeless wisdom of Sufism and the healing sciences of Hikmat, illuminating hearts with divine knowledge of spirituality and traditional healing.'}
             </p>
             <div className="flex space-x-4">

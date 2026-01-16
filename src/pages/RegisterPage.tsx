@@ -86,7 +86,7 @@ export default function RegisterPage() {
       })
       
       // Handle response structure
-      const responseData = response.data?.data || response.data
+      const responseData = (response.data as any)?.data || response.data
       if (responseData && responseData.token) {
         const token = responseData.token
         let user = { ...responseData }

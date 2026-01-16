@@ -40,15 +40,15 @@ export default function ContactPage() {
       <Helmet>
         <title>Contact Us | Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
-      <div className="container mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold text-primary-800 dark:text-white mb-8 text-center">Contact Us</h1>
+      <div className="container mx-auto px-3 sm:px-4 py-10 sm:py-16">
+        <h1 className="text-2xl sm:text-4xl font-bold text-primary-800 dark:text-white mb-6 sm:mb-8 text-center">Contact Us</h1>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 max-w-6xl mx-auto">
           <div>
-            <h2 className="text-2xl font-bold mb-6">Get In Touch</h2>
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <Mail className="h-6 w-6 text-primary-500 mt-1" />
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Get In Touch</h2>
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-primary-500 mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold mb-1">Email</h3>
                   <a href="mailto:info@drabdulwajidshazli.com" className="text-gray-600 hover:text-primary-500">
@@ -56,33 +56,33 @@ export default function ContactPage() {
                   </a>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <Phone className="h-6 w-6 text-primary-500 mt-1" />
+              <div className="flex items-start gap-3 sm:gap-4">
+                <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-primary-500 mt-1 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold mb-1">WhatsApp</h3>
-                  <p className="text-gray-600">Available for consultations</p>
+                  <h3 className="font-semibold mb-1 text-sm sm:text-base">WhatsApp</h3>
+                  <p className="text-gray-600 text-sm sm:text-base">Available for consultations</p>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <MapPin className="h-6 w-6 text-primary-500 mt-1" />
+              <div className="flex items-start gap-3 sm:gap-4">
+                <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-primary-500 mt-1 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold mb-1">Location</h3>
-                  <p className="text-gray-600">Karachi, Pakistan</p>
+                  <h3 className="font-semibold mb-1 text-sm sm:text-base">Location</h3>
+                  <p className="text-gray-600 text-sm sm:text-base">Karachi, Pakistan</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Send a Message</h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-xl shadow-lg">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Send a Message</h2>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Name *</label>
+                <label className="block text-sm font-medium mb-1 sm:mb-2">Name *</label>
                 <input
                   {...register('name')}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm sm:text-base"
                 />
-                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+                {errors.name && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.name.message}</p>}
               </div>
 
               <div>

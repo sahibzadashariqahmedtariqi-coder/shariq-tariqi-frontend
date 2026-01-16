@@ -145,14 +145,14 @@ export default function LatestUpdates() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-block bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 px-8 py-4 rounded-2xl shadow-2xl border-4 border-gold-400 animate-pulse">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center justify-center gap-3">
-              <Bell className="h-8 w-8 text-gold-300 animate-bounce" />
-              Latest Updates
-              <Bell className="h-8 w-8 text-gold-300 animate-bounce" />
+          <div className="inline-block bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 px-4 sm:px-8 py-3 sm:py-4 rounded-2xl shadow-2xl border-4 border-gold-400 animate-pulse">
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-white mb-2 flex items-center justify-center gap-2 sm:gap-3">
+              <Bell className="h-5 w-5 sm:h-8 sm:w-8 text-gold-300 animate-bounce" />
+              <span className="whitespace-nowrap">Latest Updates</span>
+              <Bell className="h-5 w-5 sm:h-8 sm:w-8 text-gold-300 animate-bounce" />
             </h2>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mt-6 text-lg font-medium">
+          <p className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mt-4 sm:mt-6 text-sm sm:text-lg font-medium px-2">
             Stay informed about our latest announcements, upcoming events, and spiritual programs
           </p>
         </motion.div>
@@ -181,15 +181,16 @@ export default function LatestUpdates() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <div className={`${config.bg} ${config.border} border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group`}>
-                    <div className="flex items-start gap-6">
+                  <div className={`${config.bg} ${config.border} border-2 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-all duration-300 group`}>
+                    {/* Mobile: Stack vertically, Desktop: Side by side */}
+                    <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                       {/* Image */}
                       {update.image && (
-                        <div className="flex-shrink-0 cursor-pointer" onClick={() => handleImageClick(update.image || '')}>
+                        <div className="flex-shrink-0 cursor-pointer w-full sm:w-auto" onClick={() => handleImageClick(update.image || '')}>
                           <img 
                             src={`${update.image}?t=${Date.now()}`}
                             alt={update.title}
-                            className="w-32 h-32 object-cover rounded-lg shadow-md hover:opacity-80 transition-opacity"
+                            className="w-full sm:w-28 md:w-32 h-40 sm:h-28 md:h-32 object-cover rounded-lg shadow-md hover:opacity-80 transition-opacity"
                             onError={(e) => {
                               e.currentTarget.src = 'https://placehold.co/200x200/1B4332/D4AF37?text=Update+Image'
                             }}
@@ -197,14 +198,14 @@ export default function LatestUpdates() {
                         </div>
                       )}
                       
-                      <div className="flex-1">
-                        <div className="flex items-start gap-4">
-                          <div className={`${config.color} p-3 rounded-lg ${config.bg} group-hover:scale-110 transition-transform duration-300`}>
-                            <Icon className="h-6 w-6" />
+                      <div className="flex-1 w-full min-w-0">
+                        <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                          <div className={`${config.color} p-2 sm:p-3 rounded-lg ${config.bg} group-hover:scale-110 transition-transform duration-300`}>
+                            <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                           </div>
                           
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
+                          <div className="flex-1 min-w-0 w-full">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
                               <span className={`text-xs font-semibold uppercase tracking-wider ${config.color}`}>
                                 {update.category}
                               </span>
@@ -217,20 +218,20 @@ export default function LatestUpdates() {
                               </span>
                             </div>
                             
-                            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-2 break-words">
                               {update.title}
                             </h3>
                             
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 break-words">
                               {update.description}
                             </p>
                             
                             <Link 
                               to={update.link || `/blog/${update._id}`}
-                              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                             >
                               Learn More
-                              <ArrowRight className="h-4 w-4" />
+                              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Link>
                           </div>
                         </div>

@@ -9,6 +9,7 @@ export interface Course {
   description: string;
   category: string;
   price: number;
+  priceINR?: number | null; // Indian price in INR
   level: string;
   image: string;
   duration?: string;
@@ -57,6 +58,7 @@ export const useCoursesStore = create<CoursesState>()(
               description: course.description,
               category: course.category,
               price: course.price || 0,
+              priceINR: course.priceINR || null,
               level: course.level,
               image: course.image,
               duration: course.duration,

@@ -72,7 +72,7 @@ function AnimatedCounter({ end, suffix = '', decimal = false }: AnimatedCounterP
   }, [hasAnimated, end])
 
   return (
-    <span ref={ref} className="text-3xl font-bold">
+    <span ref={ref} className="text-xl sm:text-3xl font-bold">
       {decimal ? count.toFixed(1) : Math.floor(count).toLocaleString()}{suffix}
     </span>
   )
@@ -313,7 +313,7 @@ export default function MureedRegistrationPage() {
           className="absolute bottom-20 left-20 w-24 h-24 bg-primary-400/20 rounded-full hidden lg:block"
         />
 
-        <div className="container mx-auto px-4 py-20 relative z-10">
+        <div className="container mx-auto px-3 sm:px-4 py-12 sm:py-20 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -325,10 +325,10 @@ export default function MureedRegistrationPage() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center gap-2 bg-gold-500/20 text-gold-300 px-4 py-2 rounded-full mb-6"
+              className="inline-flex items-center gap-2 bg-gold-500/20 text-gold-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6"
             >
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">Join Our Spiritual Family</span>
+              <span className="text-xs sm:text-sm font-medium">Join Our Spiritual Family</span>
             </motion.div>
 
             {/* Arabic Text */}
@@ -336,19 +336,19 @@ export default function MureedRegistrationPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-3xl md:text-4xl font-arabic text-gold-400 mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-arabic text-gold-400 mb-3 sm:mb-4"
             >
               بیعت کریں
             </motion.h2>
 
             {/* Main Title */}
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-3 sm:mb-4">
               Enroll as a Devoted <span className="text-gold-400">Mureed</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gold-300 font-serif mb-4">
+            <p className="text-base sm:text-xl md:text-2xl text-gold-300 font-serif mb-3 sm:mb-4">
               of Sahibzada Shariq Ahmed Tariqi
             </p>
-            <p className="text-gray-300 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto px-2">
               Join our spiritual family and receive blessings, guidance, and a unique Mureed ID card
             </p>
 
@@ -357,7 +357,7 @@ export default function MureedRegistrationPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="flex flex-wrap justify-center gap-8 mt-10 mb-16"
+              className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-6 sm:mt-10 mb-8 sm:mb-16"
             >
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-gold-400">
@@ -393,8 +393,8 @@ export default function MureedRegistrationPage() {
       </section>
 
       {/* Registration Form Section */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
+      <section className="py-10 sm:py-16 bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-3 sm:px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

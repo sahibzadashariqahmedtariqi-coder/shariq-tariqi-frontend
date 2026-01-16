@@ -78,6 +78,12 @@ const productSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  // Indian price in INR
+  priceINR: {
+    type: Number,
+    min: 0,
+    default: null
   }
 }, {
   timestamps: true

@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useState } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash2, Save, X, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react'
+import { Trash2, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 interface Appointment {

@@ -3,9 +3,8 @@ import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { 
-  ArrowLeft, Users, Plus, Search, Eye, Check, X, Ban, 
-  Unlock, Key, Calendar, DollarSign, AlertTriangle, 
-  CheckCircle, Clock, FileText, Download, RefreshCw
+  ArrowLeft, Plus, Search, Eye, Check, X, Ban, 
+  Unlock, CheckCircle, FileText, RefreshCw
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/services/api'
@@ -81,7 +80,7 @@ export default function AdminFeeManagementPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showScreenshotModal, setShowScreenshotModal] = useState(false)
   const [selectedScreenshot, setSelectedScreenshot] = useState('')
-  const [selectedFee, setSelectedFee] = useState<FeePayment | null>(null)
+  const [_selectedFee, _setSelectedFee] = useState<FeePayment | null>(null)
   const [showCredentialsModal, setShowCredentialsModal] = useState(false)
   const [newCredentials, setNewCredentials] = useState<any>(null)
   

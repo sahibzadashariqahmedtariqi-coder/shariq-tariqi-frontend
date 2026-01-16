@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, Navigate } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck } from 'lucide-react';
+import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck, Heart } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore'
 
 export default function AdminDashboardPage() {
@@ -136,6 +136,13 @@ export default function AdminDashboardPage() {
       icon: UserCheck,
       path: '/admin/mureeds',
       color: 'bg-gold-500',
+    },
+    {
+      title: 'Manage Donations',
+      description: 'View & verify donation payments',
+      icon: Heart,
+      path: '/admin/donations',
+      color: 'bg-pink-600',
     },
   ]
 

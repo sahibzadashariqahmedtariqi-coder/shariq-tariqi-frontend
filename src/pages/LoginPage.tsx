@@ -85,7 +85,7 @@ export default function LoginPage() {
       console.log('Response data:', response.data)
       
       // Backend returns: { success: true, message: string, data: { ...user fields, token } }
-      const responseData = response.data?.data || response.data
+      const responseData = (response.data as any)?.data || response.data
       console.log('Extracted data:', responseData)
       
       // Check if token exists directly in responseData
@@ -146,7 +146,7 @@ export default function LoginPage() {
             <h1 className="text-4xl font-bold text-center mb-4 text-primary-800 dark:text-white">Welcome Back</h1>
             <p className="text-center text-gray-600 dark:text-gray-300 mb-8">Choose your login type to continue</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
               {/* Admin Login Card */}
               <button
                 onClick={() => handleLoginTypeSelect('admin')}
@@ -162,25 +162,6 @@ export default function LoginPage() {
                   </p>
                   <span className="inline-block px-4 py-2 bg-gold-100 dark:bg-gold-900/30 text-gold-700 dark:text-gold-400 rounded-full text-sm font-medium">
                     Administrator Access
-                  </span>
-                </div>
-              </button>
-
-              {/* User Login Card */}
-              <button
-                onClick={() => handleLoginTypeSelect('user')}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-primary-400 group"
-              >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <User className="w-10 h-10 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">User Login</h2>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Access your dashboard, view orders & manage appointments
-                  </p>
-                  <span className="inline-block px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full text-sm font-medium">
-                    Member Access
                   </span>
                 </div>
               </button>

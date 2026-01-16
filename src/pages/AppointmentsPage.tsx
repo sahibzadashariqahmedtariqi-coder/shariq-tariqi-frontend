@@ -33,7 +33,7 @@ export default function AppointmentsPage() {
     service: preSelectedService,
     message: '',
   })
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitted, _setIsSubmitted] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
   const [settings, setSettings] = useState<AppointmentSettings>({
     consultationFee: 2000,
@@ -107,19 +107,19 @@ export default function AppointmentsPage() {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900">
+      <section className="relative py-12 sm:py-20 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
               Book Your Appointment
             </h1>
-            <p className="text-xl text-gray-200 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-xl text-gray-200 max-w-2xl mx-auto px-2">
               Schedule a personalized consultation for spiritual healing, guidance, and traditional remedies
             </p>
           </motion.div>
@@ -127,8 +127,8 @@ export default function AppointmentsPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
+      <section className="py-10 sm:py-16 bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-3 sm:px-4">
           {/* Pre-selected Service Banner */}
           {searchParams.get('service') && (
             <motion.div

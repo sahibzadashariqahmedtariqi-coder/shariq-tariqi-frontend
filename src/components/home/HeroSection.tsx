@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Video, Heart } from 'lucide-react'
@@ -178,17 +178,17 @@ export default function HeroSection() {
           />
         </div>
         
-        <div className="container mx-auto px-4 md:px-8 lg:px-12 relative z-10">
-          <div className="max-w-4xl mx-auto text-center min-h-[450px] flex items-center justify-center">
+        <div className="container mx-auto px-3 sm:px-4 md:px-8 lg:px-12 relative z-10">
+          <div className="max-w-4xl mx-auto text-center min-h-[400px] sm:min-h-[450px] flex items-center justify-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="space-y-4 w-full"
+              className="space-y-3 sm:space-y-4 w-full"
             >
-              <div className="h-[100px] md:h-[120px] flex items-center justify-center overflow-hidden">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-800 dark:text-white leading-relaxed text-center">
+              <div className="h-[80px] sm:h-[100px] md:h-[120px] flex items-center justify-center overflow-hidden">
+                <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-800 dark:text-white leading-relaxed text-center">
                   <TypingText text="Welcome to" delay={0} />
                   <br />
                   <span className="text-gold-500">
@@ -197,8 +197,8 @@ export default function HeroSection() {
                 </h1>
               </div>
               
-              <div className="h-[120px] md:h-[140px] flex items-center justify-center overflow-hidden px-4">
-                <p className="text-base md:text-lg lg:text-xl text-gray-700 dark:text-gray-300 font-light text-center max-w-4xl leading-relaxed">
+              <div className="h-[100px] sm:h-[120px] md:h-[140px] flex items-center justify-center overflow-hidden px-2 sm:px-4">
+                <p className="text-xs sm:text-base md:text-lg lg:text-xl text-gray-700 dark:text-gray-300 font-light text-center max-w-4xl leading-relaxed">
                   <TypingText 
                     text="Deeply rooted in the timeless wisdom of Sufism and the ancient healing sciences of Hikmat, Sahibzada Shariq Ahmed Tariqi illuminates hearts and minds with profound divine knowledge of spirituality, traditional healing practices, and spiritual guidance."
                     delay={500}
@@ -206,8 +206,8 @@ export default function HeroSection() {
                 </p>
               </div>
 
-              <div className="h-[80px] flex items-center justify-center overflow-hidden px-4">
-                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center max-w-3xl leading-relaxed">
+              <div className="h-[60px] sm:h-[80px] flex items-center justify-center overflow-hidden px-2 sm:px-4">
+                <p className="text-[10px] sm:text-sm md:text-base text-gray-600 dark:text-gray-400 text-center max-w-3xl leading-relaxed">
                   <TypingText 
                     text="Discover the sacred path to spiritual enlightenment, inner peace, and physical well-being through authentic traditional Islamic healing methods and comprehensive spiritual guidance."
                     delay={1500}
@@ -215,30 +215,30 @@ export default function HeroSection() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-3 pt-4">
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-3 pt-2 sm:pt-4">
                 <Link to="/courses">
-                  <Button size="lg" className="gap-2 shadow-xl">
-                    <BookOpen className="h-5 w-5" />
+                  <Button size="sm" className="gap-1 sm:gap-2 shadow-xl text-xs sm:text-sm">
+                    <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
                     Explore Courses
                   </Button>
                 </Link>
                 <Link to="/services">
                   <Button 
-                    size="lg" 
+                    size="sm" 
                     variant="outline" 
-                    className="gap-2"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm"
                   >
-                    <Heart className="h-5 w-5" />
+                    <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
                     Our Services
                   </Button>
                 </Link>
                 <Link to="/media">
                   <Button 
-                    size="lg" 
+                    size="sm" 
                     variant="ghost" 
-                    className="gap-2"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm"
                   >
-                    <Video className="h-5 w-5" />
+                    <Video className="h-4 w-4 sm:h-5 sm:w-5" />
                     Watch Videos
                   </Button>
                 </Link>

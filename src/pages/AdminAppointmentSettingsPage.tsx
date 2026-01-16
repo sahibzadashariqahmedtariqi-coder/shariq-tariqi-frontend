@@ -4,7 +4,6 @@ import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Save, DollarSign, Clock, Calendar, Info, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
-import apiClient from '@/services/api'
 import toast from 'react-hot-toast'
 
 interface AppointmentSettings {

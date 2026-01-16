@@ -10,6 +10,7 @@ interface CheckoutModalProps {
   itemId: string;
   itemTitle: string;
   itemPrice: number;
+  itemPriceINR?: number | null;
   quantity?: number;
   appointmentDate?: string;
   appointmentTime?: string;
@@ -32,6 +33,7 @@ const CheckoutModal = ({
   itemId,
   itemTitle,
   itemPrice,
+  itemPriceINR,
   quantity = 1,
   appointmentDate,
   appointmentTime,
@@ -44,6 +46,9 @@ const CheckoutModal = ({
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [downloadingReceipt, setDownloadingReceipt] = useState(false);
   const receiptRef = useRef<HTMLDivElement>(null);
+  
+  // Payment method selection
+  const [paymentRegion, setPaymentRegion] = useState<'pakistan' | 'india' | null>(null);
   
   // Form data
   const [customerName, setCustomerName] = useState('');
@@ -59,7 +64,19 @@ const CheckoutModal = ({
   const [senderAccount, setSenderAccount] = useState('');
   const [uploadLoading, setUploadLoading] = useState(false);
 
-  const totalAmount = itemPrice * quantity;
+  // Calculate total based on region
+  const totalAmountPKR = itemPrice * quantity;
+  const totalAmountINR = itemPriceINR ? itemPriceINR * quantity : null;
+  
+  // Get display amount based on selected region
+  const getDisplayAmount = () => {
+    if (paymentRegion === 'india' && totalAmountINR) {
+      return { amount: totalAmountINR, currency: '₹', label: 'INR' };
+    }
+    return { amount: totalAmountPKR, currency: 'Rs.', label: 'PKR' };
+  };
+  
+  const displayPrice = getDisplayAmount();
 
   useEffect(() => {
     if (isOpen) {
@@ -78,6 +95,7 @@ const CheckoutModal = ({
       setPaymentProof(null);
       setTransactionId('');
       setSenderAccount('');
+      setPaymentRegion(null);
     }
   }, [isOpen]);
 
@@ -285,7 +303,10 @@ const CheckoutModal = ({
                 </p>
               )}
               <p className="text-lg font-bold text-emerald-900 mt-2">
-                Total Amount: Rs. {totalAmount.toLocaleString()}
+                Total Amount: {displayPrice.currency} {displayPrice.amount.toLocaleString()}
+                {paymentRegion === 'india' && totalAmountINR && (
+                  <span className="text-xs font-normal text-gray-500 ml-2">(₹ INR)</span>
+                )}
               </p>
             </div>
           </div>
@@ -401,49 +422,149 @@ const CheckoutModal = ({
 
           {step === 'payment' && bankDetails && (
             <div className="space-y-6">
-              {/* Bank Details */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-start gap-3 mb-3">
-                  <CreditCard className="w-5 h-5 text-blue-600 mt-0.5" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-blue-900 mb-3">Bank Transfer Details</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between border-b border-blue-200 pb-2">
-                        <span className="text-gray-600">Bank Name:</span>
-                        <span className="font-medium text-gray-900">{bankDetails.bankName}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-blue-200 pb-2">
-                        <span className="text-gray-600">Account Title:</span>
-                        <span className="font-medium text-gray-900">{bankDetails.accountTitle}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-blue-200 pb-2">
-                        <span className="text-gray-600">Account Number:</span>
-                        <span className="font-medium text-gray-900">{bankDetails.accountNumber}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-blue-200 pb-2">
-                        <span className="text-gray-600">IBAN:</span>
-                        <span className="font-medium text-gray-900">{bankDetails.ibanNumber}</span>
-                      </div>
-                      {bankDetails.bankBranch && (
-                        <div className="flex justify-between pb-2">
-                          <span className="text-gray-600">Branch:</span>
-                          <span className="font-medium text-gray-900">{bankDetails.bankBranch}</span>
+              {/* Payment Region Selection */}
+              {!paymentRegion && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 text-center text-lg">Select Your Payment Region</h3>
+                  <p className="text-sm text-gray-600 text-center mb-4">Choose your country/region for payment instructions</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Pakistan & International */}
+                    <button
+                      onClick={() => setPaymentRegion('pakistan')}
+                      className="p-6 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all text-center group"
+                    >
+                      <div className="text-4xl mb-3">🇵🇰 🌍</div>
+                      <h4 className="font-semibold text-gray-900 group-hover:text-emerald-700">Pakistan & International</h4>
+                      <p className="text-sm text-gray-500 mt-1">Bank Transfer (HBL)</p>
+                    </button>
+                    
+                    {/* India */}
+                    <button
+                      onClick={() => setPaymentRegion('india')}
+                      className="p-6 border-2 border-gray-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all text-center group"
+                    >
+                      <div className="text-4xl mb-3">🇮🇳</div>
+                      <h4 className="font-semibold text-gray-900 group-hover:text-orange-700">India</h4>
+                      <p className="text-sm text-gray-500 mt-1">UPI / QR Code Payment</p>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Pakistan & International - Bank Details */}
+              {paymentRegion === 'pakistan' && (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => setPaymentRegion(null)}
+                      className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                    >
+                      ← Change Region
+                    </button>
+                    <span className="text-sm font-medium text-emerald-600">🇵🇰 Pakistan & International</span>
+                  </div>
+                  
+                  {/* Bank Details */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3 mb-3">
+                      <CreditCard className="w-5 h-5 text-blue-600 mt-0.5" />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-blue-900 mb-3">Bank Transfer Details</h3>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between border-b border-blue-200 pb-2">
+                            <span className="text-gray-600">Bank Name:</span>
+                            <span className="font-medium text-gray-900">{bankDetails.bankName}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-blue-200 pb-2">
+                            <span className="text-gray-600">Account Title:</span>
+                            <span className="font-medium text-gray-900">{bankDetails.accountTitle}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-blue-200 pb-2">
+                            <span className="text-gray-600">Account Number:</span>
+                            <span className="font-medium text-gray-900">{bankDetails.accountNumber}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-blue-200 pb-2">
+                            <span className="text-gray-600">IBAN:</span>
+                            <span className="font-medium text-gray-900">{bankDetails.ibanNumber}</span>
+                          </div>
+                          {bankDetails.bankBranch && (
+                            <div className="flex justify-between pb-2">
+                              <span className="text-gray-600">Branch:</span>
+                              <span className="font-medium text-gray-900">{bankDetails.bankBranch}</span>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-100 rounded p-3 mt-3">
+                      <div className="flex gap-2">
+                        <AlertCircle className="w-5 h-5 text-blue-700 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-blue-900">{bankDetails.paymentInstructions}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="bg-blue-100 rounded p-3 mt-3">
-                  <div className="flex gap-2">
-                    <AlertCircle className="w-5 h-5 text-blue-700 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-blue-900">{bankDetails.paymentInstructions}</p>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
 
-              {/* Payment Proof Upload */}
-              <form onSubmit={handleUploadPaymentProof} className="space-y-4">
+              {/* India - QR Code Payment */}
+              {paymentRegion === 'india' && (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => setPaymentRegion(null)}
+                      className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                    >
+                      ← Change Region
+                    </button>
+                    <span className="text-sm font-medium text-orange-600">🇮🇳 India</span>
+                  </div>
+                  
+                  {/* QR Codes */}
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3 mb-3">
+                      <CreditCard className="w-5 h-5 text-orange-600 mt-0.5" />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-orange-900 mb-3">UPI / QR Code Payment</h3>
+                        <p className="text-sm text-gray-600 mb-4">Scan any of the QR codes below using your UPI app (Google Pay, PhonePe, Paytm, etc.)</p>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-white rounded-lg p-3 border border-orange-200 text-center">
+                            <img 
+                              src="/images/india-payment-qr-1.jpeg" 
+                              alt="Payment QR Code 1" 
+                              className="w-full max-w-[180px] mx-auto rounded-lg shadow-sm"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">Option 1</p>
+                          </div>
+                          <div className="bg-white rounded-lg p-3 border border-orange-200 text-center">
+                            <img 
+                              src="/images/india-payment-qr-2.jpeg" 
+                              alt="Payment QR Code 2" 
+                              className="w-full max-w-[180px] mx-auto rounded-lg shadow-sm"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">Option 2</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-orange-100 rounded p-3 mt-3">
+                      <div className="flex gap-2">
+                        <AlertCircle className="w-5 h-5 text-orange-700 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-orange-900">
+                          Please transfer ₹ {totalAmountINR ? totalAmountINR.toLocaleString() : totalAmountPKR.toLocaleString()} to the above QR code and upload the payment screenshot for verification.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Payment Proof Upload - Show only after region is selected */}
+              {paymentRegion && (
+                <form onSubmit={handleUploadPaymentProof} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Upload Payment Receipt/Screenshot *
@@ -531,7 +652,8 @@ const CheckoutModal = ({
                 >
                   {uploadLoading ? 'Uploading...' : 'Submit Payment Proof'}
                 </button>
-              </form>
+                </form>
+              )}
             </div>
           )}
 
@@ -586,7 +708,7 @@ const CheckoutModal = ({
                     )}
                     <div className="flex justify-between pt-2 border-t border-gray-200 mt-2">
                       <span className="text-gray-700 font-semibold">Total Amount:</span>
-                      <span className="font-bold text-emerald-600 text-lg">Rs. {totalAmount.toLocaleString()}</span>
+                      <span className="font-bold text-emerald-600 text-lg">{displayPrice.currency} {displayPrice.amount.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -667,6 +789,7 @@ const CheckoutModal = ({
                     setPaymentProof(null);
                     setTransactionId('');
                     setSenderAccount('');
+                    setPaymentRegion(null);
                   }}
                   className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
                 >

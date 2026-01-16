@@ -15,7 +15,7 @@ export default function Header() {
     navigate('/')
   }
 
-  const navLinks = [
+  const navLinks: { path: string; label: string; scrollTo?: boolean; external?: boolean }[] = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
     { path: '/courses', label: 'Courses' },
@@ -29,14 +29,14 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-primary-900 backdrop-blur shadow-lg">
-      <div className="container mx-auto px-2 lg:px-4">
-        <div className="flex h-16 items-center justify-between gap-2">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="flex h-14 sm:h-16 items-center justify-between gap-2">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-1.5 lg:gap-2 flex-shrink-0" onClick={closeMenu}>
-            <img src="/images/logo.png" alt="Logo" className="h-10 w-10 lg:h-14 lg:w-14 flex-shrink-0" />
+          <Link to="/" className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 flex-shrink-0 min-w-0" onClick={closeMenu}>
+            <img src="/images/logo.png" alt="Logo" className="h-8 w-8 sm:h-10 sm:w-10 lg:h-14 lg:w-14 flex-shrink-0" />
             <div className="flex flex-col min-w-0">
-              <span className="text-sm lg:text-lg font-bold text-gold-400 truncate whitespace-nowrap">Sahibzada Shariq Ahmed Tariqi</span>
-              <span className="text-[9px] lg:text-[11px] text-gray-300 truncate whitespace-nowrap">Spiritual Healing & Guidance</span>
+              <span className="text-[10px] sm:text-sm lg:text-lg font-bold text-gold-400 truncate">Sahibzada Shariq Ahmed Tariqi</span>
+              <span className="text-[8px] sm:text-[9px] lg:text-[11px] text-gray-300 truncate">Spiritual Healing & Guidance</span>
             </div>
           </Link>
 

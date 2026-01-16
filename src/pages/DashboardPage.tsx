@@ -1,9 +1,8 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/stores/authStore'
-import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { DollarSign, Upload, CheckCircle, Clock, XCircle, AlertTriangle, Calendar, CreditCard, FileText, Eye, X, BookOpen, ShoppingBag } from 'lucide-react'
+import { DollarSign, Upload, CheckCircle, Clock, XCircle, AlertTriangle, Calendar, FileText, X, BookOpen, ShoppingBag } from 'lucide-react'
 import apiClient from '@/services/api'
 import toast from 'react-hot-toast'
 

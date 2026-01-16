@@ -60,23 +60,23 @@ export default function AboutPage() {
       </Helmet>
       
       {/* Blinking Book Appointment Button - Top Right */}
-      <Link to="/appointments" className="fixed top-24 right-4 z-50 animate-pulse">
-        <button className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-6 rounded-full shadow-2xl hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-110 flex items-center gap-2 border-2 border-white">
-          <span className="relative flex h-3 w-3">
+      <Link to="/appointments" className="fixed top-20 sm:top-24 right-2 sm:right-4 z-50 animate-pulse">
+        <button className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-2 sm:py-3 px-3 sm:px-6 rounded-full shadow-2xl hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-110 flex items-center gap-1 sm:gap-2 border-2 border-white">
+          <span className="relative flex h-2 w-2 sm:h-3 sm:w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-white"></span>
           </span>
-          <span className="text-sm md:text-base">Book Appointment</span>
+          <span className="text-xs sm:text-sm md:text-base">Book Appointment</span>
         </button>
       </Link>
 
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900">
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-3 sm:px-4 py-10 sm:py-16">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-primary-800 dark:text-white mb-12 text-center"
+            className="text-2xl sm:text-4xl md:text-5xl font-bold text-primary-800 dark:text-white mb-8 sm:mb-12 text-center"
           >
             About <span className="text-gold-500">Sahibzada Shariq Ahmed Tariqi</span>
           </motion.h1>
@@ -111,7 +111,7 @@ export default function AboutPage() {
                 className="space-y-6"
               >
                 <div className="prose dark:prose-invert max-w-none">
-                  <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-sm sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                     <span className="text-gold-500 font-semibold">Sahibzada Shariq Ahmed Tariqi</span> is a dedicated spiritual healer and practitioner of traditional Islamic medicine. 
                     With deep knowledge in <span className="font-semibold text-primary-600 dark:text-primary-400">Roohaniyat</span> (spirituality) and <span className="font-semibold text-primary-600 dark:text-primary-400">Hikmat</span> (traditional Islamic medicine), 
                     he serves humanity through the prophetic traditions of healing.

@@ -5,8 +5,8 @@ import { useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { QRCodeSVG } from 'qrcode.react';
 import {
-  Award, Download, Share2, Calendar,
-  BookOpen, Shield, ChevronLeft
+  Award, Download, Share2,
+  ChevronLeft
 } from 'lucide-react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -200,6 +200,10 @@ const LMSCertificatePage = () => {
                 <h3 className="text-xl font-semibold text-gray-800 italic">
                   "{certificate.courseTitle}"
                 </h3>
+                
+                <p className="text-sm font-bold text-gray-800 px-6 leading-relaxed">
+                  Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course and for the implementation of all prescribed practices.
+                </p>
 
                 {/* Completion Date */}
                 <div className="text-gray-600">
@@ -241,10 +245,10 @@ const LMSCertificatePage = () => {
 
                 {/* QR Code and Certificate Number */}
                 <div className="text-center flex-1 flex flex-col items-center">
-                  <div className="bg-white p-1 rounded-md shadow-sm border border-gray-200 mb-1">
+                  <div className="bg-white p-1.5 rounded-md shadow-sm border border-gray-200 mb-1">
                     <QRCodeSVG 
                       value={`https://shariqtariqi.com/verify-certificate/${certificate.verificationCode}`}
-                      size={40}
+                      size={60}
                       level="M"
                       fgColor="#1f2937"
                       bgColor="#ffffff"

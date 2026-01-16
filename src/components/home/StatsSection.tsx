@@ -75,7 +75,7 @@ function AnimatedNumber({ end, suffix = '', prefix = '', decimal = false }: Stat
   return (
     <motion.div 
       ref={ref} 
-      className="text-4xl md:text-5xl font-bold text-gold-400"
+      className="text-2xl sm:text-4xl md:text-5xl font-bold text-gold-400"
       initial={{ scale: 0.5, opacity: 0 }}
       animate={hasAnimated ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -136,7 +136,7 @@ export default function StatsSection() {
       try {
         const response = await apiClient.get('/stats')
         const data = response.data.data || response.data
-        setStatsData(prev => ({
+        setStatsData(_prev => ({
           studentsTrained: data.studentsTrained,
           averageRating: data.averageRating,
           coursesOffered: data.coursesOffered,
@@ -216,24 +216,24 @@ export default function StatsSection() {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900">
-      <div className="container mx-auto px-4">
+    <section className="py-10 sm:py-16 bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900">
+      <div className="container mx-auto px-3 sm:px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
             Our Achievements
           </h2>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-gray-300 max-w-2xl mx-auto px-2">
             Transforming lives through spiritual guidance and healing
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-8">
           {stats.map((stat, index) => (
             <motion.div
               key={index}
@@ -243,14 +243,14 @@ export default function StatsSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               className="relative group"
             >
-              <div className="bg-primary-800/60 backdrop-blur-sm rounded-2xl p-8 text-center hover:bg-primary-800/80 transition-all duration-300 border-2 border-primary-700 hover:border-gold-400 shadow-xl">
+              <div className="bg-primary-800/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-8 text-center hover:bg-primary-800/80 transition-all duration-300 border-2 border-primary-700 hover:border-gold-400 shadow-xl">
                 {/* Icon */}
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ type: "spring", stiffness: 300 }}
-                  className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-gold-400/20 text-gold-400"
+                  className="inline-flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 mb-3 sm:mb-6 rounded-full bg-gold-400/20 text-gold-400"
                 >
-                  <stat.icon className="w-8 h-8" />
+                  <stat.icon className="w-5 h-5 sm:w-8 sm:h-8" />
                 </motion.div>
 
                 {/* Animated Number */}
@@ -262,7 +262,7 @@ export default function StatsSection() {
                 />
 
                 {/* Label */}
-                <p className="mt-4 text-gray-200 font-medium text-lg">
+                <p className="mt-2 sm:mt-4 text-gray-200 font-medium text-xs sm:text-lg">
                   {stat.label}
                 </p>
 

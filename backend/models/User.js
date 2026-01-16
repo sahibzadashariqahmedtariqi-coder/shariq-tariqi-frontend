@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin', 'lms_student'],
     default: 'user'
   },
+  isSuperAdmin: {
+    type: Boolean,
+    default: false
+  },
   // ========== LMS STUDENT SPECIFIC FIELDS ==========
   isLMSStudent: {
     type: Boolean,

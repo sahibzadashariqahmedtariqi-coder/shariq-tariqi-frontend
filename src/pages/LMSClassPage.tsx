@@ -61,7 +61,7 @@ const LMSClassPage = () => {
   const playerRef = useRef<any>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [_isPlayerReady, setIsPlayerReady] = useState(false);
 
   // Fetch class data
   const { data, isLoading, error } = useQuery({

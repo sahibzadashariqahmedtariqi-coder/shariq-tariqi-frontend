@@ -108,8 +108,14 @@ const courseSchema = new mongoose.Schema({
   totalClasses: {
     type: Number,
     default: 0
-  }
+  },
   // ========== END LMS FIELDS ==========
+  // Indian price in INR
+  priceINR: {
+    type: Number,
+    min: 0,
+    default: null
+  }
 }, {
   timestamps: true
 });
