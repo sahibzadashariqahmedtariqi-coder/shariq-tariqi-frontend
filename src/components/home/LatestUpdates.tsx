@@ -113,30 +113,57 @@ export default function LatestUpdates() {
           </div>
         )}
 
-        {/* Blinking Promotional Image - Right Side */}
+        {/* Blinking Promotional Image - Shows on all devices */}
         {(updates[0]?.promoImage || updates[0]?.image) && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="hidden lg:block absolute right-8 top-32 z-10"
-          >
-            <div className="relative animate-pulse">
-              <img
-                src={`${updates[0].promoImage || updates[0].image}?t=${Date.now()}`}
-                alt="Promotional Banner"
-                className="w-56 h-auto rounded-xl shadow-2xl border-4 border-gold-400 hover:scale-105 transition-transform duration-300 cursor-pointer"
-                onClick={() => handleImageClick(updates[0].promoImage || updates[0].image || '')}
-                onError={(e) => {
-                  e.currentTarget.src = 'https://placehold.co/400x600/8B0000/FFD700?text=Ruhani+Tour+Promo'
-                }}
-              />
-              <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce shadow-lg">
-                New!
+          <>
+            {/* Mobile/Tablet - Above content */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="lg:hidden flex justify-center mb-6"
+            >
+              <div className="relative">
+                <img
+                  src={`${updates[0].promoImage || updates[0].image}?t=${Date.now()}`}
+                  alt="Promotional Banner"
+                  className="w-40 sm:w-48 h-auto rounded-xl shadow-2xl border-4 border-gold-400 hover:scale-105 transition-transform duration-300 cursor-pointer"
+                  onClick={() => handleImageClick(updates[0].promoImage || updates[0].image || '')}
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://placehold.co/400x600/8B0000/FFD700?text=Ruhani+Tour+Promo'
+                  }}
+                />
+                <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce shadow-lg">
+                  New!
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            {/* Desktop - Right Side */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="hidden lg:block absolute right-8 top-32 z-10"
+            >
+              <div className="relative animate-pulse">
+                <img
+                  src={`${updates[0].promoImage || updates[0].image}?t=${Date.now()}`}
+                  alt="Promotional Banner"
+                  className="w-56 h-auto rounded-xl shadow-2xl border-4 border-gold-400 hover:scale-105 transition-transform duration-300 cursor-pointer"
+                  onClick={() => handleImageClick(updates[0].promoImage || updates[0].image || '')}
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://placehold.co/400x600/8B0000/FFD700?text=Ruhani+Tour+Promo'
+                  }}
+                />
+                <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce shadow-lg">
+                  New!
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
