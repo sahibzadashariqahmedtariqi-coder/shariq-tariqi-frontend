@@ -96,54 +96,20 @@ export default function StatsSection() {
     yearsOfExperience: 15,
   })
   const [loading, setLoading] = useState(true)
-  const [youtubeSubscribers, setYoutubeSubscribers] = useState<number | null>(null)
 
-  // Fetch YouTube subscribers count first (priority)
-  useEffect(() => {
-    const fetchYouTubeSubscribers = async () => {
-      const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY
-      const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID
-      
-      if (!apiKey || !channelId) {
-        console.warn('YouTube API key or Channel ID not configured')
-        return
-      }
-
-      try {
-        const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`
-        )
-        const data = await response.json()
-        
-        if (data.items && data.items[0]?.statistics?.subscriberCount) {
-          const subscriberCount = parseInt(data.items[0].statistics.subscriberCount)
-          // Convert to K format (e.g., 27400 -> 27.4)
-          const subscribersInK = subscriberCount / 1000
-          setYoutubeSubscribers(parseFloat(subscribersInK.toFixed(1)))
-        }
-      } catch (error) {
-        console.error('Error fetching YouTube subscribers:', error)
-        // Keep existing value on error
-      }
-    }
-
-    fetchYouTubeSubscribers()
-  }, [])
-
-  // Fetch stats from API (but don't override YouTube subscribers)
+  // Fetch stats from API - Admin Panel values have priority
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const response = await apiClient.get('/stats')
         const data = response.data.data || response.data
-        setStatsData(_prev => ({
+        setStatsData({
           studentsTrained: data.studentsTrained,
           averageRating: data.averageRating,
           coursesOffered: data.coursesOffered,
-          // Keep YouTube API value if available, otherwise use API value
-          subscribers: youtubeSubscribers !== null ? youtubeSubscribers : data.subscribers,
+          subscribers: data.subscribers,
           yearsOfExperience: data.yearsOfExperience,
-        }))
+        })
       } catch (error) {
         console.error('Error fetching stats:', error)
         // Keep default values on error
@@ -153,17 +119,7 @@ export default function StatsSection() {
     }
     
     fetchStats()
-  }, [youtubeSubscribers])
-
-  // Update statsData when YouTube subscribers changes (always override)
-  useEffect(() => {
-    if (youtubeSubscribers !== null) {
-      setStatsData(prev => ({
-        ...prev,
-        subscribers: youtubeSubscribers
-      }))
-    }
-  }, [youtubeSubscribers])
+  }, [])
 
   const stats = [
     {
