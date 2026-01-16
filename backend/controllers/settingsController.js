@@ -22,6 +22,33 @@ export const getSettings = async (req, res, next) => {
 export const getAppointmentSettings = async (req, res, next) => {
   try {
     const settings = await Settings.getInstance();
+
+    // Backfill defaults if the singleton document was created before these fields existed
+    const defaults = {
+      consultationFee: 2000,
+      healingFee: 3000,
+      hikmatFee: 2500,
+      ruqyahFee: 3500,
+      taveezFee: 1500,
+      workingHoursStart: '09:00',
+      workingHoursEnd: '18:00',
+      workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      appointmentDuration: 60,
+      advanceBookingDays: 1,
+      appointmentInstructions: 'Please arrive 10 minutes before your scheduled appointment. Bring any relevant medical documents or previous prescriptions.',
+    };
+
+    let requiresSave = false;
+    Object.entries(defaults).forEach(([key, value]) => {
+      if (settings[key] === undefined) {
+        settings[key] = value;
+        requiresSave = true;
+      }
+    });
+
+    if (requiresSave) {
+      await settings.save();
+    }
     
     // Return only appointment-related settings
     res.status(200).json({

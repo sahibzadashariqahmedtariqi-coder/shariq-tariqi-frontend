@@ -7,6 +7,7 @@ import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarS
 import CheckoutModal from '@/components/checkout/CheckoutModal'
 import apiClient from '@/lib/apiClient'
 
+// Settings are now fetched from backend API - v2
 interface AppointmentSettings {
   consultationFee: number
   healingFee: number
