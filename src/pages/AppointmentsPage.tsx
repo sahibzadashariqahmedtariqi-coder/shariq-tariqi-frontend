@@ -1,11 +1,77 @@
 import { Helmet } from 'react-helmet-async'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign, Sparkles, Heart, Star, Users } from 'lucide-react'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
 import apiClient from '@/services/api'
+
+// Animated Number Component
+interface AnimatedCounterProps {
+  end: number
+  suffix?: string
+}
+
+function AnimatedCounter({ end, suffix = '' }: AnimatedCounterProps) {
+  const [count, setCount] = useState(0)
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current)
+      }
+    }
+  }, [hasAnimated])
+
+  useEffect(() => {
+    if (!hasAnimated) return
+
+    const duration = 2000
+    const startTime = Date.now()
+    
+    const easeOutCubic = (t: number): number => {
+      return 1 - Math.pow(1 - t, 3)
+    }
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easedProgress = easeOutCubic(progress)
+      const currentValue = easedProgress * end
+
+      if (progress < 1) {
+        setCount(currentValue)
+        requestAnimationFrame(animate)
+      } else {
+        setCount(end)
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [hasAnimated, end])
+
+  return (
+    <span ref={ref} className="text-xl sm:text-3xl font-bold">
+      {Math.floor(count).toLocaleString()}{suffix}
+    </span>
+  )
+}
 
 // Settings are now fetched from backend API - v2
 interface AppointmentSettings {
@@ -123,22 +189,100 @@ export default function AppointmentsPage() {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative py-12 sm:py-20 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="container mx-auto px-3 sm:px-4 relative z-10">
+      <section className="relative min-h-[50vh] bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute inset-0 bg-[url('/images/islamic-pattern.png')] opacity-5"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gold-500/20 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary-500/20 rounded-full filter blur-3xl"></div>
+        
+        {/* Floating elements */}
+        <motion.div
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 6, repeat: Infinity }}
+          className="absolute top-20 right-20 w-16 h-16 bg-gold-500/20 rounded-full hidden lg:block"
+        />
+        <motion.div
+          animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute bottom-20 left-20 w-24 h-24 bg-primary-400/20 rounded-full hidden lg:block"
+        />
+
+        <div className="container mx-auto px-3 sm:px-4 py-12 sm:py-20 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
-              Book Your Appointment
+            {/* Badge */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="inline-flex items-center gap-2 bg-gold-500/20 text-gold-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="text-xs sm:text-sm font-medium">Schedule Your Visit</span>
+            </motion.div>
+
+            {/* Urdu Text */}
+            <motion.h2
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl sm:text-3xl md:text-4xl font-arabic text-gold-400 mb-3 sm:mb-4"
+            >
+              ملاقات کا وقت مقرر کریں
+            </motion.h2>
+
+            {/* Main Title */}
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-3 sm:mb-4">
+              Book Your <span className="text-gold-400">Appointment</span>
             </h1>
-            <p className="text-sm sm:text-xl text-gray-200 max-w-2xl mx-auto px-2">
+            <p className="text-base sm:text-xl md:text-2xl text-gold-300 font-serif mb-3 sm:mb-4">
+              with Sahibzada Shariq Ahmed Tariqi
+            </p>
+            <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto px-2">
               Schedule a personalized consultation for spiritual healing, guidance, and traditional remedies
             </p>
+
+            {/* Stats */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-6 sm:mt-10 mb-8 sm:mb-16"
+            >
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 text-gold-400">
+                  <Users className="h-5 w-5" />
+                  <AnimatedCounter end={10000} suffix="+" />
+                </div>
+                <p className="text-gray-300 text-sm mt-1">Consultations Done</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 text-gold-400">
+                  <Heart className="h-5 w-5 fill-current" />
+                  <AnimatedCounter end={98} suffix="%" />
+                </div>
+                <p className="text-gray-300 text-sm mt-1">Satisfaction Rate</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 text-gold-400">
+                  <Star className="h-5 w-5 fill-current" />
+                  <AnimatedCounter end={15} suffix="+" />
+                </div>
+                <p className="text-gray-300 text-sm mt-1">Years Experience</p>
+              </div>
+            </motion.div>
           </motion.div>
+        </div>
+
+        {/* Wave decoration */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="currentColor" className="text-gray-50 dark:text-gray-900"/>
+          </svg>
         </div>
       </section>
 

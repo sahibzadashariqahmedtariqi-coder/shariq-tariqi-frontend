@@ -87,6 +87,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://shariq-tariqi-frontend-nmj5.vercel.app',
   'https://shariq-tariqi-frontend.vercel.app',
+  'https://sahibzadashariqahmedtariqi.com',
+  'https://www.sahibzadashariqahmedtariqi.com',
   process.env.FRONTEND_URL,
   process.env.FRONTEND_PRODUCTION_URL
 ].filter(Boolean);
