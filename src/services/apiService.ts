@@ -22,16 +22,31 @@ export const videosApi = {
     const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
     const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
     
+    console.log('YouTube Videos API Config:', { 
+      hasApiKey: !!apiKey, 
+      hasChannelId: !!channelId,
+      channelId: channelId 
+    });
+    
     if (!apiKey) {
-      console.warn('YouTube API key not configured');
+      console.warn('YouTube API key not configured - Check Vercel Environment Variables');
       return { items: [] };
     }
 
     try {
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=12&type=video`
-      );
-      return await response.json();
+      const url = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=12&type=video`;
+      console.log('Fetching YouTube videos...');
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      console.log('YouTube Videos API Response:', data);
+      
+      if (data.error) {
+        console.error('YouTube Videos API Error:', data.error.message);
+        return { items: [] };
+      }
+      
+      return data;
     } catch (error) {
       console.error('YouTube API error:', error);
       return { items: [] };

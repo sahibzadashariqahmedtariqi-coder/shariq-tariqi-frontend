@@ -126,20 +126,34 @@ export default function StatsSection() {
       const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY
       const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID
       
+      console.log('YouTube API Config:', { 
+        hasApiKey: !!apiKey, 
+        hasChannelId: !!channelId,
+        channelId: channelId 
+      })
+      
       if (!apiKey || !channelId) {
-        console.warn('YouTube API key or Channel ID not configured')
+        console.warn('YouTube API key or Channel ID not configured - Check Vercel Environment Variables')
         return
       }
 
       try {
-        const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`
-        )
+        const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`
+        console.log('Fetching YouTube stats...')
+        const response = await fetch(url)
         const data = await response.json()
+        
+        console.log('YouTube API Response:', data)
+        
+        if (data.error) {
+          console.error('YouTube API Error:', data.error.message)
+          return
+        }
         
         if (data.items && data.items[0]?.statistics?.subscriberCount) {
           const subscriberCount = parseInt(data.items[0].statistics.subscriberCount)
           const subscribersInK = subscriberCount / 1000
+          console.log('Subscribers fetched:', subscriberCount, '=', subscribersInK.toFixed(1), 'K')
           setStatsData(prev => ({
             ...prev,
             subscribers: parseFloat(subscribersInK.toFixed(1))
