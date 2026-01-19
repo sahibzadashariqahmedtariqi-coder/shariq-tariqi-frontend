@@ -67,13 +67,15 @@ export default function AdminUpdatesPage() {
 
   const handleEdit = (update: Update) => {
     setCurrentUpdate(update)
+    // Convert ISO date to yyyy-MM-dd format for input field
+    const formattedDate = update.date ? new Date(update.date).toISOString().split('T')[0] : ''
     setFormData({
       title: update.title,
       description: update.description,
       fullContent: update.fullContent || '',
       detailImage1: update.detailImage1 || '',
       detailImage2: update.detailImage2 || '',
-      date: update.date,
+      date: formattedDate,
       category: update.category,
       link: update.link || '',
       image: update.image || '',

@@ -96,31 +96,9 @@ export default function StatsSection() {
     yearsOfExperience: 15,
   })
   const [loading, setLoading] = useState(true)
+  const [youtubeSubscribers, setYoutubeSubscribers] = useState<number | null>(null)
 
-  // Fetch stats from API first
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await apiClient.get('/stats')
-        const data = response.data.data || response.data
-        setStatsData({
-          studentsTrained: data.studentsTrained,
-          averageRating: data.averageRating,
-          coursesOffered: data.coursesOffered,
-          subscribers: data.subscribers,
-          yearsOfExperience: data.yearsOfExperience,
-        })
-      } catch (error) {
-        console.error('Error fetching stats:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    
-    fetchStats()
-  }, [])
-
-  // Fetch YouTube subscribers - overrides database value with live data
+  // Fetch YouTube subscribers FIRST - this has priority
   useEffect(() => {
     const fetchYouTubeSubscribers = async () => {
       const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY
@@ -133,7 +111,7 @@ export default function StatsSection() {
       })
       
       if (!apiKey || !channelId) {
-        console.warn('YouTube API key or Channel ID not configured - Check Vercel Environment Variables')
+        console.warn('YouTube API key or Channel ID not configured')
         return
       }
 
@@ -154,10 +132,7 @@ export default function StatsSection() {
           const subscriberCount = parseInt(data.items[0].statistics.subscriberCount)
           const subscribersInK = subscriberCount / 1000
           console.log('Subscribers fetched:', subscriberCount, '=', subscribersInK.toFixed(1), 'K')
-          setStatsData(prev => ({
-            ...prev,
-            subscribers: parseFloat(subscribersInK.toFixed(1))
-          }))
+          setYoutubeSubscribers(parseFloat(subscribersInK.toFixed(1)))
         }
       } catch (error) {
         console.error('Error fetching YouTube subscribers:', error)
@@ -166,6 +141,40 @@ export default function StatsSection() {
 
     fetchYouTubeSubscribers()
   }, [])
+
+  // Fetch stats from API - but YouTube subscribers will override
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await apiClient.get('/stats')
+        const data = response.data.data || response.data
+        setStatsData(prev => ({
+          studentsTrained: data.studentsTrained,
+          averageRating: data.averageRating,
+          coursesOffered: data.coursesOffered,
+          // Use YouTube value if available, otherwise use database value
+          subscribers: youtubeSubscribers !== null ? youtubeSubscribers : data.subscribers,
+          yearsOfExperience: data.yearsOfExperience,
+        }))
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchStats()
+  }, [youtubeSubscribers])
+
+  // Always update when YouTube subscribers change
+  useEffect(() => {
+    if (youtubeSubscribers !== null) {
+      setStatsData(prev => ({
+        ...prev,
+        subscribers: youtubeSubscribers
+      }))
+    }
+  }, [youtubeSubscribers])
 
   const stats = [
     {
