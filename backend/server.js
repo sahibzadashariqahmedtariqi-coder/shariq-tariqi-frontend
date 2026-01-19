@@ -38,6 +38,9 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
+// Trust proxy for Render/Railway/etc (fixes X-Forwarded-For issues)
+app.set('trust proxy', 1);
+
 // Connect to MongoDB (Main Database)
 connectDB();
 
@@ -97,6 +100,11 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
+    
+    // Allow all Vercel preview deployments
+    if (origin.includes('vercel.app') || origin.includes('sahibzadashariqahmedtariqi.com')) {
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
