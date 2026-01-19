@@ -148,14 +148,14 @@ export default function StatsSection() {
       try {
         const response = await apiClient.get('/stats')
         const data = response.data.data || response.data
-        setStatsData(prev => ({
+        setStatsData({
           studentsTrained: data.studentsTrained,
           averageRating: data.averageRating,
           coursesOffered: data.coursesOffered,
           // Use YouTube value if available, otherwise use database value
           subscribers: youtubeSubscribers !== null ? youtubeSubscribers : data.subscribers,
           yearsOfExperience: data.yearsOfExperience,
-        }))
+        })
       } catch (error) {
         console.error('Error fetching stats:', error)
       } finally {
