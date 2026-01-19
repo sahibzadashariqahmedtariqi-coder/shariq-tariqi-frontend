@@ -28,14 +28,18 @@ export const videosApi = {
       channelId: channelId 
     });
     
-    if (!apiKey) {
-      console.warn('YouTube API key not configured - Check Vercel Environment Variables');
+    if (!apiKey || !channelId) {
+      console.warn('YouTube API key or Channel ID not configured');
       return { items: [] };
     }
 
     try {
-      const url = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=12&type=video`;
-      console.log('Fetching YouTube videos...');
+      // Convert channel ID to uploads playlist ID (UC -> UU)
+      const uploadsPlaylistId = channelId.replace('UC', 'UU');
+      
+      // Use playlistItems API instead of search API (more reliable)
+      const url = `https://www.googleapis.com/youtube/v3/playlistItems?key=${apiKey}&playlistId=${uploadsPlaylistId}&part=snippet&maxResults=12`;
+      console.log('Fetching YouTube videos from uploads playlist...');
       const response = await fetch(url);
       const data = await response.json();
       
@@ -44,6 +48,14 @@ export const videosApi = {
       if (data.error) {
         console.error('YouTube Videos API Error:', data.error.message);
         return { items: [] };
+      }
+      
+      // Transform playlistItems response to match search API format
+      if (data.items) {
+        data.items = data.items.map((item: any) => ({
+          id: { videoId: item.snippet.resourceId.videoId },
+          snippet: item.snippet
+        }));
       }
       
       return data;
