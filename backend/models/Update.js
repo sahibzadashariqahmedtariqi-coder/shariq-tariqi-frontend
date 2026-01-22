@@ -30,8 +30,8 @@ const updateSchema = new mongoose.Schema({
   // NEW: Update Type for special buttons
   updateType: {
     type: String,
-    enum: ['general', 'product', 'course'],
-    default: 'general'
+    enum: ['announcement', 'product', 'course', 'rohani_tour'],
+    default: 'announcement'
   },
   // Reference to Product ID (if updateType is 'product')
   productId: {

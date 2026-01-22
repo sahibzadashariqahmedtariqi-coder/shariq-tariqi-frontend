@@ -57,7 +57,7 @@ export default function AdminUpdatesPage() {
     detailImage2: '',
     date: '',
     category: 'announcement' as 'announcement' | 'event' | 'news' | 'course' | 'general',
-    updateType: 'general' as 'general' | 'product' | 'course',
+    updateType: 'announcement' as 'announcement' | 'product' | 'course' | 'rohani_tour',
     productId: '',
     courseId: '',
     link: '',
@@ -119,7 +119,7 @@ export default function AdminUpdatesPage() {
       detailImage2: update.detailImage2 || '',
       date: formattedDate,
       category: update.category,
-      updateType: update.updateType || 'general',
+      updateType: (update.updateType as any) || 'announcement',
       productId: update.productId || '',
       courseId: update.courseId || '',
       link: update.link || '',
@@ -208,7 +208,7 @@ export default function AdminUpdatesPage() {
       detailImage2: '',
       date: '',
       category: 'announcement',
-      updateType: 'general',
+      updateType: 'announcement',
       productId: '',
       courseId: '',
       link: '',
@@ -228,9 +228,10 @@ export default function AdminUpdatesPage() {
   }
 
   const updateTypeConfig = {
-    general: { icon: Bell, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Rohani Tour / General' },
-    product: { icon: ShoppingBag, color: 'text-emerald-600', bg: 'bg-emerald-100', label: 'New Product' },
-    course: { icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-100', label: 'New Course' }
+    announcement: { icon: Megaphone, color: 'text-amber-600', bg: 'bg-amber-100', label: 'Announcement' },
+    product: { icon: ShoppingBag, color: 'text-emerald-600', bg: 'bg-emerald-100', label: 'Products' },
+    course: { icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-100', label: 'Course' },
+    rohani_tour: { icon: Bell, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Rohani Tour' }
   }
 
   return (
@@ -418,9 +419,10 @@ export default function AdminUpdatesPage() {
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
                   required
                 >
-                  <option value="general">🕌 Rohani Tour / General Update</option>
-                  <option value="product">🛒 New Product Update</option>
-                  <option value="course">📚 New Course Update</option>
+                  <option value="announcement">📢 Announcement</option>
+                  <option value="product">🛒 Products</option>
+                  <option value="course">📚 Course</option>
+                  <option value="rohani_tour">🕌 Rohani Tour</option>
                 </select>
               </div>
             </div>

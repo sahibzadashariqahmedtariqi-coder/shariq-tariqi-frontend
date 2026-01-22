@@ -10,7 +10,7 @@ interface Update {
   description: string
   date: string
   category: 'announcement' | 'event' | 'news' | 'course' | 'general'
-  updateType?: 'general' | 'product' | 'course'
+  updateType?: 'announcement' | 'product' | 'course' | 'rohani_tour'
   productId?: string
   courseId?: string
   link?: string
