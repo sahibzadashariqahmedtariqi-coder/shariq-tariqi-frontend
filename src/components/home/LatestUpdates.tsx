@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Bell, Calendar, ArrowRight, Megaphone, X } from 'lucide-react'
+import { Bell, Calendar, ArrowRight, Megaphone, X, ShoppingBag, BookOpen } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import apiClient from '@/services/api'
@@ -10,6 +10,9 @@ interface Update {
   description: string
   date: string
   category: 'announcement' | 'event' | 'news' | 'course' | 'general'
+  updateType?: 'general' | 'product' | 'course'
+  productId?: string
+  courseId?: string
   link?: string
   image?: string
   promoImage?: string
@@ -253,13 +256,37 @@ export default function LatestUpdates() {
                               {update.description}
                             </p>
                             
-                            <Link 
-                              to={update.link || `/blog/${update._id}`}
-                              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                            >
-                              Learn More
-                              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Link>
+                            <div className="flex flex-wrap gap-2">
+                              <Link 
+                                to={update.link || `/blog/${update._id}`}
+                                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                              >
+                                Learn More
+                                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Link>
+                              
+                              {/* Buy Now Button for Product Updates */}
+                              {update.updateType === 'product' && update.productId && (
+                                <Link 
+                                  to={`/products/${update.productId}`}
+                                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 animate-pulse hover:animate-none"
+                                >
+                                  <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  Buy Now
+                                </Link>
+                              )}
+                              
+                              {/* Enroll Now Button for Course Updates */}
+                              {update.updateType === 'course' && update.courseId && (
+                                <Link 
+                                  to={`/courses/${update.courseId}`}
+                                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 hover:from-purple-600 hover:via-indigo-600 hover:to-purple-700 text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 animate-pulse hover:animate-none"
+                                >
+                                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  Enroll Now
+                                </Link>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

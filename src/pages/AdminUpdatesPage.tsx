@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
-import { Plus, Edit2, Trash2, Calendar, Megaphone, Bell, Upload, Image as ImageIcon, ArrowLeft } from 'lucide-react'
+import { Plus, Edit2, Trash2, Calendar, Megaphone, Bell, Upload, Image as ImageIcon, ArrowLeft, ShoppingBag, BookOpen } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import { uploadApi } from '@/services/apiService'
@@ -16,9 +16,22 @@ interface Update {
   detailImage2?: string
   date: string
   category: 'announcement' | 'event' | 'news' | 'course' | 'general'
+  updateType?: 'general' | 'product' | 'course'
+  productId?: string
+  courseId?: string
   link?: string
   image?: string
   promoImage?: string
+}
+
+interface Product {
+  _id: string
+  name: string
+}
+
+interface Course {
+  _id: string
+  title: string
 }
 
 export default function AdminUpdatesPage() {
@@ -29,6 +42,8 @@ export default function AdminUpdatesPage() {
   }
   
   const [updates, setUpdates] = useState<Update[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [currentUpdate, setCurrentUpdate] = useState<Update | null>(null)
@@ -42,6 +57,9 @@ export default function AdminUpdatesPage() {
     detailImage2: '',
     date: '',
     category: 'announcement' as 'announcement' | 'event' | 'news' | 'course' | 'general',
+    updateType: 'general' as 'general' | 'product' | 'course',
+    productId: '',
+    courseId: '',
     link: '',
     image: '',
     promoImage: ''
@@ -49,6 +67,8 @@ export default function AdminUpdatesPage() {
 
   useEffect(() => {
     fetchUpdates()
+    fetchProducts()
+    fetchCourses()
   }, [])
 
   const fetchUpdates = async () => {
@@ -65,6 +85,28 @@ export default function AdminUpdatesPage() {
     }
   }
 
+  const fetchProducts = async () => {
+    try {
+      const response = await apiClient.get('/products')
+      if (response.data.success) {
+        setProducts(response.data.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error)
+    }
+  }
+
+  const fetchCourses = async () => {
+    try {
+      const response = await apiClient.get('/courses')
+      if (response.data.success) {
+        setCourses(response.data.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch courses:', error)
+    }
+  }
+
   const handleEdit = (update: Update) => {
     setCurrentUpdate(update)
     // Convert ISO date to yyyy-MM-dd format for input field
@@ -77,6 +119,9 @@ export default function AdminUpdatesPage() {
       detailImage2: update.detailImage2 || '',
       date: formattedDate,
       category: update.category,
+      updateType: update.updateType || 'general',
+      productId: update.productId || '',
+      courseId: update.courseId || '',
       link: update.link || '',
       image: update.image || '',
       promoImage: update.promoImage || ''
@@ -163,6 +208,9 @@ export default function AdminUpdatesPage() {
       detailImage2: '',
       date: '',
       category: 'announcement',
+      updateType: 'general',
+      productId: '',
+      courseId: '',
       link: '',
       image: '',
       promoImage: ''
@@ -177,6 +225,12 @@ export default function AdminUpdatesPage() {
     news: { icon: Bell, color: 'text-green-600', bg: 'bg-green-100' },
     course: { icon: Bell, color: 'text-purple-600', bg: 'bg-purple-100' },
     general: { icon: Bell, color: 'text-gray-600', bg: 'bg-gray-100' }
+  }
+
+  const updateTypeConfig = {
+    general: { icon: Bell, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Rohani Tour / General' },
+    product: { icon: ShoppingBag, color: 'text-emerald-600', bg: 'bg-emerald-100', label: 'New Product' },
+    course: { icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-100', label: 'New Course' }
   }
 
   return (
@@ -355,15 +409,75 @@ export default function AdminUpdatesPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Link (Optional)
+                  Update Type * 
+                  <span className="text-xs font-normal text-gray-500 ml-1">(Button will appear based on this)</span>
                 </label>
-                <input
-                  type="text"
-                  value={formData.link}
-                  onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                  placeholder="/courses"
+                <select
+                  value={formData.updateType}
+                  onChange={(e) => setFormData({ ...formData, updateType: e.target.value as any, productId: '', courseId: '' })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-                />
+                  required
+                >
+                  <option value="general">🕌 Rohani Tour / General Update</option>
+                  <option value="product">🛒 New Product Update</option>
+                  <option value="course">📚 New Course Update</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Product Selection - Only show if updateType is 'product' */}
+            {formData.updateType === 'product' && (
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-700 rounded-xl">
+                <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">
+                  <ShoppingBag className="inline w-4 h-4 mr-1" />
+                  Select Product * (Buy Now button will link to this)
+                </label>
+                <select
+                  value={formData.productId}
+                  onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
+                  className="w-full px-4 py-2 border border-emerald-300 dark:border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  required
+                >
+                  <option value="">-- Select a Product --</option>
+                  {products.map(product => (
+                    <option key={product._id} value={product._id}>{product.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Course Selection - Only show if updateType is 'course' */}
+            {formData.updateType === 'course' && (
+              <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-xl">
+                <label className="block text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">
+                  <BookOpen className="inline w-4 h-4 mr-1" />
+                  Select Course * (Enroll Now button will link to this)
+                </label>
+                <select
+                  value={formData.courseId}
+                  onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-300 dark:border-purple-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                  required
+                >
+                  <option value="">-- Select a Course --</option>
+                  {courses.map(course => (
+                    <option key={course._id} value={course._id}>{course.title}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Link (Optional)
+              </label>
+              <input
+                type="text"
+                value={formData.link}
+                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                placeholder="/courses"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+              />
               </div>
             </div>
 

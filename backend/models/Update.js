@@ -27,6 +27,22 @@ const updateSchema = new mongoose.Schema({
     enum: ['event', 'announcement', 'news', 'course', 'general'],
     default: 'general'
   },
+  // NEW: Update Type for special buttons
+  updateType: {
+    type: String,
+    enum: ['general', 'product', 'course'],
+    default: 'general'
+  },
+  // Reference to Product ID (if updateType is 'product')
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  },
+  // Reference to Course ID (if updateType is 'course')
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course'
+  },
   date: {
     type: Date,
     default: Date.now
