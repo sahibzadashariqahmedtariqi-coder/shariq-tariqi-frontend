@@ -82,7 +82,16 @@ export const getUpdateById = async (req, res, next) => {
 // @access  Private/Admin
 export const createUpdate = async (req, res, next) => {
   try {
-    const update = await Update.create(req.body);
+    // Clean up empty productId/courseId to avoid ObjectId validation errors
+    const updateData = { ...req.body };
+    if (!updateData.productId || updateData.productId === '') {
+      delete updateData.productId;
+    }
+    if (!updateData.courseId || updateData.courseId === '') {
+      delete updateData.courseId;
+    }
+    
+    const update = await Update.create(updateData);
 
     res.status(201).json({
       success: true,
@@ -99,9 +108,18 @@ export const createUpdate = async (req, res, next) => {
 // @access  Private/Admin
 export const updateUpdate = async (req, res, next) => {
   try {
+    // Clean up empty productId/courseId to avoid ObjectId validation errors
+    const updateData = { ...req.body };
+    if (!updateData.productId || updateData.productId === '') {
+      updateData.productId = null;
+    }
+    if (!updateData.courseId || updateData.courseId === '') {
+      updateData.courseId = null;
+    }
+    
     const update = await Update.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 

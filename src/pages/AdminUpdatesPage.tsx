@@ -162,16 +162,41 @@ export default function AdminUpdatesPage() {
     e.preventDefault()
     
     try {
+      // Prepare data - remove empty productId/courseId to avoid ObjectId validation errors
+      const submitData: any = {
+        title: formData.title,
+        description: formData.description,
+        fullContent: formData.fullContent,
+        detailImage1: formData.detailImage1,
+        detailImage2: formData.detailImage2,
+        date: formData.date,
+        category: formData.category,
+        updateType: formData.updateType,
+        link: formData.link,
+        image: formData.image,
+        promoImage: formData.promoImage
+      }
+      
+      // Only include productId if updateType is 'product' and productId is selected
+      if (formData.updateType === 'product' && formData.productId) {
+        submitData.productId = formData.productId
+      }
+      
+      // Only include courseId if updateType is 'course' and courseId is selected
+      if (formData.updateType === 'course' && formData.courseId) {
+        submitData.courseId = formData.courseId
+      }
+      
       if (currentUpdate) {
         // Update existing
-        const response = await apiClient.put(`/updates/${currentUpdate._id}`, formData)
+        const response = await apiClient.put(`/updates/${currentUpdate._id}`, submitData)
         if (response.data.success) {
           toast.success('Update edited successfully!')
           fetchUpdates()
         }
       } else {
         // Create new
-        const response = await apiClient.post('/updates', formData)
+        const response = await apiClient.post('/updates', submitData)
         if (response.data.success) {
           toast.success('Update added successfully!')
           fetchUpdates()
