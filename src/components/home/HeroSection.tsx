@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { BookOpen, Video, Heart } from 'lucide-react'
+import { BookOpen, ShoppingBag, Heart } from 'lucide-react'
 import api from '@/services/api'
 
 // Typing animation component - Simple and stable
@@ -217,7 +217,10 @@ export default function HeroSection() {
 
               <div className="flex flex-wrap justify-center gap-2 sm:gap-3 pt-2 sm:pt-4">
                 <Link to="/courses">
-                  <Button size="sm" className="gap-1 sm:gap-2 shadow-xl text-xs sm:text-sm">
+                  <Button 
+                    size="sm" 
+                    className="gap-1 sm:gap-2 shadow-xl text-xs sm:text-sm bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transform hover:scale-105 transition-all duration-300"
+                  >
                     <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
                     Explore Courses
                   </Button>
@@ -226,20 +229,19 @@ export default function HeroSection() {
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="gap-1 sm:gap-2 text-xs sm:text-sm"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm border-2 border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg"
                   >
                     <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
                     Our Services
                   </Button>
                 </Link>
-                <Link to="/media">
+                <Link to="/products">
                   <Button 
                     size="sm" 
-                    variant="ghost" 
-                    className="gap-1 sm:gap-2 text-xs sm:text-sm"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-white transform hover:scale-105 transition-all duration-300 shadow-lg animate-pulse hover:animate-none"
                   >
-                    <Video className="h-4 w-4 sm:h-5 sm:w-5" />
-                    Watch Videos
+                    <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
+                    Our Products
                   </Button>
                 </Link>
               </div>
