@@ -14,7 +14,7 @@ interface Product {
   description: string
   price: number
   priceINR: number | null
-  category: 'herbal' | 'spiritual' | 'books'
+  category: 'books' | 'taweez' | 'oils' | 'herbs' | 'audio' | 'spiritual' | 'attar' | 'other'
   image: string
   stock: number
   featured: boolean
@@ -27,7 +27,7 @@ export default function AdminProductsPage() {
     return <Navigate to="/login" replace />
   }
   
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbal' | 'spiritual' | 'books'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -39,7 +39,7 @@ export default function AdminProductsPage() {
     description: '',
     price: 0,
     priceINR: null,
-    category: 'herbal',
+    category: 'spiritual',
     image: '',
     stock: 0,
     featured: false,
@@ -109,7 +109,9 @@ export default function AdminProductsPage() {
 
     try {
       if (isAdding) {
-        await apiClient.post('/products', editForm)
+        // Remove _id when creating new product
+        const { _id, ...productData } = editForm
+        await apiClient.post('/products', productData)
         toast.success('Product added successfully!')
       } else {
         await apiClient.put(`/products/${editForm._id}`, editForm)
@@ -132,7 +134,7 @@ export default function AdminProductsPage() {
       description: '',
       price: 0,
       priceINR: null,
-      category: 'herbal',
+      category: 'spiritual',
       image: '',
       stock: 0,
       featured: false,
@@ -148,7 +150,7 @@ export default function AdminProductsPage() {
       description: '',
       price: 0,
       priceINR: null,
-      category: 'herbal',
+      category: 'spiritual',
       image: '',
       stock: 0,
       featured: false,
@@ -254,12 +256,17 @@ export default function AdminProductsPage() {
                 <label className="block text-sm font-medium mb-2">Category</label>
                 <select
                   value={editForm.category}
-                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value as 'herbal' | 'spiritual' | 'books' })}
+                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value as Product['category'] })}
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
-                  <option value="herbal">Herbal Medicines</option>
-                  <option value="spiritual">Spiritual Healing Items</option>
-                  <option value="books">Amliyat Books</option>
+                  <option value="spiritual">Spiritual Items</option>
+                  <option value="attar">Attar / Perfumes</option>
+                  <option value="taweez">Taweez</option>
+                  <option value="books">Books</option>
+                  <option value="oils">Oils</option>
+                  <option value="herbs">Herbs</option>
+                  <option value="audio">Audio</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
               <div>
