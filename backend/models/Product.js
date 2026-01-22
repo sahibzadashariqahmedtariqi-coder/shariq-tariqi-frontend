@@ -24,7 +24,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please provide product category'],
-    enum: ['books', 'taweez', 'oils', 'herbs', 'audio', 'spiritual', 'attar', 'other']
+    enum: ['herbal', 'spiritual', 'books']
   },
   price: {
     type: Number,

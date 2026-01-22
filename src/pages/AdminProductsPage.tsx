@@ -14,7 +14,7 @@ interface Product {
   description: string
   price: number
   priceINR: number | null
-  category: 'books' | 'taweez' | 'oils' | 'herbs' | 'audio' | 'spiritual' | 'attar' | 'other'
+  category: 'herbal' | 'spiritual' | 'books'
   image: string
   stock: number
   featured: boolean
@@ -134,7 +134,7 @@ export default function AdminProductsPage() {
       description: '',
       price: 0,
       priceINR: null,
-      category: 'spiritual',
+      category: 'herbal',
       image: '',
       stock: 0,
       featured: false,
@@ -150,7 +150,7 @@ export default function AdminProductsPage() {
       description: '',
       price: 0,
       priceINR: null,
-      category: 'spiritual',
+      category: 'herbal',
       image: '',
       stock: 0,
       featured: false,
@@ -259,14 +259,9 @@ export default function AdminProductsPage() {
                   onChange={(e) => setEditForm({ ...editForm, category: e.target.value as Product['category'] })}
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
-                  <option value="spiritual">Spiritual Items</option>
-                  <option value="attar">Attar / Perfumes</option>
-                  <option value="taweez">Taweez</option>
-                  <option value="books">Books</option>
-                  <option value="oils">Oils</option>
-                  <option value="herbs">Herbs</option>
-                  <option value="audio">Audio</option>
-                  <option value="other">Other</option>
+                  <option value="herbal">Herbal Medicines</option>
+                  <option value="spiritual">Spiritual Healing Items</option>
+                  <option value="books">Amliyat Books</option>
                 </select>
               </div>
               <div>
