@@ -227,13 +227,6 @@ export default function AdminUpdatesPage() {
     general: { icon: Bell, color: 'text-gray-600', bg: 'bg-gray-100' }
   }
 
-  const updateTypeConfig = {
-    announcement: { icon: Megaphone, color: 'text-amber-600', bg: 'bg-amber-100', label: 'Announcement' },
-    product: { icon: ShoppingBag, color: 'text-emerald-600', bg: 'bg-emerald-100', label: 'Products' },
-    course: { icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-100', label: 'Course' },
-    rohani_tour: { icon: Bell, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Rohani Tour' }
-  }
-
   return (
     <>
       <Helmet>
@@ -480,7 +473,6 @@ export default function AdminUpdatesPage() {
                 placeholder="/courses"
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
               />
-              </div>
             </div>
 
             <div>
