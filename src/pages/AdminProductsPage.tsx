@@ -398,29 +398,10 @@ export default function AdminProductsPage() {
                           placeholder="Enter PDF price in INR"
                         />
                       </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-2">PDF File URL</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="file"
-                            accept=".pdf,application/pdf"
-                            disabled={uploading}
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0]
-                              if (file) {
-                                await handlePdfUpload(file)
-                              }
-                            }}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                          />
-                        </div>
-                        <input
-                          type="text"
-                          value={editForm.pdfUrl || ''}
-                          onChange={(e) => setEditForm({ ...editForm, pdfUrl: e.target.value })}
-                          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 mt-2"
-                          placeholder="Or paste PDF URL..."
-                        />
+                      <div className="md:col-span-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <p className="text-sm text-green-700 dark:text-green-300">
+                          📱 PDF will be sent via WhatsApp after payment verification
+                        </p>
                       </div>
                     </div>
                   )}
