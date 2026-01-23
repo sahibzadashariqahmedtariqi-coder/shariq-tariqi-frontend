@@ -166,6 +166,12 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-start space-x-2 text-sm">
+                <Phone className="h-4 w-4 mt-1 flex-shrink-0" />
+                <a href="tel:+923182392985" className="text-gray-300 hover:text-gold-400">
+                  +92 318 2392985
+                </a>
+              </li>
+              <li className="flex items-start space-x-2 text-sm">
                 <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
                 <div className="text-gray-300">
                   {settings?.clinicName && <p>{settings.clinicName}</p>}
