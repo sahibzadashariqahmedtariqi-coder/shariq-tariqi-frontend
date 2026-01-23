@@ -238,8 +238,13 @@ export default function ProductDetailPage() {
                         Physical Book
                       </div>
                       <div className="text-primary-600 dark:text-primary-400 font-bold mt-2">
-                        PKR {product.price.toLocaleString()}
+                        🇵🇰 PKR {product.price.toLocaleString()}
                       </div>
+                      {product.priceINR && (
+                        <div className="text-orange-500 dark:text-orange-400 font-bold text-sm mt-1">
+                          🇮🇳 ₹{product.priceINR.toLocaleString()}
+                        </div>
+                      )}
                     </button>
                     <button
                       onClick={() => setPurchaseType('pdf')}
@@ -255,8 +260,13 @@ export default function ProductDetailPage() {
                         Digital Download
                       </div>
                       <div className="text-blue-600 dark:text-blue-400 font-bold mt-2">
-                        PKR {(product.pdfPrice || 0).toLocaleString()}
+                        🇵🇰 PKR {(product.pdfPrice || 0).toLocaleString()}
                       </div>
+                      {product.pdfPriceINR && (
+                        <div className="text-orange-500 dark:text-orange-400 font-bold text-sm mt-1">
+                          🇮🇳 ₹{product.pdfPriceINR.toLocaleString()}
+                        </div>
+                      )}
                     </button>
                   </div>
                 </div>
