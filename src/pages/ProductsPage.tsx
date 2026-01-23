@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText } from 'lucide-react'
+import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { apiClient } from '@/services/api'
@@ -18,6 +18,7 @@ interface Product {
   image: string
   stock: number
   isFeatured: boolean
+  pdfUrl?: string
 }
 
 export default function ProductsPage() {
@@ -175,9 +176,14 @@ export default function ProductsPage() {
                           Featured
                         </div>
                       )}
-                      {product.stock === 0 && (
+                      {product.category !== 'pdf' && product.stock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                           <span className="text-white font-bold text-sm sm:text-lg">Out of Stock</span>
+                        </div>
+                      )}
+                      {product.category === 'pdf' && (
+                        <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-green-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold">
+                          Free
                         </div>
                       )}
                     </div>
@@ -191,27 +197,49 @@ export default function ProductsPage() {
                       </p>
 
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-                        <div>
-                          <span className="text-base sm:text-2xl font-bold text-primary-600 dark:text-primary-400">
-                            PKR {product.price.toLocaleString()}
-                          </span>
-                          {product.priceINR && (
-                            <span className="block text-sm sm:text-xl font-bold text-orange-500 dark:text-orange-400 mt-1">
-                              🇮🇳 ₹{product.priceINR.toLocaleString()}
+                        {/* Show price for non-PDF products */}
+                        {product.category !== 'pdf' ? (
+                          <div>
+                            <span className="text-base sm:text-2xl font-bold text-primary-600 dark:text-primary-400">
+                              PKR {product.price.toLocaleString()}
                             </span>
-                          )}
-                        </div>
-                        <Button 
-                          size="sm" 
-                          className="bg-primary-600 hover:bg-primary-700 text-xs sm:text-sm w-full sm:w-auto"
-                          disabled={product.stock === 0}
-                        >
-                          <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          {product.stock === 0 ? 'Sold Out' : 'View'}
-                        </Button>
+                            {product.priceINR && (
+                              <span className="block text-sm sm:text-xl font-bold text-orange-500 dark:text-orange-400 mt-1">
+                                🇮🇳 ₹{product.priceINR.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-base sm:text-xl font-bold text-green-600 dark:text-green-400">
+                            Free PDF
+                          </span>
+                        )}
+                        
+                        {/* Show Download button for PDFs, View button for others */}
+                        {product.category === 'pdf' && product.pdfUrl ? (
+                          <a 
+                            href={product.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center justify-center gap-1 sm:gap-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-3 py-2 rounded-lg w-full sm:w-auto font-semibold transition-colors"
+                          >
+                            <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                            Download
+                          </a>
+                        ) : (
+                          <Button 
+                            size="sm" 
+                            className="bg-primary-600 hover:bg-primary-700 text-xs sm:text-sm w-full sm:w-auto"
+                            disabled={product.stock === 0}
+                          >
+                            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            {product.stock === 0 ? 'Sold Out' : 'View'}
+                          </Button>
+                        )}
                       </div>
 
-                      {product.stock > 0 && product.stock < 10 && (
+                      {product.category !== 'pdf' && product.stock > 0 && product.stock < 10 && (
                         <p className="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 mt-2">
                           Only {product.stock} left in stock
                         </p>
