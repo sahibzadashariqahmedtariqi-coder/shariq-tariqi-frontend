@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash2, Save, X, ShoppingCart, Leaf, Sparkles, BookOpen, Upload, Image as ImageIcon, ArrowLeft } from 'lucide-react'
+import { Plus, Edit, Trash2, Save, X, ShoppingCart, Leaf, Sparkles, BookOpen, Upload, Image as ImageIcon, ArrowLeft, FileText } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import apiClient from '@/services/api'
@@ -14,7 +14,7 @@ interface Product {
   description: string
   price: number
   priceINR: number | null
-  category: 'herbal' | 'spiritual' | 'books'
+  category: 'herbal' | 'spiritual' | 'books' | 'pdf'
   image: string
   stock: number
   featured: boolean
@@ -180,7 +180,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Category Filter Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <button
             onClick={() => setSelectedCategory('all')}
             className={`flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 transform ${
@@ -233,6 +233,19 @@ export default function AdminProductsPage() {
             </div>
             <span className="text-sm font-semibold text-center">Amliyat Books</span>
           </button>
+          <button
+            onClick={() => setSelectedCategory('pdf')}
+            className={`flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 transform ${
+              selectedCategory === 'pdf'
+                ? 'bg-gradient-to-br from-primary-700 to-primary-900 text-gold-400 shadow-2xl scale-105 ring-4 ring-primary-300 dark:ring-primary-600'
+                : 'bg-gradient-to-br from-yellow-100 via-amber-100 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-gray-800 dark:text-gray-200 shadow-lg hover:shadow-2xl hover:scale-105 hover:from-yellow-200 hover:to-amber-200 dark:hover:from-primary-800 dark:hover:to-primary-700 border-2 border-yellow-300 dark:border-gray-600 hover:border-amber-400 dark:hover:border-amber-500'
+            }`}
+          >
+            <div className={`transition-transform duration-300 ${selectedCategory === 'pdf' ? 'scale-110' : ''}`}>
+              <FileText className="h-8 w-8" />
+            </div>
+            <span className="text-sm font-semibold text-center">Free PDFs</span>
+          </button>
         </div>
 
         {/* Add/Edit Form */}
@@ -262,6 +275,7 @@ export default function AdminProductsPage() {
                   <option value="herbal">Herbal Medicines</option>
                   <option value="spiritual">Spiritual Healing Items</option>
                   <option value="books">Amliyat Books</option>
+                  <option value="pdf">Free PDFs</option>
                 </select>
               </div>
               <div>

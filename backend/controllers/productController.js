@@ -116,6 +116,18 @@ export const createProduct = async (req, res, next) => {
 // @access  Private/Admin
 export const updateProduct = async (req, res, next) => {
   try {
+    // Convert old category names to new ones
+    const categoryMapping = {
+      'herbs': 'herbal',
+      'taweez': 'spiritual',
+      'other': 'books',
+      'pdfs': 'pdf'
+    };
+    
+    if (req.body.category && categoryMapping[req.body.category]) {
+      req.body.category = categoryMapping[req.body.category];
+    }
+    
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,

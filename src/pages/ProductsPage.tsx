@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Leaf, Book, Sparkles, Search } from 'lucide-react'
+import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { apiClient } from '@/services/api'
@@ -21,7 +21,7 @@ interface Product {
 }
 
 export default function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbal' | 'spiritual' | 'books'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbal' | 'spiritual' | 'books' | 'pdf'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -49,6 +49,7 @@ export default function ProductsPage() {
     { id: 'herbal', name: 'Herbal Medicines', icon: Leaf },
     { id: 'spiritual', name: 'Spiritual Healing Items', icon: Sparkles },
     { id: 'books', name: 'Books', icon: Book },
+    { id: 'pdf', name: 'Free PDFs', icon: FileText },
   ]
 
   const filteredProducts = products.filter((product) => {
@@ -119,7 +120,7 @@ export default function ProductsPage() {
             transition={{ delay: 0.2 }}
             className="mb-8 sm:mb-12"
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
               {categories.map((category) => {
                 const Icon = category.icon
                 const isActive = selectedCategory === category.id

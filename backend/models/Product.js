@@ -24,7 +24,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please provide product category'],
-    enum: ['herbal', 'spiritual', 'books']
+    enum: ['herbal', 'spiritual', 'books', 'pdf']
   },
   price: {
     type: Number,
@@ -87,6 +87,35 @@ const productSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
+});
+
+// Pre-save hook to convert old category names to new ones
+productSchema.pre('save', function(next) {
+  const categoryMapping = {
+    'herbs': 'herbal',
+    'taweez': 'spiritual',
+    'other': 'books'
+  };
+  
+  if (this.category && categoryMapping[this.category]) {
+    this.category = categoryMapping[this.category];
+  }
+  next();
+});
+
+// Pre-validate hook to convert old category names before validation
+productSchema.pre('validate', function(next) {
+  const categoryMapping = {
+    'herbs': 'herbal',
+    'taweez': 'spiritual',
+    'other': 'books',
+    'pdfs': 'pdf'
+  };
+  
+  if (this.category && categoryMapping[this.category]) {
+    this.category = categoryMapping[this.category];
+  }
+  next();
 });
 
 // Index for search
