@@ -83,42 +83,17 @@ app.use('/api/auth/register', authLimiter);
 // MongoDB injection sanitization
 app.use(mongoSanitize());
 
-// CORS Configuration
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:5173',
-  'https://shariq-tariqi-frontend-nmj5.vercel.app',
-  'https://shariq-tariqi-frontend.vercel.app',
-  'https://sahibzadashariqahmedtariqi.com',
-  'https://www.sahibzadashariqahmedtariqi.com',
-  process.env.FRONTEND_URL,
-  process.env.FRONTEND_PRODUCTION_URL
-].filter(Boolean);
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Allow all Vercel preview deployments
-    if (origin.includes('vercel.app') || origin.includes('sahibzadashariqahmedtariqi.com')) {
-      return callback(null, true);
-    }
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('🚫 CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+// CORS Configuration - Allow all origins to fix CORS issues
+app.use(cors({
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
+}));
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

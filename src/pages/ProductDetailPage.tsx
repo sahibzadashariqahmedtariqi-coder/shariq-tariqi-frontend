@@ -240,9 +240,6 @@ export default function ProductDetailPage() {
                 <p className="text-center text-xl font-bold">
                   +92 318 2392985
                 </p>
-                <p className="text-center text-xl font-bold">
-                  +92 332 3492861
-                </p>
               </div>
             </motion.div>
           </div>
