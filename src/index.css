@@ -139,3 +139,19 @@
     box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
   }
 }
+
+/* Slow pulse animation for buttons */
+@keyframes slow-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+.animate-slow-pulse {
+  animation: slow-pulse 3s ease-in-out infinite;
+}

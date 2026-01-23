@@ -238,7 +238,7 @@ export default function HeroSection() {
                 <Link to="/products">
                   <Button 
                     size="sm" 
-                    className="gap-1 sm:gap-2 text-xs sm:text-sm bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-white transform hover:scale-105 transition-all duration-300 shadow-lg animate-pulse hover:animate-none"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-white transform hover:scale-105 transition-all duration-300 shadow-lg animate-slow-pulse hover:animate-none"
                   >
                     <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                     Our Products
