@@ -19,6 +19,9 @@ interface Product {
   stock: number
   featured: boolean
   pdfUrl?: string
+  hasPdfVersion?: boolean
+  pdfPrice?: number | null
+  pdfPriceINR?: number | null
 }
 
 export default function AdminProductsPage() {
@@ -45,6 +48,9 @@ export default function AdminProductsPage() {
     stock: 0,
     featured: false,
     pdfUrl: '',
+    hasPdfVersion: false,
+    pdfPrice: null,
+    pdfPriceINR: null,
   })
 
   // Fetch products from API
@@ -173,6 +179,9 @@ export default function AdminProductsPage() {
       stock: 0,
       featured: false,
       pdfUrl: '',
+      hasPdfVersion: false,
+      pdfPrice: null,
+      pdfPriceINR: null,
     })
   }
 
@@ -190,6 +199,9 @@ export default function AdminProductsPage() {
       stock: 0,
       featured: false,
       pdfUrl: '',
+      hasPdfVersion: false,
+      pdfPrice: null,
+      pdfPriceINR: null,
     })
   }
 
@@ -349,6 +361,70 @@ export default function AdminProductsPage() {
                     />
                   </div>
                 </>
+              )}
+              
+              {/* PDF Version Option for Books */}
+              {editForm.category === 'books' && (
+                <div className="md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <label className="flex items-center gap-2 mb-4">
+                    <input
+                      type="checkbox"
+                      checked={editForm.hasPdfVersion || false}
+                      onChange={(e) => setEditForm({ ...editForm, hasPdfVersion: e.target.checked })}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm font-semibold text-blue-800 dark:text-blue-300">📄 PDF Version Available (Users can buy Hard Copy or PDF)</span>
+                  </label>
+                  
+                  {editForm.hasPdfVersion && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">PDF Price (PKR) 🇵🇰</label>
+                        <input
+                          type="number"
+                          value={editForm.pdfPrice || ''}
+                          onChange={(e) => setEditForm({ ...editForm, pdfPrice: e.target.value ? Number(e.target.value) : null })}
+                          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                          placeholder="Enter PDF price in PKR"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">PDF Price (INR) 🇮🇳</label>
+                        <input
+                          type="number"
+                          value={editForm.pdfPriceINR || ''}
+                          onChange={(e) => setEditForm({ ...editForm, pdfPriceINR: e.target.value ? Number(e.target.value) : null })}
+                          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                          placeholder="Enter PDF price in INR"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium mb-2">PDF File URL</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            accept=".pdf,application/pdf"
+                            disabled={uploading}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                await handlePdfUpload(file)
+                              }
+                            }}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.pdfUrl || ''}
+                          onChange={(e) => setEditForm({ ...editForm, pdfUrl: e.target.value })}
+                          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 mt-2"
+                          placeholder="Or paste PDF URL..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
               
               {/* PDF Upload for Free PDFs category */}

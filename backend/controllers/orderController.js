@@ -18,6 +18,8 @@ export const createOrder = async (req, res, next) => {
       shippingAddress,
       quantity,
       customerMessage,
+      isPdfPurchase,
+      pdfUrl,
     } = req.body;
 
     // Validate item exists and get details
@@ -43,8 +45,13 @@ export const createOrder = async (req, res, next) => {
           message: 'Product not found',
         });
       }
-      amount = item.price * (quantity || 1);
-      itemTitle = item.name; // Product uses 'name' field
+      // Use PDF price if it's a PDF purchase
+      if (isPdfPurchase && item.pdfPrice) {
+        amount = item.pdfPrice;
+      } else {
+        amount = item.price * (quantity || 1);
+      }
+      itemTitle = item.name + (isPdfPurchase ? ' (PDF)' : ''); // Product uses 'name' field
     } else if (orderType === 'appointment') {
       // Appointments don't have itemId
       amount = 1000; // Default appointment charge
@@ -68,9 +75,11 @@ export const createOrder = async (req, res, next) => {
       amount,
       appointmentDate,
       appointmentTime,
-      shippingAddress,
-      quantity: quantity || 1,
+      shippingAddress: isPdfPurchase ? null : shippingAddress, // No shipping for PDF
+      quantity: isPdfPurchase ? 1 : (quantity || 1),
       customerMessage,
+      isPdfPurchase: isPdfPurchase || false,
+      pdfUrl: isPdfPurchase ? (pdfUrl || item?.pdfUrl) : undefined,
     });
 
     res.status(201).json({

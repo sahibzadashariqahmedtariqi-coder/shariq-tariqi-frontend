@@ -15,6 +15,8 @@ interface CheckoutModalProps {
   appointmentDate?: string;
   appointmentTime?: string;
   customerMessage?: string;
+  isPdfPurchase?: boolean;
+  pdfUrl?: string;
 }
 
 interface BankDetails {
@@ -38,6 +40,8 @@ const CheckoutModal = ({
   appointmentDate,
   appointmentTime,
   customerMessage,
+  isPdfPurchase = false,
+  pdfUrl,
 }: CheckoutModalProps) => {
   const [step, setStep] = useState<'details' | 'payment' | 'success'>('details');
   const [loading, setLoading] = useState(false);
@@ -158,11 +162,13 @@ const CheckoutModal = ({
         customerName,
         customerEmail,
         customerPhone: fullPhone,
-        shippingAddress: orderType === 'product' ? shippingAddress : undefined,
+        shippingAddress: orderType === 'product' && !isPdfPurchase ? shippingAddress : undefined,
         appointmentDate,
         appointmentTime,
         quantity,
         customerMessage,
+        isPdfPurchase,
+        pdfUrl: isPdfPurchase ? pdfUrl : undefined,
       });
 
       if (response.data.success) {
@@ -395,7 +401,7 @@ const CheckoutModal = ({
                 </div>
               </div>
 
-              {orderType === 'product' && (
+              {orderType === 'product' && !isPdfPurchase && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Shipping Address
@@ -407,6 +413,15 @@ const CheckoutModal = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="Enter your complete address"
                   />
+                </div>
+              )}
+              
+              {isPdfPurchase && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-700 flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    📄 This is a digital product. PDF will be available for download after payment confirmation.
+                  </p>
                 </div>
               )}
 

@@ -23,6 +23,10 @@ interface Product {
   benefits?: string[]
   ingredients?: string[]
   usage?: string
+  hasPdfVersion?: boolean
+  pdfPrice?: number
+  pdfPriceINR?: number
+  pdfUrl?: string
 }
 
 export default function ProductDetailPage() {
@@ -32,6 +36,7 @@ export default function ProductDetailPage() {
   const [showCheckout, setShowCheckout] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
+  const [purchaseType, setPurchaseType] = useState<'hardcopy' | 'pdf'>('hardcopy')
   
   useEffect(() => {
     const fetchProduct = async () => {
@@ -185,20 +190,80 @@ export default function ProductDetailPage() {
 
               <div className="flex items-center gap-4">
                 <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                  PKR {product.price.toLocaleString()}
+                  PKR {purchaseType === 'pdf' && product.pdfPrice 
+                    ? product.pdfPrice.toLocaleString() 
+                    : product.price.toLocaleString()}
                 </div>
-                {product.stock > 0 ? (
-                  <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-sm font-semibold">
-                    In Stock ({product.stock})
-                  </span>
+                {purchaseType === 'hardcopy' ? (
+                  product.stock > 0 ? (
+                    <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-sm font-semibold">
+                      In Stock ({product.stock})
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full text-sm font-semibold">
+                      Out of Stock
+                    </span>
+                  )
                 ) : (
-                  <span className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full text-sm font-semibold">
-                    Out of Stock
+                  <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm font-semibold">
+                    📄 PDF Download
                   </span>
                 )}
               </div>
+              
+              {product.priceINR && (
+                <div className="text-2xl font-bold text-orange-500 dark:text-orange-400">
+                  🇮🇳 ₹{purchaseType === 'pdf' && product.pdfPriceINR 
+                    ? product.pdfPriceINR.toLocaleString() 
+                    : product.priceINR.toLocaleString()}
+                </div>
+              )}
 
-              {/* Quantity Selector */}
+              {/* Purchase Type Selector (for Books with PDF version) */}
+              {product.category === 'books' && product.hasPdfVersion && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">📦 Select Purchase Type</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      onClick={() => setPurchaseType('hardcopy')}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        purchaseType === 'hardcopy'
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-300'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">📖</div>
+                      <div className="font-bold text-gray-800 dark:text-white">Hard Copy</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        Physical Book
+                      </div>
+                      <div className="text-primary-600 dark:text-primary-400 font-bold mt-2">
+                        PKR {product.price.toLocaleString()}
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setPurchaseType('pdf')}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        purchaseType === 'pdf'
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-300'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">📄</div>
+                      <div className="font-bold text-gray-800 dark:text-white">PDF</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        Digital Download
+                      </div>
+                      <div className="text-blue-600 dark:text-blue-400 font-bold mt-2">
+                        PKR {(product.pdfPrice || 0).toLocaleString()}
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Quantity Selector - Only for Hard Copy */}
+              {purchaseType === 'hardcopy' && (
               <div className="flex items-center gap-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
                 <span className="text-gray-700 dark:text-gray-300 font-semibold">Quantity:</span>
                 <div className="flex items-center gap-3">
@@ -218,18 +283,19 @@ export default function ProductDetailPage() {
                   </button>
                 </div>
               </div>
+              )}
 
               {/* Add to Cart Button */}
               <Button
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
+                disabled={purchaseType === 'hardcopy' && product.stock === 0}
                 className="w-full py-6 text-lg font-bold gap-3"
                 size="lg"
               >
                 <ShoppingCart className="h-6 w-6" />
-                {product.stock === 0 
-                  ? 'Out of Stock' 
-                  : 'Add to Cart'}
+                {purchaseType === 'hardcopy' 
+                  ? (product.stock === 0 ? 'Out of Stock' : 'Buy Hard Copy')
+                  : 'Buy PDF'}
               </Button>
 
               {/* Contact for Order */}
@@ -321,9 +387,11 @@ export default function ProductDetailPage() {
           orderType="product"
           itemId={product._id}
           itemTitle={product.name}
-          itemPrice={product.price}
-          itemPriceINR={product.priceINR}
-          quantity={quantity}
+          itemPrice={purchaseType === 'pdf' && product.pdfPrice ? product.pdfPrice : product.price}
+          itemPriceINR={purchaseType === 'pdf' && product.pdfPriceINR ? product.pdfPriceINR : product.priceINR}
+          quantity={purchaseType === 'pdf' ? 1 : quantity}
+          isPdfPurchase={purchaseType === 'pdf'}
+          pdfUrl={product.pdfUrl}
         />
       )}
     </>

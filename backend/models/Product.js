@@ -56,6 +56,21 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // For books that have PDF version available
+  hasPdfVersion: {
+    type: Boolean,
+    default: false
+  },
+  pdfPrice: {
+    type: Number,
+    min: 0,
+    default: null
+  },
+  pdfPriceINR: {
+    type: Number,
+    min: 0,
+    default: null
+  },
   rating: {
     type: Number,
     default: 0,

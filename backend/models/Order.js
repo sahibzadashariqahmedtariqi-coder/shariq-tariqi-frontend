@@ -100,6 +100,15 @@ const orderSchema = new mongoose.Schema(
       default: 1,
     },
     
+    // PDF Purchase Info
+    isPdfPurchase: {
+      type: Boolean,
+      default: false,
+    },
+    pdfUrl: {
+      type: String, // URL to the PDF file for digital purchases
+    },
+    
     // Soft Delete (Trash)
     isDeleted: {
       type: Boolean,
