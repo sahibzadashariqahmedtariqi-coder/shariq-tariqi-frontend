@@ -21,7 +21,7 @@ interface Product {
 }
 
 export default function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbs' | 'taweez' | 'other'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'herbal' | 'spiritual' | 'books'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -46,9 +46,9 @@ export default function ProductsPage() {
 
   const categories = [
     { id: 'all', name: 'All Products', icon: ShoppingCart },
-    { id: 'herbs', name: 'Herbal Medicines', icon: Leaf },
-    { id: 'taweez', name: 'Spiritual Healing Items', icon: Sparkles },
-    { id: 'other', name: 'Books', icon: Book },
+    { id: 'herbal', name: 'Herbal Medicines', icon: Leaf },
+    { id: 'spiritual', name: 'Spiritual Healing Items', icon: Sparkles },
+    { id: 'books', name: 'Books', icon: Book },
   ]
 
   const filteredProducts = products.filter((product) => {
