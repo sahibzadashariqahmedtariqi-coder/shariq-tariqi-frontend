@@ -45,6 +45,29 @@ export default function ProductsPage() {
     }
   }
 
+  // Function to force download PDF
+  const handleDownloadPdf = async (pdfUrl: string, fileName: string) => {
+    try {
+      toast.loading('Downloading PDF...')
+      const response = await fetch(pdfUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${fileName}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      toast.dismiss()
+      toast.success('PDF downloaded successfully!')
+    } catch (error) {
+      toast.dismiss()
+      toast.error('Failed to download PDF')
+      console.error('Download error:', error)
+    }
+  }
+
   const categories = [
     { id: 'all', name: 'All Products', icon: ShoppingCart },
     { id: 'herbal', name: 'Herbal Medicines', icon: Leaf },
@@ -238,15 +261,17 @@ export default function ProductsPage() {
                               <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                               View
                             </a>
-                            <a 
-                              href={product.pdfUrl}
-                              download
-                              onClick={(e) => e.stopPropagation()}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleDownloadPdf(product.pdfUrl!, product.name)
+                              }}
                               className="inline-flex items-center justify-center gap-1 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-3 py-2 rounded-lg flex-1 sm:flex-none font-semibold transition-colors"
                             >
                               <Download className="h-3 w-3 sm:h-4 sm:w-4" />
                               Download
-                            </a>
+                            </button>
                           </div>
                         ) : (
                           <Button 
