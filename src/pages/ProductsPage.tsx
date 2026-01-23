@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download } from 'lucide-react'
+import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { apiClient } from '@/services/api'
@@ -227,16 +227,27 @@ export default function ProductsPage() {
                         
                         {/* Show Download button for PDFs, View button for others */}
                         {product.category === 'pdf' && product.pdfUrl ? (
-                          <a 
-                            href={product.pdfUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center justify-center gap-1 sm:gap-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-3 py-2 rounded-lg w-full sm:w-auto font-semibold transition-colors"
-                          >
-                            <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                            Download
-                          </a>
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            <a 
+                              href={product.pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-3 py-2 rounded-lg flex-1 sm:flex-none font-semibold transition-colors"
+                            >
+                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              View
+                            </a>
+                            <a 
+                              href={product.pdfUrl}
+                              download
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center justify-center gap-1 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-3 py-2 rounded-lg flex-1 sm:flex-none font-semibold transition-colors"
+                            >
+                              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                              Download
+                            </a>
+                          </div>
                         ) : (
                           <Button 
                             size="sm" 
