@@ -27,6 +27,7 @@ interface Product {
   pdfPrice?: number
   pdfPriceINR?: number
   pdfUrl?: string
+  isPdfOnly?: boolean
 }
 
 export default function ProductDetailPage() {
@@ -219,8 +220,32 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
-              {/* Purchase Type Selector (for Books with PDF version) */}
-              {product.category === 'books' && product.hasPdfVersion && (
+              {/* PDF Only Book - No Hard Copy Available */}
+              {product.category === 'books' && product.isPdfOnly && (
+                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30 p-6 rounded-2xl border-2 border-blue-300 dark:border-blue-700 shadow-lg">
+                  <div className="text-center">
+                    <div className="text-5xl mb-3">📱</div>
+                    <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300 mb-2">PDF Only</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">This book is only available in digital format</p>
+                    <div className="space-y-2">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        🇵🇰 PKR {(product.pdfPrice || product.price).toLocaleString()}
+                      </div>
+                      {(product.pdfPriceINR || product.priceINR) && (
+                        <div className="text-xl font-bold text-orange-500 dark:text-orange-400">
+                          🇮🇳 ₹{(product.pdfPriceINR || product.priceINR)?.toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm text-green-600 dark:text-green-400 mt-3 flex items-center justify-center gap-2">
+                      <span>⚡</span> PDF will be sent via WhatsApp after payment
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Purchase Type Selector (for Books with BOTH Hard Copy and PDF) */}
+              {product.category === 'books' && product.hasPdfVersion && !product.isPdfOnly && (
                 <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 p-6 rounded-2xl border-2 border-amber-200 dark:border-amber-700 shadow-lg">
                   <h3 className="text-xl font-bold text-amber-800 dark:text-amber-400 mb-5 flex items-center gap-2">
                     <span className="text-2xl">🛒</span> Select Purchase Type
@@ -300,8 +325,8 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
-              {/* Quantity Selector - Only for Hard Copy */}
-              {purchaseType === 'hardcopy' && (
+              {/* Quantity Selector - Only for Hard Copy (not for PDF Only books) */}
+              {purchaseType === 'hardcopy' && !product.isPdfOnly && (
               <div className="flex items-center gap-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
                 <span className="text-gray-700 dark:text-gray-300 font-semibold">Quantity:</span>
                 <div className="flex items-center gap-3">
@@ -326,14 +351,17 @@ export default function ProductDetailPage() {
               {/* Add to Cart Button */}
               <Button
                 onClick={handleAddToCart}
-                disabled={purchaseType === 'hardcopy' && product.stock === 0}
+                disabled={!product.isPdfOnly && purchaseType === 'hardcopy' && product.stock === 0}
                 className="w-full py-6 text-lg font-bold gap-3"
                 size="lg"
               >
                 <ShoppingCart className="h-6 w-6" />
-                {purchaseType === 'hardcopy' 
-                  ? (product.stock === 0 ? 'Out of Stock' : 'Buy Hard Copy')
-                  : 'Buy PDF'}
+                {product.isPdfOnly 
+                  ? 'Buy PDF'
+                  : (purchaseType === 'hardcopy' 
+                      ? (product.stock === 0 ? 'Out of Stock' : 'Buy Hard Copy')
+                      : 'Buy PDF')
+                }
               </Button>
 
               {/* Contact for Order */}
@@ -425,10 +453,18 @@ export default function ProductDetailPage() {
           orderType="product"
           itemId={product._id}
           itemTitle={product.name}
-          itemPrice={purchaseType === 'pdf' && product.pdfPrice ? product.pdfPrice : product.price}
-          itemPriceINR={purchaseType === 'pdf' && product.pdfPriceINR ? product.pdfPriceINR : product.priceINR}
-          quantity={purchaseType === 'pdf' ? 1 : quantity}
-          isPdfPurchase={purchaseType === 'pdf'}
+          itemPrice={
+            product.isPdfOnly 
+              ? (product.pdfPrice || product.price)
+              : (purchaseType === 'pdf' && product.pdfPrice ? product.pdfPrice : product.price)
+          }
+          itemPriceINR={
+            product.isPdfOnly 
+              ? (product.pdfPriceINR || product.priceINR)
+              : (purchaseType === 'pdf' && product.pdfPriceINR ? product.pdfPriceINR : product.priceINR)
+          }
+          quantity={product.isPdfOnly || purchaseType === 'pdf' ? 1 : quantity}
+          isPdfPurchase={product.isPdfOnly || purchaseType === 'pdf'}
           pdfUrl={product.pdfUrl}
         />
       )}

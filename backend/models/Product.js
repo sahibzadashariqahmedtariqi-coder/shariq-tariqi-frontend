@@ -71,6 +71,11 @@ const productSchema = new mongoose.Schema({
     min: 0,
     default: null
   },
+  // For books that only have PDF, no hard copy
+  isPdfOnly: {
+    type: Boolean,
+    default: false
+  },
   rating: {
     type: Number,
     default: 0,

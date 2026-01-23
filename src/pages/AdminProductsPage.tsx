@@ -22,6 +22,7 @@ interface Product {
   hasPdfVersion?: boolean
   pdfPrice?: number | null
   pdfPriceINR?: number | null
+  isPdfOnly?: boolean
 }
 
 export default function AdminProductsPage() {
@@ -51,6 +52,7 @@ export default function AdminProductsPage() {
     hasPdfVersion: false,
     pdfPrice: null,
     pdfPriceINR: null,
+    isPdfOnly: false,
   })
 
   // Fetch products from API
@@ -182,6 +184,7 @@ export default function AdminProductsPage() {
       hasPdfVersion: false,
       pdfPrice: null,
       pdfPriceINR: null,
+      isPdfOnly: false,
     })
   }
 
@@ -202,6 +205,7 @@ export default function AdminProductsPage() {
       hasPdfVersion: false,
       pdfPrice: null,
       pdfPriceINR: null,
+      isPdfOnly: false,
     })
   }
 
@@ -363,21 +367,50 @@ export default function AdminProductsPage() {
                 </>
               )}
               
-              {/* PDF Version Option for Books */}
+              {/* PDF Options for Books */}
               {editForm.category === 'books' && (
                 <div className="md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <label className="flex items-center gap-2 mb-4">
+                  <p className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-3">📚 Book Availability Options:</p>
+                  
+                  {/* Option 1: Both Hard Copy + PDF */}
+                  <label className="flex items-center gap-2 mb-3 p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 cursor-pointer">
                     <input
-                      type="checkbox"
-                      checked={editForm.hasPdfVersion || false}
-                      onChange={(e) => setEditForm({ ...editForm, hasPdfVersion: e.target.checked })}
+                      type="radio"
+                      name="bookType"
+                      checked={!editForm.isPdfOnly && !editForm.hasPdfVersion}
+                      onChange={() => setEditForm({ ...editForm, hasPdfVersion: false, isPdfOnly: false })}
                       className="w-4 h-4"
                     />
-                    <span className="text-sm font-semibold text-blue-800 dark:text-blue-300">📄 PDF Version Available (Users can buy Hard Copy or PDF)</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">📖 Hard Copy Only (No PDF option)</span>
                   </label>
                   
-                  {editForm.hasPdfVersion && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  {/* Option 2: Hard Copy + PDF Both */}
+                  <label className="flex items-center gap-2 mb-3 p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="bookType"
+                      checked={editForm.hasPdfVersion && !editForm.isPdfOnly}
+                      onChange={() => setEditForm({ ...editForm, hasPdfVersion: true, isPdfOnly: false })}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">📖📄 Both Hard Copy & PDF Available</span>
+                  </label>
+                  
+                  {/* Option 3: PDF Only */}
+                  <label className="flex items-center gap-2 mb-3 p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="bookType"
+                      checked={editForm.isPdfOnly}
+                      onChange={() => setEditForm({ ...editForm, hasPdfVersion: true, isPdfOnly: true })}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">📄 PDF Only (No Hard Copy available)</span>
+                  </label>
+                  
+                  {/* PDF Price Fields - show when PDF is available */}
+                  {(editForm.hasPdfVersion || editForm.isPdfOnly) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
                       <div>
                         <label className="block text-sm font-medium mb-2">PDF Price (PKR) 🇵🇰</label>
                         <input
