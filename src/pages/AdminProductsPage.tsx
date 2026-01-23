@@ -427,6 +427,9 @@ export default function AdminProductsPage() {
                   rows={3}
                 />
               </div>
+              
+              {/* Product Image - Only for non-PDF products */}
+              {editForm.category !== 'pdf' && (
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">Product Image *</label>
                 
@@ -498,6 +501,7 @@ export default function AdminProductsPage() {
                   </div>
                 )}
               </div>
+              )}
               <div className="md:col-span-2">
                 <label className="flex items-center gap-2">
                   <input
