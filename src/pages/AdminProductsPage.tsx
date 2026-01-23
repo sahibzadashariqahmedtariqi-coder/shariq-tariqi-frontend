@@ -85,6 +85,26 @@ export default function AdminProductsPage() {
     }
   }
 
+  const handlePdfUpload = async (file: File) => {
+    try {
+      setUploading(true)
+      toast.loading('Uploading PDF to Cloudinary...')
+      
+      const response = await uploadApi.uploadImage(file, 'pdfs')
+      const pdfUrl = response.data.data.url
+      
+      setEditForm({ ...editForm, pdfUrl: pdfUrl })
+      toast.dismiss()
+      toast.success('PDF uploaded successfully!')
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.response?.data?.message || 'Failed to upload PDF')
+      console.error('Upload error:', error)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleEdit = (product: Product) => {
     setIsEditing(product._id)
     setEditForm(product)
@@ -322,27 +342,78 @@ export default function AdminProductsPage() {
               {/* PDF Upload for Free PDFs category */}
               {editForm.category === 'pdf' && (
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-2">PDF Document URL *</label>
+                  <label className="block text-sm font-medium mb-2">PDF Document *</label>
                   <div className="mb-3 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
                     <div className="flex items-start gap-2">
                       <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
                       <div className="text-sm">
-                        <p className="font-semibold text-purple-800 dark:text-purple-300 mb-1">📄 PDF Upload Instructions:</p>
+                        <p className="font-semibold text-purple-800 dark:text-purple-300 mb-1">📄 Upload PDF File:</p>
                         <ul className="text-purple-700 dark:text-purple-400 space-y-1 text-xs">
-                          <li>• Upload your PDF to Google Drive or Dropbox</li>
-                          <li>• Get the shareable link and paste below</li>
-                          <li>• Make sure the link is publicly accessible</li>
+                          <li>• <strong>Format:</strong> PDF only</li>
+                          <li>• <strong>Max Size:</strong> 10MB</li>
+                          <li>• PDF will be uploaded to Cloudinary</li>
                         </ul>
                       </div>
                     </div>
                   </div>
-                  <input
-                    type="text"
-                    value={editForm.pdfUrl || ''}
-                    onChange={(e) => setEditForm({ ...editForm, pdfUrl: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                    placeholder="https://drive.google.com/... or https://dropbox.com/..."
-                  />
+                  
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        disabled={uploading}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            await handlePdfUpload(file)
+                          }
+                        }}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900 dark:file:text-purple-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                      {uploading && (
+                        <div className="flex items-center gap-2 text-sm text-purple-600">
+                          <Upload className="w-4 h-4 animate-bounce" />
+                          Uploading...
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">OR paste URL</span>
+                      </div>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={editForm.pdfUrl || ''}
+                      onChange={(e) => setEditForm({ ...editForm, pdfUrl: e.target.value })}
+                      className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      placeholder="https://res.cloudinary.com/... or https://drive.google.com/..."
+                    />
+                  </div>
+
+                  {/* PDF Preview */}
+                  {editForm.pdfUrl && (
+                    <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <span className="text-sm text-green-700 dark:text-green-300 font-medium">PDF Uploaded ✓</span>
+                        <a 
+                          href={editForm.pdfUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="ml-auto text-xs text-green-600 hover:underline"
+                        >
+                          View PDF →
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               
