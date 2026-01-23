@@ -18,6 +18,7 @@ interface Product {
   image: string
   stock: number
   featured: boolean
+  pdfUrl?: string
 }
 
 export default function AdminProductsPage() {
@@ -43,6 +44,7 @@ export default function AdminProductsPage() {
     image: '',
     stock: 0,
     featured: false,
+    pdfUrl: '',
   })
 
   // Fetch products from API
@@ -138,6 +140,7 @@ export default function AdminProductsPage() {
       image: '',
       stock: 0,
       featured: false,
+      pdfUrl: '',
     })
   }
 
@@ -154,6 +157,7 @@ export default function AdminProductsPage() {
       image: '',
       stock: 0,
       featured: false,
+      pdfUrl: '',
     })
   }
 
@@ -278,36 +282,70 @@ export default function AdminProductsPage() {
                   <option value="pdf">Free PDFs</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Price (PKR) 🇵🇰</label>
-                <input
-                  type="number"
-                  value={editForm.price}
-                  onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                  placeholder="Enter price in PKR"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Price (INR) 🇮🇳 <span className="text-xs text-gray-500">(For India)</span></label>
-                <input
-                  type="number"
-                  value={editForm.priceINR || ''}
-                  onChange={(e) => setEditForm({ ...editForm, priceINR: e.target.value ? Number(e.target.value) : null })}
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                  placeholder="Enter price in INR (optional)"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Stock Quantity</label>
-                <input
-                  type="number"
-                  value={editForm.stock}
-                  onChange={(e) => setEditForm({ ...editForm, stock: Number(e.target.value) })}
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                  placeholder="Enter stock quantity"
-                />
-              </div>
+              
+              {/* Only show Price and Stock for non-PDF products */}
+              {editForm.category !== 'pdf' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Price (PKR) 🇵🇰</label>
+                    <input
+                      type="number"
+                      value={editForm.price}
+                      onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
+                      className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      placeholder="Enter price in PKR"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Price (INR) 🇮🇳 <span className="text-xs text-gray-500">(For India)</span></label>
+                    <input
+                      type="number"
+                      value={editForm.priceINR || ''}
+                      onChange={(e) => setEditForm({ ...editForm, priceINR: e.target.value ? Number(e.target.value) : null })}
+                      className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      placeholder="Enter price in INR (optional)"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Stock Quantity</label>
+                    <input
+                      type="number"
+                      value={editForm.stock}
+                      onChange={(e) => setEditForm({ ...editForm, stock: Number(e.target.value) })}
+                      className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      placeholder="Enter stock quantity"
+                    />
+                  </div>
+                </>
+              )}
+              
+              {/* PDF Upload for Free PDFs category */}
+              {editForm.category === 'pdf' && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-2">PDF Document URL *</label>
+                  <div className="mb-3 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-semibold text-purple-800 dark:text-purple-300 mb-1">📄 PDF Upload Instructions:</p>
+                        <ul className="text-purple-700 dark:text-purple-400 space-y-1 text-xs">
+                          <li>• Upload your PDF to Google Drive or Dropbox</li>
+                          <li>• Get the shareable link and paste below</li>
+                          <li>• Make sure the link is publicly accessible</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    value={editForm.pdfUrl || ''}
+                    onChange={(e) => setEditForm({ ...editForm, pdfUrl: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                    placeholder="https://drive.google.com/... or https://dropbox.com/..."
+                  />
+                </div>
+              )}
+              
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">Description</label>
                 <textarea

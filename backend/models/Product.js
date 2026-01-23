@@ -84,6 +84,11 @@ const productSchema = new mongoose.Schema({
     type: Number,
     min: 0,
     default: null
+  },
+  // PDF URL for free PDFs category
+  pdfUrl: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true
