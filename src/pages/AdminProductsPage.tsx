@@ -124,9 +124,21 @@ export default function AdminProductsPage() {
   }
 
   const handleSave = async () => {
-    if (!editForm.name || !editForm.image) {
-      toast.error('Please fill in required fields!')
-      return
+    // For PDFs, require pdfUrl instead of image
+    if (editForm.category === 'pdf') {
+      if (!editForm.name || !editForm.pdfUrl) {
+        toast.error('Please fill in required fields (Name and PDF)!')
+        return
+      }
+      // Set a default placeholder image for PDFs
+      if (!editForm.image) {
+        editForm.image = 'https://res.cloudinary.com/shariqtariqi/image/upload/v1737654000/pdf-icon.png'
+      }
+    } else {
+      if (!editForm.name || !editForm.image) {
+        toast.error('Please fill in required fields!')
+        return
+      }
     }
 
     try {

@@ -18,7 +18,8 @@ const productSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: [true, 'Please provide product image']
+    required: false,
+    default: 'https://res.cloudinary.com/shariqtariqi/image/upload/v1737654000/pdf-icon.png'
   },
   images: [String],
   category: {
