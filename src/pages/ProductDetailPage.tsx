@@ -221,53 +221,81 @@ export default function ProductDetailPage() {
 
               {/* Purchase Type Selector (for Books with PDF version) */}
               {product.category === 'books' && product.hasPdfVersion && (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">📦 Select Purchase Type</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 p-6 rounded-2xl border-2 border-amber-200 dark:border-amber-700 shadow-lg">
+                  <h3 className="text-xl font-bold text-amber-800 dark:text-amber-400 mb-5 flex items-center gap-2">
+                    <span className="text-2xl">🛒</span> Select Purchase Type
+                  </h3>
+                  <div className="grid grid-cols-2 gap-5">
+                    {/* Hard Copy Option */}
                     <button
                       onClick={() => setPurchaseType('hardcopy')}
-                      className={`p-4 rounded-xl border-2 transition-all ${
+                      className={`relative p-5 rounded-2xl border-3 transition-all duration-300 transform hover:scale-[1.02] ${
                         purchaseType === 'hardcopy'
-                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-300'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
+                          ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 shadow-xl shadow-green-200 dark:shadow-green-900/50'
+                          : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-green-300 hover:shadow-lg'
                       }`}
                     >
-                      <div className="text-2xl mb-2">📖</div>
-                      <div className="font-bold text-gray-800 dark:text-white">Hard Copy</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        Physical Book
-                      </div>
-                      <div className="text-primary-600 dark:text-primary-400 font-bold mt-2">
-                        🇵🇰 PKR {product.price.toLocaleString()}
-                      </div>
-                      {product.priceINR && (
-                        <div className="text-orange-500 dark:text-orange-400 font-bold text-sm mt-1">
-                          🇮🇳 ₹{product.priceINR.toLocaleString()}
+                      {purchaseType === 'hardcopy' && (
+                        <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                          ✓ Selected
                         </div>
                       )}
+                      <div className="text-4xl mb-3">📚</div>
+                      <div className="font-bold text-lg text-gray-800 dark:text-white">Hard Copy</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        📦 Physical Book Delivery
+                      </div>
+                      <div className="mt-4 space-y-1">
+                        <div className="text-green-600 dark:text-green-400 font-bold text-lg">
+                          🇵🇰 PKR {product.price.toLocaleString()}
+                        </div>
+                        {product.priceINR && (
+                          <div className="text-orange-600 dark:text-orange-400 font-bold">
+                            🇮🇳 ₹{product.priceINR.toLocaleString()}
+                          </div>
+                        )}
+                      </div>
                     </button>
+                    
+                    {/* PDF Option */}
                     <button
                       onClick={() => setPurchaseType('pdf')}
-                      className={`p-4 rounded-xl border-2 transition-all ${
+                      className={`relative p-5 rounded-2xl border-3 transition-all duration-300 transform hover:scale-[1.02] ${
                         purchaseType === 'pdf'
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-300'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                          ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 shadow-xl shadow-blue-200 dark:shadow-blue-900/50'
+                          : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-blue-300 hover:shadow-lg'
                       }`}
                     >
-                      <div className="text-2xl mb-2">📄</div>
-                      <div className="font-bold text-gray-800 dark:text-white">PDF</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        Digital Download
-                      </div>
-                      <div className="text-blue-600 dark:text-blue-400 font-bold mt-2">
-                        🇵🇰 PKR {(product.pdfPrice || 0).toLocaleString()}
-                      </div>
-                      {product.pdfPriceINR && (
-                        <div className="text-orange-500 dark:text-orange-400 font-bold text-sm mt-1">
-                          🇮🇳 ₹{product.pdfPriceINR.toLocaleString()}
+                      {purchaseType === 'pdf' && (
+                        <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                          ✓ Selected
                         </div>
                       )}
+                      <div className="text-4xl mb-3">📱</div>
+                      <div className="font-bold text-lg text-gray-800 dark:text-white">PDF</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        ⚡ Instant via WhatsApp
+                      </div>
+                      <div className="mt-4 space-y-1">
+                        <div className="text-blue-600 dark:text-blue-400 font-bold text-lg">
+                          🇵🇰 PKR {(product.pdfPrice || 0).toLocaleString()}
+                        </div>
+                        {product.pdfPriceINR && (
+                          <div className="text-orange-600 dark:text-orange-400 font-bold">
+                            🇮🇳 ₹{product.pdfPriceINR.toLocaleString()}
+                          </div>
+                        )}
+                      </div>
                     </button>
+                  </div>
+                  
+                  {/* Info Note */}
+                  <div className="mt-4 p-3 bg-white/60 dark:bg-gray-900/40 rounded-xl text-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {purchaseType === 'hardcopy' 
+                        ? '🚚 Book will be delivered to your address'
+                        : '📲 PDF will be sent via WhatsApp after payment'}
+                    </p>
                   </div>
                 </div>
               )}
