@@ -54,6 +54,10 @@ export default function ProductsPage() {
   ]
 
   const filteredProducts = products.filter((product) => {
+    // Hide PDFs from All Products - only show in Free PDFs category
+    if (selectedCategory === 'all' && product.category === 'pdf') {
+      return false
+    }
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -158,9 +162,12 @@ export default function ProductsPage() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link 
-                    to={`/products/${product._id}`}
+                    to={product.category === 'pdf' ? '#' : `/products/${product._id}`}
+                    onClick={(e) => product.category === 'pdf' && e.preventDefault()}
                     className="block bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
                   >
+                    {/* Only show image section for non-PDF products */}
+                    {product.category !== 'pdf' && (
                     <div className="relative h-32 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
                       <img
                         src={product.image}
@@ -176,17 +183,20 @@ export default function ProductsPage() {
                           Featured
                         </div>
                       )}
-                      {product.category !== 'pdf' && product.stock === 0 && (
+                      {product.stock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                           <span className="text-white font-bold text-sm sm:text-lg">Out of Stock</span>
                         </div>
                       )}
-                      {product.category === 'pdf' && (
-                        <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-green-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold">
-                          Free
-                        </div>
-                      )}
                     </div>
+                    )}
+                    
+                    {/* PDF Header with icon */}
+                    {product.category === 'pdf' && (
+                      <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 flex items-center justify-center">
+                        <FileText className="h-12 w-12 text-white" />
+                      </div>
+                    )}
 
                     <div className="p-3 sm:p-6">
                       <h3 className="text-sm sm:text-lg font-bold text-gray-800 dark:text-white mb-1 sm:mb-2 line-clamp-2">
