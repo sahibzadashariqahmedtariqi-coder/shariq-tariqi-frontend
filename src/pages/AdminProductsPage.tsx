@@ -642,44 +642,79 @@ export default function AdminProductsPage() {
               {editForm.category !== 'pdf' && (
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">Additional Images (Optional)</label>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add more images to show different angles of your product</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add multiple images to show different angles of your product. You can add as many as you want!</p>
                 
                 <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      disabled={uploading}
-                      onChange={async (e) => {
-                        const files = e.target.files
-                        if (files && files.length > 0) {
-                          setUploading(true)
-                          for (let i = 0; i < files.length; i++) {
-                            try {
-                              const response = await uploadApi.uploadImage(files[i], 'products')
-                              if (response.data.success) {
-                                setEditForm(prev => ({
-                                  ...prev,
-                                  images: [...(prev.images || []), response.data.data.url]
-                                }))
-                                toast.success(`Image ${i + 1} uploaded!`)
+                  {/* Current Images Count */}
+                  {editForm.images && editForm.images.length > 0 && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1 rounded-full text-sm font-medium">
+                        📷 {editForm.images.length} additional {editForm.images.length === 1 ? 'image' : 'images'} added
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-wrap gap-2">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        disabled={uploading}
+                        className="hidden"
+                        onChange={async (e) => {
+                          const files = e.target.files
+                          if (files && files.length > 0) {
+                            setUploading(true)
+                            toast.loading(`Uploading ${files.length} image(s)...`)
+                            let successCount = 0
+                            for (let i = 0; i < files.length; i++) {
+                              try {
+                                const response = await uploadApi.uploadImage(files[i], 'products')
+                                if (response.data.success) {
+                                  setEditForm(prev => ({
+                                    ...prev,
+                                    images: [...(prev.images || []), response.data.data.url]
+                                  }))
+                                  successCount++
+                                }
+                              } catch (error) {
+                                console.error(`Failed to upload image ${i + 1}`, error)
                               }
-                            } catch (error) {
-                              toast.error(`Failed to upload image ${i + 1}`)
                             }
+                            toast.dismiss()
+                            if (successCount > 0) {
+                              toast.success(`${successCount} image(s) uploaded successfully!`)
+                            } else {
+                              toast.error('Failed to upload images')
+                            }
+                            setUploading(false)
                           }
-                          setUploading(false)
-                        }
-                      }}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:bg-green-900 dark:file:text-green-300 cursor-pointer disabled:opacity-50"
-                    />
+                        }}
+                      />
+                      <div className={`flex items-center gap-2 px-4 py-3 rounded-lg border-2 border-dashed ${uploading ? 'border-gray-300 bg-gray-50' : 'border-green-300 hover:border-green-500 hover:bg-green-50 dark:border-green-700 dark:hover:border-green-500 dark:hover:bg-green-900/20'} transition-colors`}>
+                        <span className="text-2xl">➕</span>
+                        <div>
+                          <p className="font-medium text-green-700 dark:text-green-300">{uploading ? 'Uploading...' : 'Add Images'}</p>
+                          <p className="text-xs text-gray-500">Click to select multiple images</p>
+                        </div>
+                      </div>
+                    </label>
                   </div>
                   
                   {/* Additional Images Preview */}
                   {editForm.images && editForm.images.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Additional Images ({editForm.images.length}):</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Additional Images ({editForm.images.length}):</p>
+                        <button
+                          type="button"
+                          onClick={() => setEditForm(prev => ({ ...prev, images: [] }))}
+                          className="text-xs text-red-500 hover:text-red-700"
+                        >
+                          Remove All
+                        </button>
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {editForm.images.map((img, index) => (
                           <div key={index} className="relative group">

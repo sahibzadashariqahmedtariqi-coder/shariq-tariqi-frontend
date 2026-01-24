@@ -152,13 +152,6 @@ export default function CoursesPage() {
                   <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-gold-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold capitalize">
                     {course.level}
                   </div>
-                  {/* Students badge */}
-                  {(course.enrolledStudents || 0) > 0 && (
-                    <div className="absolute bottom-2 left-2 bg-green-500/90 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                      <span>👥</span>
-                      {course.enrolledStudents} students
-                    </div>
-                  )}
                 </div>
                 <div className="p-4 sm:p-6">
                   <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-800 dark:text-white">{course.title}</h3>
@@ -178,13 +171,21 @@ export default function CoursesPage() {
                         </p>
                       )}
                     </div>
-                    <Link
-                      to={`/courses/${course._id}`}
-                      className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm font-semibold"
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      View Course
-                    </Link>
+                    <div className="flex flex-col items-end gap-2">
+                      <Link
+                        to={`/courses/${course._id}`}
+                        className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm font-semibold"
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        View Course
+                      </Link>
+                      {(course.enrolledStudents || 0) > 0 && (
+                        <div className="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                          <span>👥</span>
+                          <span>{course.enrolledStudents} enrolled</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
