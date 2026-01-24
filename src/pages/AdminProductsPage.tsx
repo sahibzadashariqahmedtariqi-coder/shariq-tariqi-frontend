@@ -716,7 +716,4 @@ export default function AdminProductsPage() {
       </div>
       </div>
     </>
-  )
-}
-/ *   P D F   O n l y   F e a t u r e   * /  
- 
+  )}
