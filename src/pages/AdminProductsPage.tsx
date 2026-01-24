@@ -16,6 +16,7 @@ interface Product {
   priceINR: number | null
   category: 'herbal' | 'spiritual' | 'books' | 'pdf'
   image: string
+  images?: string[]
   stock: number
   featured: boolean
   pdfUrl?: string
@@ -46,6 +47,7 @@ export default function AdminProductsPage() {
     priceINR: null,
     category: 'spiritual',
     image: '',
+    images: [],
     stock: 0,
     featured: false,
     pdfUrl: '',
@@ -178,6 +180,7 @@ export default function AdminProductsPage() {
       priceINR: null,
       category: 'herbal',
       image: '',
+      images: [],
       stock: 0,
       featured: false,
       pdfUrl: '',
@@ -199,6 +202,7 @@ export default function AdminProductsPage() {
       priceINR: null,
       category: 'herbal',
       image: '',
+      images: [],
       stock: 0,
       featured: false,
       pdfUrl: '',
@@ -604,6 +608,80 @@ export default function AdminProductsPage() {
                 )}
               </div>
               )}
+              
+              {/* Additional Images - Optional */}
+              {editForm.category !== 'pdf' && (
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-2">Additional Images (Optional)</label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add more images to show different angles of your product</p>
+                
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      disabled={uploading}
+                      onChange={async (e) => {
+                        const files = e.target.files
+                        if (files && files.length > 0) {
+                          for (let i = 0; i < files.length; i++) {
+                            try {
+                              setUploading(true)
+                              const formData = new FormData()
+                              formData.append('image', files[i])
+                              const response = await uploadApi.uploadImage(formData)
+                              if (response.data.success) {
+                                setEditForm(prev => ({
+                                  ...prev,
+                                  images: [...(prev.images || []), response.data.data.url]
+                                }))
+                                toast.success(`Image ${i + 1} uploaded!`)
+                              }
+                            } catch (error) {
+                              toast.error(`Failed to upload image ${i + 1}`)
+                            }
+                          }
+                          setUploading(false)
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:bg-green-900 dark:file:text-green-300 cursor-pointer disabled:opacity-50"
+                    />
+                  </div>
+                  
+                  {/* Additional Images Preview */}
+                  {editForm.images && editForm.images.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Additional Images ({editForm.images.length}):</p>
+                      <div className="flex flex-wrap gap-2">
+                        {editForm.images.map((img, index) => (
+                          <div key={index} className="relative group">
+                            <img 
+                              src={img} 
+                              alt={`Additional ${index + 1}`} 
+                              className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditForm(prev => ({
+                                  ...prev,
+                                  images: prev.images?.filter((_, i) => i !== index) || []
+                                }))
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              )}
+
               <div className="md:col-span-2">
                 <label className="flex items-center gap-2">
                   <input

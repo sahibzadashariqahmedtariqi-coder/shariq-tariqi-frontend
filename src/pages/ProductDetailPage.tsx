@@ -18,6 +18,7 @@ interface Product {
   priceINR?: number
   category: string
   image: string
+  images?: string[]
   stock: number
   isFeatured: boolean
   benefits?: string[]
@@ -33,6 +34,7 @@ interface Product {
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [quantity, setQuantity] = useState(1)
+  const [selectedImage, setSelectedImage] = useState<string>('')
   const [showFullImage, setShowFullImage] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
@@ -47,7 +49,9 @@ export default function ProductDetailPage() {
         setLoading(true)
         const response = await apiClient.get(`/products/${id}`)
         // Backend returns { success, data: product }
-        setProduct(response.data.data || response.data)
+        const productData = response.data.data || response.data
+        setProduct(productData)
+        setSelectedImage(productData.image)
       } catch (error: any) {
         console.error('Failed to fetch product:', error)
         toast.error('Product not found')
@@ -104,7 +108,7 @@ export default function ProductDetailPage() {
             <X className="h-8 w-8" />
           </button>
           <img
-            src={product.image}
+            src={selectedImage || product.image}
             alt={product.name}
             className="max-w-full max-h-[90vh] object-contain"
             onClick={(e) => e.stopPropagation()}
@@ -124,18 +128,19 @@ export default function ProductDetailPage() {
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            {/* Product Image */}
+            {/* Product Image Gallery */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="relative"
             >
+              {/* Main Image */}
               <div 
                 className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-2xl cursor-pointer group"
                 onClick={() => setShowFullImage(true)}
               >
                 <img
-                  src={product.image}
+                  src={selectedImage || product.image}
                   alt={product.name}
                   className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
@@ -153,6 +158,46 @@ export default function ProductDetailPage() {
                   </span>
                 </div>
               </div>
+              
+              {/* Image Thumbnails Gallery */}
+              {((product.images && product.images.length > 0) || product.image) && (
+                <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+                  {/* Main Image Thumbnail */}
+                  <button
+                    onClick={() => setSelectedImage(product.image)}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImage === product.image 
+                        ? 'border-primary-500 ring-2 ring-primary-300' 
+                        : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
+                    }`}
+                  >
+                    <img 
+                      src={product.image} 
+                      alt="Main" 
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                  
+                  {/* Additional Image Thumbnails */}
+                  {product.images?.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(img)}
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImage === img 
+                          ? 'border-primary-500 ring-2 ring-primary-300' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
+                      }`}
+                    >
+                      <img 
+                        src={img} 
+                        alt={`View ${index + 2}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 mt-6">
