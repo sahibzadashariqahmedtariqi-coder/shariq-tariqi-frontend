@@ -98,9 +98,9 @@ export default function AdminProductsPage() {
   const handlePdfUpload = async (file: File) => {
     try {
       setUploading(true)
-      toast.loading('Uploading PDF to Cloudinary...')
+      toast.loading('Uploading PDF to Cloudinary... (Large files may take a few minutes)')
       
-      const response = await uploadApi.uploadImage(file, 'pdfs')
+      const response = await uploadApi.uploadPdf(file, 'pdfs')
       const pdfUrl = response.data.data.url
       
       setEditForm({ ...editForm, pdfUrl: pdfUrl })

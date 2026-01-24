@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../middleware/upload.js';
-import { uploadImage, deleteImage, uploadMureedImage } from '../controllers/uploadController.js';
+import { uploadImage, deleteImage, uploadMureedImage, uploadPdf } from '../controllers/uploadController.js';
 import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -13,6 +13,9 @@ router.post('/mureed-image', upload.single('image'), uploadMureedImage);
 
 // Upload single image (Admin only)
 router.post('/image', protect, admin, upload.single('image'), uploadImage);
+
+// Upload PDF file (Admin only) - no size limit
+router.post('/pdf', protect, admin, upload.single('pdf'), uploadPdf);
 
 // Delete image from Cloudinary (Admin only)
 router.delete('/image', protect, admin, deleteImage);

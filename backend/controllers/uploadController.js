@@ -71,6 +71,62 @@ export const uploadImage = async (req, res, next) => {
   }
 };
 
+// @desc    Upload PDF to Cloudinary (no size limit, no transformation)
+// @route   POST /api/upload/pdf
+// @access  Private/Admin
+export const uploadPdf = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload a PDF file'
+      });
+    }
+
+    // Get folder from query params (default: 'pdfs')
+    const folder = req.query.folder || 'pdfs';
+    
+    // Upload to Cloudinary using stream - no transformation for PDFs
+    const uploadPromise = new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: `shariq-website/${folder}`,
+          resource_type: 'raw', // Use 'raw' for PDFs and other non-image files
+          format: 'pdf',
+          use_filename: true,
+          unique_filename: true
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+
+      bufferToStream(req.file.buffer).pipe(uploadStream);
+    });
+
+    const result = await uploadPromise;
+
+    res.status(200).json({
+      success: true,
+      message: 'PDF uploaded successfully',
+      data: {
+        url: result.secure_url,
+        publicId: result.public_id,
+        format: result.format,
+        size: result.bytes,
+        originalFilename: req.file.originalname
+      }
+    });
+  } catch (error) {
+    console.error('PDF Upload error:', error);
+    next(error);
+  }
+};
+
 // @desc    Delete image from Cloudinary
 // @route   DELETE /api/upload/image
 // @access  Private/Admin

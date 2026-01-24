@@ -126,6 +126,16 @@ export const uploadApi = {
       },
     });
   },
+  uploadPdf: (file: File, folder?: string) => {
+    const formData = new FormData();
+    formData.append('pdf', file);
+    return apiClient.post(`/upload/pdf?folder=${folder || 'pdfs'}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 300000, // 5 minutes timeout for large PDFs
+    });
+  },
   deleteImage: (publicId: string) =>
     apiClient.delete('/upload/image', { data: { publicId } }),
 };
