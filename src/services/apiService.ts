@@ -133,7 +133,7 @@ export const uploadApi = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      timeout: 300000, // 5 minutes timeout for large PDFs
+      timeout: 900000, // 15 minutes timeout for large PDFs
     });
   },
   deleteImage: (publicId: string) =>

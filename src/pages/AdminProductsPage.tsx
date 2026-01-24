@@ -98,7 +98,8 @@ export default function AdminProductsPage() {
   const handlePdfUpload = async (file: File) => {
     try {
       setUploading(true)
-      toast.loading('Uploading PDF to Cloudinary... (Large files may take a few minutes)')
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
+      toast.loading(`Uploading PDF (${fileSizeMB}MB)... Please wait, this may take several minutes for large files.`, { duration: 900000 })
       
       const response = await uploadApi.uploadPdf(file, 'pdfs')
       const pdfUrl = response.data.data.url
@@ -108,7 +109,11 @@ export default function AdminProductsPage() {
       toast.success('PDF uploaded successfully!')
     } catch (error: any) {
       toast.dismiss()
-      toast.error(error.response?.data?.message || 'Failed to upload PDF')
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Upload timed out. Please try with a smaller file or check your internet connection.')
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to upload PDF')
+      }
       console.error('Upload error:', error)
     } finally {
       setUploading(false)
