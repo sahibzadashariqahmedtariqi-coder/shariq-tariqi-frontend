@@ -102,14 +102,26 @@ export default function AdminProductsPage() {
       setUploadProgress({ loaded: 0, total: file.size, percent: 0 })
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
       
-      // Use direct Cloudinary upload - bypasses server, much faster!
-      const response = await uploadApi.uploadPdfDirect(file, 'pdfs', (progress) => {
-        setUploadProgress(progress)
-      }) as any
-      const pdfUrl = response.data.data.url
-      
-      setEditForm({ ...editForm, pdfUrl: pdfUrl })
-      toast.success(`PDF (${fileSizeMB}MB) uploaded successfully!`)
+      // Try direct Cloudinary upload first, fall back to server upload
+      try {
+        const response = await uploadApi.uploadPdfDirect(file, 'pdfs', (progress) => {
+          setUploadProgress(progress)
+        }) as any
+        const pdfUrl = response.data.data.url
+        setEditForm({ ...editForm, pdfUrl: pdfUrl })
+        toast.success(`PDF (${fileSizeMB}MB) uploaded successfully!`)
+      } catch (directError: any) {
+        // If direct upload fails (404), fall back to server upload
+        console.log('Direct upload failed, trying server upload...', directError)
+        toast.loading('Using alternate upload method...')
+        const response = await uploadApi.uploadPdf(file, 'pdfs', (progress) => {
+          setUploadProgress(progress)
+        })
+        const pdfUrl = response.data.data.url
+        setEditForm({ ...editForm, pdfUrl: pdfUrl })
+        toast.dismiss()
+        toast.success(`PDF (${fileSizeMB}MB) uploaded successfully!`)
+      }
     } catch (error: any) {
       if (error.code === 'ECONNABORTED') {
         toast.error('Upload timed out. Please check your internet connection.')
