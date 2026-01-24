@@ -456,7 +456,6 @@ export default function AdminProductsPage() {
                         <p className="font-semibold text-purple-800 dark:text-purple-300 mb-1">📄 Upload PDF File:</p>
                         <ul className="text-purple-700 dark:text-purple-400 space-y-1 text-xs">
                           <li>• <strong>Format:</strong> PDF only</li>
-                          <li>• <strong>Max Size:</strong> 10MB</li>
                           <li>• PDF will be uploaded to Cloudinary</li>
                         </ul>
                       </div>
@@ -625,12 +624,10 @@ export default function AdminProductsPage() {
                       onChange={async (e) => {
                         const files = e.target.files
                         if (files && files.length > 0) {
+                          setUploading(true)
                           for (let i = 0; i < files.length; i++) {
                             try {
-                              setUploading(true)
-                              const formData = new FormData()
-                              formData.append('image', files[i])
-                              const response = await uploadApi.uploadImage(formData)
+                              const response = await uploadApi.uploadImage(files[i], 'products')
                               if (response.data.success) {
                                 setEditForm(prev => ({
                                   ...prev,
