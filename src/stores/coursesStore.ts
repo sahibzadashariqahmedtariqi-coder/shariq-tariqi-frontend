@@ -84,7 +84,13 @@ export const useCoursesStore = create<CoursesState>()(
 
       addCourse: async (course) => {
         try {
-          const response = await apiClient.post('/courses', course);
+          // Convert students to enrolledStudents for backend
+          const dataToSend = { ...course };
+          if ((dataToSend as any).students !== undefined) {
+            (dataToSend as any).enrolledStudents = (dataToSend as any).students;
+          }
+          
+          const response = await apiClient.post('/courses', dataToSend);
           const newCourse = response.data.data || response.data;
           
           set((state) => ({
@@ -106,8 +112,14 @@ export const useCoursesStore = create<CoursesState>()(
 
       updateCourse: async (id, updatedCourse) => {
         try {
+          // Convert students to enrolledStudents for backend
+          const dataToSend = { ...updatedCourse };
+          if (dataToSend.students !== undefined) {
+            dataToSend.enrolledStudents = dataToSend.students;
+          }
+          
           // Update in API first
-          await apiClient.put(`/courses/${id}`, updatedCourse);
+          await apiClient.put(`/courses/${id}`, dataToSend);
           
           // Then update local store
           set((state) => ({

@@ -114,8 +114,32 @@ export default function CoursesPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
           {filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
-              <div key={course._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+            filteredCourses.map((course, index) => {
+              // Beautiful gradient colors for each card
+              const cardGradients = [
+                'from-emerald-500/10 via-teal-500/5 to-cyan-500/10 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-cyan-900/30',
+                'from-purple-500/10 via-violet-500/5 to-indigo-500/10 dark:from-purple-900/30 dark:via-violet-900/20 dark:to-indigo-900/30',
+                'from-amber-500/10 via-orange-500/5 to-rose-500/10 dark:from-amber-900/30 dark:via-orange-900/20 dark:to-rose-900/30',
+                'from-blue-500/10 via-sky-500/5 to-cyan-500/10 dark:from-blue-900/30 dark:via-sky-900/20 dark:to-cyan-900/30',
+                'from-pink-500/10 via-rose-500/5 to-red-500/10 dark:from-pink-900/30 dark:via-rose-900/20 dark:to-red-900/30',
+                'from-lime-500/10 via-green-500/5 to-emerald-500/10 dark:from-lime-900/30 dark:via-green-900/20 dark:to-emerald-900/30',
+                'from-fuchsia-500/10 via-purple-500/5 to-violet-500/10 dark:from-fuchsia-900/30 dark:via-purple-900/20 dark:to-violet-900/30',
+                'from-teal-500/10 via-emerald-500/5 to-green-500/10 dark:from-teal-900/30 dark:via-emerald-900/20 dark:to-green-900/30',
+              ]
+              const borderColors = [
+                'border-emerald-200 dark:border-emerald-700',
+                'border-purple-200 dark:border-purple-700',
+                'border-amber-200 dark:border-amber-700',
+                'border-blue-200 dark:border-blue-700',
+                'border-pink-200 dark:border-pink-700',
+                'border-lime-200 dark:border-lime-700',
+                'border-fuchsia-200 dark:border-fuchsia-700',
+                'border-teal-200 dark:border-teal-700',
+              ]
+              const gradientIndex = index % cardGradients.length
+              
+              return (
+              <div key={course._id} className={`bg-gradient-to-br ${cardGradients[gradientIndex]} border-2 ${borderColors[gradientIndex]} rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-all duration-300`}>
                 <div className="relative h-36 sm:h-48 overflow-hidden">
                   <img
                     src={course.image}
@@ -128,6 +152,13 @@ export default function CoursesPage() {
                   <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-gold-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold capitalize">
                     {course.level}
                   </div>
+                  {/* Students badge */}
+                  {(course.enrolledStudents || 0) > 0 && (
+                    <div className="absolute bottom-2 left-2 bg-green-500/90 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <span>👥</span>
+                      {course.enrolledStudents} students
+                    </div>
+                  )}
                 </div>
                 <div className="p-4 sm:p-6">
                   <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-800 dark:text-white">{course.title}</h3>
@@ -157,7 +188,7 @@ export default function CoursesPage() {
                   </div>
                 </div>
               </div>
-            ))
+            )})
           ) : (
             <div className="col-span-3 text-center py-12">
               <p className="text-gray-600 dark:text-gray-400 text-lg">No courses found matching your criteria.</p>
