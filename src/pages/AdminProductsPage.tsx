@@ -37,6 +37,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<{ loaded: number; total: number; percent: number } | null>(null)
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [editForm, setEditForm] = useState<Product>({
@@ -98,17 +99,17 @@ export default function AdminProductsPage() {
   const handlePdfUpload = async (file: File) => {
     try {
       setUploading(true)
+      setUploadProgress({ loaded: 0, total: file.size, percent: 0 })
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
-      toast.loading(`Uploading PDF (${fileSizeMB}MB)... Please wait, this may take several minutes for large files.`, { duration: 900000 })
       
-      const response = await uploadApi.uploadPdf(file, 'pdfs')
+      const response = await uploadApi.uploadPdf(file, 'pdfs', (progress) => {
+        setUploadProgress(progress)
+      })
       const pdfUrl = response.data.data.url
       
       setEditForm({ ...editForm, pdfUrl: pdfUrl })
-      toast.dismiss()
       toast.success('PDF uploaded successfully!')
     } catch (error: any) {
-      toast.dismiss()
       if (error.code === 'ECONNABORTED') {
         toast.error('Upload timed out. Please try with a smaller file or check your internet connection.')
       } else {
@@ -117,6 +118,7 @@ export default function AdminProductsPage() {
       console.error('Upload error:', error)
     } finally {
       setUploading(false)
+      setUploadProgress(null)
     }
   }
 
@@ -481,13 +483,36 @@ export default function AdminProductsPage() {
                         }}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900 dark:file:text-purple-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       />
-                      {uploading && (
+                      {uploading && !uploadProgress && (
                         <div className="flex items-center gap-2 text-sm text-purple-600">
                           <Upload className="w-4 h-4 animate-bounce" />
                           Uploading...
                         </div>
                       )}
                     </div>
+                    
+                    {/* Upload Progress Bar */}
+                    {uploading && uploadProgress && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-purple-700 dark:text-purple-300 font-medium">
+                            📤 Uploading: {(uploadProgress.loaded / (1024 * 1024)).toFixed(1)} MB / {(uploadProgress.total / (1024 * 1024)).toFixed(1)} MB
+                          </span>
+                          <span className="text-purple-600 dark:text-purple-400 font-bold">
+                            {uploadProgress.percent}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                          <div 
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-300 ease-out"
+                            style={{ width: `${uploadProgress.percent}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                          Please wait... Do not close or refresh the page
+                        </p>
+                      </div>
+                    )}
 
                     <div className="relative">
                       <div className="absolute inset-0 flex items-center">

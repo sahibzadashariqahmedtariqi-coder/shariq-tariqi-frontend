@@ -126,7 +126,7 @@ export const uploadApi = {
       },
     });
   },
-  uploadPdf: (file: File, folder?: string) => {
+  uploadPdf: (file: File, folder?: string, onProgress?: (progress: { loaded: number; total: number; percent: number }) => void) => {
     const formData = new FormData();
     formData.append('pdf', file);
     return apiClient.post(`/upload/pdf?folder=${folder || 'pdfs'}`, formData, {
@@ -134,6 +134,16 @@ export const uploadApi = {
         'Content-Type': 'multipart/form-data',
       },
       timeout: 900000, // 15 minutes timeout for large PDFs
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress({
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percent
+          });
+        }
+      }
     });
   },
   deleteImage: (publicId: string) =>
