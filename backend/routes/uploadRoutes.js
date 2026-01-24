@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../middleware/upload.js';
-import { uploadImage, deleteImage, uploadMureedImage, uploadPdf } from '../controllers/uploadController.js';
+import { uploadImage, deleteImage, uploadMureedImage, uploadPdf, getUploadSignature } from '../controllers/uploadController.js';
 import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -16,6 +16,9 @@ router.post('/image', protect, admin, upload.single('image'), uploadImage);
 
 // Upload PDF file (Admin only) - no size limit
 router.post('/pdf', protect, admin, upload.single('pdf'), uploadPdf);
+
+// Get Cloudinary signature for direct upload (Admin only)
+router.post('/signature', protect, admin, getUploadSignature);
 
 // Delete image from Cloudinary (Admin only)
 router.delete('/image', protect, admin, deleteImage);

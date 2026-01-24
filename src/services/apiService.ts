@@ -146,6 +146,60 @@ export const uploadApi = {
       }
     });
   },
+  // Get Cloudinary signature for direct upload
+  getSignature: (folder?: string) => 
+    apiClient.post('/upload/signature', { folder: folder || 'pdfs' }),
+  
+  // Direct upload to Cloudinary (bypasses server, much faster!)
+  uploadPdfDirect: async (file: File, folder?: string, onProgress?: (progress: { loaded: number; total: number; percent: number }) => void) => {
+    // First get signature from our server
+    const sigResponse = await apiClient.post('/upload/signature', { folder: folder || 'pdfs' });
+    const { signature, timestamp, cloudName, apiKey, folder: cloudFolder } = sigResponse.data.data;
+    
+    // Upload directly to Cloudinary
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('api_key', apiKey);
+    formData.append('timestamp', timestamp.toString());
+    formData.append('signature', signature);
+    formData.append('folder', cloudFolder);
+    formData.append('resource_type', 'raw');
+    
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`);
+      
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress({
+            loaded: e.loaded,
+            total: e.total,
+            percent: Math.round((e.loaded * 100) / e.total)
+          });
+        }
+      };
+      
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const result = JSON.parse(xhr.responseText);
+          resolve({
+            data: {
+              success: true,
+              data: {
+                url: result.secure_url,
+                publicId: result.public_id
+              }
+            }
+          });
+        } else {
+          reject(new Error('Upload failed'));
+        }
+      };
+      
+      xhr.onerror = () => reject(new Error('Upload failed'));
+      xhr.send(formData);
+    });
+  },
   deleteImage: (publicId: string) =>
     apiClient.delete('/upload/image', { data: { publicId } }),
 };

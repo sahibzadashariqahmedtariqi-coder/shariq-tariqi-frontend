@@ -102,18 +102,19 @@ export default function AdminProductsPage() {
       setUploadProgress({ loaded: 0, total: file.size, percent: 0 })
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
       
-      const response = await uploadApi.uploadPdf(file, 'pdfs', (progress) => {
+      // Use direct Cloudinary upload - bypasses server, much faster!
+      const response = await uploadApi.uploadPdfDirect(file, 'pdfs', (progress) => {
         setUploadProgress(progress)
-      })
+      }) as any
       const pdfUrl = response.data.data.url
       
       setEditForm({ ...editForm, pdfUrl: pdfUrl })
-      toast.success('PDF uploaded successfully!')
+      toast.success(`PDF (${fileSizeMB}MB) uploaded successfully!`)
     } catch (error: any) {
       if (error.code === 'ECONNABORTED') {
-        toast.error('Upload timed out. Please try with a smaller file or check your internet connection.')
+        toast.error('Upload timed out. Please check your internet connection.')
       } else {
-        toast.error(error.response?.data?.message || 'Failed to upload PDF')
+        toast.error(error.message || 'Failed to upload PDF')
       }
       console.error('Upload error:', error)
     } finally {

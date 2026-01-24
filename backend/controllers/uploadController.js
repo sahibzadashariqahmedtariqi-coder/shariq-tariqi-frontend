@@ -86,6 +86,8 @@ export const uploadPdf = async (req, res, next) => {
     // Get folder from query params (default: 'pdfs')
     const folder = req.query.folder || 'pdfs';
     
+    console.log('📤 Uploading PDF:', req.file.originalname, 'Size:', (req.file.size / 1024 / 1024).toFixed(2), 'MB');
+    
     // Upload to Cloudinary using stream - no transformation for PDFs
     const uploadPromise = new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
@@ -123,6 +125,39 @@ export const uploadPdf = async (req, res, next) => {
     });
   } catch (error) {
     console.error('PDF Upload error:', error);
+    next(error);
+  }
+};
+
+// @desc    Get Cloudinary signature for direct upload
+// @route   POST /api/upload/signature
+// @access  Private/Admin
+export const getUploadSignature = async (req, res, next) => {
+  try {
+    const { folder = 'pdfs' } = req.body;
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    
+    const signature = cloudinary.utils.api_sign_request(
+      {
+        timestamp,
+        folder: `shariq-website/${folder}`,
+        resource_type: 'raw'
+      },
+      process.env.CLOUDINARY_API_SECRET
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        signature,
+        timestamp,
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+        apiKey: process.env.CLOUDINARY_API_KEY,
+        folder: `shariq-website/${folder}`
+      }
+    });
+  } catch (error) {
+    console.error('Signature error:', error);
     next(error);
   }
 };
