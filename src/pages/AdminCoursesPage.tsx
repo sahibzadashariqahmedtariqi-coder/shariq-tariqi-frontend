@@ -48,18 +48,22 @@ export default function AdminCoursesPage() {
   const handleImageUpload = async (file: File) => {
     try {
       setUploading(true)
-      toast.loading('Uploading image to Cloudinary...')
+      const toastId = toast.loading('Uploading image to Cloudinary...')
       
       const response = await uploadApi.uploadImage(file, 'courses')
       const imageUrl = response.data.data.url
       
       setEditForm({ ...editForm, image: imageUrl })
-      toast.dismiss()
+      toast.dismiss(toastId)
       toast.success('Image uploaded successfully!')
     } catch (error: any) {
       toast.dismiss()
-      toast.error(error.response?.data?.message || 'Failed to upload image')
       console.error('Upload error:', error)
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Upload timed out. Please try again.')
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to upload image. Please try again.')
+      }
     } finally {
       setUploading(false)
     }
