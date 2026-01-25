@@ -41,7 +41,10 @@ export default function ProductsPage() {
       setLoading(true)
       const response = await apiClient.get('/products?limit=100')
       // Backend returns { success, count, total, data }
-      setProducts(response.data.data || response.data || [])
+      const productsData = response.data.data || response.data || []
+      console.log('Products data from API:', productsData)
+      console.log('First product originalPrice:', productsData[0]?.originalPrice)
+      setProducts(productsData)
     } catch (error: any) {
       console.error('Error fetching products:', error)
       toast.error(error.response?.data?.message || 'Failed to load products')
