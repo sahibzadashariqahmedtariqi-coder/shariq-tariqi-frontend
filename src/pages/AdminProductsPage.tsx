@@ -102,18 +102,39 @@ export default function AdminProductsPage() {
       setUploadProgress({ loaded: 0, total: file.size, percent: 0 })
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
       
+      // Check file size - warn if large
+      if (file.size > 10 * 1024 * 1024) {
+        toast.loading(`Uploading large PDF (${fileSizeMB}MB)... This may take a while.`)
+      }
+      
       // Use server upload (reliable)
       const response = await uploadApi.uploadPdf(file, 'pdfs', (progress) => {
         setUploadProgress(progress)
       })
+      toast.dismiss()
       const pdfUrl = response.data.data.url
       setEditForm({ ...editForm, pdfUrl: pdfUrl })
       toast.success(`PDF (${fileSizeMB}MB) uploaded successfully!`)
     } catch (error: any) {
-      if (error.code === 'ECONNABORTED') {
-        toast.error('Upload timed out. Please check your internet connection.')
+      toast.dismiss()
+      const errorMsg = error.response?.data?.message || 'Failed to upload PDF'
+      
+      // Show helpful message for large files
+      if (error.response?.status === 413 || error.response?.status === 500) {
+        toast.error(
+          <div>
+            <p className="font-bold">PDF upload failed!</p>
+            <p className="text-sm mt-1">Large PDFs may fail. Please use the URL option:</p>
+            <p className="text-xs mt-1">1. Upload PDF to Google Drive</p>
+            <p className="text-xs">2. Make it public (Anyone with link)</p>
+            <p className="text-xs">3. Paste the link below</p>
+          </div>,
+          { duration: 8000 }
+        )
+      } else if (error.code === 'ECONNABORTED') {
+        toast.error('Upload timed out. Please try the URL option instead.')
       } else {
-        toast.error(error.response?.data?.message || 'Failed to upload PDF')
+        toast.error(errorMsg)
       }
       console.error('Upload error:', error)
     } finally {
@@ -519,16 +540,25 @@ export default function AdminProductsPage() {
                         <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
                       </div>
                       <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">OR paste URL</span>
+                        <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 font-medium">OR paste URL (Recommended for large PDFs)</span>
                       </div>
+                    </div>
+
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs text-blue-700 dark:text-blue-300 mb-2 font-medium">📌 For large PDFs, use Google Drive:</p>
+                      <ol className="text-xs text-blue-600 dark:text-blue-400 space-y-1 ml-4 list-decimal">
+                        <li>Upload PDF to Google Drive</li>
+                        <li>Right-click → Share → "Anyone with link"</li>
+                        <li>Copy link and paste below</li>
+                      </ol>
                     </div>
 
                     <input
                       type="text"
                       value={editForm.pdfUrl || ''}
                       onChange={(e) => setEditForm({ ...editForm, pdfUrl: e.target.value })}
-                      className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                      placeholder="https://res.cloudinary.com/... or https://drive.google.com/..."
+                      className="w-full px-4 py-2 border-2 border-blue-300 dark:border-blue-700 rounded-lg dark:bg-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      placeholder="https://drive.google.com/... or https://res.cloudinary.com/..."
                     />
                   </div>
 

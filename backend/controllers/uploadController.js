@@ -85,23 +85,31 @@ export const uploadPdf = async (req, res, next) => {
 
     // Get folder from query params (default: 'pdfs')
     const folder = req.query.folder || 'pdfs';
+    const fileSizeMB = (req.file.size / 1024 / 1024).toFixed(2);
     
-    console.log('📤 Uploading PDF:', req.file.originalname, 'Size:', (req.file.size / 1024 / 1024).toFixed(2), 'MB');
+    console.log('📤 Uploading PDF:', req.file.originalname, 'Size:', fileSizeMB, 'MB');
     
-    // Upload to Cloudinary using stream - no transformation for PDFs
+    // Check file size - Cloudinary free tier has 10MB limit for raw files
+    if (req.file.size > 10 * 1024 * 1024) {
+      console.log('⚠️ File too large for raw upload, trying as auto resource type...');
+    }
+    
+    // Upload to Cloudinary using stream
     const uploadPromise = new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: `shariq-website/${folder}`,
-          resource_type: 'raw', // Use 'raw' for PDFs and other non-image files
-          format: 'pdf',
+          resource_type: 'auto', // Changed to 'auto' - more flexible
           use_filename: true,
-          unique_filename: true
+          unique_filename: true,
+          timeout: 300000 // 5 minute timeout
         },
         (error, result) => {
           if (error) {
+            console.error('❌ Cloudinary upload error:', error);
             reject(error);
           } else {
+            console.log('✅ PDF uploaded successfully:', result.secure_url);
             resolve(result);
           }
         }
@@ -124,8 +132,21 @@ export const uploadPdf = async (req, res, next) => {
       }
     });
   } catch (error) {
-    console.error('PDF Upload error:', error);
-    next(error);
+    console.error('PDF Upload error:', error.message || error);
+    
+    // Send more helpful error message
+    if (error.message && error.message.includes('File size too large')) {
+      return res.status(413).json({
+        success: false,
+        message: 'PDF file is too large. Please use the URL option instead - upload to Google Drive and paste the link.'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload PDF. Try using the URL option - upload to Google Drive and paste the link.',
+      error: error.message
+    });
   }
 };
 
