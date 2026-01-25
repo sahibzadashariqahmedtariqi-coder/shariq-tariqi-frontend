@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart, ArrowRight } from 'lucide-react'
+import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { apiClient } from '@/services/api'
