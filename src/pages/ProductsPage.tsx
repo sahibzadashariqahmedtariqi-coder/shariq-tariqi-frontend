@@ -12,9 +12,11 @@ interface Product {
   name: string
   description: string
   price: number
+  originalPrice?: number
   priceINR?: number
   category: string
   image: string
+  images?: string[]
   stock: number
   isFeatured: boolean
   pdfUrl?: string
@@ -26,6 +28,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
+  const [hoveredProductId, setHoveredProductId] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -287,35 +290,66 @@ export default function ProductsPage() {
                     <Link 
                       to={`/products/${product._id}`}
                       className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-200/60 dark:border-gray-700 group-hover:-translate-y-2"
+                      onMouseEnter={() => setHoveredProductId(product._id)}
+                      onMouseLeave={() => setHoveredProductId(null)}
                     >
                       {/* Image Container - Rectangle like Biyaas */}
                       <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700">
+                        {/* Main Image */}
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out ${
+                            hoveredProductId === product._id && product.images && product.images.length > 0
+                              ? 'opacity-0 scale-105'
+                              : 'opacity-100 group-hover:scale-105'
+                          }`}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.src = '/images/placeholder-product.jpg'
                           }}
                         />
                         
-                        {/* Featured Badge - Top Left */}
-                        {product.isFeatured && (
-                          <div className="absolute top-3 left-3 bg-primary-700 text-white px-2.5 py-1 text-[10px] sm:text-xs font-bold shadow-md">
+                        {/* Second Image on Hover */}
+                        {product.images && product.images.length > 0 && (
+                          <img
+                            src={product.images[0]}
+                            alt={`${product.name} - alternate`}
+                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out ${
+                              hoveredProductId === product._id
+                                ? 'opacity-100 scale-100'
+                                : 'opacity-0 scale-110'
+                            }`}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.src = product.image
+                            }}
+                          />
+                        )}
+                        
+                        {/* Discount Badge - Top Left */}
+                        {product.originalPrice && product.originalPrice > product.price && (
+                          <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 text-[10px] sm:text-xs font-bold shadow-md z-10">
+                            {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% Off
+                          </div>
+                        )}
+                        
+                        {/* Featured Badge - Top Left (if no discount) */}
+                        {product.isFeatured && !(product.originalPrice && product.originalPrice > product.price) && (
+                          <div className="absolute top-3 left-3 bg-primary-700 text-white px-2.5 py-1 text-[10px] sm:text-xs font-bold shadow-md z-10">
                             Featured
                           </div>
                         )}
                         
                         {/* Out of Stock Overlay */}
                         {product.stock === 0 && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                             <span className="text-white font-bold text-sm bg-red-600 px-3 py-1.5">Out of Stock</span>
                           </div>
                         )}
                         
                         {/* Hover Action Buttons - Biyaas Style */}
-                        <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
                           <button 
                             onClick={(e) => {
                               e.preventDefault()
@@ -356,13 +390,27 @@ export default function ProductsPage() {
 
                         {/* Price Section */}
                         <div className="mb-3">
-                          <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                            PKR {product.price.toLocaleString()}
-                          </span>
-                          {product.priceINR && (
-                            <span className="block text-sm font-medium text-orange-600 dark:text-orange-400 mt-0.5">
-                              IN ₹{product.priceINR.toLocaleString()}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                              PKR {product.price.toLocaleString()}
                             </span>
+                            {product.originalPrice && product.originalPrice > product.price && (
+                              <span className="text-sm text-gray-400 line-through">
+                                PKR {product.originalPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                          {product.priceINR && (
+                            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                              <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                                IN ₹{product.priceINR.toLocaleString()}
+                              </span>
+                              {product.originalPrice && product.originalPrice > product.priceINR && (
+                                <span className="text-xs text-gray-400 line-through">
+                                  ₹{product.originalPrice.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
 
