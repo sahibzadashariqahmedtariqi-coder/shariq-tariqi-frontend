@@ -2,7 +2,6 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
@@ -176,7 +175,7 @@ export default function ProductsPage() {
               <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400">No products found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-8">
               {filteredProducts.map((product, index) => {
                 // Beautiful gradient colors for PDF cards
                 const pdfGradients = [
@@ -206,7 +205,7 @@ export default function ProductsPage() {
                   key={product._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index * 0.03 }}
                   className="group"
                 >
                   {/* PDF Products Card */}
@@ -248,46 +247,46 @@ export default function ProductsPage() {
                       </div>
                     </div>
                   ) : (
-                    /* Regular Products Card - Biyaas Style */
+                    /* Regular Products Card - Premium Biyaas Style */
                     <Link 
                       to={`/products/${product._id}`}
-                      className="block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-700"
+                      className="block bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-200/60 dark:border-gray-700 group-hover:-translate-y-2"
                     >
                       {/* Image Container */}
-                      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+                      <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.src = '/images/placeholder-product.jpg'
                           }}
                         />
                         
-                        {/* Featured Badge */}
+                        {/* Featured Badge - Top Left */}
                         {product.isFeatured && (
-                          <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                          <div className="absolute top-3 left-3 bg-primary-700 text-white px-2.5 py-1 rounded text-[10px] sm:text-xs font-bold shadow-md">
                             Featured
                           </div>
                         )}
                         
                         {/* Out of Stock Overlay */}
                         {product.stock === 0 && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                            <span className="text-white font-bold text-lg bg-red-600 px-4 py-2 rounded-lg">Out of Stock</span>
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <span className="text-white font-bold text-sm bg-red-600 px-3 py-1.5 rounded">Out of Stock</span>
                           </div>
                         )}
                         
                         {/* Hover Action Buttons - Biyaas Style */}
-                        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
+                        <div className="absolute top-3 right-3 flex flex-col gap-2">
                           <button 
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
                               toast.success('Added to wishlist!')
                             }}
-                            className="p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-primary-600 hover:text-white transition-all duration-300 text-gray-700 dark:text-gray-200"
+                            className="p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 hover:bg-primary-600 hover:text-white text-gray-600"
                             title="Add to Wishlist"
                           >
                             <Heart className="h-4 w-4" />
@@ -297,7 +296,7 @@ export default function ProductsPage() {
                               e.preventDefault()
                               e.stopPropagation()
                             }}
-                            className="p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-primary-600 hover:text-white transition-all duration-300 text-gray-700 dark:text-gray-200"
+                            className="p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 delay-75 translate-x-4 group-hover:translate-x-0 hover:bg-primary-600 hover:text-white text-gray-600"
                             title="Quick View"
                           >
                             <Eye className="h-4 w-4" />
@@ -306,41 +305,38 @@ export default function ProductsPage() {
                         
                         {/* Low Stock Badge */}
                         {product.stock > 0 && product.stock < 10 && (
-                          <div className="absolute bottom-3 left-3 bg-orange-500/90 text-white px-2 py-1 rounded-md text-xs font-medium">
+                          <div className="absolute bottom-3 left-3 bg-orange-500 text-white px-2 py-0.5 rounded text-[10px] font-semibold">
                             Only {product.stock} left
                           </div>
                         )}
                       </div>
 
                       {/* Product Info */}
-                      <div className="p-4">
-                        <h3 className="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-3 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                      <div className="p-3 sm:p-4">
+                        <h3 className="text-sm sm:text-[15px] font-medium text-gray-800 dark:text-white mb-2 line-clamp-2 leading-snug group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                           {product.name}
                         </h3>
 
                         {/* Price Section */}
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg sm:text-xl font-bold text-primary-700 dark:text-primary-400">
-                              PKR {product.price.toLocaleString()}
-                            </span>
-                          </div>
+                        <div className="mb-3">
+                          <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                            PKR {product.price.toLocaleString()}
+                          </span>
                           {product.priceINR && (
-                            <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">
+                            <span className="block text-sm font-medium text-orange-600 dark:text-orange-400 mt-0.5">
                               IN ₹{product.priceINR.toLocaleString()}
                             </span>
                           )}
                         </div>
 
-                        {/* View Button - Shows on mobile, hidden on hover for desktop */}
-                        <Button 
-                          size="sm" 
-                          className="w-full mt-3 bg-primary-700 hover:bg-primary-800 text-white text-xs sm:text-sm gap-2"
+                        {/* View Button */}
+                        <button 
+                          className="w-full flex items-center justify-center gap-2 bg-primary-700 hover:bg-primary-800 text-white text-xs sm:text-sm font-medium py-2.5 rounded-lg transition-all duration-300 disabled:bg-gray-400"
                           disabled={product.stock === 0}
                         >
                           <ShoppingCart className="h-4 w-4" />
                           View
-                        </Button>
+                        </button>
                       </div>
                     </Link>
                   )}
