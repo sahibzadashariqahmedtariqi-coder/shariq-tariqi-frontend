@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye } from 'lucide-react'
+import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { apiClient } from '@/services/api'
@@ -176,7 +176,7 @@ export default function ProductsPage() {
               <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400">No products found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {filteredProducts.map((product, index) => {
                 // Beautiful gradient colors for PDF cards
                 const pdfGradients = [
@@ -207,119 +207,150 @@ export default function ProductsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
+                  className="group"
                 >
-                  <Link 
-                    to={product.category === 'pdf' ? '#' : `/products/${product._id}`}
-                    onClick={(e) => product.category === 'pdf' && e.preventDefault()}
-                    className={`block rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2 ${
-                      product.category === 'pdf' 
-                        ? `bg-gradient-to-br ${cardBgGradients[gradientIndex]}`
-                        : 'bg-white dark:bg-gray-800 border-transparent'
-                    }`}
-                  >
-                    {/* Only show image section for non-PDF products */}
-                    {product.category !== 'pdf' && (
-                    <div className="relative h-32 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.src = '/images/placeholder-product.jpg'
-                        }}
-                      />
-                      {product.isFeatured && (
-                        <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-gold-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold">
-                          Featured
-                        </div>
-                      )}
-                      {product.stock === 0 && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-bold text-sm sm:text-lg">Out of Stock</span>
-                        </div>
-                      )}
-                    </div>
-                    )}
-                    
-                    {/* PDF Header with icon */}
-                    {product.category === 'pdf' && (
-                      <div className={`bg-gradient-to-r ${pdfGradients[gradientIndex]} p-4 flex items-center justify-center`}>
-                        <FileText className="h-12 w-12 text-white drop-shadow-lg" />
+                  {/* PDF Products Card */}
+                  {product.category === 'pdf' ? (
+                    <div className={`block rounded-2xl overflow-hidden border-2 bg-gradient-to-br ${cardBgGradients[gradientIndex]} shadow-md hover:shadow-xl transition-all duration-300`}>
+                      {/* PDF Header with icon */}
+                      <div className={`bg-gradient-to-r ${pdfGradients[gradientIndex]} p-6 flex items-center justify-center`}>
+                        <FileText className="h-14 w-14 text-white drop-shadow-lg" />
                       </div>
-                    )}
 
-                    <div className="p-3 sm:p-6">
-                      <h3 className="text-sm sm:text-lg font-bold text-gray-800 dark:text-white mb-1 sm:mb-2 line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 sm:mb-4 line-clamp-2">
-                        {product.description}
-                      </p>
-
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-                        {/* Show price for non-PDF products */}
-                        {product.category !== 'pdf' ? (
-                          <div>
-                            <span className="text-base sm:text-2xl font-bold text-primary-600 dark:text-primary-400">
-                              PKR {product.price.toLocaleString()}
-                            </span>
-                            {product.priceINR && (
-                              <span className="block text-sm sm:text-xl font-bold text-orange-500 dark:text-orange-400 mt-1">
-                                🇮🇳 ₹{product.priceINR.toLocaleString()}
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-base sm:text-xl font-bold text-green-600 dark:text-green-400">
-                            Free PDF
-                          </span>
-                        )}
+                      <div className="p-4">
+                        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                          {product.description}
+                        </p>
+                        <span className="inline-block text-sm font-bold text-green-600 dark:text-green-400 mb-3">
+                          Free PDF
+                        </span>
                         
-                        {/* Show Download button for PDFs, View button for others */}
-                        {product.category === 'pdf' && product.pdfUrl ? (
-                          <div className="flex gap-2 w-full sm:w-auto">
+                        {product.pdfUrl && (
+                          <div className="flex gap-2">
                             <a 
                               href={product.pdfUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-3 py-2 rounded-lg flex-1 sm:flex-none font-semibold transition-colors"
+                              className="inline-flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-lg flex-1 font-semibold transition-colors"
                             >
-                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <Eye className="h-3 w-3" />
                               View
                             </a>
                             <button
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                handleDownloadPdf(product.pdfUrl!, product.name)
-                              }}
-                              className="inline-flex items-center justify-center gap-1 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-3 py-2 rounded-lg flex-1 sm:flex-none font-semibold transition-colors"
+                              onClick={() => handleDownloadPdf(product.pdfUrl!, product.name)}
+                              className="inline-flex items-center justify-center gap-1 bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-2 rounded-lg flex-1 font-semibold transition-colors"
                             >
-                              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <Download className="h-3 w-3" />
                               Download
                             </button>
                           </div>
-                        ) : (
-                          <Button 
-                            size="sm" 
-                            className="bg-primary-600 hover:bg-primary-700 text-xs sm:text-sm w-full sm:w-auto"
-                            disabled={product.stock === 0}
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Regular Products Card - Biyaas Style */
+                    <Link 
+                      to={`/products/${product._id}`}
+                      className="block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-700"
+                    >
+                      {/* Image Container */}
+                      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.src = '/images/placeholder-product.jpg'
+                          }}
+                        />
+                        
+                        {/* Featured Badge */}
+                        {product.isFeatured && (
+                          <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                            Featured
+                          </div>
+                        )}
+                        
+                        {/* Out of Stock Overlay */}
+                        {product.stock === 0 && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                            <span className="text-white font-bold text-lg bg-red-600 px-4 py-2 rounded-lg">Out of Stock</span>
+                          </div>
+                        )}
+                        
+                        {/* Hover Action Buttons - Biyaas Style */}
+                        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
+                          <button 
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              toast.success('Added to wishlist!')
+                            }}
+                            className="p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-primary-600 hover:text-white transition-all duration-300 text-gray-700 dark:text-gray-200"
+                            title="Add to Wishlist"
                           >
-                            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                            {product.stock === 0 ? 'Sold Out' : 'View'}
-                          </Button>
+                            <Heart className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                            }}
+                            className="p-2.5 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-primary-600 hover:text-white transition-all duration-300 text-gray-700 dark:text-gray-200"
+                            title="Quick View"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        </div>
+                        
+                        {/* Low Stock Badge */}
+                        {product.stock > 0 && product.stock < 10 && (
+                          <div className="absolute bottom-3 left-3 bg-orange-500/90 text-white px-2 py-1 rounded-md text-xs font-medium">
+                            Only {product.stock} left
+                          </div>
                         )}
                       </div>
 
-                      {product.category !== 'pdf' && product.stock > 0 && product.stock < 10 && (
-                        <p className="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 mt-2">
-                          Only {product.stock} left in stock
+                      {/* Product Info */}
+                      <div className="p-4">
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                          {product.name}
+                        </h3>
+                        
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2 hidden sm:block">
+                          {product.description}
                         </p>
-                      )}
-                    </div>
-                  </Link>
+
+                        {/* Price Section */}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg sm:text-xl font-bold text-primary-700 dark:text-primary-400">
+                              PKR {product.price.toLocaleString()}
+                            </span>
+                          </div>
+                          {product.priceINR && (
+                            <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">
+                              IN ₹{product.priceINR.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* View Button - Shows on mobile, hidden on hover for desktop */}
+                        <Button 
+                          size="sm" 
+                          className="w-full mt-3 bg-primary-700 hover:bg-primary-800 text-white text-xs sm:text-sm gap-2"
+                          disabled={product.stock === 0}
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          View
+                        </Button>
+                      </div>
+                    </Link>
+                  )}
                 </motion.div>
               )})}
             </div>
