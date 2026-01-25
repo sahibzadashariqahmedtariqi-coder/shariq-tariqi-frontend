@@ -217,9 +217,12 @@ export default function ProductsPage() {
                       </div>
 
                       <div className="p-4">
-                        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white mb-3 line-clamp-2">
+                        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white mb-1 line-clamp-2">
                           {product.name}
                         </h3>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+                          {product.description}
+                        </p>
                         <span className="inline-block text-sm font-bold text-green-600 dark:text-green-400 mb-3">
                           Free PDF
                         </span>
