@@ -218,12 +218,9 @@ export default function ProductsPage() {
                       </div>
 
                       <div className="p-4">
-                        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
+                        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white mb-3 line-clamp-2">
                           {product.name}
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                          {product.description}
-                        </p>
                         <span className="inline-block text-sm font-bold text-green-600 dark:text-green-400 mb-3">
                           Free PDF
                         </span>
@@ -317,13 +314,9 @@ export default function ProductsPage() {
 
                       {/* Product Info */}
                       <div className="p-4">
-                        <h3 className="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-3 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                           {product.name}
                         </h3>
-                        
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2 hidden sm:block">
-                          {product.description}
-                        </p>
 
                         {/* Price Section */}
                         <div className="flex flex-col gap-1">
