@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart, X } from 'lucide-react'
+import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart, X, Shield, Truck, BadgeCheck, Clock } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
@@ -123,11 +123,42 @@ export default function ProductsPage() {
             </p>
           </motion.div>
 
-          {/* Search Bar */}
+          {/* Trust Badges */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
+            className="mb-8 sm:mb-10"
+          >
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-4">
+              <div className="flex flex-col items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary-700 dark:text-primary-400" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Authentic</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <Truck className="h-6 w-6 sm:h-8 sm:w-8 text-primary-700 dark:text-primary-400" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Fast Shipping</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <BadgeCheck className="h-6 w-6 sm:h-8 sm:w-8 text-primary-700 dark:text-primary-400" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Quality</span>
+              </div>
+            </div>
+            
+            {/* Professional Delivery Notice */}
+            <div className="flex items-center justify-center gap-2 text-center">
+              <Clock className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic">
+                After payment confirmation, delivery within <span className="font-semibold text-primary-700 dark:text-primary-400">24-48 hours</span> (Working days only, based on workload)
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Search Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
             className="mb-6 sm:mb-8 max-w-2xl mx-auto"
           >
             <div className="relative">
