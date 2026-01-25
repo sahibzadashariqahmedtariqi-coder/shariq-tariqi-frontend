@@ -14,6 +14,7 @@ interface Product {
   price: number
   originalPrice?: number
   priceINR?: number
+  originalPriceINR?: number
   category: string
   image: string
   images?: string[]
@@ -134,25 +135,31 @@ export default function ProductsPage() {
             className="mb-8 sm:mb-10"
           >
             <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-4">
-              <div className="flex flex-col items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary-700 dark:text-primary-400" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Authentic</span>
+              <div className="flex flex-col items-center gap-2 px-6 py-4 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-xl shadow-md border border-emerald-200 dark:border-emerald-700 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                <div className="p-2 bg-emerald-500 rounded-full">
+                  <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                <span className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300">Authentic</span>
               </div>
-              <div className="flex flex-col items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <Truck className="h-6 w-6 sm:h-8 sm:w-8 text-primary-700 dark:text-primary-400" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Fast Shipping</span>
+              <div className="flex flex-col items-center gap-2 px-6 py-4 bg-gradient-to-br from-blue-50 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30 rounded-xl shadow-md border border-blue-200 dark:border-blue-700 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                <div className="p-2 bg-blue-500 rounded-full">
+                  <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                <span className="text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-300">Fast Shipping</span>
               </div>
-              <div className="flex flex-col items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <BadgeCheck className="h-6 w-6 sm:h-8 sm:w-8 text-primary-700 dark:text-primary-400" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Quality</span>
+              <div className="flex flex-col items-center gap-2 px-6 py-4 bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-xl shadow-md border border-amber-200 dark:border-amber-700 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                <div className="p-2 bg-amber-500 rounded-full">
+                  <BadgeCheck className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-300">Quality</span>
               </div>
             </div>
             
             {/* Professional Delivery Notice */}
-            <div className="flex items-center justify-center gap-2 text-center">
+            <div className="flex items-center justify-center gap-2 text-center bg-gradient-to-r from-primary-50 via-gold-50 to-primary-50 dark:from-primary-900/20 dark:via-gold-900/20 dark:to-primary-900/20 py-3 px-4 rounded-lg border border-primary-200 dark:border-primary-700">
               <Clock className="h-4 w-4 text-primary-600 dark:text-primary-400" />
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic">
-                After payment confirmation, delivery within <span className="font-semibold text-primary-700 dark:text-primary-400">24-48 hours</span> (Working days only, based on workload)
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                After payment confirmation, delivery within <span className="font-bold text-primary-700 dark:text-primary-400">24-48 hours</span> (Working days only, based on workload)
               </p>
             </div>
           </motion.div>
@@ -405,9 +412,9 @@ export default function ProductsPage() {
                               <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
                                 IN ₹{product.priceINR.toLocaleString()}
                               </span>
-                              {product.originalPrice && product.originalPrice > product.priceINR && (
+                              {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
                                 <span className="text-xs text-gray-400 line-through">
-                                  ₹{product.originalPrice.toLocaleString()}
+                                  ₹{product.originalPriceINR.toLocaleString()}
                                 </span>
                               )}
                             </div>

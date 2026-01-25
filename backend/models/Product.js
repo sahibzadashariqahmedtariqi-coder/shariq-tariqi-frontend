@@ -36,6 +36,10 @@ const productSchema = new mongoose.Schema({
     type: Number,
     min: 0
   },
+  originalPriceINR: {
+    type: Number,
+    min: 0
+  },
   discount: {
     type: Number,
     default: 0,

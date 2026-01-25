@@ -14,11 +14,13 @@ interface Product {
   description: string
   price: number
   priceINR: number | null
+  originalPrice: number | null
+  originalPriceINR: number | null
   category: 'herbal' | 'spiritual' | 'books' | 'pdf'
   image: string
   images?: string[]
   stock: number
-  featured: boolean
+  isFeatured: boolean
   pdfUrl?: string
   hasPdfVersion?: boolean
   pdfPrice?: number | null
@@ -46,11 +48,13 @@ export default function AdminProductsPage() {
     description: '',
     price: 0,
     priceINR: null,
+    originalPrice: null,
+    originalPriceINR: null,
     category: 'spiritual',
     image: '',
     images: [],
     stock: 0,
-    featured: false,
+    isFeatured: false,
     pdfUrl: '',
     hasPdfVersion: false,
     pdfPrice: null,
@@ -206,11 +210,13 @@ export default function AdminProductsPage() {
       description: '',
       price: 0,
       priceINR: null,
+      originalPrice: null,
+      originalPriceINR: null,
       category: 'herbal',
       image: '',
       images: [],
       stock: 0,
-      featured: false,
+      isFeatured: false,
       pdfUrl: '',
       hasPdfVersion: false,
       pdfPrice: null,
@@ -228,11 +234,13 @@ export default function AdminProductsPage() {
       description: '',
       price: 0,
       priceINR: null,
+      originalPrice: null,
+      originalPriceINR: null,
       category: 'herbal',
       image: '',
       images: [],
       stock: 0,
-      featured: false,
+      isFeatured: false,
       pdfUrl: '',
       hasPdfVersion: false,
       pdfPrice: null,
@@ -386,6 +394,41 @@ export default function AdminProductsPage() {
                       placeholder="Enter price in INR (optional)"
                     />
                   </div>
+                  
+                  {/* Original Price Section for Discount */}
+                  <div className="md:col-span-2 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                    <p className="text-sm font-bold text-orange-800 dark:text-orange-300 mb-3">🏷️ Discount Settings (Optional - For showing % Off badge):</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Original Price (PKR) 🇵🇰 <span className="text-xs text-gray-500">(Before discount)</span></label>
+                        <input
+                          type="number"
+                          value={editForm.originalPrice || ''}
+                          onChange={(e) => setEditForm({ ...editForm, originalPrice: e.target.value ? Number(e.target.value) : null })}
+                          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                          placeholder="e.g., 4199 (will show strikethrough)"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Original Price (INR) 🇮🇳 <span className="text-xs text-gray-500">(Before discount)</span></label>
+                        <input
+                          type="number"
+                          value={editForm.originalPriceINR || ''}
+                          onChange={(e) => setEditForm({ ...editForm, originalPriceINR: e.target.value ? Number(e.target.value) : null })}
+                          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                          placeholder="e.g., 3500 (will show strikethrough)"
+                        />
+                      </div>
+                    </div>
+                    {editForm.originalPrice && editForm.originalPrice > editForm.price && (
+                      <div className="mt-3 p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                        <p className="text-sm text-green-700 dark:text-green-300">
+                          ✅ Discount: <span className="font-bold">{Math.round(((editForm.originalPrice - editForm.price) / editForm.originalPrice) * 100)}% Off</span> badge will show on product card
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
                   <div>
                     <label className="block text-sm font-medium mb-2">Stock Quantity</label>
                     <input
@@ -778,8 +821,8 @@ export default function AdminProductsPage() {
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    checked={editForm.featured}
-                    onChange={(e) => setEditForm({ ...editForm, featured: e.target.checked })}
+                    checked={editForm.isFeatured}
+                    onChange={(e) => setEditForm({ ...editForm, isFeatured: e.target.checked })}
                     className="w-4 h-4"
                   />
                   <span className="text-sm font-medium">Featured Product</span>
@@ -822,7 +865,7 @@ export default function AdminProductsPage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-bold">{product.name}</h3>
-                  {product.featured && (
+                  {product.isFeatured && (
                     <span className="bg-gold-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                       Featured
                     </span>

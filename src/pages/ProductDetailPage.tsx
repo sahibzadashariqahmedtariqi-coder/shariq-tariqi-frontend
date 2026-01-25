@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ShoppingCart, ArrowLeft, Package, Shield, Truck, CheckCircle, X } from 'lucide-react'
+import { ShoppingCart, ArrowLeft, Package, Shield, Truck, CheckCircle, X, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { apiClient } from '@/services/api'
@@ -200,19 +200,33 @@ export default function ProductDetailPage() {
               )}
 
               {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-4 mt-6">
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
-                  <Shield className="h-6 w-6 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
-                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Authentic</p>
+              <div className="grid grid-cols-3 gap-3 mt-6">
+                <div className="text-center p-3 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-xl shadow-md border border-emerald-200 dark:border-emerald-700 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                  <div className="p-2 bg-emerald-500 rounded-full w-fit mx-auto mb-2">
+                    <Shield className="h-5 w-5 text-white" />
+                  </div>
+                  <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300">Authentic</p>
                 </div>
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
-                  <Truck className="h-6 w-6 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
-                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Fast Shipping</p>
+                <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30 rounded-xl shadow-md border border-blue-200 dark:border-blue-700 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                  <div className="p-2 bg-blue-500 rounded-full w-fit mx-auto mb-2">
+                    <Truck className="h-5 w-5 text-white" />
+                  </div>
+                  <p className="text-xs font-bold text-blue-700 dark:text-blue-300">Fast Shipping</p>
                 </div>
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
-                  <CheckCircle className="h-6 w-6 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
-                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Quality</p>
+                <div className="text-center p-3 bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-xl shadow-md border border-amber-200 dark:border-amber-700 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                  <div className="p-2 bg-amber-500 rounded-full w-fit mx-auto mb-2">
+                    <CheckCircle className="h-5 w-5 text-white" />
+                  </div>
+                  <p className="text-xs font-bold text-amber-700 dark:text-amber-300">Quality</p>
                 </div>
+              </div>
+              
+              {/* Delivery Notice */}
+              <div className="flex items-center justify-center gap-2 mt-4 bg-gradient-to-r from-primary-50 via-gold-50 to-primary-50 dark:from-primary-900/20 dark:via-gold-900/20 dark:to-primary-900/20 py-3 px-4 rounded-lg border border-primary-200 dark:border-primary-700">
+                <Clock className="h-4 w-4 text-primary-600 dark:text-primary-400 flex-shrink-0" />
+                <p className="text-xs text-gray-700 dark:text-gray-300">
+                  Delivery within <span className="font-bold text-primary-700 dark:text-primary-400">24-48 hours</span> after payment
+                </p>
               </div>
             </motion.div>
 
