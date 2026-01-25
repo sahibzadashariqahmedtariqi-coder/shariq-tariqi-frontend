@@ -25,7 +25,7 @@ const initializeSettings = async () => {
         clinicSubtitle: 'Sahibzada Shariq Huzoor',
         timings: '11 AM To 3 PM',
         address: 'Karachi, Pakistan',
-        facebookUrl: 'https://www.facebook.com/profile.php?id=61553408394146',
+        facebookUrl: 'https://www.facebook.com/share/181bF2SNbH/',
         youtubeUrl: 'https://www.youtube.com/@Sahibzadashariqahmedtariqi',
         instagramUrl: 'https://www.instagram.com/sahibzadashariqahmedtariqi?igsh=NDhwc3d2M3Z1cGM1',
         tiktokUrl: 'https://www.tiktok.com/@sahibzadashariqahmed?_r=1&_t=ZS-91WRMNMm7GM',

@@ -49,7 +49,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href={settings?.facebookUrl || 'https://www.facebook.com/profile.php?id=61553408394146'}
+                href={settings?.facebookUrl || 'https://www.facebook.com/share/181bF2SNbH/'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold-400 transition-colors"

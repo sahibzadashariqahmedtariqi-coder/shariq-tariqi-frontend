@@ -40,7 +40,7 @@ const settingsSchema = new mongoose.Schema(
     // Social Media Links
     facebookUrl: {
       type: String,
-      default: 'https://www.facebook.com/profile.php?id=61553408394146',
+      default: 'https://www.facebook.com/share/181bF2SNbH/',
     },
     youtubeUrl: {
       type: String,
