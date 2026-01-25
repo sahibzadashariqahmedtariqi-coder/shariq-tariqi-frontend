@@ -864,7 +864,14 @@ export default function AdminProductsPage() {
               />
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-bold">{product.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-bold">{product.name}</h3>
+                    {product.originalPrice && product.originalPrice > product.price && (
+                      <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
+                        {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% Off
+                      </span>
+                    )}
+                  </div>
                   {product.isFeatured && (
                     <span className="bg-gold-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                       Featured
@@ -874,22 +881,34 @@ export default function AdminProductsPage() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
                   {product.description}
                 </p>
-                <div className="flex gap-4 text-sm">
+                <div className="flex gap-4 text-sm flex-wrap">
                   <span className="bg-primary-100 dark:bg-primary-900 px-3 py-1 rounded-full">
                     {product.category}
                   </span>
                   <span className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full">
                     Stock: {product.stock}
                   </span>
+                  {product.images && product.images.length > 0 && (
+                    <span className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
+                      📷 {product.images.length} extra images
+                    </span>
+                  )}
                 </div>
-                <p className="text-2xl font-bold text-primary-600 mt-3">
-                  PKR {product.price}
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-2xl font-bold text-primary-600">
+                    PKR {product.price}
+                  </span>
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <span className="text-lg text-gray-400 line-through">
+                      PKR {product.originalPrice}
+                    </span>
+                  )}
                   {product.priceINR && (
-                    <span className="text-lg text-orange-600 ml-3">
+                    <span className="text-lg text-orange-600">
                       🇮🇳 ₹{product.priceINR}
                     </span>
                   )}
-                </p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button
