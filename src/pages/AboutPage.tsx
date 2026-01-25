@@ -36,6 +36,11 @@ export default function AboutPage() {
     yearsExperience: 15,
     peopleHelped: 5000
   })
+  const [aboutData, setAboutData] = useState({
+    profileImage: '/images/about-profile.jpg',
+    introductionText: 'Sahibzada Shariq Ahmed Tariqi is a dedicated spiritual healer and practitioner of traditional Islamic medicine. With deep knowledge in Roohaniyat (spirituality) and Hikmat (traditional Islamic medicine), he serves humanity through the prophetic traditions of healing.',
+    descriptionText: 'Through years of dedicated study and practice, Sahibzada Shariq Ahmed Tariqi has mastered the art of spiritual healing and traditional Islamic medicine, helping countless individuals find peace, health, and spiritual enlightenment.'
+  })
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -51,6 +56,21 @@ export default function AboutPage() {
       }
     }
     fetchStats()
+    
+    // Load about settings from localStorage
+    const savedAbout = localStorage.getItem('aboutSettings')
+    if (savedAbout) {
+      try {
+        const parsed = JSON.parse(savedAbout)
+        setAboutData({
+          profileImage: parsed.profileImage || '/images/about-profile.jpg',
+          introductionText: parsed.introductionText || aboutData.introductionText,
+          descriptionText: parsed.descriptionText || aboutData.descriptionText
+        })
+      } catch (err) {
+        console.error('Error parsing about settings:', err)
+      }
+    }
   }, [])
 
   return (
@@ -92,7 +112,7 @@ export default function AboutPage() {
               >
                 <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                   <img
-                    src="/images/about-profile.jpg"
+                    src={aboutData.profileImage}
                     alt="Sahibzada Shariq Ahmed Tariqi"
                     className="w-full h-auto object-cover"
                   />
@@ -112,14 +132,10 @@ export default function AboutPage() {
               >
                 <div className="prose dark:prose-invert max-w-none">
                   <p className="text-sm sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                    <span className="text-gold-500 font-semibold">Sahibzada Shariq Ahmed Tariqi</span> is a dedicated spiritual healer and practitioner of traditional Islamic medicine. 
-                    With deep knowledge in <span className="font-semibold text-primary-600 dark:text-primary-400">Roohaniyat</span> (spirituality) and <span className="font-semibold text-primary-600 dark:text-primary-400">Hikmat</span> (traditional Islamic medicine), 
-                    he serves humanity through the prophetic traditions of healing.
+                    {aboutData.introductionText}
                   </p>
                   <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Through years of dedicated study and practice, Sahibzada Shariq Ahmed Tariqi has mastered the art of spiritual healing 
-                    and traditional Islamic medicine, helping countless individuals find peace, health, 
-                    and spiritual enlightenment.
+                    {aboutData.descriptionText}
                   </p>
                 </div>
 
