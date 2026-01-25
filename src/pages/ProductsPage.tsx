@@ -177,7 +177,31 @@ export default function ProductsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-              {filteredProducts.map((product, index) => (
+              {filteredProducts.map((product, index) => {
+                // Beautiful gradient colors for PDF cards
+                const pdfGradients = [
+                  'from-emerald-500 via-teal-500 to-cyan-500',
+                  'from-violet-500 via-purple-500 to-fuchsia-500',
+                  'from-amber-500 via-orange-500 to-red-500',
+                  'from-blue-500 via-indigo-500 to-violet-500',
+                  'from-rose-500 via-pink-500 to-fuchsia-500',
+                  'from-green-500 via-emerald-500 to-teal-500',
+                  'from-cyan-500 via-sky-500 to-blue-500',
+                  'from-fuchsia-500 via-pink-500 to-rose-500',
+                ]
+                const cardBgGradients = [
+                  'from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/20 dark:via-teal-900/20 dark:to-cyan-900/20 border-emerald-200 dark:border-emerald-700',
+                  'from-violet-50 via-purple-50 to-fuchsia-50 dark:from-violet-900/20 dark:via-purple-900/20 dark:to-fuchsia-900/20 border-violet-200 dark:border-violet-700',
+                  'from-amber-50 via-orange-50 to-red-50 dark:from-amber-900/20 dark:via-orange-900/20 dark:to-red-900/20 border-amber-200 dark:border-amber-700',
+                  'from-blue-50 via-indigo-50 to-violet-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-violet-900/20 border-blue-200 dark:border-blue-700',
+                  'from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-900/20 dark:via-pink-900/20 dark:to-fuchsia-900/20 border-rose-200 dark:border-rose-700',
+                  'from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20 border-green-200 dark:border-green-700',
+                  'from-cyan-50 via-sky-50 to-blue-50 dark:from-cyan-900/20 dark:via-sky-900/20 dark:to-blue-900/20 border-cyan-200 dark:border-cyan-700',
+                  'from-fuchsia-50 via-pink-50 to-rose-50 dark:from-fuchsia-900/20 dark:via-pink-900/20 dark:to-rose-900/20 border-fuchsia-200 dark:border-fuchsia-700',
+                ]
+                const gradientIndex = index % pdfGradients.length
+                
+                return (
                 <motion.div
                   key={product._id}
                   initial={{ opacity: 0, y: 20 }}
@@ -187,7 +211,11 @@ export default function ProductsPage() {
                   <Link 
                     to={product.category === 'pdf' ? '#' : `/products/${product._id}`}
                     onClick={(e) => product.category === 'pdf' && e.preventDefault()}
-                    className="block bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                    className={`block rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2 ${
+                      product.category === 'pdf' 
+                        ? `bg-gradient-to-br ${cardBgGradients[gradientIndex]}`
+                        : 'bg-white dark:bg-gray-800 border-transparent'
+                    }`}
                   >
                     {/* Only show image section for non-PDF products */}
                     {product.category !== 'pdf' && (
@@ -216,8 +244,8 @@ export default function ProductsPage() {
                     
                     {/* PDF Header with icon */}
                     {product.category === 'pdf' && (
-                      <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 flex items-center justify-center">
-                        <FileText className="h-12 w-12 text-white" />
+                      <div className={`bg-gradient-to-r ${pdfGradients[gradientIndex]} p-4 flex items-center justify-center`}>
+                        <FileText className="h-12 w-12 text-white drop-shadow-lg" />
                       </div>
                     )}
 
@@ -293,7 +321,7 @@ export default function ProductsPage() {
                     </div>
                   </Link>
                 </motion.div>
-              ))}
+              )})}
             </div>
           )}
         </div>
