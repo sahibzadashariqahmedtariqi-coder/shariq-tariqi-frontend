@@ -1,8 +1,8 @@
 import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ShoppingCart, Leaf, Book, Sparkles, Search, FileText, Download, Eye, Heart, X } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
@@ -25,6 +25,8 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchProducts()
@@ -253,9 +255,9 @@ export default function ProductsPage() {
                     /* Regular Products Card - Premium Biyaas Style */
                     <Link 
                       to={`/products/${product._id}`}
-                      className="block bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-200/60 dark:border-gray-700 group-hover:-translate-y-2"
+                      className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-200/60 dark:border-gray-700 group-hover:-translate-y-2"
                     >
-                      {/* Image Container */}
+                      {/* Image Container - Rectangle like Biyaas */}
                       <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700">
                         <img
                           src={product.image}
@@ -269,7 +271,7 @@ export default function ProductsPage() {
                         
                         {/* Featured Badge - Top Left */}
                         {product.isFeatured && (
-                          <div className="absolute top-3 left-3 bg-primary-700 text-white px-2.5 py-1 rounded text-[10px] sm:text-xs font-bold shadow-md">
+                          <div className="absolute top-3 left-3 bg-primary-700 text-white px-2.5 py-1 text-[10px] sm:text-xs font-bold shadow-md">
                             Featured
                           </div>
                         )}
@@ -277,7 +279,7 @@ export default function ProductsPage() {
                         {/* Out of Stock Overlay */}
                         {product.stock === 0 && (
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                            <span className="text-white font-bold text-sm bg-red-600 px-3 py-1.5 rounded">Out of Stock</span>
+                            <span className="text-white font-bold text-sm bg-red-600 px-3 py-1.5">Out of Stock</span>
                           </div>
                         )}
                         
@@ -289,7 +291,7 @@ export default function ProductsPage() {
                               e.stopPropagation()
                               toast.success('Added to wishlist!')
                             }}
-                            className="p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 hover:bg-primary-600 hover:text-white text-gray-600"
+                            className="p-2 bg-white shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 hover:bg-primary-600 hover:text-white text-gray-600"
                             title="Add to Wishlist"
                           >
                             <Heart className="h-4 w-4" />
@@ -298,8 +300,9 @@ export default function ProductsPage() {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
+                              setQuickViewProduct(product)
                             }}
-                            className="p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 delay-75 translate-x-4 group-hover:translate-x-0 hover:bg-primary-600 hover:text-white text-gray-600"
+                            className="p-2 bg-white shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 delay-75 translate-x-4 group-hover:translate-x-0 hover:bg-primary-600 hover:text-white text-gray-600"
                             title="Quick View"
                           >
                             <Eye className="h-4 w-4" />
@@ -308,7 +311,7 @@ export default function ProductsPage() {
                         
                         {/* Low Stock Badge */}
                         {product.stock > 0 && product.stock < 10 && (
-                          <div className="absolute bottom-3 left-3 bg-orange-500 text-white px-2 py-0.5 rounded text-[10px] font-semibold">
+                          <div className="absolute bottom-3 left-3 bg-orange-500 text-white px-2 py-0.5 text-[10px] font-semibold">
                             Only {product.stock} left
                           </div>
                         )}
@@ -349,6 +352,96 @@ export default function ProductsPage() {
           )}
         </div>
       </div>
+
+      {/* Quick View Modal */}
+      <AnimatePresence>
+        {quickViewProduct && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setQuickViewProduct(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col md:flex-row">
+                {/* Image */}
+                <div className="md:w-1/2 aspect-square bg-gray-100 dark:bg-gray-700">
+                  <img
+                    src={quickViewProduct.image}
+                    alt={quickViewProduct.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                {/* Details */}
+                <div className="md:w-1/2 p-6 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      {quickViewProduct.isFeatured && (
+                        <span className="inline-block bg-primary-700 text-white text-xs px-2 py-1 rounded mb-2">
+                          Featured
+                        </span>
+                      )}
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                        {quickViewProduct.name}
+                      </h2>
+                    </div>
+                    <button
+                      onClick={() => setQuickViewProduct(null)}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                    >
+                      <X className="h-5 w-5 text-gray-500" />
+                    </button>
+                  </div>
+                  
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 flex-grow">
+                    {quickViewProduct.description}
+                  </p>
+                  
+                  <div className="mb-4">
+                    <span className="text-2xl font-bold text-primary-700 dark:text-primary-400">
+                      PKR {quickViewProduct.price.toLocaleString()}
+                    </span>
+                    {quickViewProduct.priceINR && (
+                      <span className="block text-lg font-semibold text-orange-600 dark:text-orange-400 mt-1">
+                        IN ₹{quickViewProduct.priceINR.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {quickViewProduct.stock > 0 ? (
+                    <p className="text-green-600 dark:text-green-400 text-sm mb-4">
+                      ✓ In Stock ({quickViewProduct.stock} available)
+                    </p>
+                  ) : (
+                    <p className="text-red-600 dark:text-red-400 text-sm mb-4">
+                      ✗ Out of Stock
+                    </p>
+                  )}
+                  
+                  <button
+                    onClick={() => {
+                      setQuickViewProduct(null)
+                      navigate(`/products/${quickViewProduct._id}`)
+                    }}
+                    className="w-full bg-primary-700 hover:bg-primary-800 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                    View Full Details
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
