@@ -62,28 +62,99 @@ export default function MureedCardPage() {
       const cardElement = cardRef.current
       const clone = cardElement.cloneNode(true) as HTMLElement
       
+      // Create a wrapper div with fixed dimensions
+      const wrapper = document.createElement('div')
+      wrapper.style.position = 'absolute'
+      wrapper.style.left = '-9999px'
+      wrapper.style.top = '0'
+      wrapper.style.width = '800px'
+      wrapper.style.backgroundColor = '#ffffff'
+      
       // Set fixed desktop-like dimensions for consistent download across all devices
-      clone.style.position = 'absolute'
-      clone.style.left = '-9999px'
-      clone.style.top = '0'
-      clone.style.width = '800px' // Fixed desktop width
+      clone.style.width = '800px'
       clone.style.minWidth = '800px'
       clone.style.maxWidth = '800px'
       clone.style.transform = 'none'
       clone.style.overflow = 'visible'
       
-      // Force desktop styles on clone (remove responsive classes effects)
-      clone.querySelectorAll('*').forEach((el) => {
+      // Force desktop styles - override responsive classes
+      // Fix the flex container to use row layout (desktop)
+      const flexContainers = clone.querySelectorAll('.flex-col')
+      flexContainers.forEach((el) => {
         const element = el as HTMLElement
-        // Remove any transform that might affect rendering
-        element.style.transform = 'none'
+        // Check if it has md:flex-row class - force row layout
+        if (element.classList.contains('md:flex-row')) {
+          element.style.flexDirection = 'row'
+        }
       })
       
-      // Append to body temporarily
-      document.body.appendChild(clone)
+      // Fix profile picture order - should be on right (order-last on desktop)
+      const profilePicContainer = clone.querySelector('.order-first') as HTMLElement
+      if (profilePicContainer) {
+        profilePicContainer.style.order = '2' // Move to end (right side)
+      }
+      
+      // Fix details container order
+      const detailsContainer = clone.querySelector('.flex-1') as HTMLElement
+      if (detailsContainer) {
+        detailsContainer.style.order = '1' // Keep on left
+      }
+      
+      // Force larger text sizes (desktop)
+      clone.querySelectorAll('.text-xs').forEach((el) => {
+        (el as HTMLElement).style.fontSize = '0.875rem' // text-sm
+      })
+      clone.querySelectorAll('.text-sm').forEach((el) => {
+        (el as HTMLElement).style.fontSize = '1rem' // text-base
+      })
+      
+      // Force larger profile picture (desktop size)
+      const profilePic = clone.querySelector('.w-24') as HTMLElement
+      if (profilePic && profilePic.classList.contains('h-24')) {
+        profilePic.style.width = '10rem' // w-40
+        profilePic.style.height = '10rem' // h-40
+      }
+      
+      // Force larger logo
+      const logo = clone.querySelector('.w-10') as HTMLElement
+      if (logo && logo.classList.contains('h-10')) {
+        logo.style.width = '4rem' // w-16
+        logo.style.height = '4rem' // h-16
+      }
+      
+      // Force larger watermark
+      const watermark = clone.querySelector('.w-\\[280px\\]') as HTMLElement
+      if (watermark) {
+        watermark.style.width = '550px'
+        watermark.style.height = '550px'
+      }
+      
+      // Force larger signature box
+      const signatureBox = clone.querySelector('.w-14') as HTMLElement
+      if (signatureBox && signatureBox.classList.contains('h-14')) {
+        signatureBox.style.width = '5rem' // w-20
+        signatureBox.style.height = '5rem' // h-20
+      }
+      
+      // Force larger padding
+      const mainPadding = clone.querySelector('.p-4') as HTMLElement
+      if (mainPadding && mainPadding.classList.contains('md\\:p-10')) {
+        mainPadding.style.padding = '2.5rem' // p-10
+      }
+      
+      // Show corner decorations (hidden on mobile)
+      clone.querySelectorAll('.hidden').forEach((el) => {
+        const element = el as HTMLElement
+        if (element.classList.contains('md:block')) {
+          element.style.display = 'block'
+        }
+      })
+      
+      wrapper.appendChild(clone)
+      document.body.appendChild(wrapper)
       
       // Wait for images to load
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 800))
       
       const canvas = await html2canvas(clone, {
         backgroundColor: '#ffffff',
@@ -99,8 +170,8 @@ export default function MureedCardPage() {
         imageTimeout: 15000,
       })
       
-      // Remove clone from DOM
-      document.body.removeChild(clone)
+      // Remove wrapper from DOM
+      document.body.removeChild(wrapper)
       
       const link = document.createElement('a')
       link.download = `Mureed-Card-${mureed?.mureedId}.png`
