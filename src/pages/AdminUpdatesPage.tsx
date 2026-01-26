@@ -16,7 +16,7 @@ interface Update {
   detailImage2?: string
   date: string
   category: 'announcement' | 'event' | 'news' | 'course' | 'general'
-  updateType?: 'general' | 'product' | 'course'
+  updateType?: 'general' | 'product' | 'course' | 'donate'
   productId?: string
   courseId?: string
   link?: string
@@ -57,7 +57,7 @@ export default function AdminUpdatesPage() {
     detailImage2: '',
     date: '',
     category: 'announcement' as 'announcement' | 'event' | 'news' | 'course' | 'general',
-    updateType: 'announcement' as 'announcement' | 'product' | 'course' | 'rohani_tour',
+    updateType: 'announcement' as 'announcement' | 'product' | 'course' | 'rohani_tour' | 'donate',
     productId: '',
     courseId: '',
     link: '',
@@ -441,6 +441,7 @@ export default function AdminUpdatesPage() {
                   <option value="product">🛒 Products</option>
                   <option value="course">📚 Course</option>
                   <option value="rohani_tour">🕌 Rohani Tour</option>
+                  <option value="donate">❤️ Donate</option>
                 </select>
               </div>
             </div>
