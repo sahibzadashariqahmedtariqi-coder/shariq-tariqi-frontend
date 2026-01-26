@@ -245,7 +245,7 @@ export default function MureedCardPage() {
                       />
                     </div>
                     <div>
-                      <h1 className="text-3xl md:text-4xl font-arabic text-transparent bg-clip-text bg-gradient-to-r from-primary-800 via-primary-600 to-primary-800 leading-tight">
+                      <h1 className="text-3xl md:text-4xl font-arabic text-primary-800 leading-tight">
                         طارقی روحانی درسگاہ
                       </h1>
                     </div>
@@ -253,9 +253,9 @@ export default function MureedCardPage() {
                   
                   {/* English Title */}
                   <p className="text-lg text-gray-600">
-                    Oath Taken Under: <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-700 to-primary-900">Sahibzada Shariq Ahmed Tariqi</span>
+                    Oath Taken Under: <span className="font-bold text-primary-800">Sahibzada Shariq Ahmed Tariqi</span>
                   </p>
-                  <p className="text-xl text-transparent bg-clip-text bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 font-arabic mt-2 tracking-wide font-semibold">( دامت برکاتہم العالیہ )</p>
+                  <p className="text-xl text-gold-600 font-arabic mt-2 tracking-wide font-semibold">( دامت برکاتہم العالیہ )</p>
                 </div>
 
                 {/* Mureed ID */}
@@ -359,7 +359,7 @@ export default function MureedCardPage() {
                     
                     <div className="text-center">
                       <div className="w-20 h-20 border-3 border-primary-600 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-gold-50 shadow-lg">
-                        <span className="text-3xl font-arabic text-transparent bg-clip-text bg-gradient-to-br from-primary-700 to-gold-600">ش</span>
+                        <span className="text-3xl font-arabic text-primary-700">ش</span>
                       </div>
                       <p className="text-xs text-primary-600 mt-2 font-medium">Official Signature</p>
                     </div>
