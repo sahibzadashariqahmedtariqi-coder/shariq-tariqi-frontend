@@ -78,13 +78,41 @@ function AnimatedCounter({ end, suffix = '', decimal = false }: AnimatedCounterP
   )
 }
 
-// Countries list
+// Countries list with codes
 const countries = [
   'Pakistan', 'India', 'Bangladesh', 'Saudi Arabia', 'UAE', 'Qatar', 
   'Kuwait', 'Bahrain', 'Oman', 'UK', 'USA', 'Canada', 'Australia',
   'Germany', 'France', 'Malaysia', 'Indonesia', 'Turkey', 'South Africa',
   'Kenya', 'Nigeria', 'Egypt', 'Morocco', 'Other'
 ]
+
+// Country codes mapping
+const countryCodes: { [key: string]: string } = {
+  'Pakistan': '+92',
+  'India': '+91',
+  'Bangladesh': '+880',
+  'Saudi Arabia': '+966',
+  'UAE': '+971',
+  'Qatar': '+974',
+  'Kuwait': '+965',
+  'Bahrain': '+973',
+  'Oman': '+968',
+  'UK': '+44',
+  'USA': '+1',
+  'Canada': '+1',
+  'Australia': '+61',
+  'Germany': '+49',
+  'France': '+33',
+  'Malaysia': '+60',
+  'Indonesia': '+62',
+  'Turkey': '+90',
+  'South Africa': '+27',
+  'Kenya': '+254',
+  'Nigeria': '+234',
+  'Egypt': '+20',
+  'Morocco': '+212',
+  'Other': '+',
+}
 
 // Cities by country
 const citiesByCountry: { [key: string]: string[] } = {
@@ -146,8 +174,9 @@ export default function MureedRegistrationPage() {
   const [formData, setFormData] = useState({
     fullName: '',
     fatherName: '',
+    countryCode: '+92',
     contactNumber: '',
-    country: '',
+    country: 'Pakistan',
     city: '',
     dateOfBirth: '',
     address: '',
@@ -192,9 +221,13 @@ export default function MureedRegistrationPage() {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     
-    // Reset city when country changes
+    // Reset city and update country code when country changes
     if (name === 'country') {
-      setFormData(prev => ({ ...prev, city: '' }))
+      setFormData(prev => ({ 
+        ...prev, 
+        city: '',
+        countryCode: countryCodes[value] || '+'
+      }))
     }
   }
 
@@ -265,6 +298,7 @@ export default function MureedRegistrationPage() {
       // Register the mureed
       const response = await apiClient.post('/mureeds/register', {
         ...formData,
+        contactNumber: formData.countryCode + formData.contactNumber,
         profilePicture: profilePictureUrl,
       })
       
@@ -452,16 +486,28 @@ export default function MureedRegistrationPage() {
                       Contact Number *
                       {checkingContact && <span className="text-xs text-gold-500 ml-2">Checking...</span>}
                     </label>
-                    <input
-                      type="tel"
-                      name="contactNumber"
-                      value={formData.contactNumber}
-                      onChange={handleInputChange}
-                      onBlur={handleContactBlur}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white transition-all"
-                      placeholder="e.g., 03001234567"
-                      required
-                    />
+                    <div className="flex gap-2">
+                      <select
+                        name="countryCode"
+                        value={formData.countryCode}
+                        onChange={handleInputChange}
+                        className="w-24 px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white transition-all text-sm"
+                      >
+                        {Object.entries(countryCodes).map(([country, code]) => (
+                          <option key={country} value={code}>{code}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="tel"
+                        name="contactNumber"
+                        value={formData.contactNumber}
+                        onChange={handleInputChange}
+                        onBlur={handleContactBlur}
+                        className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white transition-all"
+                        placeholder="3001234567"
+                        required
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
