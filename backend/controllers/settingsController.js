@@ -160,6 +160,13 @@ export const updateSettings = async (req, res, next) => {
       tiktokUrl,
       whatsappChannelUrl,
       footerDescription,
+      // Bank Payment Details
+      bankName,
+      accountTitle,
+      accountNumber,
+      ibanNumber,
+      bankBranch,
+      paymentInstructions,
     } = req.body;
 
     // Get the singleton settings document
@@ -179,6 +186,14 @@ export const updateSettings = async (req, res, next) => {
     if (tiktokUrl !== undefined) settings.tiktokUrl = tiktokUrl;
     if (whatsappChannelUrl !== undefined) settings.whatsappChannelUrl = whatsappChannelUrl;
     if (footerDescription !== undefined) settings.footerDescription = footerDescription;
+    
+    // Update Bank Payment Details if provided
+    if (bankName !== undefined) settings.bankName = bankName;
+    if (accountTitle !== undefined) settings.accountTitle = accountTitle;
+    if (accountNumber !== undefined) settings.accountNumber = accountNumber;
+    if (ibanNumber !== undefined) settings.ibanNumber = ibanNumber;
+    if (bankBranch !== undefined) settings.bankBranch = bankBranch;
+    if (paymentInstructions !== undefined) settings.paymentInstructions = paymentInstructions;
 
     // Track who updated
     settings.lastUpdatedBy = req.user._id;
