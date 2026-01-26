@@ -250,9 +250,9 @@ export default function ProductsPage() {
                 return (
                 <motion.div
                   key={product._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: Math.min(index * 0.02, 0.3) }}
                   className="group"
                 >
                   {/* PDF Products Card */}
@@ -300,26 +300,31 @@ export default function ProductsPage() {
                     /* Regular Products Card - Premium Biyaas Style */
                     <Link 
                       to={`/products/${product._id}`}
-                      className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-200/60 dark:border-gray-700 group-hover:-translate-y-2"
+                      className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200/60 dark:border-gray-700 group-hover:-translate-y-1"
                       onMouseEnter={() => setHoveredProductId(product._id)}
                       onMouseLeave={() => setHoveredProductId(null)}
                     >
                       {/* Image Container - Rectangle like Biyaas */}
-                      <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
+                      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-pulse">
                         {/* Main Image */}
                         <img
                           src={getOptimizedImageUrl(product.image, 'productCard')}
                           alt={product.name}
-                          loading="eager"
+                          loading={index < 4 ? "eager" : "lazy"}
                           decoding="async"
-                          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out ${
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
                             hoveredProductId === product._id && product.images && product.images.length > 0
-                              ? 'opacity-0 scale-105'
-                              : 'opacity-100 group-hover:scale-105'
+                              ? 'opacity-0'
+                              : 'opacity-100'
                           }`}
+                          onLoad={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.parentElement?.classList.remove('animate-pulse')
+                          }}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.src = '/images/placeholder-product.jpg'
+                            target.parentElement?.classList.remove('animate-pulse')
                           }}
                         />
                         
