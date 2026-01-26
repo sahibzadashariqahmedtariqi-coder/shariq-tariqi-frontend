@@ -458,6 +458,7 @@ export default function AdminUpdatesPage() {
                   onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
                   className="w-full px-4 py-2 border border-emerald-300 dark:border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
                   required
+                  size={products.length > 8 ? 8 : products.length + 1}
                 >
                   <option value="">-- Select a Product --</option>
                   {products.map(product => (
@@ -479,6 +480,7 @@ export default function AdminUpdatesPage() {
                   onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
                   className="w-full px-4 py-2 border border-purple-300 dark:border-purple-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                   required
+                  size={courses.length > 8 ? 8 : courses.length + 1}
                 >
                   <option value="">-- Select a Course --</option>
                   {courses.map(course => (
