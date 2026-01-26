@@ -27,6 +27,8 @@ interface Update {
 interface Product {
   _id: string
   name: string
+  category?: string
+  isPdfOnly?: boolean
 }
 
 interface Course {
