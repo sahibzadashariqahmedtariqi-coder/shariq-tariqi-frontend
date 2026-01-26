@@ -58,16 +58,60 @@ export default function MureedCardPage() {
     try {
       setDownloading(true)
       
-      const canvas = await html2canvas(cardRef.current, {
+      // Get the card dimensions
+      const cardElement = cardRef.current
+      const rect = cardElement.getBoundingClientRect()
+      
+      // Fixed width for consistent downloads (standard card width)
+      const fixedWidth = 800
+      const aspectRatio = rect.height / rect.width
+      const fixedHeight = Math.round(fixedWidth * aspectRatio)
+      
+      const canvas = await html2canvas(cardElement, {
         backgroundColor: '#ffffff',
-        scale: 2,
+        scale: 3, // Higher scale for better quality
         useCORS: true,
+        allowTaint: true,
         logging: false,
+        width: rect.width,
+        height: rect.height,
+        windowWidth: rect.width,
+        windowHeight: rect.height,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        foreignObjectRendering: false,
+        removeContainer: true,
+        imageTimeout: 15000,
+        onclone: (clonedDoc) => {
+          // Ensure all elements are visible in the cloned document
+          const clonedCard = clonedDoc.querySelector('[data-card-ref]') as HTMLElement
+          if (clonedCard) {
+            clonedCard.style.transform = 'none'
+            clonedCard.style.width = rect.width + 'px'
+            clonedCard.style.height = rect.height + 'px'
+          }
+        }
       })
+      
+      // Create a new canvas with fixed dimensions for consistent output
+      const finalCanvas = document.createElement('canvas')
+      finalCanvas.width = fixedWidth
+      finalCanvas.height = fixedHeight
+      const ctx = finalCanvas.getContext('2d')
+      
+      if (ctx) {
+        // Fill white background
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, fixedWidth, fixedHeight)
+        // Draw the captured image scaled to fixed dimensions
+        ctx.drawImage(canvas, 0, 0, fixedWidth, fixedHeight)
+      }
       
       const link = document.createElement('a')
       link.download = `Mureed-Card-${mureed?.mureedId}.png`
-      link.href = canvas.toDataURL('image/png')
+      link.href = finalCanvas.toDataURL('image/png', 1.0)
       link.click()
       
       toast.success('Card downloaded successfully!')
@@ -159,7 +203,7 @@ export default function MureedCardPage() {
             className="rounded-3xl shadow-2xl overflow-hidden"
           >
             {/* Mureed Card - This is what gets downloaded */}
-            <div ref={cardRef} className="relative bg-gradient-to-br from-[#fefefe] via-[#f8f6f0] to-[#f0ebe0] overflow-hidden">
+            <div ref={cardRef} data-card-ref="true" className="relative bg-gradient-to-br from-[#fefefe] via-[#f8f6f0] to-[#f0ebe0] overflow-hidden" style={{ minWidth: '600px' }}>
               {/* Decorative Top Border */}
               <div className="h-3 bg-gradient-to-r from-primary-600 via-gold-500 to-primary-600"></div>
               
@@ -190,7 +234,7 @@ export default function MureedCardPage() {
               
               <div className="p-8 md:p-10">
                 {/* Card Header with Islamic Design */}
-                <div className="text-center mb-8 pb-6 border-b-2 border-gradient relative z-10" style={{borderImage: 'linear-gradient(to right, transparent, #1B4332, #D4AF37, #1B4332, transparent) 1'}}>
+                <div className="text-center mb-8 pb-6 border-b-2 border-primary-600 relative z-10">
                   {/* Logo and Arabic Text */}
                   <div className="flex items-center justify-center gap-4 mb-4">
                     <div className="p-2 bg-gradient-to-br from-primary-100 to-gold-100 rounded-2xl shadow-lg">
@@ -302,7 +346,7 @@ export default function MureedCardPage() {
                 </div>
 
                 {/* Card Footer */}
-                <div className="mt-8 pt-6 border-t-2 relative z-10" style={{borderImage: 'linear-gradient(to right, transparent, #1B4332, #D4AF37, #1B4332, transparent) 1'}}>
+                <div className="mt-8 pt-6 border-t-2 border-primary-600 relative z-10">
                   <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-center md:text-left">
                       <p className="text-sm text-primary-700 font-arabic leading-relaxed">
