@@ -43,3 +43,35 @@ export function debounce<T extends (...args: any[]) => any>(
     timeout = setTimeout(() => func(...args), wait)
   }
 }
+
+// Cloudinary image optimization helper
+// Adds width, quality auto, and format auto for faster loading
+export function optimizeCloudinaryUrl(url: string, width: number = 400): string {
+  if (!url) return url
+  
+  // Check if it's a Cloudinary URL
+  if (!url.includes('cloudinary.com')) return url
+  
+  // Check if transformations already exist
+  if (url.includes('/upload/w_') || url.includes('/upload/q_') || url.includes('/upload/f_')) {
+    return url
+  }
+  
+  // Add transformations: width, quality auto, format auto
+  // Format: /upload/w_400,q_auto,f_auto/
+  const transformation = `w_${width},q_auto,f_auto`
+  
+  // Insert transformation after /upload/
+  return url.replace('/upload/', `/upload/${transformation}/`)
+}
+
+// Get optimized image URL for product thumbnails
+export function getProductThumbnail(url: string): string {
+  return optimizeCloudinaryUrl(url, 400)
+}
+
+// Get optimized image URL for product detail page
+export function getProductImage(url: string): string {
+  return optimizeCloudinaryUrl(url, 800)
+}
+

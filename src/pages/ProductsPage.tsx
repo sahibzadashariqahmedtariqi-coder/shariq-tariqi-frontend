@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import { getOptimizedImageUrl } from '@/lib/cloudinaryOptimize'
 
 interface Product {
   _id: string
@@ -307,7 +308,7 @@ export default function ProductsPage() {
                       <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
                         {/* Main Image */}
                         <img
-                          src={product.image}
+                          src={getOptimizedImageUrl(product.image, 'productCard')}
                           alt={product.name}
                           loading="eager"
                           decoding="async"
@@ -325,7 +326,7 @@ export default function ProductsPage() {
                         {/* Second Image on Hover */}
                         {product.images && product.images.length > 0 && (
                           <img
-                            src={product.images[0]}
+                            src={getOptimizedImageUrl(product.images[0], 'productCard')}
                             alt={`${product.name} - alternate`}
                             loading="lazy"
                             decoding="async"
