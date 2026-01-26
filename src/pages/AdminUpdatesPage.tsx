@@ -89,7 +89,7 @@ export default function AdminUpdatesPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await apiClient.get('/products')
+      const response = await apiClient.get('/products?limit=200')
       if (response.data.success) {
         setProducts(response.data.data)
       }
