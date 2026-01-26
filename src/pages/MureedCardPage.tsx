@@ -58,60 +58,53 @@ export default function MureedCardPage() {
     try {
       setDownloading(true)
       
-      // Get the card dimensions
+      // Create a clone of the card for download with fixed desktop dimensions
       const cardElement = cardRef.current
-      const rect = cardElement.getBoundingClientRect()
+      const clone = cardElement.cloneNode(true) as HTMLElement
       
-      // Fixed width for consistent downloads (standard card width)
-      const fixedWidth = 800
-      const aspectRatio = rect.height / rect.width
-      const fixedHeight = Math.round(fixedWidth * aspectRatio)
+      // Set fixed desktop-like dimensions for consistent download across all devices
+      clone.style.position = 'absolute'
+      clone.style.left = '-9999px'
+      clone.style.top = '0'
+      clone.style.width = '800px' // Fixed desktop width
+      clone.style.minWidth = '800px'
+      clone.style.maxWidth = '800px'
+      clone.style.transform = 'none'
+      clone.style.overflow = 'visible'
       
-      const canvas = await html2canvas(cardElement, {
+      // Force desktop styles on clone (remove responsive classes effects)
+      clone.querySelectorAll('*').forEach((el) => {
+        const element = el as HTMLElement
+        // Remove any transform that might affect rendering
+        element.style.transform = 'none'
+      })
+      
+      // Append to body temporarily
+      document.body.appendChild(clone)
+      
+      // Wait for images to load
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      const canvas = await html2canvas(clone, {
         backgroundColor: '#ffffff',
-        scale: 3, // Higher scale for better quality
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
-        width: rect.width,
-        height: rect.height,
-        windowWidth: rect.width,
-        windowHeight: rect.height,
-        x: 0,
-        y: 0,
-        scrollX: 0,
-        scrollY: 0,
+        width: 800,
+        height: clone.scrollHeight,
+        windowWidth: 800,
+        windowHeight: clone.scrollHeight,
         foreignObjectRendering: false,
-        removeContainer: true,
         imageTimeout: 15000,
-        onclone: (clonedDoc) => {
-          // Ensure all elements are visible in the cloned document
-          const clonedCard = clonedDoc.querySelector('[data-card-ref]') as HTMLElement
-          if (clonedCard) {
-            clonedCard.style.transform = 'none'
-            clonedCard.style.width = rect.width + 'px'
-            clonedCard.style.height = rect.height + 'px'
-          }
-        }
       })
       
-      // Create a new canvas with fixed dimensions for consistent output
-      const finalCanvas = document.createElement('canvas')
-      finalCanvas.width = fixedWidth
-      finalCanvas.height = fixedHeight
-      const ctx = finalCanvas.getContext('2d')
-      
-      if (ctx) {
-        // Fill white background
-        ctx.fillStyle = '#ffffff'
-        ctx.fillRect(0, 0, fixedWidth, fixedHeight)
-        // Draw the captured image scaled to fixed dimensions
-        ctx.drawImage(canvas, 0, 0, fixedWidth, fixedHeight)
-      }
+      // Remove clone from DOM
+      document.body.removeChild(clone)
       
       const link = document.createElement('a')
       link.download = `Mureed-Card-${mureed?.mureedId}.png`
-      link.href = finalCanvas.toDataURL('image/png', 1.0)
+      link.href = canvas.toDataURL('image/png', 1.0)
       link.click()
       
       toast.success('Card downloaded successfully!')
