@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Bell, Calendar, ArrowRight, Megaphone, X, ShoppingBag, BookOpen } from 'lucide-react'
+import { Bell, Calendar, ArrowRight, Megaphone, X, ShoppingBag, BookOpen, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import apiClient from '@/services/api'
@@ -10,7 +10,7 @@ interface Update {
   description: string
   date: string
   category: 'announcement' | 'event' | 'news' | 'course' | 'general'
-  updateType?: 'announcement' | 'product' | 'course' | 'rohani_tour'
+  updateType?: 'announcement' | 'product' | 'course' | 'rohani_tour' | 'donate'
   productId?: string
   courseId?: string
   link?: string
@@ -284,6 +284,17 @@ export default function LatestUpdates() {
                                 >
                                   <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
                                   Enroll Now
+                                </Link>
+                              )}
+                              
+                              {/* Donate Button for Donate Updates */}
+                              {update.updateType === 'donate' && (
+                                <Link 
+                                  to="/donate"
+                                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 hover:from-rose-600 hover:via-pink-600 hover:to-rose-700 text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 animate-slow-pulse hover:animate-none"
+                                >
+                                  <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  Donate Now
                                 </Link>
                               )}
                             </div>
