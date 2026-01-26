@@ -135,9 +135,13 @@ export default function HeroSection() {
                 initial={{ opacity: 0 }}
                 animate={{ 
                   opacity: currentImageIndex === index ? 1 : 0,
-                  scale: currentImageIndex === index ? 1 : 1.05
+                  scale: currentImageIndex === index ? 1 : 1.05,
+                  zIndex: currentImageIndex === index ? 10 : 0
                 }}
-                transition={{ duration: 1.5, ease: "easeInOut" }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+                style={{ 
+                  pointerEvents: currentImageIndex === index ? 'auto' : 'none'
+                }}
               >
                 <img
                   src={slide.image}
