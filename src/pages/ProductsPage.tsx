@@ -37,14 +37,23 @@ export default function ProductsPage() {
     fetchProducts()
   }, [])
 
+  // Preload first 4 product images for faster display
+  useEffect(() => {
+    if (products.length > 0) {
+      const visibleProducts = products.filter(p => p.category !== 'pdf').slice(0, 4)
+      visibleProducts.forEach(product => {
+        const img = new Image()
+        img.src = getOptimizedImageUrl(product.image, 'productCard')
+      })
+    }
+  }, [products])
+
   const fetchProducts = async () => {
     try {
       setLoading(true)
       const response = await apiClient.get('/products?limit=100')
       // Backend returns { success, count, total, data }
       const productsData = response.data.data || response.data || []
-      console.log('Products data from API:', productsData)
-      console.log('First product originalPrice:', productsData[0]?.originalPrice)
       setProducts(productsData)
     } catch (error: any) {
       console.error('Error fetching products:', error)

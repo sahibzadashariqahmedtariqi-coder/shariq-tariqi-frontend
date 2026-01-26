@@ -56,13 +56,13 @@ export function optimizeCloudinaryUrl(
   return url;
 }
 
-// Preset sizes for common use cases - MORE AGGRESSIVE
+// Preset sizes for common use cases - ULTRA AGGRESSIVE
 export const imagePresets = {
-  thumbnail: { width: 100, height: 100, quality: 50 },
-  productCard: { width: 250, quality: 55 },
-  productDetail: { width: 600, quality: 75 },
-  hero: { width: 800, quality: 70 },
-  avatar: { width: 80, height: 80, quality: 50 },
+  thumbnail: { width: 80, height: 80, quality: 40 },
+  productCard: { width: 200, quality: 45 },
+  productDetail: { width: 500, quality: 70 },
+  hero: { width: 600, quality: 60 },
+  avatar: { width: 60, height: 60, quality: 40 },
 };
 
 // Helper function with presets
