@@ -304,11 +304,13 @@ export default function ProductsPage() {
                       onMouseLeave={() => setHoveredProductId(null)}
                     >
                       {/* Image Container - Rectangle like Biyaas */}
-                      <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-700">
+                      <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
                         {/* Main Image */}
                         <img
                           src={product.image}
                           alt={product.name}
+                          loading="eager"
+                          decoding="async"
                           className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out ${
                             hoveredProductId === product._id && product.images && product.images.length > 0
                               ? 'opacity-0 scale-105'
@@ -325,6 +327,8 @@ export default function ProductsPage() {
                           <img
                             src={product.images[0]}
                             alt={`${product.name} - alternate`}
+                            loading="lazy"
+                            decoding="async"
                             className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out ${
                               hoveredProductId === product._id
                                 ? 'opacity-100 scale-100'
