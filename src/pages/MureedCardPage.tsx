@@ -163,7 +163,7 @@ export default function MureedCardPage() {
               </div>
               <div style="text-align: center;">
                 <div style="width: 140px; height: 60px; border: 1px solid #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; padding: 4px;">
-                  <img src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal,f_png/v1769484522/shariq-website/products/nq2ruu8psj6wpzrv6dqe.jpg" alt="Signature" style="width: 100%; height: 100%; object-fit: contain;" crossorigin="anonymous" />
+                  <img src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal,f_png/v1769486233/shariq-website/products/r7jtmwlbygao4xcdbfkv.jpg" alt="Signature" style="width: 100%; height: 100%; object-fit: contain;" crossorigin="anonymous" />
                 </div>
                 <p style="font-size: 12px; color: #6b7280; margin-top: 6px; font-style: italic;">Signature</p>
               </div>
@@ -452,7 +452,7 @@ export default function MureedCardPage() {
                     <div className="text-center">
                       <div className="w-24 h-12 md:w-32 md:h-16 border border-gray-300 rounded-lg flex items-center justify-center bg-white shadow-sm overflow-hidden p-1">
                         <img 
-                          src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal,f_png/v1769484522/shariq-website/products/nq2ruu8psj6wpzrv6dqe.jpg" 
+                          src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal,f_png/v1769486233/shariq-website/products/r7jtmwlbygao4xcdbfkv.jpg" 
                           alt="Signature" 
                           className="w-full h-full object-contain"
                           crossOrigin="anonymous"
