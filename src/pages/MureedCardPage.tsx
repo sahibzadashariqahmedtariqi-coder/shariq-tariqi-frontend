@@ -140,7 +140,7 @@ export default function MureedCardPage() {
       
       // Force larger watermark
       clone.querySelectorAll('img').forEach((el) => {
-        const element = el as HTMLElement
+        const element = el as HTMLImageElement
         if (element.classList.contains('w-[280px]') || element.alt === 'Background Watermark') {
           element.style.width = '550px'
           element.style.height = '550px'
