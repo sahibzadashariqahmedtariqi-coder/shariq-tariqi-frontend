@@ -162,8 +162,8 @@ export default function MureedCardPage() {
                 <p style="font-size: 14px; color: #D4AF37; margin-top: 8px;">🌐 www.shariqahmedtariqi.com</p>
               </div>
               <div style="text-align: center;">
-                <div style="width: 80px; height: 80px; border: 3px solid #1B4332; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(to bottom right, #f0fdf4, white, #fefce8); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                  <span style="font-size: 32px; color: #1B4332; font-family: 'Noto Nastaliq Urdu', serif;">ش</span>
+                <div style="width: 100px; height: 80px; border: 2px solid #1B4332; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
+                  <img src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal/f_png/v1769483016/shariq-website/products/udhaskc9sjgo7fbjn1ro.jpg" alt="Signature" style="width: 90px; height: auto; object-fit: contain;" crossorigin="anonymous" />
                 </div>
                 <p style="font-size: 12px; color: #1B4332; margin-top: 8px;">Official Signature</p>
               </div>
@@ -450,8 +450,13 @@ export default function MureedCardPage() {
                     </div>
                     
                     <div className="text-center">
-                      <div className="w-14 h-14 md:w-20 md:h-20 border-2 md:border-3 border-primary-600 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-gold-50 shadow-lg">
-                        <span className="text-2xl md:text-3xl font-arabic text-primary-700">ش</span>
+                      <div className="w-16 h-12 md:w-24 md:h-16 border-2 border-primary-600 rounded-xl flex items-center justify-center bg-white shadow-lg overflow-hidden">
+                        <img 
+                          src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal/f_png/v1769483016/shariq-website/products/udhaskc9sjgo7fbjn1ro.jpg" 
+                          alt="Signature" 
+                          className="w-14 md:w-20 h-auto object-contain"
+                          crossOrigin="anonymous"
+                        />
                       </div>
                       <p className="text-[10px] md:text-xs text-primary-600 mt-1 md:mt-2 font-medium">Official Signature</p>
                     </div>
