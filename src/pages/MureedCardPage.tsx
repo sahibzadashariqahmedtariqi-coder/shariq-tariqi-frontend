@@ -64,83 +64,103 @@ export default function MureedCardPage() {
       
       // Create a wrapper div with fixed dimensions
       const wrapper = document.createElement('div')
-      wrapper.style.position = 'absolute'
-      wrapper.style.left = '-9999px'
-      wrapper.style.top = '0'
-      wrapper.style.width = '800px'
-      wrapper.style.backgroundColor = '#ffffff'
+      wrapper.style.cssText = `
+        position: fixed;
+        left: -9999px;
+        top: 0;
+        width: 800px;
+        height: auto;
+        background-color: #ffffff;
+        z-index: -9999;
+        visibility: visible;
+        pointer-events: none;
+      `
       
       // Set fixed desktop-like dimensions for consistent download across all devices
-      clone.style.width = '800px'
-      clone.style.minWidth = '800px'
-      clone.style.maxWidth = '800px'
-      clone.style.transform = 'none'
-      clone.style.overflow = 'visible'
+      clone.style.cssText = `
+        width: 800px !important;
+        min-width: 800px !important;
+        max-width: 800px !important;
+        transform: none !important;
+        overflow: visible !important;
+        display: block !important;
+      `
       
       // Force desktop styles - override responsive classes
       // Fix the flex container to use row layout (desktop)
-      const flexContainers = clone.querySelectorAll('.flex-col')
-      flexContainers.forEach((el) => {
+      clone.querySelectorAll('.flex-col').forEach((el) => {
         const element = el as HTMLElement
-        // Check if it has md:flex-row class - force row layout
         if (element.classList.contains('md:flex-row')) {
           element.style.flexDirection = 'row'
+          element.style.display = 'flex'
         }
       })
       
       // Fix profile picture order - should be on right (order-last on desktop)
       const profilePicContainer = clone.querySelector('.order-first') as HTMLElement
       if (profilePicContainer) {
-        profilePicContainer.style.order = '2' // Move to end (right side)
+        profilePicContainer.style.order = '2'
       }
       
       // Fix details container order
-      const detailsContainer = clone.querySelector('.flex-1') as HTMLElement
-      if (detailsContainer) {
-        detailsContainer.style.order = '1' // Keep on left
-      }
+      clone.querySelectorAll('.flex-1').forEach((el) => {
+        const element = el as HTMLElement
+        element.style.order = '1'
+        element.style.flex = '1'
+      })
       
       // Force larger text sizes (desktop)
       clone.querySelectorAll('.text-xs').forEach((el) => {
-        (el as HTMLElement).style.fontSize = '0.875rem' // text-sm
+        (el as HTMLElement).style.fontSize = '0.875rem'
       })
       clone.querySelectorAll('.text-sm').forEach((el) => {
-        (el as HTMLElement).style.fontSize = '1rem' // text-base
+        (el as HTMLElement).style.fontSize = '1rem'
+      })
+      clone.querySelectorAll('.text-base').forEach((el) => {
+        (el as HTMLElement).style.fontSize = '1.125rem'
       })
       
       // Force larger profile picture (desktop size)
-      const profilePic = clone.querySelector('.w-24') as HTMLElement
-      if (profilePic && profilePic.classList.contains('h-24')) {
-        profilePic.style.width = '10rem' // w-40
-        profilePic.style.height = '10rem' // h-40
-      }
+      clone.querySelectorAll('.w-24').forEach((el) => {
+        const element = el as HTMLElement
+        if (element.classList.contains('h-24')) {
+          element.style.width = '10rem'
+          element.style.height = '10rem'
+        }
+      })
       
       // Force larger logo
-      const logo = clone.querySelector('.w-10') as HTMLElement
-      if (logo && logo.classList.contains('h-10')) {
-        logo.style.width = '4rem' // w-16
-        logo.style.height = '4rem' // h-16
-      }
+      clone.querySelectorAll('.w-10').forEach((el) => {
+        const element = el as HTMLElement
+        if (element.classList.contains('h-10')) {
+          element.style.width = '4rem'
+          element.style.height = '4rem'
+        }
+      })
       
       // Force larger watermark
-      const watermark = clone.querySelector('.w-\\[280px\\]') as HTMLElement
-      if (watermark) {
-        watermark.style.width = '550px'
-        watermark.style.height = '550px'
-      }
+      clone.querySelectorAll('img').forEach((el) => {
+        const element = el as HTMLElement
+        if (element.classList.contains('w-[280px]') || element.alt === 'Background Watermark') {
+          element.style.width = '550px'
+          element.style.height = '550px'
+        }
+      })
       
       // Force larger signature box
-      const signatureBox = clone.querySelector('.w-14') as HTMLElement
-      if (signatureBox && signatureBox.classList.contains('h-14')) {
-        signatureBox.style.width = '5rem' // w-20
-        signatureBox.style.height = '5rem' // h-20
-      }
+      clone.querySelectorAll('.w-14').forEach((el) => {
+        const element = el as HTMLElement
+        if (element.classList.contains('h-14')) {
+          element.style.width = '5rem'
+          element.style.height = '5rem'
+        }
+      })
       
-      // Force larger padding
-      const mainPadding = clone.querySelector('.p-4') as HTMLElement
-      if (mainPadding && mainPadding.classList.contains('md\\:p-10')) {
-        mainPadding.style.padding = '2.5rem' // p-10
-      }
+      // Force larger padding on main content
+      clone.querySelectorAll('.p-4').forEach((el) => {
+        const element = el as HTMLElement
+        element.style.padding = '2.5rem'
+      })
       
       // Show corner decorations (hidden on mobile)
       clone.querySelectorAll('.hidden').forEach((el) => {
@@ -150,11 +170,32 @@ export default function MureedCardPage() {
         }
       })
       
+      // Force larger margins
+      clone.querySelectorAll('.mb-4').forEach((el) => {
+        (el as HTMLElement).style.marginBottom = '2rem'
+      })
+      clone.querySelectorAll('.mt-4').forEach((el) => {
+        (el as HTMLElement).style.marginTop = '2rem'
+      })
+      clone.querySelectorAll('.pt-4').forEach((el) => {
+        (el as HTMLElement).style.paddingTop = '1.5rem'
+      })
+      clone.querySelectorAll('.pb-4').forEach((el) => {
+        (el as HTMLElement).style.paddingBottom = '1.5rem'
+      })
+      clone.querySelectorAll('.gap-4').forEach((el) => {
+        (el as HTMLElement).style.gap = '2rem'
+      })
+      
       wrapper.appendChild(clone)
       document.body.appendChild(wrapper)
       
-      // Wait for images to load
-      await new Promise(resolve => setTimeout(resolve, 800))
+      // Force reflow and wait for everything to render
+      void wrapper.offsetHeight
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Get the actual rendered height
+      const actualHeight = clone.getBoundingClientRect().height
       
       const canvas = await html2canvas(clone, {
         backgroundColor: '#ffffff',
@@ -163,11 +204,13 @@ export default function MureedCardPage() {
         allowTaint: true,
         logging: false,
         width: 800,
-        height: clone.scrollHeight,
+        height: Math.ceil(actualHeight),
         windowWidth: 800,
-        windowHeight: clone.scrollHeight,
+        windowHeight: Math.ceil(actualHeight),
         foreignObjectRendering: false,
         imageTimeout: 15000,
+        scrollX: 0,
+        scrollY: 0,
       })
       
       // Remove wrapper from DOM
