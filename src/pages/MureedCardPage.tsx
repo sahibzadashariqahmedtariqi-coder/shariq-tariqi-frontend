@@ -162,8 +162,8 @@ export default function MureedCardPage() {
                 <p style="font-size: 14px; color: #D4AF37; margin-top: 8px;">🌐 www.shariqahmedtariqi.com</p>
               </div>
               <div style="text-align: center;">
-                <div style="width: 110px; height: 110px; border: 1px solid #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
-                  <img src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal/f_png/v1769483016/shariq-website/products/udhaskc9sjgo7fbjn1ro.jpg" alt="Signature" style="width: 95px; height: auto; object-fit: contain;" crossorigin="anonymous" />
+                <div style="width: 140px; height: 60px; border: 1px solid #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; padding: 4px;">
+                  <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1769484522/shariq-website/products/nq2ruu8psj6wpzrv6dqe.jpg" alt="Signature" style="width: 100%; height: 100%; object-fit: contain;" crossorigin="anonymous" />
                 </div>
                 <p style="font-size: 12px; color: #6b7280; margin-top: 6px; font-style: italic;">Signature</p>
               </div>
@@ -450,11 +450,11 @@ export default function MureedCardPage() {
                     </div>
                     
                     <div className="text-center">
-                      <div className="w-20 h-20 md:w-28 md:h-28 border border-gray-300 rounded-lg flex items-center justify-center bg-white shadow-sm overflow-hidden">
+                      <div className="w-24 h-12 md:w-32 md:h-16 border border-gray-300 rounded-lg flex items-center justify-center bg-white shadow-sm overflow-hidden p-1">
                         <img 
-                          src="https://res.cloudinary.com/du7qzhimu/image/upload/e_background_removal/f_png/v1769483016/shariq-website/products/udhaskc9sjgo7fbjn1ro.jpg" 
+                          src="https://res.cloudinary.com/du7qzhimu/image/upload/v1769484522/shariq-website/products/nq2ruu8psj6wpzrv6dqe.jpg" 
                           alt="Signature" 
-                          className="w-16 md:w-24 h-auto object-contain"
+                          className="w-full h-full object-contain"
                           crossOrigin="anonymous"
                         />
                       </div>
