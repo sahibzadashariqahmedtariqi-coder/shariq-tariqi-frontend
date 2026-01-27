@@ -53,171 +53,156 @@ export default function MureedCardPage() {
   }, [id])
 
   const handleDownload = async () => {
-    if (!cardRef.current) return
+    if (!cardRef.current || !mureed) return
     
     try {
       setDownloading(true)
       
-      // Create a clone of the card for download with fixed desktop dimensions
-      const cardElement = cardRef.current
-      const clone = cardElement.cloneNode(true) as HTMLElement
+      // Create a completely new card element with fixed desktop styles inline
+      const downloadCard = document.createElement('div')
+      downloadCard.innerHTML = `
+        <div style="width: 800px; min-width: 800px; background: linear-gradient(to bottom right, #fefefe, #f8f6f0, #f0ebe0); position: relative; overflow: hidden; font-family: system-ui, -apple-system, sans-serif;">
+          <!-- Top Border -->
+          <div style="height: 12px; background: linear-gradient(to right, #1B4332, #D4AF37, #1B4332);"></div>
+          
+          <!-- Watermark -->
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.18;">
+            <img src="/images/logo.png" alt="Watermark" style="width: 550px; height: 550px; object-fit: contain;" crossorigin="anonymous" />
+          </div>
+          
+          <!-- Corner Decorations -->
+          <div style="position: absolute; top: 0; left: 0; width: 96px; height: 96px; border-left: 4px solid rgba(212, 175, 55, 0.3); border-top: 4px solid rgba(212, 175, 55, 0.3); border-radius: 24px 0 0 0; z-index: 5;"></div>
+          <div style="position: absolute; top: 0; right: 0; width: 96px; height: 96px; border-right: 4px solid rgba(212, 175, 55, 0.3); border-top: 4px solid rgba(212, 175, 55, 0.3); border-radius: 0 24px 0 0; z-index: 5;"></div>
+          <div style="position: absolute; bottom: 0; left: 0; width: 96px; height: 96px; border-left: 4px solid rgba(212, 175, 55, 0.3); border-bottom: 4px solid rgba(212, 175, 55, 0.3); border-radius: 0 0 0 24px; z-index: 5;"></div>
+          <div style="position: absolute; bottom: 0; right: 0; width: 96px; height: 96px; border-right: 4px solid rgba(212, 175, 55, 0.3); border-bottom: 4px solid rgba(212, 175, 55, 0.3); border-radius: 0 0 24px 0; z-index: 5;"></div>
+          
+          <div style="padding: 40px; position: relative; z-index: 10;">
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #1B4332;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px;">
+                <div style="padding: 8px; background: linear-gradient(to bottom right, #dcfce7, #fef3c7); border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <img src="/images/logo.png" alt="Logo" style="width: 64px; height: 64px; object-fit: contain;" crossorigin="anonymous" />
+                </div>
+                <h1 style="font-size: 32px; color: #1B4332; margin: 0; font-family: 'Noto Nastaliq Urdu', serif;">طارقی روحانی درسگاہ</h1>
+              </div>
+              <p style="font-size: 18px; color: #4b5563; margin: 0;">Oath Taken Under: <strong style="color: #1B4332;">Sahibzada Shariq Ahmed Tariqi</strong></p>
+              <p style="font-size: 20px; color: #D4AF37; margin-top: 8px; font-family: 'Noto Nastaliq Urdu', serif;">( دامت برکاتہم العالیہ )</p>
+            </div>
+            
+            <!-- Mureed ID Badge -->
+            <div style="text-align: center; margin-bottom: 32px;">
+              <span style="display: inline-block; background: linear-gradient(to right, #1B4332, #14532d, #1B4332); color: white; padding: 12px 24px; border-radius: 9999px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                ✨ Reg. No: Mureed ID - ${mureed.mureedId} ✨
+              </span>
+            </div>
+            
+            <!-- Body - Details and Photo -->
+            <div style="display: flex; flex-direction: row; gap: 32px;">
+              <!-- Details -->
+              <div style="flex: 1; padding: 24px; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 16px;">
+                <div style="border-bottom: 1px solid #fde68a; padding-bottom: 12px; margin-bottom: 12px;">
+                  <span style="font-size: 14px; color: #1B4332; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; background: #D4AF37; border-radius: 50%;"></span>Full Name:
+                  </span>
+                  <p style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 4px 0 0 0;">${mureed.fullName}</p>
+                </div>
+                <div style="border-bottom: 1px solid #fde68a; padding-bottom: 12px; margin-bottom: 12px;">
+                  <span style="font-size: 14px; color: #1B4332; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; background: #D4AF37; border-radius: 50%;"></span>Father Name:
+                  </span>
+                  <p style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 4px 0 0 0;">${mureed.fatherName}</p>
+                </div>
+                <div style="border-bottom: 1px solid #fde68a; padding-bottom: 12px; margin-bottom: 12px;">
+                  <span style="font-size: 14px; color: #1B4332; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; background: #D4AF37; border-radius: 50%;"></span>Date Of Birth:
+                  </span>
+                  <p style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 4px 0 0 0;">${new Date(mureed.dateOfBirth).toISOString().split('T')[0]}</p>
+                </div>
+                <div style="border-bottom: 1px solid #fde68a; padding-bottom: 12px; margin-bottom: 12px;">
+                  <span style="font-size: 14px; color: #1B4332; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; background: #D4AF37; border-radius: 50%;"></span>Country:
+                  </span>
+                  <p style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 4px 0 0 0;">${mureed.country}</p>
+                </div>
+                <div style="border-bottom: 1px solid #fde68a; padding-bottom: 12px; margin-bottom: 12px;">
+                  <span style="font-size: 14px; color: #1B4332; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; background: #D4AF37; border-radius: 50%;"></span>City:
+                  </span>
+                  <p style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 4px 0 0 0;">${mureed.city}</p>
+                </div>
+                <div style="border-bottom: 1px solid #fde68a; padding-bottom: 12px; margin-bottom: 12px;">
+                  <span style="font-size: 14px; color: #1B4332; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; background: #D4AF37; border-radius: 50%;"></span>Address:
+                  </span>
+                  <p style="font-size: 16px; color: #1f2937; margin: 4px 0 0 0;">${mureed.address}</p>
+                </div>
+                <div style="padding-bottom: 8px;">
+                  <span style="font-size: 14px; color: #1B4332; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; background: #D4AF37; border-radius: 50%;"></span>Contact:
+                  </span>
+                  <p style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 4px 0 0 0;">${mureed.contactNumber}</p>
+                </div>
+              </div>
+              
+              <!-- Profile Picture -->
+              <div style="flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 16px;">
+                <div style="position: relative;">
+                  <div style="position: absolute; inset: -8px; background: linear-gradient(to bottom right, #D4AF37, #1B4332, #D4AF37); border-radius: 50%; opacity: 0.75; filter: blur(4px);"></div>
+                  <div style="position: relative; width: 160px; height: 160px; border-radius: 50%; overflow: hidden; border: 4px solid white; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                    <img src="${mureed.profilePicture}" alt="${mureed.fullName}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #1B4332; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <p style="font-size: 14px; color: #1B4332; margin: 0; font-family: 'Noto Nastaliq Urdu', serif;">ہراسلامی ماہ کی چوتھی تاریخ کو شائع کو شیخ شانی و روحانی درس گاہ پر عزائے کا اہتمام کیا جاتا ہے۔</p>
+                <p style="font-size: 14px; color: #D4AF37; margin-top: 8px;">🌐 www.shariqahmedtariqi.com</p>
+              </div>
+              <div style="text-align: center;">
+                <div style="width: 80px; height: 80px; border: 3px solid #1B4332; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(to bottom right, #f0fdf4, white, #fefce8); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <span style="font-size: 32px; color: #1B4332; font-family: 'Noto Nastaliq Urdu', serif;">ش</span>
+                </div>
+                <p style="font-size: 12px; color: #1B4332; margin-top: 8px;">Official Signature</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Bottom Border -->
+          <div style="height: 12px; background: linear-gradient(to right, #1B4332, #D4AF37, #1B4332);"></div>
+        </div>
+      `
       
-      // Create a wrapper div with fixed dimensions
+      // Create wrapper
       const wrapper = document.createElement('div')
-      wrapper.style.cssText = `
-        position: fixed;
-        left: -9999px;
-        top: 0;
-        width: 800px;
-        height: auto;
-        background-color: #ffffff;
-        z-index: -9999;
-        visibility: visible;
-        pointer-events: none;
-      `
-      
-      // Set fixed desktop-like dimensions for consistent download across all devices
-      clone.style.cssText = `
-        width: 800px !important;
-        min-width: 800px !important;
-        max-width: 800px !important;
-        transform: none !important;
-        overflow: visible !important;
-        display: block !important;
-      `
-      
-      // Force desktop styles - override responsive classes
-      // Fix the flex container to use row layout (desktop)
-      clone.querySelectorAll('.flex-col').forEach((el) => {
-        const element = el as HTMLElement
-        if (element.classList.contains('md:flex-row')) {
-          element.style.flexDirection = 'row'
-          element.style.display = 'flex'
-        }
-      })
-      
-      // Fix profile picture order - should be on right (order-last on desktop)
-      const profilePicContainer = clone.querySelector('.order-first') as HTMLElement
-      if (profilePicContainer) {
-        profilePicContainer.style.order = '2'
-      }
-      
-      // Fix details container order
-      clone.querySelectorAll('.flex-1').forEach((el) => {
-        const element = el as HTMLElement
-        element.style.order = '1'
-        element.style.flex = '1'
-      })
-      
-      // Force larger text sizes (desktop)
-      clone.querySelectorAll('.text-xs').forEach((el) => {
-        (el as HTMLElement).style.fontSize = '0.875rem'
-      })
-      clone.querySelectorAll('.text-sm').forEach((el) => {
-        (el as HTMLElement).style.fontSize = '1rem'
-      })
-      clone.querySelectorAll('.text-base').forEach((el) => {
-        (el as HTMLElement).style.fontSize = '1.125rem'
-      })
-      
-      // Force larger profile picture (desktop size)
-      clone.querySelectorAll('.w-24').forEach((el) => {
-        const element = el as HTMLElement
-        if (element.classList.contains('h-24')) {
-          element.style.width = '10rem'
-          element.style.height = '10rem'
-        }
-      })
-      
-      // Force larger logo
-      clone.querySelectorAll('.w-10').forEach((el) => {
-        const element = el as HTMLElement
-        if (element.classList.contains('h-10')) {
-          element.style.width = '4rem'
-          element.style.height = '4rem'
-        }
-      })
-      
-      // Force larger watermark
-      clone.querySelectorAll('img').forEach((el) => {
-        const element = el as HTMLImageElement
-        if (element.classList.contains('w-[280px]') || element.alt === 'Background Watermark') {
-          element.style.width = '550px'
-          element.style.height = '550px'
-        }
-      })
-      
-      // Force larger signature box
-      clone.querySelectorAll('.w-14').forEach((el) => {
-        const element = el as HTMLElement
-        if (element.classList.contains('h-14')) {
-          element.style.width = '5rem'
-          element.style.height = '5rem'
-        }
-      })
-      
-      // Force larger padding on main content
-      clone.querySelectorAll('.p-4').forEach((el) => {
-        const element = el as HTMLElement
-        element.style.padding = '2.5rem'
-      })
-      
-      // Show corner decorations (hidden on mobile)
-      clone.querySelectorAll('.hidden').forEach((el) => {
-        const element = el as HTMLElement
-        if (element.classList.contains('md:block')) {
-          element.style.display = 'block'
-        }
-      })
-      
-      // Force larger margins
-      clone.querySelectorAll('.mb-4').forEach((el) => {
-        (el as HTMLElement).style.marginBottom = '2rem'
-      })
-      clone.querySelectorAll('.mt-4').forEach((el) => {
-        (el as HTMLElement).style.marginTop = '2rem'
-      })
-      clone.querySelectorAll('.pt-4').forEach((el) => {
-        (el as HTMLElement).style.paddingTop = '1.5rem'
-      })
-      clone.querySelectorAll('.pb-4').forEach((el) => {
-        (el as HTMLElement).style.paddingBottom = '1.5rem'
-      })
-      clone.querySelectorAll('.gap-4').forEach((el) => {
-        (el as HTMLElement).style.gap = '2rem'
-      })
-      
-      wrapper.appendChild(clone)
+      wrapper.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 800px; background: white; z-index: -9999;'
+      wrapper.appendChild(downloadCard)
       document.body.appendChild(wrapper)
       
-      // Force reflow and wait for everything to render
-      void wrapper.offsetHeight
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Wait for images to load
+      await new Promise(resolve => setTimeout(resolve, 1500))
       
-      // Get the actual rendered height
-      const actualHeight = clone.getBoundingClientRect().height
+      const cardElement = downloadCard.firstElementChild as HTMLElement
       
-      const canvas = await html2canvas(clone, {
+      const canvas = await html2canvas(cardElement, {
         backgroundColor: '#ffffff',
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
         width: 800,
-        height: Math.ceil(actualHeight),
+        height: cardElement.scrollHeight + 50,
         windowWidth: 800,
-        windowHeight: Math.ceil(actualHeight),
-        foreignObjectRendering: false,
+        windowHeight: cardElement.scrollHeight + 50,
         imageTimeout: 15000,
-        scrollX: 0,
-        scrollY: 0,
       })
       
-      // Remove wrapper from DOM
       document.body.removeChild(wrapper)
       
       const link = document.createElement('a')
-      link.download = `Mureed-Card-${mureed?.mureedId}.png`
+      link.download = `Mureed-Card-${mureed.mureedId}.png`
       link.href = canvas.toDataURL('image/png', 1.0)
       link.click()
       
