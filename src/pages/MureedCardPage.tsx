@@ -158,7 +158,7 @@ export default function MureedCardPage() {
             <!-- Footer -->
             <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #1B4332; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <p style="font-size: 14px; color: #1B4332; margin: 0; font-family: 'Noto Nastaliq Urdu', serif;">ہراسلامی ماہ کی چوتھی تاریخ کو شائع کو شیخ شانی و روحانی درس گاہ پر عزائے کا اہتمام کیا جاتا ہے۔</p>
+                <p style="font-size: 14px; color: #1B4332; margin: 0; font-family: 'Noto Nastaliq Urdu', serif;">ہر اسلامی ماہ کی سترھویں تاریخ کو مرکزی خانقاہ طارقی جہانگیری، نارتھ کراچی میں میاں حضور اور صاحبزادہ و خلیفہ حکیم شارق احمد طارقی کے زیرِ اہتمام ختمِ خواجگان کا باقاعدہ اہتمام کیا جاتا ہے۔</p>
                 <p style="font-size: 14px; color: #D4AF37; margin-top: 8px;">🌐 www.shariqahmedtariqi.com</p>
               </div>
               <div style="text-align: center;">
@@ -442,7 +442,7 @@ export default function MureedCardPage() {
                   <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
                     <div className="text-center md:text-left">
                       <p className="text-xs md:text-sm text-primary-700 font-arabic leading-relaxed">
-                        ہراسلامی ماہ کی چوتھی تاریخ کو شائع کو شیخ شانی و روحانی درس گاہ پر عزائے کا اہتمام کیا جاتا ہے۔
+                        ہر اسلامی ماہ کی سترھویں تاریخ کو مرکزی خانقاہ طارقی جہانگیری، نارتھ کراچی میں میاں حضور اور صاحبزادہ و خلیفہ حکیم شارق احمد طارقی کے زیرِ اہتمام ختمِ خواجگان کا باقاعدہ اہتمام کیا جاتا ہے۔
                       </p>
                       <p className="text-xs md:text-sm text-gold-600 mt-1 md:mt-2 font-medium">
                         🌐 www.shariqahmedtariqi.com
