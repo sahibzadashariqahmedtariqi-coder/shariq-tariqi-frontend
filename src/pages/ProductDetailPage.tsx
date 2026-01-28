@@ -15,7 +15,9 @@ interface Product {
   description: string
   longDescription?: string
   price: number
+  originalPrice?: number
   priceINR?: number
+  originalPriceINR?: number
   category: string
   image: string
   images?: string[]
@@ -248,12 +250,29 @@ export default function ProductDetailPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Original Price with strikethrough */}
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="text-xl text-gray-400 line-through">
+                    Rs.{product.originalPrice.toLocaleString()} PKR
+                  </span>
+                )}
+                
+                {/* Current Price */}
                 <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                  PKR {purchaseType === 'pdf' && product.pdfPrice 
-                    ? product.pdfPrice.toLocaleString() 
-                    : product.price.toLocaleString()}
+                  Rs.{(purchaseType === 'pdf' && product.pdfPrice 
+                    ? product.pdfPrice 
+                    : product.price).toLocaleString()} PKR
                 </div>
+                
+                {/* Discount Badge - Biyaas Style */}
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-bold shadow-lg">
+                    {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%Off
+                  </span>
+                )}
+                
+                {/* Stock Badge */}
                 {purchaseType === 'hardcopy' ? (
                   product.stock > 0 ? (
                     <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-sm font-semibold">
@@ -272,34 +291,48 @@ export default function ProductDetailPage() {
               </div>
               
               {product.priceINR && (
-                <div className="text-2xl font-bold text-orange-500 dark:text-orange-400">
-                  🇮🇳 ₹{purchaseType === 'pdf' && product.pdfPriceINR 
-                    ? product.pdfPriceINR.toLocaleString() 
-                    : product.priceINR.toLocaleString()}
+                <div className="flex items-center gap-2 flex-wrap mt-2">
+                  {/* Original INR Price */}
+                  {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
+                    <span className="text-lg text-gray-400 line-through">
+                      ₹{product.originalPriceINR.toLocaleString()}
+                    </span>
+                  )}
+                  <div className="text-2xl font-bold text-orange-500 dark:text-orange-400">
+                    IN ₹{(purchaseType === 'pdf' && product.pdfPriceINR 
+                      ? product.pdfPriceINR 
+                      : product.priceINR).toLocaleString()}
+                  </div>
                 </div>
               )}
 
-              {/* PDF Only Book - No Hard Copy Available */}
+              {/* PDF Only Book - Compact & Attractive */}
               {product.category === 'books' && product.isPdfOnly && (
-                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30 p-6 rounded-2xl border-2 border-blue-300 dark:border-blue-700 shadow-lg">
-                  <div className="text-center">
-                    <div className="text-5xl mb-3">📱</div>
-                    <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300 mb-2">PDF Only</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">This book is only available in digital format</p>
-                    <div className="space-y-2">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        🇵🇰 PKR {(product.pdfPrice || product.price).toLocaleString()}
+                <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-700 shadow-md">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-lg shadow-lg">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300">PDF Only</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Digital format only</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                        PK PKR {(product.pdfPrice || product.price).toLocaleString()}
                       </div>
                       {(product.pdfPriceINR || product.priceINR) && (
-                        <div className="text-xl font-bold text-orange-500 dark:text-orange-400">
-                          🇮🇳 ₹{(product.pdfPriceINR || product.priceINR)?.toLocaleString()}
+                        <div className="text-sm font-bold text-orange-500">
+                          IN ₹{(product.pdfPriceINR || product.priceINR)?.toLocaleString()}
                         </div>
                       )}
                     </div>
-                    <p className="text-sm text-green-600 dark:text-green-400 mt-3 flex items-center justify-center gap-2">
-                      <span>⚡</span> PDF will be sent via WhatsApp after payment
-                    </p>
                   </div>
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1.5">
+                    <span>⚡</span> PDF will be sent via WhatsApp after payment
+                  </p>
                 </div>
               )}
 
