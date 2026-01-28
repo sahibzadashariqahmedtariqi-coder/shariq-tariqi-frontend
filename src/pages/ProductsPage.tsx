@@ -8,15 +8,9 @@ import toast from 'react-hot-toast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import { getOptimizedImageUrl } from '@/lib/cloudinaryOptimize'
 
-// Helper function to get viewable PDF URL
-// For actual PDFs, use Google Docs viewer. For images, use direct URL
-const getViewablePdfUrl = (url: string | undefined): string => {
+// PDFs now work directly since Cloudinary PDF delivery is enabled
+const getPdfUrl = (url: string | undefined): string => {
   if (!url) return ''
-  // If it's an actual PDF file, use Google Docs viewer
-  if (url.endsWith('.pdf')) {
-    return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
-  }
-  // For images (jpg, png), return direct URL
   return url
 }
 
@@ -298,7 +292,7 @@ export default function ProductsPage() {
                         {product.pdfUrl && (
                           <div className="flex gap-2">
                             <a 
-                              href={getViewablePdfUrl(product.pdfUrl)}
+                              href={getPdfUrl(product.pdfUrl)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-lg flex-1 font-semibold transition-colors"
@@ -307,7 +301,7 @@ export default function ProductsPage() {
                               View
                             </a>
                             <button
-                              onClick={() => handleDownloadPdf(product.pdfUrl!, product.name)}
+                              onClick={() => handleDownloadPdf(getPdfUrl(product.pdfUrl!), product.name)}
                               className="inline-flex items-center justify-center gap-1 bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-2 rounded-lg flex-1 font-semibold transition-colors"
                             >
                               <Download className="h-3 w-3" />
