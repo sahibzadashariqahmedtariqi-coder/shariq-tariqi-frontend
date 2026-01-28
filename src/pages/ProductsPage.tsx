@@ -362,9 +362,9 @@ export default function ProductsPage() {
                           />
                         )}
                         
-                        {/* Discount Badge - Top Left */}
+                        {/* Discount Badge - Top Left - White Style */}
                         {product.originalPrice && product.originalPrice > product.price && (
-                          <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 text-[10px] sm:text-xs font-bold shadow-md z-10">
+                          <div className="absolute top-3 left-3 bg-white text-gray-800 px-3 py-1.5 text-[11px] sm:text-xs font-bold shadow-lg rounded-full z-10 border border-gray-100">
                             {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% Off
                           </div>
                         )}
