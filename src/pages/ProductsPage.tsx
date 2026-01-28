@@ -9,14 +9,10 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import { getOptimizedImageUrl } from '@/lib/cloudinaryOptimize'
 
 // Helper function to fix Cloudinary PDF URLs
-// Cloudinary stores PDFs with image/upload but they need raw/upload to work properly
+// PDFs uploaded via Cloudinary need fl_attachment flag for download
 const fixPdfUrl = (url: string | undefined): string => {
   if (!url) return ''
-  // Convert image/upload to raw/upload for PDF files
-  if (url.includes('cloudinary.com') && url.endsWith('.pdf')) {
-    return url.replace('/image/upload/', '/raw/upload/')
-  }
-  return url
+  return url // Return original URL - Cloudinary PDFs work with image/upload path
 }
 
 interface Product {
