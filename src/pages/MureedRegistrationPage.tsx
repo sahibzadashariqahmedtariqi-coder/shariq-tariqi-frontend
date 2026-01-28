@@ -427,12 +427,12 @@ export default function MureedRegistrationPage() {
       </section>
 
       {/* Registration Form Section */}
-      <section className="relative py-10 sm:py-16 bg-gray-50 dark:bg-gray-900 overflow-hidden">
+      <section className="relative py-10 sm:py-16 overflow-hidden">
         {/* Section Background Image */}
         <div 
-          className="absolute inset-0 opacity-[0.15] dark:opacity-[0.08] pointer-events-none"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: 'url(https://res.cloudinary.com/du7qzhimu/image/upload/v1769593982/shariq-website/products/kot50flxk9xv0gg35fvr.jpg)',
+            backgroundImage: 'url(https://res.cloudinary.com/du7qzhimu/image/upload/v1769616539/shariq-website/products/ka2xb9wez7tgjvdfdrjk.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
