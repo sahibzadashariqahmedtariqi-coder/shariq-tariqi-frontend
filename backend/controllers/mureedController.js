@@ -27,8 +27,17 @@ export const registerMureed = async (req, res) => {
       });
     }
 
-    // Check if contact number already exists
-    const existingMureed = await Mureed.findOne({ contactNumber });
+    // Normalize contact number - extract last 10 digits for comparison
+    const normalizedNumber = contactNumber.replace(/\D/g, '').slice(-10);
+    
+    // Check if contact number already exists (check both with and without country code)
+    const existingMureed = await Mureed.findOne({
+      $or: [
+        { contactNumber: contactNumber },
+        { contactNumber: { $regex: normalizedNumber + '$' } }
+      ]
+    });
+    
     if (existingMureed) {
       return res.status(400).json({
         success: false,

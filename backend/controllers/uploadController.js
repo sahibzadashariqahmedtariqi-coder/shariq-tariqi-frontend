@@ -120,11 +120,14 @@ export const uploadPdf = async (req, res, next) => {
 
     const result = await uploadPromise;
 
+    // Use original Cloudinary URL - PDFs work with image/upload path
+    const pdfUrl = result.secure_url;
+
     res.status(200).json({
       success: true,
       message: 'PDF uploaded successfully',
       data: {
-        url: result.secure_url,
+        url: pdfUrl,
         publicId: result.public_id,
         format: result.format,
         size: result.bytes,

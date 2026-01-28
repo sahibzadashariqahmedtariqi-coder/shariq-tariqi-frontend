@@ -456,15 +456,6 @@ export default function ProductDetailPage() {
                 }
               </Button>
 
-              {/* Contact for Order */}
-              <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white p-6 rounded-xl">
-                <p className="text-center font-semibold mb-2">
-                  For orders, please contact us:
-                </p>
-                <p className="text-center text-xl font-bold">
-                  +92 318 2392985
-                </p>
-              </div>
             </motion.div>
           </div>
 
