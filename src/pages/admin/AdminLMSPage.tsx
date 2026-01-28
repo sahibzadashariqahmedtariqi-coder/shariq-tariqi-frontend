@@ -2836,7 +2836,14 @@ const CertificatePreview = ({ certificate, onClose }: { certificate: any; onClos
                     className="text-center flex-1"
                     whileHover={{ scale: 1.05 }}
                   >
-                    <div className="w-32 border-b-2 border-gray-400 mb-1 mx-auto" />
+                    {/* Signature Box with Certificate Theme Colors */}
+                    <div className="w-28 h-14 mx-auto mb-1 border border-amber-300 rounded-lg flex items-center justify-center bg-gradient-to-br from-amber-50/80 via-white to-emerald-50/50 shadow-sm overflow-hidden p-1">
+                      <img 
+                        src="https://res.cloudinary.com/du7qzhimu/image/upload/v1769580381/shariq-website/products/pc9szshbrztkx4k9iki5.png" 
+                        alt="Signature" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
                     <p className="text-xs font-semibold text-gray-700">
                       {certificate?.instructorName || 'Sahibzada Shariq Ahmed Tariqi'}
                     </p>
