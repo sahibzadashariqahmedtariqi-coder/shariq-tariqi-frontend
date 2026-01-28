@@ -427,8 +427,19 @@ export default function MureedRegistrationPage() {
       </section>
 
       {/* Registration Form Section */}
-      <section className="py-10 sm:py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-3 sm:px-4">
+      <section className="relative py-10 sm:py-16 bg-gray-50 dark:bg-gray-900 overflow-hidden">
+        {/* Section Background Image */}
+        <div 
+          className="absolute inset-0 opacity-[0.15] dark:opacity-[0.08] pointer-events-none"
+          style={{
+            backgroundImage: 'url(https://res.cloudinary.com/du7qzhimu/image/upload/v1769593982/shariq-website/products/kot50flxk9xv0gg35fvr.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+        
+        <div className="relative container mx-auto px-3 sm:px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -436,25 +447,14 @@ export default function MureedRegistrationPage() {
             className="max-w-3xl mx-auto"
           >
             {/* Form Card */}
-            <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
-              {/* Background Image */}
-              <div 
-                className="absolute inset-0 opacity-[0.08] dark:opacity-[0.05] pointer-events-none"
-                style={{
-                  backgroundImage: 'url(https://res.cloudinary.com/du7qzhimu/image/upload/v1769593982/shariq-website/products/kot50flxk9xv0gg35fvr.jpg)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}
-              />
-              
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
               {/* Form Header */}
-              <div className="relative bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6">
+              <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6">
                 <h2 className="text-2xl font-bold text-white">Mureed Registration Form</h2>
                 <p className="text-primary-100">Fill in your details to receive your Mureed Card</p>
               </div>
 
-              <form onSubmit={handleSubmit} className="relative p-8 space-y-6">
+              <form onSubmit={handleSubmit} className="p-8 space-y-6">
                 {/* Name Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
