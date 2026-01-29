@@ -1454,7 +1454,7 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
   const [enrollmentClasses, setEnrollmentClasses] = useState<any>(null);
   const [loadingClasses, setLoadingClasses] = useState(false);
 
-  const enrolledUserIds = enrollments.map(e => e.user._id);
+  const enrolledUserIds = enrollments.filter(e => e.user).map(e => e.user._id);
   const availableUsers = users.filter((u: any) =>
     !enrolledUserIds.includes(u._id) &&
     u.lmsAccessEnabled !== false &&
@@ -3117,14 +3117,14 @@ const IssueCertificateModal = ({
                       ? 'Loading students...' 
                       : 'Choose a student...'}
                 </option>
-                {(courseEnrollments || []).map((enrollment: any) => (
+                {(courseEnrollments || []).filter((e: any) => e.user).map((enrollment: any) => (
                   <option key={enrollment._id} value={enrollment.user?._id}>
                     {enrollment.user?.name} ({enrollment.user?.email})
                     {enrollment.certificateIssued ? ' ✓ Has Certificate' : ''}
                   </option>
                 ))}
               </select>
-              {selectedCourse && !loadingEnrollments && (courseEnrollments || []).length === 0 && (
+              {selectedCourse && !loadingEnrollments && (courseEnrollments || []).filter((e: any) => e.user).length === 0 && (
                 <p className="text-sm text-amber-600 mt-1">
                   No students enrolled in this course yet
                 </p>
