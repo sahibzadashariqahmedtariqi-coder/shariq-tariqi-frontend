@@ -94,12 +94,20 @@ export const getCourseEnrollments = async (req, res) => {
         const user = enrollment.user;
         let feeDefaulter = false;
 
-        if (user.isPaidStudent) {
+        // Only check if user exists and is a paid student
+        if (user && user.isPaidStudent) {
           const now = new Date();
+          const currentMonth = now.getMonth() + 1; // 1-12
+          const currentYear = now.getFullYear();
+          
+          // Check for pending fees from previous months
           const overdueFees = await FeePayment.countDocuments({
             student: user._id,
             status: 'pending',
-            dueDate: { $lt: now }
+            $or: [
+              { year: { $lt: currentYear } },
+              { year: currentYear, month: { $lt: currentMonth } }
+            ]
           });
           feeDefaulter = overdueFees > 0;
         }
@@ -118,7 +126,7 @@ export const getCourseEnrollments = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching enrollments:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

@@ -1587,14 +1587,14 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-500 border-t-transparent mx-auto mb-2" />
               <p className="text-gray-500">Loading enrollments...</p>
             </div>
-          ) : enrollments.length === 0 ? (
+          ) : enrollments.filter(e => e.user).length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
               <p>No students enrolled yet</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {enrollments.map((enrollment) => (
+              {enrollments.filter(e => e.user).map((enrollment) => (
                 <div
                   key={enrollment._id}
                   className={`rounded-lg border overflow-hidden ${
