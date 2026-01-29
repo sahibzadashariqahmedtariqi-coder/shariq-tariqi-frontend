@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Package, Clock, CheckCircle, XCircle, Sparkles } from 'lucide-react';
+import { Search, Package, Clock, CheckCircle, XCircle, Sparkles, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import { format } from 'date-fns';
@@ -12,6 +12,7 @@ interface Order {
   customerName: string;
   customerEmail: string;
   amount: number;
+  currency?: string;
   paymentStatus: string;
   createdAt: string;
   paymentProof?: string;
@@ -19,6 +20,8 @@ interface Order {
   rejectionReason?: string;
   adminNotes?: string;
   verifiedAt?: string;
+  purpose?: string;
+  donorMessage?: string;
 }
 
 const TrackOrderPage = () => {
@@ -128,7 +131,7 @@ const TrackOrderPage = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-700 via-primary-600 to-primary-800 mb-3">
             Track Your Order
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">Enter your order number to check payment status</p>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">Enter your order or donation number to check status</p>
         </motion.div>
 
         {/* Search Form */}
@@ -144,7 +147,7 @@ const TrackOrderPage = () => {
                 type="text"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
-                placeholder="Enter Order Number (e.g., C12345678901)"
+                placeholder="Enter Order/Donation Number (e.g., DON-2601-0002)"
                 className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white text-lg transition-all"
               />
             </div>
@@ -249,19 +252,28 @@ const TrackOrderPage = () => {
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-sm text-gray-600 mb-1">Amount</p>
-                    <p className="font-bold text-xl text-emerald-600">Rs. {order.amount.toLocaleString()}</p>
+                    <p className="font-bold text-xl text-emerald-600">
+                      {order.currency === 'INR' ? '₹' : 'Rs.'} {order.amount.toLocaleString()}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Item Details */}
               <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Item Details</h3>
-                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                  <p className="text-sm text-emerald-600 font-medium mb-1">
-                    {order.orderType === 'course' ? 'Course' : order.orderType === 'product' ? 'Product' : 'Service'}
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {order.orderType === 'donation' ? 'Donation Details' : 'Item Details'}
+                </h3>
+                <div className={`${order.orderType === 'donation' ? 'bg-gold-50 border-gold-200' : 'bg-emerald-50 border-emerald-200'} border rounded-lg p-4`}>
+                  <p className={`text-sm font-medium mb-1 ${order.orderType === 'donation' ? 'text-gold-600' : 'text-emerald-600'}`}>
+                    {order.orderType === 'donation' ? (
+                      <span className="flex items-center gap-1"><Heart className="w-4 h-4" /> Donation</span>
+                    ) : order.orderType === 'course' ? 'Course' : order.orderType === 'product' ? 'Product' : 'Service'}
                   </p>
                   <p className="text-lg font-semibold text-gray-900">{order.itemTitle}</p>
+                  {order.donorMessage && (
+                    <p className="text-sm text-gray-600 mt-2 italic">"{order.donorMessage}"</p>
+                  )}
                 </div>
               </div>
 

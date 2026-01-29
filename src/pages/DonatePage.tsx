@@ -1070,6 +1070,7 @@ export default function DonatePage() {
                     <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                       <CheckCircle2 className="w-14 h-14 text-primary-500" />
                     </div>
+                    <p className="text-gray-200 text-lg mb-1">Dear {isAnonymous ? 'Generous Donor' : donorName},</p>
                     <h1 className="text-3xl font-bold text-white mb-2">JazakAllah Khair!</h1>
                     <p className="text-gray-200 text-lg">Your donation has been received</p>
                   </motion.div>
@@ -1106,7 +1107,10 @@ export default function DonatePage() {
                     <div className="space-y-3">
                       <div className="flex justify-between items-center py-2 border-b border-gray-200">
                         <span className="text-gray-600">Donation Number:</span>
-                        <span className="font-bold text-primary-600">{donationNumber}</span>
+                        <div className="text-right">
+                          <span className="font-bold text-primary-600">{donationNumber}</span>
+                          <p className="text-xs text-gray-500">(Tracking ID: {donationNumber})</p>
+                        </div>
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-gray-200">
                         <span className="text-gray-600">Amount:</span>
@@ -1120,12 +1124,17 @@ export default function DonatePage() {
                           {donationPurposes.find(p => p.id === purpose)?.label}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-2">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-200">
                         <span className="text-gray-600">Status:</span>
                         <span className="flex items-center gap-2 text-amber-600 font-medium">
                           <Clock className="w-4 h-4" />
                           Pending Verification
                         </span>
+                      </div>
+                      <div className="bg-primary-50 rounded-lg p-3 mt-4">
+                        <p className="text-sm text-primary-700 text-center">
+                          📍 Track your donation: Go to <span className="font-semibold">Track Order</span> and enter <span className="font-mono bg-white px-2 py-0.5 rounded">{donationNumber}</span>
+                        </p>
                       </div>
                     </div>
                   </div>
