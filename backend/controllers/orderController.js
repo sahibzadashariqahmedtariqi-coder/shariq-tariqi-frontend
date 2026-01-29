@@ -381,18 +381,48 @@ export const trackOrder = async (req, res, next) => {
   try {
     const { orderNumber } = req.params;
 
-    const order = await Order.findOne({ orderNumber });
+    // First try to find in orders
+    let order = await Order.findOne({ orderNumber });
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found. Please check your order number.',
+    if (order) {
+      return res.status(200).json({
+        success: true,
+        data: order,
       });
     }
 
-    res.status(200).json({
-      success: true,
-      data: order,
+    // If not found in orders, try to find in donations
+    const Donation = (await import('../models/Donation.js')).default;
+    const donation = await Donation.findOne({ donationNumber: orderNumber });
+
+    if (donation) {
+      // Transform donation to match order structure for frontend
+      return res.status(200).json({
+        success: true,
+        data: {
+          _id: donation._id,
+          orderNumber: donation.donationNumber,
+          orderType: 'donation',
+          itemTitle: `Donation - ${donation.purpose.charAt(0).toUpperCase() + donation.purpose.slice(1)}`,
+          customerName: donation.donorName,
+          customerEmail: donation.donorEmail,
+          amount: donation.amount,
+          currency: donation.currency,
+          paymentStatus: donation.paymentStatus,
+          createdAt: donation.createdAt,
+          paymentProof: donation.paymentProof,
+          transactionId: donation.transactionId,
+          rejectionReason: donation.rejectionReason,
+          verifiedAt: donation.verifiedAt,
+          purpose: donation.purpose,
+          donorMessage: donation.donorMessage,
+        },
+      });
+    }
+
+    return res.status(404).json({
+      success: false,
+      message: 'Order/Donation not found. Please check your tracking number.',
     });
   } catch (error) {
     next(error);

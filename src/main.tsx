@@ -7,6 +7,33 @@ import { Toaster } from 'react-hot-toast'
 import App from './App.tsx'
 import './index.css'
 
+// Handle chunk loading errors (happens after new deployment)
+window.addEventListener('error', (event) => {
+  if (
+    event.message?.includes('Failed to fetch dynamically imported module') ||
+    event.message?.includes('Failed to load module script') ||
+    event.message?.includes('Importing a module script failed')
+  ) {
+    // Clear cache and reload
+    if ('caches' in window) {
+      caches.keys().then((names) => {
+        names.forEach((name) => caches.delete(name))
+      })
+    }
+    window.location.reload()
+  }
+})
+
+// Also handle unhandled promise rejections for dynamic imports
+window.addEventListener('unhandledrejection', (event) => {
+  if (
+    event.reason?.message?.includes('Failed to fetch dynamically imported module') ||
+    event.reason?.message?.includes('Failed to load module script')
+  ) {
+    window.location.reload()
+  }
+})
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
