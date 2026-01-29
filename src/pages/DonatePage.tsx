@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { 
   Heart, Gift, HandHeart, Upload, CheckCircle2, Clock, 
   Download, Sparkles, Star, Users, BookOpen,
-  Home, Utensils, GraduationCap, Building2
+  Home, Utensils, GraduationCap, Building2, Receipt
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { apiClient } from '@/services/api'
@@ -1054,12 +1054,16 @@ export default function DonatePage() {
               className="max-w-2xl mx-auto"
             >
               {/* Receipt Card */}
-              <div ref={receiptRef} className="bg-white rounded-2xl shadow-xl overflow-hidden">
+              <div ref={receiptRef} className="bg-gradient-to-b from-amber-50 to-white rounded-3xl shadow-2xl overflow-hidden border border-gold-200">
                 {/* Header with Pattern */}
-                <div className="relative bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 px-8 py-12 text-center overflow-hidden">
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
+                <div className="relative bg-gradient-to-r from-primary-700 via-primary-600 to-primary-700 px-8 py-14 text-center overflow-hidden">
+                  {/* Decorative Pattern */}
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23D4AF37" fill-opacity="0.5"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
                   </div>
+                  
+                  {/* Glowing Effect */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gold-400/30 rounded-full blur-3xl"></div>
                   
                   <motion.div
                     initial={{ scale: 0 }}
@@ -1067,104 +1071,125 @@ export default function DonatePage() {
                     transition={{ delay: 0.2, type: 'spring' }}
                     className="relative z-10"
                   >
-                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <CheckCircle2 className="w-14 h-14 text-primary-500" />
-                    </div>
-                    <p className="text-gray-200 text-lg mb-1">Dear {isAnonymous ? 'Generous Donor' : donorName},</p>
-                    <h1 className="text-3xl font-bold text-white mb-2">JazakAllah Khair!</h1>
+                    {/* Golden Checkmark Circle */}
+                    <motion.div 
+                      animate={{ boxShadow: ['0 0 20px rgba(212, 175, 55, 0.5)', '0 0 40px rgba(212, 175, 55, 0.8)', '0 0 20px rgba(212, 175, 55, 0.5)'] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-28 h-28 bg-gradient-to-br from-gold-400 via-gold-500 to-gold-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-2xl"
+                    >
+                      <CheckCircle2 className="w-16 h-16 text-white" />
+                    </motion.div>
+                    <p className="text-gold-300 text-xl mb-2 font-medium">Dear {isAnonymous ? 'Generous Donor' : donorName},</p>
+                    <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">JazakAllah Khair!</h1>
                     <p className="text-gray-200 text-lg">Your donation has been received</p>
                   </motion.div>
                 </div>
 
                 {/* Appreciation Message */}
-                <div className="px-8 py-8 bg-gradient-to-b from-primary-50 to-white">
+                <div className="px-8 py-8 bg-gradient-to-b from-gold-50/50 to-white">
                   <div className="text-center mb-8">
-                    <div className="flex justify-center gap-1 mb-4">
+                    <motion.div 
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="flex justify-center gap-1 mb-4"
+                    >
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-6 h-6 text-gold-500 fill-gold-500" />
+                        <Star key={i} className="w-7 h-7 text-gold-500 fill-gold-500 drop-shadow-md" />
                       ))}
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                    </motion.div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-700 via-gold-600 to-primary-700 bg-clip-text text-transparent mb-3">
                       May Allah Bless You Abundantly
                     </h2>
-                    <p className="text-gray-600 max-w-md mx-auto">
+                    <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
                       Your generosity is a beacon of hope. The rewards of charity are multiplied manifold, 
                       and your kindness will surely be rewarded in this life and the hereafter.
                     </p>
                   </div>
 
                   {/* Quranic Verse */}
-                  <div className="bg-white rounded-xl p-6 border border-primary-100 shadow-sm mb-6">
-                    <p className="text-primary-800 italic text-center text-lg">
+                  <div className="bg-gradient-to-r from-primary-50 via-white to-primary-50 rounded-2xl p-6 border-2 border-gold-200 shadow-lg mb-6 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-16 h-16 bg-gold-400/10 rounded-full -translate-x-8 -translate-y-8"></div>
+                    <div className="absolute bottom-0 right-0 w-16 h-16 bg-gold-400/10 rounded-full translate-x-8 translate-y-8"></div>
+                    <p className="text-primary-800 italic text-center text-lg relative z-10 leading-relaxed">
                       "Those who spend their wealth in the way of Allah and then do not follow up what they have spent with reminders or injury will have their reward with their Lord, and there will be no fear concerning them, nor will they grieve."
                     </p>
-                    <p className="text-primary-600 text-center mt-2 font-semibold">- Quran 2:262</p>
+                    <p className="text-gold-600 text-center mt-3 font-bold text-lg">- Quran 2:262</p>
                   </div>
 
                   {/* Donation Details */}
-                  <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                    <h3 className="font-semibold text-gray-900 mb-4 text-center">Donation Details</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Donation Number:</span>
+                  <div className="bg-gradient-to-br from-gray-50 to-gold-50/30 rounded-2xl p-6 mb-6 border border-gold-100 shadow-md">
+                    <h3 className="font-bold text-gray-900 mb-5 text-center text-lg flex items-center justify-center gap-2">
+                      <Receipt className="w-5 h-5 text-gold-600" />
+                      Donation Details
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-3 border-b border-gold-200/50 bg-white/50 rounded-lg px-4">
+                        <span className="text-gray-600 font-medium">Donation Number:</span>
                         <div className="text-right">
-                          <span className="font-bold text-primary-600">{donationNumber}</span>
-                          <p className="text-xs text-gray-500">(Tracking ID: {donationNumber})</p>
+                          <span className="font-bold text-primary-600 text-lg">{donationNumber}</span>
+                          <p className="text-xs text-gold-600 font-medium">(Tracking ID)</p>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Amount:</span>
-                        <span className="font-bold text-gray-900">
+                      <div className="flex justify-between items-center py-3 border-b border-gold-200/50 bg-white/50 rounded-lg px-4">
+                        <span className="text-gray-600 font-medium">Amount:</span>
+                        <span className="font-bold text-2xl bg-gradient-to-r from-primary-600 to-gold-600 bg-clip-text text-transparent">
                           {currency === 'PKR' ? 'Rs.' : '₹'} {finalAmount.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Purpose:</span>
-                        <span className="font-medium text-gray-900">
+                      <div className="flex justify-between items-center py-3 border-b border-gold-200/50 bg-white/50 rounded-lg px-4">
+                        <span className="text-gray-600 font-medium">Purpose:</span>
+                        <span className="font-semibold text-gray-800 bg-gold-100 px-3 py-1 rounded-full">
                           {donationPurposes.find(p => p.id === purpose)?.label}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Status:</span>
-                        <span className="flex items-center gap-2 text-amber-600 font-medium">
-                          <Clock className="w-4 h-4" />
+                      <div className="flex justify-between items-center py-3 bg-amber-50 rounded-lg px-4">
+                        <span className="text-gray-600 font-medium">Status:</span>
+                        <span className="flex items-center gap-2 text-amber-600 font-bold">
+                          <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}>
+                            <Clock className="w-5 h-5" />
+                          </motion.div>
                           Pending Verification
                         </span>
                       </div>
-                      <div className="bg-primary-50 rounded-lg p-3 mt-4">
-                        <p className="text-sm text-primary-700 text-center">
-                          📍 Track your donation: Go to <span className="font-semibold">Track Order</span> and enter <span className="font-mono bg-white px-2 py-0.5 rounded">{donationNumber}</span>
+                      <div className="bg-gradient-to-r from-primary-100 to-gold-100 rounded-xl p-4 mt-4 border border-primary-200">
+                        <p className="text-sm text-primary-800 text-center font-medium">
+                          📍 Track your donation: Go to <span className="font-bold text-gold-700">Track Order</span> and enter <span className="font-mono bg-white px-2 py-1 rounded-lg shadow-sm font-bold">{donationNumber}</span>
                         </p>
                       </div>
                     </div>
                   </div>
 
                   {/* Special Thanks */}
-                  <div className="text-center py-6">
-                    <Sparkles className="w-8 h-8 text-gold-500 mx-auto mb-3" />
-                    <p className="text-gray-700 font-medium">
+                  <div className="text-center py-6 relative">
+                    <motion.div
+                      animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.2, 1] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      <Sparkles className="w-10 h-10 text-gold-500 mx-auto mb-4 drop-shadow-lg" />
+                    </motion.div>
+                    <p className="text-gray-800 font-semibold text-lg">
                       We are grateful for your support and trust in our mission.
                     </p>
-                    <p className="text-gray-500 text-sm mt-2">
-                      May Allah reward you with the best of rewards.
+                    <p className="text-gold-600 text-sm mt-2 font-medium">
+                      ✨ May Allah reward you with the best of rewards ✨
                     </p>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="bg-primary-800 px-8 py-4 text-center">
-                  <p className="text-primary-200 text-sm">
+                <div className="bg-gradient-to-r from-primary-800 via-primary-700 to-primary-800 px-8 py-5 text-center">
+                  <p className="text-gold-300 text-sm font-medium">
                     Sahibzada Shariq Ahmed Tariqi - Spiritual Healing & Guidance
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-4 mt-6">
+              <div className="flex gap-4 mt-8">
                 <Button
                   onClick={handleDownloadReceipt}
                   disabled={downloadingReceipt}
-                  className="flex-1 bg-primary-600 hover:bg-primary-700"
+                  className="flex-1 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white shadow-lg shadow-gold-500/30 font-semibold py-6"
                 >
                   {downloadingReceipt ? (
                     <Clock className="w-5 h-5 animate-spin mr-2" />
@@ -1176,7 +1201,7 @@ export default function DonatePage() {
                 <Button
                   onClick={() => window.location.href = '/'}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 border-2 border-primary-600 text-primary-700 hover:bg-primary-50 font-semibold py-6"
                 >
                   Return Home
                 </Button>
