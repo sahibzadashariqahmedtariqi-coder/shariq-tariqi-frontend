@@ -120,8 +120,8 @@ export default function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Full Width Image Carousel - WITHOUT Text Overlay */}
-      <div className="relative w-full h-[280px] md:h-[350px] lg:h-[400px] bg-gradient-to-b from-primary-900 to-primary-800">
+      {/* Full Width Image Carousel - Full Screen Hero like sjulia.com */}
+      <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[85vh] bg-gradient-to-b from-primary-900 to-primary-800">
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-400"></div>
@@ -146,21 +146,21 @@ export default function HeroSection() {
                 <img
                   src={slide.image}
                   alt={slide.title || `Sahibzada Shariq Ahmed Tariqi - Slide ${index + 1}`}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                 />
               </motion.div>
             ))}
 
             {/* Navigation Dots */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+            <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20">
               {slides.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`h-3 rounded-full transition-all duration-300 ${
+                  className={`h-2 sm:h-3 rounded-full transition-all duration-300 ${
                     currentImageIndex === index
-                      ? 'w-12 bg-gold-400 shadow-lg'
-                      : 'w-3 bg-white/50 hover:bg-white/80 hover:w-6'
+                      ? 'w-8 sm:w-12 bg-gold-400 shadow-lg'
+                      : 'w-2 sm:w-3 bg-white/50 hover:bg-white/80 hover:w-4 sm:hover:w-6'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
