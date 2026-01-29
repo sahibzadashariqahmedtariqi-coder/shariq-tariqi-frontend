@@ -364,18 +364,28 @@ export default function DonatePage() {
               transition={{ duration: 0.8 }}
               className="text-center"
             >
-              {/* Animated Heart Icon */}
+              {/* Animated Heart Icon with Urdu Text */}
               <motion.div
                 animate={{ 
-                  scale: [1, 1.2, 1],
+                  scale: [1, 1.1, 1],
                 }}
                 transition={{ 
                   duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="inline-block mb-4 sm:mb-6"
+                className="inline-flex items-center gap-3 sm:gap-6 mb-4 sm:mb-6"
               >
+                {/* Left Text - خلق */}
+                <motion.span 
+                  className="text-3xl sm:text-5xl md:text-6xl font-bold text-gold-400 font-urdu"
+                  style={{ fontFamily: "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif" }}
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  خلقِ
+                </motion.span>
+                
                 <div className="relative">
                   <Heart className="w-12 h-12 sm:w-20 sm:h-20 text-gold-400 fill-gold-400" />
                   <motion.div
@@ -386,6 +396,16 @@ export default function DonatePage() {
                     <Heart className="w-12 h-12 sm:w-20 sm:h-20 text-gold-400" />
                   </motion.div>
                 </div>
+                
+                {/* Right Text - خدمتِ */}
+                <motion.span 
+                  className="text-3xl sm:text-5xl md:text-6xl font-bold text-gold-400 font-urdu"
+                  style={{ fontFamily: "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif" }}
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  خدمتِ
+                </motion.span>
               </motion.div>
               
               <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
