@@ -13,7 +13,7 @@ export default function HomePage() {
         <title>Sahibzada Shariq Ahmed Tariqi | Spiritual Healing & Islamic Knowledge</title>
         <meta
           name="description"
-          content="Discover spiritual healing, TAQ healing, traditional Hikmat, and Islamic knowledge with Sahibzada Shariq Ahmed Tariqi."
+          content="Discover spiritual healing, traditional Hikmat, and Islamic knowledge with Sahibzada Shariq Ahmed Tariqi."
         />
       </Helmet>
 
