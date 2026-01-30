@@ -146,8 +146,7 @@ export default function HeroSection() {
                 <img
                   src={slide.image}
                   alt={slide.title || `Sahibzada Shariq Ahmed Tariqi - Slide ${index + 1}`}
-                  className="w-full h-full object-contain"
-                  style={{ backgroundColor: '#1a1a1a' }}
+                  className="w-full h-full object-cover object-center"
                 />
               </motion.div>
             ))}
