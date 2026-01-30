@@ -120,8 +120,8 @@ export default function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Full Width Image Carousel - Images fit completely */}
-      <div className="relative w-full h-[220px] sm:h-[280px] md:h-[380px] lg:h-[450px] xl:h-[500px] bg-[#1a1a1a]">
+      {/* Full Width Image Carousel - Aspect ratio based for complete image visibility */}
+      <div className="relative w-full aspect-[16/9] max-h-[500px] bg-[#1a1a1a]">
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-400"></div>
@@ -146,7 +146,7 @@ export default function HeroSection() {
                 <img
                   src={slide.image}
                   alt={slide.title || `Sahibzada Shariq Ahmed Tariqi - Slide ${index + 1}`}
-                  className="w-full h-full object-cover object-center"
+                  className="w-full h-full object-fill"
                 />
               </motion.div>
             ))}
