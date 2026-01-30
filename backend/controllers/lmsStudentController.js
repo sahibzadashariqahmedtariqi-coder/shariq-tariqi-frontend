@@ -72,16 +72,23 @@ export const getAllLMSStudents = asyncHandler(async (req, res) => {
     .populate('lmsCreatedBy', 'name email')
     .sort({ createdAt: -1 });
 
-  // Get enrollment counts for each student
+  // Get enrollment details for each student (including course names)
   const studentsWithEnrollments = await Promise.all(
     students.map(async (student) => {
-      const enrollmentCount = await LMSEnrollment.countDocuments({ 
+      const enrollments = await LMSEnrollment.find({ 
         user: student._id,
         status: { $ne: 'cancelled' }
-      });
+      }).populate('course', 'title');
+      
       return {
         ...student.toObject(),
-        enrolledCourses: enrollmentCount
+        enrolledCourses: enrollments.length,
+        enrolledCoursesList: enrollments.map(e => ({
+          courseId: e.course?._id,
+          courseTitle: e.course?.title || 'Unknown Course',
+          enrollmentId: e._id,
+          status: e.status
+        }))
       };
     })
   );

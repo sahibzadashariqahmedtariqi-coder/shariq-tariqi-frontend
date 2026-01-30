@@ -87,6 +87,12 @@ interface LMSStudent {
   lmsStudentId: string;
   lmsAccessEnabled: boolean;
   enrolledCourses: number;
+  enrolledCoursesList?: {
+    courseId: string;
+    courseTitle: string;
+    enrollmentId: string;
+    status: string;
+  }[];
   createdAt: string;
   lmsCreatedBy?: {
     name: string;
@@ -1881,13 +1887,30 @@ const StudentsSection = ({
                   <td className="px-4 py-3 text-sm text-gray-600">{student.email}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">{student.phone || '-'}</td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => onEnrollInCourses(student)}
-                      className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition cursor-pointer"
-                      title="Click to enroll in courses"
-                    >
-                      {student.enrolledCourses} courses
-                    </button>
+                    <div className="flex flex-col items-center gap-1">
+                      {student.enrolledCoursesList && student.enrolledCoursesList.length > 0 ? (
+                        <div className="flex flex-wrap justify-center gap-1 max-w-[200px]">
+                          {student.enrolledCoursesList.map((course, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs truncate max-w-[150px]"
+                              title={course.courseTitle}
+                            >
+                              {course.courseTitle}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">No courses</span>
+                      )}
+                      <button
+                        onClick={() => onEnrollInCourses(student)}
+                        className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition mt-1"
+                        title="Click to manage enrollments"
+                      >
+                        + Enroll
+                      </button>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
