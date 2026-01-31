@@ -1473,7 +1473,7 @@ const StudentLMSPage = () => {
                       </div>
                     ) : (paymentRequests?.length === 0 || !paymentRequests) ? (
                       <div className="text-center py-8">
-                        <Send className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                        <History className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                         <p className="text-gray-400">No payment requests yet</p>
                         <p className="text-gray-500 text-sm mt-1">Your submitted payments will appear here</p>
                       </div>
