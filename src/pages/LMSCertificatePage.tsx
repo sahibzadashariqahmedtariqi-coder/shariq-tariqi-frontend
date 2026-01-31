@@ -34,22 +34,32 @@ const LMSCertificatePage = () => {
     try {
       setDownloading(true);
       
-      // Create fixed-size certificate HTML for download (LANDSCAPE A4 style)
-      const downloadCard = document.createElement('div');
       const completionDate = new Date(certificate.completionDate).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}`;
+      
+      // Generate QR code as data URL
+      const qrCanvas = document.createElement('canvas');
+      const QRCode = await import('qrcode');
+      await QRCode.toCanvas(qrCanvas, `https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
+        width: 100,
+        margin: 1,
+        color: { dark: '#1f2937', light: '#ffffff' }
+      });
+      const qrDataUrl = qrCanvas.toDataURL('image/png');
+      
+      // Create fixed-size certificate HTML for download (LANDSCAPE)
+      const downloadCard = document.createElement('div');
       
       downloadCard.innerHTML = `
         <div style="width: 1200px; height: 850px; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%); position: relative; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; border: 10px double #d97706; border-radius: 16px; box-sizing: border-box;">
           
           <!-- Background Logo Watermark -->
           <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.08;">
-            <img src="/images/logo.png" alt="Watermark" style="width: 500px; height: 500px; object-fit: contain;" crossorigin="anonymous" />
+            <img src="${window.location.origin}/images/logo.png" alt="Watermark" style="width: 500px; height: 500px; object-fit: contain;" crossorigin="anonymous" />
           </div>
           
           <!-- Corner Decorations -->
@@ -70,7 +80,7 @@ const LMSCertificatePage = () => {
               <!-- Logo and Name -->
               <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 12px;">
                 <div style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 3px solid #059669; background: #065f46; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
-                  <img src="/images/logo.png" alt="Logo" style="width: 42px; height: 42px; object-fit: contain;" crossorigin="anonymous" />
+                  <img src="${window.location.origin}/images/logo.png" alt="Logo" style="width: 42px; height: 42px; object-fit: contain;" crossorigin="anonymous" />
                 </div>
                 <div style="text-align: left;">
                   <h2 style="font-size: 24px; font-weight: bold; color: #047857; font-style: italic; margin: 0;">
@@ -137,7 +147,7 @@ const LMSCertificatePage = () => {
               <div style="text-align: center; flex: 1;">
                 <div style="position: relative; display: inline-block;">
                   <div style="width: 85px; height: 85px; border-radius: 50%; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%); padding: 5px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); border: 3px solid #fbbf24; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/certificate-stamp.png" alt="Official Stamp" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;" crossorigin="anonymous" />
+                    <img src="${window.location.origin}/images/certificate-stamp.png" alt="Official Stamp" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;" crossorigin="anonymous" />
                   </div>
                   <div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; font-size: 7px; font-weight: bold; padding: 2px 8px; border-radius: 9999px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     ✓ VERIFIED
@@ -148,7 +158,7 @@ const LMSCertificatePage = () => {
               <!-- QR Code and Certificate Number -->
               <div style="text-align: center; flex: 1;">
                 <div style="background: white; padding: 6px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: inline-block; margin-bottom: 6px;">
-                  <img src="${qrCodeUrl}" alt="QR Code" style="width: 70px; height: 70px; display: block;" crossorigin="anonymous" />
+                  <img src="${qrDataUrl}" alt="QR Code" style="width: 80px; height: 80px; display: block;" />
                 </div>
                 <p style="font-size: 12px; font-family: monospace; color: #374151; margin: 0 0 4px 0; font-weight: 600;">${studentId}</p>
                 <div style="width: 120px; border-bottom: 2px solid #9ca3af; margin: 0 auto 4px auto;"></div>

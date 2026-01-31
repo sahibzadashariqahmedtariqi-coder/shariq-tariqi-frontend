@@ -3253,6 +3253,17 @@ const CertificatePreview = ({ certificate, onClose }: { certificate: any; onClos
             >
               Close
             </motion.button>
+            <motion.a
+              href={`/lms/certificate/${certificate?._id}?download=true`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 flex items-center gap-2 shadow-lg"
+              whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(217, 119, 6, 0.4)" }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Download className="w-4 h-4" />
+              Download
+            </motion.a>
             <motion.button
               onClick={() => {
                 // Print certificate
@@ -3818,6 +3829,15 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+                        <a
+                          href={`/lms/certificate/${cert._id}?download=true`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 text-emerald-600 hover:bg-emerald-100 rounded-lg transition"
+                          title="Download Certificate"
+                        >
+                          <Download className="w-4 h-4" />
+                        </a>
                         {cert.status === 'issued' ? (
                           <button
                             onClick={() => {
