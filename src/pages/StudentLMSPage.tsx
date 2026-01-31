@@ -6,7 +6,8 @@ import {
   BookOpen, Play, Lock, CheckCircle, Clock, Award,
   ChevronRight, Search, GraduationCap, Download,
   BarChart3, User, CheckCircle2, LogOut, Sparkles,
-  Zap, Target, Flame, Trophy, Gift, Rocket
+  Zap, Target, Flame, Trophy, Gift, Rocket,
+  CreditCard, Wallet, AlertCircle, Calendar, DollarSign
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -41,6 +42,31 @@ interface Enrollment {
   enrolledAt: string;
   certificateIssued: boolean;
   certificateId?: string;
+}
+
+interface FeeRecord {
+  _id: string;
+  month: string;
+  year: number;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue' | 'partial';
+  paidAmount: number;
+  paidDate?: string;
+  dueDate: string;
+  paymentMethod?: string;
+  transactionId?: string;
+  remarks?: string;
+}
+
+interface FeeSummary {
+  totalFees: number;
+  totalAmount: number;
+  paidAmount: number;
+  pendingAmount: number;
+  paidCount: number;
+  pendingCount: number;
+  overdueCount: number;
+  partialCount: number;
 }
 
 // Animated Counter Component
@@ -98,7 +124,7 @@ const GlowingOrb = ({ color, size, position }: { color: string; size: string; po
 
 const StudentLMSPage = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-courses' | 'certificates'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-courses' | 'certificates' | 'fee-payments'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
@@ -124,6 +150,15 @@ const StudentLMSPage = () => {
       return res.data.data;
     },
     enabled: activeTab === 'certificates'
+  });
+
+  const { data: feeData, isLoading: loadingFees } = useQuery({
+    queryKey: ['my-fees'],
+    queryFn: async () => {
+      const res = await api.get('/lms/fees/my');
+      return res.data.data;
+    },
+    enabled: activeTab === 'fee-payments'
   });
 
   const filteredEnrollments = enrollmentsData?.filter((enrollment: Enrollment) => 
@@ -253,6 +288,7 @@ const StudentLMSPage = () => {
             { id: 'dashboard', icon: BarChart3, label: 'Dashboard', color: 'emerald' },
             { id: 'my-courses', icon: BookOpen, label: 'My Courses', color: 'blue', badge: dashboardStats.totalCourses },
             { id: 'certificates', icon: Award, label: 'Certificates', color: 'amber' },
+            { id: 'fee-payments', icon: CreditCard, label: 'Fee Payments', color: 'purple' },
           ].map((item) => (
             <motion.button
               key={item.id}
@@ -325,7 +361,8 @@ const StudentLMSPage = () => {
           {[
             { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
             { id: 'my-courses', label: 'Courses', icon: BookOpen },
-            { id: 'certificates', label: 'Certificates', icon: Award },
+            { id: 'certificates', label: 'Certs', icon: Award },
+            { id: 'fee-payments', label: 'Fees', icon: CreditCard },
           ].map((tab) => (
             <motion.button
               key={tab.id}
@@ -961,6 +998,321 @@ const StudentLMSPage = () => {
                     </motion.div>
                   ))}
                 </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Fee Payments Tab */}
+          {activeTab === 'fee-payments' && (
+            <motion.div
+              key="fee-payments"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <CreditCard className="w-8 h-8 text-purple-400" />
+                Fee Payments
+              </h2>
+              
+              {loadingFees ? (
+                <div className="flex justify-center py-16">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin" />
+                    <Wallet className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-purple-400" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Fee Summary Cards */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      { 
+                        label: 'Total Fee', 
+                        value: `Rs ${(feeData?.summary?.totalAmount || 0).toLocaleString()}`, 
+                        icon: DollarSign, 
+                        gradient: 'from-blue-500 to-cyan-500',
+                        bgColor: 'bg-blue-500/20'
+                      },
+                      { 
+                        label: 'Paid', 
+                        value: `Rs ${(feeData?.summary?.paidAmount || 0).toLocaleString()}`, 
+                        icon: CheckCircle, 
+                        gradient: 'from-emerald-500 to-teal-500',
+                        bgColor: 'bg-emerald-500/20'
+                      },
+                      { 
+                        label: 'Pending', 
+                        value: `Rs ${(feeData?.summary?.pendingAmount || 0).toLocaleString()}`, 
+                        icon: Clock, 
+                        gradient: 'from-amber-500 to-orange-500',
+                        bgColor: 'bg-amber-500/20'
+                      },
+                      { 
+                        label: 'Overdue', 
+                        value: feeData?.summary?.overdueCount || 0, 
+                        icon: AlertCircle, 
+                        gradient: 'from-red-500 to-pink-500',
+                        bgColor: 'bg-red-500/20',
+                        isCount: true
+                      },
+                    ].map((stat, index) => (
+                      <motion.div
+                        key={stat.label}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ y: -4, scale: 1.02 }}
+                        className="relative group cursor-pointer"
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity`} />
+                        <div className="relative bg-slate-800/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10 group-hover:border-white/20 transition-all">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className={`w-12 h-12 ${stat.bgColor} rounded-xl flex items-center justify-center`}>
+                              <stat.icon className={`w-6 h-6 text-white`} />
+                            </div>
+                          </div>
+                          <p className="text-2xl lg:text-3xl font-bold text-white mb-1">
+                            {stat.isCount ? stat.value : stat.value}
+                          </p>
+                          <p className="text-gray-400 text-sm">{stat.label}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Payment Status Overview */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-purple-400" />
+                      Payment Progress
+                    </h3>
+                    <div className="space-y-4">
+                      {/* Progress Bar */}
+                      <div>
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="text-gray-400">Overall Payment</span>
+                          <span className="text-emerald-400 font-semibold">
+                            {feeData?.summary?.totalAmount > 0 
+                              ? Math.round((feeData?.summary?.paidAmount / feeData?.summary?.totalAmount) * 100) 
+                              : 0}%
+                          </span>
+                        </div>
+                        <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ 
+                              width: `${feeData?.summary?.totalAmount > 0 
+                                ? (feeData?.summary?.paidAmount / feeData?.summary?.totalAmount) * 100 
+                                : 0}%` 
+                            }}
+                            transition={{ duration: 1.5, ease: 'easeOut' }}
+                            className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full relative"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-shimmer" />
+                          </motion.div>
+                        </div>
+                      </div>
+                      
+                      {/* Stats Row */}
+                      <div className="grid grid-cols-4 gap-4 pt-4 border-t border-white/10">
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-emerald-400">{feeData?.summary?.paidCount || 0}</p>
+                          <p className="text-xs text-gray-400">Paid</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-amber-400">{feeData?.summary?.pendingCount || 0}</p>
+                          <p className="text-xs text-gray-400">Pending</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-blue-400">{feeData?.summary?.partialCount || 0}</p>
+                          <p className="text-xs text-gray-400">Partial</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-red-400">{feeData?.summary?.overdueCount || 0}</p>
+                          <p className="text-xs text-gray-400">Overdue</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Fee History Table */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-purple-400" />
+                      Fee History
+                    </h3>
+                    
+                    {(feeData?.fees?.length === 0 || !feeData?.fees) ? (
+                      <div className="text-center py-12">
+                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+                          <CreditCard className="w-16 h-16 text-gray-600 mx-auto mb-3" />
+                        </motion.div>
+                        <p className="text-gray-400">No fee records found</p>
+                        <p className="text-gray-500 text-sm mt-1">Your fee records will appear here once generated</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {feeData?.fees?.map((fee: FeeRecord, index: number) => (
+                          <motion.div
+                            key={fee._id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 + index * 0.05 }}
+                            className={`relative p-4 rounded-xl border ${
+                              fee.status === 'paid' 
+                                ? 'bg-emerald-500/10 border-emerald-500/30' 
+                                : fee.status === 'overdue'
+                                  ? 'bg-red-500/10 border-red-500/30'
+                                  : fee.status === 'partial'
+                                    ? 'bg-blue-500/10 border-blue-500/30'
+                                    : 'bg-amber-500/10 border-amber-500/30'
+                            } hover:scale-[1.01] transition-transform`}
+                          >
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                              <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                                  fee.status === 'paid' 
+                                    ? 'bg-emerald-500/20' 
+                                    : fee.status === 'overdue'
+                                      ? 'bg-red-500/20'
+                                      : fee.status === 'partial'
+                                        ? 'bg-blue-500/20'
+                                        : 'bg-amber-500/20'
+                                }`}>
+                                  {fee.status === 'paid' ? (
+                                    <CheckCircle className="w-6 h-6 text-emerald-400" />
+                                  ) : fee.status === 'overdue' ? (
+                                    <AlertCircle className="w-6 h-6 text-red-400" />
+                                  ) : (
+                                    <Clock className="w-6 h-6 text-amber-400" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-white font-semibold">{fee.month} {fee.year}</p>
+                                  <p className="text-gray-400 text-sm">
+                                    Due: {new Date(fee.dueDate).toLocaleDateString('en-US', { 
+                                      month: 'short', day: 'numeric', year: 'numeric' 
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                                <div className="text-left md:text-right">
+                                  <p className="text-gray-400 text-sm">Amount</p>
+                                  <p className="text-white font-bold text-lg">Rs {fee.amount.toLocaleString()}</p>
+                                </div>
+                                
+                                {fee.status !== 'paid' && fee.paidAmount > 0 && (
+                                  <div className="text-left md:text-right">
+                                    <p className="text-gray-400 text-sm">Paid</p>
+                                    <p className="text-emerald-400 font-bold">Rs {fee.paidAmount.toLocaleString()}</p>
+                                  </div>
+                                )}
+                                
+                                <div className="text-left md:text-right">
+                                  <p className="text-gray-400 text-sm">Remaining</p>
+                                  <p className={`font-bold ${
+                                    fee.amount - fee.paidAmount === 0 ? 'text-emerald-400' : 'text-amber-400'
+                                  }`}>
+                                    Rs {(fee.amount - fee.paidAmount).toLocaleString()}
+                                  </p>
+                                </div>
+                                
+                                <span className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase ${
+                                  fee.status === 'paid' 
+                                    ? 'bg-emerald-500/20 text-emerald-400' 
+                                    : fee.status === 'overdue'
+                                      ? 'bg-red-500/20 text-red-400'
+                                      : fee.status === 'partial'
+                                        ? 'bg-blue-500/20 text-blue-400'
+                                        : 'bg-amber-500/20 text-amber-400'
+                                }`}>
+                                  {fee.status}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            {fee.paidDate && fee.status === 'paid' && (
+                              <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-4 text-sm">
+                                <span className="text-gray-400">
+                                  Paid on: {new Date(fee.paidDate).toLocaleDateString('en-US', { 
+                                    month: 'long', day: 'numeric', year: 'numeric' 
+                                  })}
+                                </span>
+                                {fee.paymentMethod && (
+                                  <span className="text-gray-400">
+                                    via <span className="text-emerald-400 capitalize">{fee.paymentMethod.replace('_', ' ')}</span>
+                                  </span>
+                                )}
+                                {fee.transactionId && (
+                                  <span className="text-gray-400">
+                                    TXN: <span className="text-white font-mono">{fee.transactionId}</span>
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            
+                            {fee.remarks && (
+                              <div className="mt-2 text-sm text-gray-400">
+                                <span className="text-gray-500">Note:</span> {fee.remarks}
+                              </div>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+
+                  {/* Payment Instructions */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl rounded-2xl p-6 border border-purple-500/20"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Wallet className="w-5 h-5 text-purple-400" />
+                      Payment Instructions
+                    </h3>
+                    <div className="space-y-3 text-gray-300">
+                      <p className="flex items-start gap-2">
+                        <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-purple-400 text-sm font-bold">1</span>
+                        </span>
+                        Contact admin to make fee payment via Bank Transfer or Cash
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-purple-400 text-sm font-bold">2</span>
+                        </span>
+                        Once payment is confirmed, admin will update your fee status
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-purple-400 text-sm font-bold">3</span>
+                        </span>
+                        Keep your transaction ID/receipt for reference
+                      </p>
+                    </div>
+                    <div className="mt-4 p-4 bg-slate-900/50 rounded-xl">
+                      <p className="text-sm text-gray-400">For any fee-related queries, please contact:</p>
+                      <p className="text-white font-semibold mt-1">Admin Support</p>
+                    </div>
+                  </motion.div>
+                </>
               )}
             </motion.div>
           )}

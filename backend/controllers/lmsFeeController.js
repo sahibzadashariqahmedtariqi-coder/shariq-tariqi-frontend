@@ -234,3 +234,33 @@ export const getStudentFeeSummary = asyncHandler(async (req, res) => {
     data: summary
   });
 });
+
+// @desc    Get my fees (for logged in student)
+// @route   GET /api/lms/fees/my
+// @access  Private (LMS Student)
+export const getMyFees = asyncHandler(async (req, res) => {
+  const studentId = req.user._id;
+  
+  const fees = await LMSFee.find({ student: studentId })
+    .sort({ year: -1, createdAt: -1 });
+  
+  // Calculate summary
+  const summary = {
+    totalFees: fees.length,
+    totalAmount: fees.reduce((sum, f) => sum + f.amount, 0),
+    paidAmount: fees.reduce((sum, f) => sum + f.paidAmount, 0),
+    pendingAmount: fees.reduce((sum, f) => sum + (f.amount - f.paidAmount), 0),
+    paidCount: fees.filter(f => f.status === 'paid').length,
+    pendingCount: fees.filter(f => f.status === 'pending').length,
+    overdueCount: fees.filter(f => f.status === 'overdue').length,
+    partialCount: fees.filter(f => f.status === 'partial').length,
+  };
+  
+  res.json({
+    success: true,
+    data: {
+      fees,
+      summary
+    }
+  });
+});

@@ -6,13 +6,17 @@ import {
   updateFee,
   deleteFee,
   generateMonthlyFees,
-  getStudentFeeSummary
+  getStudentFeeSummary,
+  getMyFees
 } from '../controllers/lmsFeeController.js';
 import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// All routes require authentication and admin access
+// Student route (must be before admin middleware)
+router.get('/my', protect, getMyFees);
+
+// All routes below require authentication and admin access
 router.use(protect);
 router.use(admin);
 
