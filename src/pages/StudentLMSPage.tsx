@@ -6,7 +6,7 @@ import {
   BookOpen, Play, Lock, CheckCircle, Clock, Award,
   ChevronRight, Search, GraduationCap, Download,
   BarChart3, User, CheckCircle2, LogOut, Sparkles,
-  Zap, Target, Flame, Trophy, Gift, Rocket,
+  Zap, Target, Flame, Trophy, Gift,
   CreditCard, Wallet, AlertCircle, Calendar, DollarSign,
   X, Banknote, Building2, History
 } from 'lucide-react';
@@ -594,7 +594,7 @@ const StudentLMSPage = () => {
                           className="absolute inset-4 rounded-full border-2 border-dashed border-white/30"
                         />
                         <div className="absolute inset-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                          <Rocket className="w-12 h-12 text-white" />
+                          <img src="/images/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
                         </div>
                       </div>
                     </motion.div>
