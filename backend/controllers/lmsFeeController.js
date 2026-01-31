@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import LMSFee from '../models/LMSFee.js';
+import LMSPaymentRequest from '../models/LMSPaymentRequest.js';
 import User from '../models/User.js';
 
 // @desc    Get all fees for a student
@@ -262,5 +263,179 @@ export const getMyFees = asyncHandler(async (req, res) => {
       fees,
       summary
     }
+  });
+});
+
+// @desc    Submit payment request (for student)
+// @route   POST /api/lms/fees/pay
+// @access  Private (LMS Student)
+export const submitPaymentRequest = asyncHandler(async (req, res) => {
+  const studentId = req.user._id;
+  const { feeId, amount, paymentMethod, transactionId, accountTitle, accountNumber, paymentProof, remarks } = req.body;
+  
+  // Validate fee exists and belongs to this student
+  const fee = await LMSFee.findOne({ _id: feeId, student: studentId });
+  if (!fee) {
+    res.status(404);
+    throw new Error('Fee record not found');
+  }
+  
+  // Check remaining amount
+  const remainingAmount = fee.amount - fee.paidAmount;
+  if (amount > remainingAmount) {
+    res.status(400);
+    throw new Error(`Payment amount cannot exceed remaining amount of Rs ${remainingAmount}`);
+  }
+  
+  if (amount <= 0) {
+    res.status(400);
+    throw new Error('Payment amount must be greater than 0');
+  }
+  
+  // Check if there's already a pending request for this fee
+  const existingRequest = await LMSPaymentRequest.findOne({ 
+    fee: feeId, 
+    student: studentId,
+    status: 'pending' 
+  });
+  
+  if (existingRequest) {
+    res.status(400);
+    throw new Error('You already have a pending payment request for this fee. Please wait for admin approval.');
+  }
+  
+  // Create payment request
+  const paymentRequest = await LMSPaymentRequest.create({
+    student: studentId,
+    fee: feeId,
+    amount,
+    paymentMethod,
+    transactionId,
+    accountTitle,
+    accountNumber,
+    paymentProof,
+    remarks,
+    status: 'pending'
+  });
+  
+  const populatedRequest = await LMSPaymentRequest.findById(paymentRequest._id)
+    .populate('student', 'name email lmsStudentId')
+    .populate('fee', 'month year amount');
+  
+  res.status(201).json({
+    success: true,
+    message: 'Payment request submitted successfully. Admin will review and approve it.',
+    data: populatedRequest
+  });
+});
+
+// @desc    Get my payment requests (for student)
+// @route   GET /api/lms/fees/my-payments
+// @access  Private (LMS Student)
+export const getMyPaymentRequests = asyncHandler(async (req, res) => {
+  const studentId = req.user._id;
+  
+  const requests = await LMSPaymentRequest.find({ student: studentId })
+    .populate('fee', 'month year amount')
+    .sort({ createdAt: -1 });
+  
+  res.json({
+    success: true,
+    data: requests
+  });
+});
+
+// @desc    Get all payment requests (for admin)
+// @route   GET /api/lms/fees/payment-requests
+// @access  Private/Admin
+export const getAllPaymentRequests = asyncHandler(async (req, res) => {
+  const { status } = req.query;
+  
+  const filter = {};
+  if (status) filter.status = status;
+  
+  const requests = await LMSPaymentRequest.find(filter)
+    .populate('student', 'name email lmsStudentId phone')
+    .populate('fee', 'month year amount paidAmount status')
+    .populate('reviewedBy', 'name')
+    .sort({ createdAt: -1 });
+  
+  // Summary
+  const summary = {
+    total: requests.length,
+    pending: requests.filter(r => r.status === 'pending').length,
+    approved: requests.filter(r => r.status === 'approved').length,
+    rejected: requests.filter(r => r.status === 'rejected').length,
+    totalAmount: requests.reduce((sum, r) => sum + r.amount, 0),
+    pendingAmount: requests.filter(r => r.status === 'pending').reduce((sum, r) => sum + r.amount, 0),
+  };
+  
+  res.json({
+    success: true,
+    data: requests,
+    summary
+  });
+});
+
+// @desc    Review payment request (approve/reject)
+// @route   PUT /api/lms/fees/payment-requests/:requestId
+// @access  Private/Admin
+export const reviewPaymentRequest = asyncHandler(async (req, res) => {
+  const { requestId } = req.params;
+  const { status, adminRemarks } = req.body;
+  
+  if (!['approved', 'rejected'].includes(status)) {
+    res.status(400);
+    throw new Error('Status must be either approved or rejected');
+  }
+  
+  const paymentRequest = await LMSPaymentRequest.findById(requestId);
+  if (!paymentRequest) {
+    res.status(404);
+    throw new Error('Payment request not found');
+  }
+  
+  if (paymentRequest.status !== 'pending') {
+    res.status(400);
+    throw new Error('This payment request has already been reviewed');
+  }
+  
+  // Update payment request
+  paymentRequest.status = status;
+  paymentRequest.adminRemarks = adminRemarks;
+  paymentRequest.reviewedBy = req.user._id;
+  paymentRequest.reviewedAt = new Date();
+  await paymentRequest.save();
+  
+  // If approved, update the fee record
+  if (status === 'approved') {
+    const fee = await LMSFee.findById(paymentRequest.fee);
+    if (fee) {
+      fee.paidAmount += paymentRequest.amount;
+      fee.paidDate = new Date();
+      fee.paymentMethod = paymentRequest.paymentMethod;
+      fee.transactionId = paymentRequest.transactionId;
+      fee.updatedBy = req.user._id;
+      
+      // Update status based on payment
+      if (fee.paidAmount >= fee.amount) {
+        fee.status = 'paid';
+      } else if (fee.paidAmount > 0) {
+        fee.status = 'partial';
+      }
+      
+      await fee.save();
+    }
+  }
+  
+  const updatedRequest = await LMSPaymentRequest.findById(requestId)
+    .populate('student', 'name email lmsStudentId')
+    .populate('fee', 'month year amount paidAmount status')
+    .populate('reviewedBy', 'name');
+  
+  res.json({
+    success: true,
+    message: `Payment request ${status}`,
+    data: updatedRequest
   });
 });

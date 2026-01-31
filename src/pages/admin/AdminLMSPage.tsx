@@ -125,7 +125,7 @@ interface LMSFee {
 const AdminLMSPage = () => {
   const { isAuthenticated, user } = useAuthStore();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'courses' | 'students' | 'fees' | 'certificates'>('courses');
+  const [activeTab, setActiveTab] = useState<'courses' | 'students' | 'fees' | 'payment-requests' | 'certificates'>('courses');
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showClassModal, setShowClassModal] = useState(false);
@@ -144,6 +144,10 @@ const AdminLMSPage = () => {
   const [feeFilterMonth, setFeeFilterMonth] = useState('');
   const [feeFilterYear, setFeeFilterYear] = useState(new Date().getFullYear());
   const [feeFilterStatus, setFeeFilterStatus] = useState<string>('');
+  
+  // Payment request review state
+  const [reviewingRequest, setReviewingRequest] = useState<string | null>(null);
+  const [reviewAdminRemarks, setReviewAdminRemarks] = useState('');
 
   // Redirect to login if not authenticated or not admin
   if (!isAuthenticated || user?.role !== 'admin') {
@@ -225,6 +229,34 @@ const AdminLMSPage = () => {
       return res.data;
     },
     enabled: activeTab === 'fees'
+  });
+
+  // Fetch payment requests
+  const { data: paymentRequestsData, isLoading: loadingPaymentRequests } = useQuery({
+    queryKey: ['payment-requests'],
+    queryFn: async () => {
+      const res = await api.get('/lms/fees/payment-requests');
+      return res.data;
+    },
+    enabled: activeTab === 'payment-requests'
+  });
+
+  // Review payment request mutation
+  const reviewPaymentMutation = useMutation({
+    mutationFn: async ({ requestId, status, adminRemarks }: { requestId: string; status: 'approved' | 'rejected'; adminRemarks: string }) => {
+      const res = await api.put(`/lms/fees/payment-requests/${requestId}`, { status, adminRemarks });
+      return res.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['payment-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-fees'] });
+      setReviewingRequest(null);
+      setReviewAdminRemarks('');
+      toast.success(`Payment request ${data.data.status}`);
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to review payment request');
+    }
   });
 
   // LMS Student Mutations
@@ -655,6 +687,22 @@ const AdminLMSPage = () => {
               Fee Management
             </button>
             <button
+              onClick={() => setActiveTab('payment-requests')}
+              className={`pb-3 px-1 border-b-2 font-medium text-sm transition flex items-center gap-1.5 ${
+                activeTab === 'payment-requests'
+                  ? 'border-emerald-500 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Receipt className="w-4 h-4" />
+              Payment Requests
+              {paymentRequestsData?.summary?.pending > 0 && (
+                <span className="px-2 py-0.5 bg-amber-500 text-white text-xs rounded-full">
+                  {paymentRequestsData.summary.pending}
+                </span>
+              )}
+            </button>
+            <button
               onClick={() => setActiveTab('certificates')}
               className={`pb-3 px-1 border-b-2 font-medium text-sm transition ${
                 activeTab === 'certificates'
@@ -1014,6 +1062,243 @@ const AdminLMSPage = () => {
             onGenerateFees={(data) => generateFeesMutation.mutate(data)}
             onUpdateFeeStatus={(feeId, data) => updateFeeMutation.mutate({ feeId, data })}
           />
+        )}
+
+        {/* Payment Requests Tab */}
+        {activeTab === 'payment-requests' && (
+          <div className="space-y-6">
+            {/* Summary Cards */}
+            {paymentRequestsData?.summary && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white p-4 rounded-xl border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Receipt className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-900">{paymentRequestsData.summary.total}</p>
+                      <p className="text-sm text-gray-500">Total Requests</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-amber-700">{paymentRequestsData.summary.pending}</p>
+                      <p className="text-sm text-amber-600">Pending</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-emerald-200 bg-emerald-50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-emerald-700">{paymentRequestsData.summary.approved}</p>
+                      <p className="text-sm text-emerald-600">Approved</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-red-200 bg-red-50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                      <AlertCircle className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-red-700">{paymentRequestsData.summary.rejected}</p>
+                      <p className="text-sm text-red-600">Rejected</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Payment Requests List */}
+            {loadingPaymentRequests ? (
+              <div className="flex justify-center py-12">
+                <div className="w-10 h-10 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
+              </div>
+            ) : paymentRequestsData?.data?.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                <Receipt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-700">No Payment Requests</h3>
+                <p className="text-gray-500 mt-1">Payment requests from students will appear here</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {paymentRequestsData?.data?.map((request: any) => (
+                  <div
+                    key={request._id}
+                    className={`bg-white p-5 rounded-xl border ${
+                      request.status === 'pending' 
+                        ? 'border-amber-200' 
+                        : request.status === 'approved'
+                          ? 'border-emerald-200'
+                          : 'border-red-200'
+                    }`}
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      {/* Student Info */}
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          request.status === 'pending' 
+                            ? 'bg-amber-100' 
+                            : request.status === 'approved'
+                              ? 'bg-emerald-100'
+                              : 'bg-red-100'
+                        }`}>
+                          <CreditCard className={`w-6 h-6 ${
+                            request.status === 'pending' 
+                              ? 'text-amber-600' 
+                              : request.status === 'approved'
+                                ? 'text-emerald-600'
+                                : 'text-red-600'
+                          }`} />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{request.student?.name}</p>
+                          <p className="text-sm text-gray-500">{request.student?.lmsStudentId} • {request.student?.email}</p>
+                          <p className="text-xs text-gray-400">{request.student?.phone}</p>
+                        </div>
+                      </div>
+
+                      {/* Fee Details */}
+                      <div className="flex flex-wrap items-center gap-6">
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase">Fee Month</p>
+                          <p className="font-medium text-gray-900">{request.fee?.month} {request.fee?.year}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase">Amount</p>
+                          <p className="font-bold text-emerald-600 text-lg">Rs {request.amount?.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase">Method</p>
+                          <p className="font-medium text-gray-900 capitalize">{request.paymentMethod?.replace('_', ' ')}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase">Transaction ID</p>
+                          <p className="font-mono text-gray-900">{request.transactionId}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase">Date</p>
+                          <p className="text-gray-900">{new Date(request.createdAt).toLocaleDateString('en-US', { 
+                            month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                          })}</p>
+                        </div>
+                        
+                        {/* Status Badge */}
+                        <span className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase ${
+                          request.status === 'pending' 
+                            ? 'bg-amber-100 text-amber-700' 
+                            : request.status === 'approved'
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-red-100 text-red-700'
+                        }`}>
+                          {request.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Account Details */}
+                    {(request.accountTitle || request.accountNumber) && (
+                      <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                        {request.accountTitle && <span>Account: {request.accountTitle}</span>}
+                        {request.accountNumber && <span className="ml-4">Number: {request.accountNumber}</span>}
+                      </div>
+                    )}
+
+                    {/* Student Remarks */}
+                    {request.remarks && (
+                      <div className="mt-2 text-sm text-gray-500">
+                        <span className="text-gray-400">Student Note:</span> {request.remarks}
+                      </div>
+                    )}
+
+                    {/* Admin Remarks (if reviewed) */}
+                    {request.adminRemarks && (
+                      <div className={`mt-2 text-sm ${request.status === 'rejected' ? 'text-red-600' : 'text-emerald-600'}`}>
+                        <span className="font-medium">Admin:</span> {request.adminRemarks}
+                      </div>
+                    )}
+
+                    {/* Action Buttons (only for pending) */}
+                    {request.status === 'pending' && (
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        {reviewingRequest === request._id ? (
+                          <div className="space-y-3">
+                            <textarea
+                              value={reviewAdminRemarks}
+                              onChange={(e) => setReviewAdminRemarks(e.target.value)}
+                              placeholder="Add admin remarks (optional)..."
+                              rows={2}
+                              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            />
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => reviewPaymentMutation.mutate({ 
+                                  requestId: request._id, 
+                                  status: 'approved',
+                                  adminRemarks: reviewAdminRemarks 
+                                })}
+                                disabled={reviewPaymentMutation.isPending}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition disabled:opacity-50"
+                              >
+                                <Check className="w-4 h-4" />
+                                Approve Payment
+                              </button>
+                              <button
+                                onClick={() => reviewPaymentMutation.mutate({ 
+                                  requestId: request._id, 
+                                  status: 'rejected',
+                                  adminRemarks: reviewAdminRemarks 
+                                })}
+                                disabled={reviewPaymentMutation.isPending}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition disabled:opacity-50"
+                              >
+                                <X className="w-4 h-4" />
+                                Reject
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setReviewingRequest(null);
+                                  setReviewAdminRemarks('');
+                                }}
+                                className="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-lg font-medium hover:bg-gray-200 transition"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setReviewingRequest(request._id)}
+                            className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Review Payment
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Reviewed Info */}
+                    {request.status !== 'pending' && request.reviewedAt && (
+                      <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400">
+                        Reviewed by {request.reviewedBy?.name} on {new Date(request.reviewedAt).toLocaleDateString('en-US', {
+                          month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'certificates' && (

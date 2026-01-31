@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, Navigate } from 'react-router-dom';
 import {
@@ -7,7 +7,8 @@ import {
   ChevronRight, Search, GraduationCap, Download,
   BarChart3, User, CheckCircle2, LogOut, Sparkles,
   Zap, Target, Flame, Trophy, Gift, Rocket,
-  CreditCard, Wallet, AlertCircle, Calendar, DollarSign
+  CreditCard, Wallet, AlertCircle, Calendar, DollarSign,
+  X, Send, Upload, Banknote, Smartphone, Building2, History
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -56,6 +57,23 @@ interface FeeRecord {
   paymentMethod?: string;
   transactionId?: string;
   remarks?: string;
+}
+
+interface PaymentRequest {
+  _id: string;
+  fee: {
+    _id: string;
+    month: string;
+    year: number;
+    amount: number;
+  };
+  amount: number;
+  paymentMethod: string;
+  transactionId: string;
+  status: 'pending' | 'approved' | 'rejected';
+  adminRemarks?: string;
+  createdAt: string;
+  reviewedAt?: string;
 }
 
 // Animated Counter Component
@@ -116,6 +134,17 @@ const StudentLMSPage = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'my-courses' | 'certificates' | 'fee-payments'>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedFee, setSelectedFee] = useState<FeeRecord | null>(null);
+  const [paymentForm, setPaymentForm] = useState({
+    amount: 0,
+    paymentMethod: 'bank_transfer',
+    transactionId: '',
+    accountTitle: '',
+    accountNumber: '',
+    remarks: ''
+  });
+  const queryClient = useQueryClient();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -149,6 +178,60 @@ const StudentLMSPage = () => {
     },
     enabled: activeTab === 'fee-payments'
   });
+
+  const { data: paymentRequests, isLoading: loadingPaymentRequests } = useQuery({
+    queryKey: ['my-payment-requests'],
+    queryFn: async () => {
+      const res = await api.get('/lms/fees/my-payments');
+      return res.data.data;
+    },
+    enabled: activeTab === 'fee-payments'
+  });
+
+  // Payment submission mutation
+  const submitPaymentMutation = useMutation({
+    mutationFn: async (data: typeof paymentForm & { feeId: string }) => {
+      const res = await api.post('/lms/fees/pay', data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-fees'] });
+      queryClient.invalidateQueries({ queryKey: ['my-payment-requests'] });
+      setShowPaymentModal(false);
+      setSelectedFee(null);
+      setPaymentForm({
+        amount: 0,
+        paymentMethod: 'bank_transfer',
+        transactionId: '',
+        accountTitle: '',
+        accountNumber: '',
+        remarks: ''
+      });
+      alert('Payment request submitted successfully! Admin will review and approve it.');
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || 'Failed to submit payment request');
+    }
+  });
+
+  const handlePayNow = (fee: FeeRecord) => {
+    setSelectedFee(fee);
+    setPaymentForm({
+      ...paymentForm,
+      amount: fee.amount - fee.paidAmount
+    });
+    setShowPaymentModal(true);
+  };
+
+  const handleSubmitPayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedFee) return;
+    
+    submitPaymentMutation.mutate({
+      feeId: selectedFee._id,
+      ...paymentForm
+    });
+  };
 
   const filteredEnrollments = enrollmentsData?.filter((enrollment: Enrollment) => 
     enrollment.course?.title?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1231,6 +1314,19 @@ const StudentLMSPage = () => {
                                 }`}>
                                   {fee.status}
                                 </span>
+                                
+                                {/* Pay Now Button */}
+                                {fee.status !== 'paid' && (
+                                  <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => handlePayNow(fee)}
+                                    className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-semibold text-sm flex items-center gap-2 hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-500/20"
+                                  >
+                                    <Banknote className="w-4 h-4" />
+                                    Pay Now
+                                  </motion.button>
+                                )}
                               </div>
                             </div>
                             
@@ -1281,25 +1377,129 @@ const StudentLMSPage = () => {
                         <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="text-purple-400 text-sm font-bold">1</span>
                         </span>
-                        Contact admin to make fee payment via Bank Transfer or Cash
+                        Make payment via Bank Transfer, Easypaisa, or JazzCash
                       </p>
                       <p className="flex items-start gap-2">
                         <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="text-purple-400 text-sm font-bold">2</span>
                         </span>
-                        Once payment is confirmed, admin will update your fee status
+                        Click "Pay Now" button and fill in your payment details
                       </p>
                       <p className="flex items-start gap-2">
                         <span className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="text-purple-400 text-sm font-bold">3</span>
                         </span>
-                        Keep your transaction ID/receipt for reference
+                        Admin will verify and approve your payment
                       </p>
                     </div>
                     <div className="mt-4 p-4 bg-slate-900/50 rounded-xl">
-                      <p className="text-sm text-gray-400">For any fee-related queries, please contact:</p>
-                      <p className="text-white font-semibold mt-1">Admin Support</p>
+                      <p className="text-sm text-gray-400 mb-2">Payment Account Details:</p>
+                      <div className="space-y-1 text-sm">
+                        <p className="text-white"><span className="text-gray-400">Bank:</span> JazzCash / Easypaisa / Bank Transfer</p>
+                        <p className="text-white"><span className="text-gray-400">Account:</span> Contact Admin for details</p>
+                      </div>
                     </div>
+                  </motion.div>
+
+                  {/* My Payment Requests */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <History className="w-5 h-5 text-cyan-400" />
+                      My Payment Requests
+                    </h3>
+                    
+                    {loadingPaymentRequests ? (
+                      <div className="flex justify-center py-8">
+                        <div className="w-10 h-10 rounded-full border-4 border-cyan-500/20 border-t-cyan-500 animate-spin" />
+                      </div>
+                    ) : (paymentRequests?.length === 0 || !paymentRequests) ? (
+                      <div className="text-center py-8">
+                        <Send className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                        <p className="text-gray-400">No payment requests yet</p>
+                        <p className="text-gray-500 text-sm mt-1">Your submitted payments will appear here</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {paymentRequests?.map((request: PaymentRequest, index: number) => (
+                          <motion.div
+                            key={request._id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className={`p-4 rounded-xl border ${
+                              request.status === 'approved' 
+                                ? 'bg-emerald-500/10 border-emerald-500/30' 
+                                : request.status === 'rejected'
+                                  ? 'bg-red-500/10 border-red-500/30'
+                                  : 'bg-cyan-500/10 border-cyan-500/30'
+                            }`}
+                          >
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                  request.status === 'approved' 
+                                    ? 'bg-emerald-500/20' 
+                                    : request.status === 'rejected'
+                                      ? 'bg-red-500/20'
+                                      : 'bg-cyan-500/20'
+                                }`}>
+                                  {request.status === 'approved' ? (
+                                    <CheckCircle className="w-5 h-5 text-emerald-400" />
+                                  ) : request.status === 'rejected' ? (
+                                    <X className="w-5 h-5 text-red-400" />
+                                  ) : (
+                                    <Clock className="w-5 h-5 text-cyan-400" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-white font-medium">
+                                    {request.fee?.month} {request.fee?.year}
+                                  </p>
+                                  <p className="text-gray-400 text-sm">
+                                    {new Date(request.createdAt).toLocaleDateString('en-US', { 
+                                      month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                  <p className="text-white font-bold">Rs {request.amount.toLocaleString()}</p>
+                                  <p className="text-gray-400 text-xs capitalize">{request.paymentMethod.replace('_', ' ')}</p>
+                                </div>
+                                <span className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase ${
+                                  request.status === 'approved' 
+                                    ? 'bg-emerald-500/20 text-emerald-400' 
+                                    : request.status === 'rejected'
+                                      ? 'bg-red-500/20 text-red-400'
+                                      : 'bg-cyan-500/20 text-cyan-400'
+                                }`}>
+                                  {request.status}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-2 text-sm text-gray-400">
+                              TXN ID: <span className="text-white font-mono">{request.transactionId}</span>
+                            </div>
+                            
+                            {request.adminRemarks && (
+                              <div className={`mt-2 text-sm ${
+                                request.status === 'rejected' ? 'text-red-400' : 'text-emerald-400'
+                              }`}>
+                                Admin: {request.adminRemarks}
+                              </div>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
                 </>
               )}
@@ -1307,6 +1507,182 @@ const StudentLMSPage = () => {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Payment Modal */}
+      <AnimatePresence>
+        {showPaymentModal && selectedFee && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            onClick={() => setShowPaymentModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-900 rounded-2xl border border-white/10 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Banknote className="w-6 h-6 text-emerald-400" />
+                    Submit Payment
+                  </h3>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {selectedFee.month} {selectedFee.year} - Remaining: Rs {(selectedFee.amount - selectedFee.paidAmount).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <form onSubmit={handleSubmitPayment} className="p-6 space-y-5">
+                {/* Amount */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Payment Amount (Rs) *
+                  </label>
+                  <input
+                    type="number"
+                    value={paymentForm.amount}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
+                    max={selectedFee.amount - selectedFee.paidAmount}
+                    min={1}
+                    required
+                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  />
+                  <p className="text-gray-500 text-xs mt-1">
+                    Max: Rs {(selectedFee.amount - selectedFee.paidAmount).toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Payment Method */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Payment Method *
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { value: 'bank_transfer', label: 'Bank Transfer', icon: Building2 },
+                      { value: 'easypaisa', label: 'Easypaisa', icon: Smartphone },
+                      { value: 'jazzcash', label: 'JazzCash', icon: Smartphone },
+                      { value: 'other', label: 'Other', icon: CreditCard },
+                    ].map((method) => (
+                      <button
+                        key={method.value}
+                        type="button"
+                        onClick={() => setPaymentForm({ ...paymentForm, paymentMethod: method.value })}
+                        className={`p-3 rounded-xl border flex items-center gap-2 transition ${
+                          paymentForm.paymentMethod === method.value
+                            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                            : 'bg-slate-800 border-white/10 text-gray-400 hover:border-white/20'
+                        }`}
+                      >
+                        <method.icon className="w-5 h-5" />
+                        <span className="text-sm font-medium">{method.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Transaction ID */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Transaction ID / Reference Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentForm.transactionId}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, transactionId: e.target.value })}
+                    required
+                    placeholder="Enter transaction ID"
+                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Account Details */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Sender Account Title
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentForm.accountTitle}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, accountTitle: e.target.value })}
+                      placeholder="Account holder name"
+                      className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Sender Account/Phone
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentForm.accountNumber}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, accountNumber: e.target.value })}
+                      placeholder="Account or phone number"
+                      className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Remarks */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Remarks (Optional)
+                  </label>
+                  <textarea
+                    value={paymentForm.remarks}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, remarks: e.target.value })}
+                    rows={2}
+                    placeholder="Any additional notes..."
+                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPaymentModal(false)}
+                    className="flex-1 py-3 bg-slate-800 text-gray-300 rounded-xl font-medium hover:bg-slate-700 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitPaymentMutation.isPending}
+                    className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:from-emerald-400 hover:to-teal-400 transition disabled:opacity-50"
+                  >
+                    {submitPaymentMutation.isPending ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Submit Payment
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Custom Styles */}
       <style>{`
