@@ -137,6 +137,16 @@ const settingsSchema = new mongoose.Schema(
       default: 'Please transfer the amount to the above account and upload the payment receipt/screenshot for verification.',
     },
     
+    // UPI Payment for India
+    upiQrCode: {
+      type: String,
+      default: '',
+    },
+    upiId: {
+      type: String,
+      default: '',
+    },
+    
     // For tracking updates
     lastUpdatedBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1650,6 +1650,32 @@ const StudentLMSPage = () => {
                   </div>
                 )}
 
+                {/* UPI QR Code for Indian Users */}
+                {bankDetails?.upiQrCode && (
+                  <div className="bg-gradient-to-br from-orange-900/30 to-amber-900/30 rounded-xl p-5 border border-orange-500/30">
+                    <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      <span className="text-2xl">🇮🇳</span>
+                      For Indian Users - UPI Payment
+                    </h4>
+                    <div className="flex flex-col items-center">
+                      <img 
+                        src={bankDetails.upiQrCode} 
+                        alt="UPI QR Code" 
+                        className="w-48 h-48 rounded-lg border-4 border-white/20 bg-white p-2"
+                      />
+                      {bankDetails.upiId && (
+                        <div className="mt-3 text-center">
+                          <p className="text-gray-400 text-sm">UPI ID:</p>
+                          <p className="text-orange-400 font-medium">{bankDetails.upiId}</p>
+                        </div>
+                      )}
+                      <p className="text-gray-400 text-xs mt-3 text-center">
+                        Scan this QR code with any UPI app (Google Pay, PhonePe, Paytm, etc.)
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Payment Screenshot Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
