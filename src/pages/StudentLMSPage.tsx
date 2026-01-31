@@ -58,17 +58,6 @@ interface FeeRecord {
   remarks?: string;
 }
 
-interface FeeSummary {
-  totalFees: number;
-  totalAmount: number;
-  paidAmount: number;
-  pendingAmount: number;
-  paidCount: number;
-  pendingCount: number;
-  overdueCount: number;
-  partialCount: number;
-}
-
 // Animated Counter Component
 const AnimatedCounter = ({ value, duration = 2000 }: { value: number; duration?: number }) => {
   const [count, setCount] = useState(0);
