@@ -34,7 +34,7 @@ const LMSCertificatePage = () => {
     try {
       setDownloading(true);
       
-      // Create fixed-size certificate HTML for download (like MureedCard)
+      // Create fixed-size certificate HTML for download (LANDSCAPE A4 style)
       const downloadCard = document.createElement('div');
       const completionDate = new Date(certificate.completionDate).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -42,97 +42,104 @@ const LMSCertificatePage = () => {
         day: 'numeric'
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}`;
       
       downloadCard.innerHTML = `
-        <div style="width: 900px; min-width: 900px; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%); position: relative; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; border: 8px double #d97706; border-radius: 12px;">
+        <div style="width: 1200px; height: 850px; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%); position: relative; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; border: 10px double #d97706; border-radius: 16px; box-sizing: border-box;">
           
           <!-- Background Logo Watermark -->
-          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.1;">
-            <img src="/images/logo.png" alt="Watermark" style="width: 400px; height: 400px; object-fit: contain;" crossorigin="anonymous" />
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.08;">
+            <img src="/images/logo.png" alt="Watermark" style="width: 500px; height: 500px; object-fit: contain;" crossorigin="anonymous" />
           </div>
           
           <!-- Corner Decorations -->
-          <div style="position: absolute; top: 16px; left: 16px; width: 80px; height: 80px; border-left: 4px solid #d97706; border-top: 4px solid #d97706; border-radius: 12px 0 0 0;"></div>
-          <div style="position: absolute; top: 16px; right: 16px; width: 80px; height: 80px; border-right: 4px solid #d97706; border-top: 4px solid #d97706; border-radius: 0 12px 0 0;"></div>
-          <div style="position: absolute; bottom: 16px; left: 16px; width: 80px; height: 80px; border-left: 4px solid #d97706; border-bottom: 4px solid #d97706; border-radius: 0 0 0 12px;"></div>
-          <div style="position: absolute; bottom: 16px; right: 16px; width: 80px; height: 80px; border-right: 4px solid #d97706; border-bottom: 4px solid #d97706; border-radius: 0 0 12px 0;"></div>
+          <div style="position: absolute; top: 20px; left: 20px; width: 100px; height: 100px; border-left: 5px solid #d97706; border-top: 5px solid #d97706; border-radius: 16px 0 0 0;"></div>
+          <div style="position: absolute; top: 20px; right: 20px; width: 100px; height: 100px; border-right: 5px solid #d97706; border-top: 5px solid #d97706; border-radius: 0 16px 0 0;"></div>
+          <div style="position: absolute; bottom: 20px; left: 20px; width: 100px; height: 100px; border-left: 5px solid #d97706; border-bottom: 5px solid #d97706; border-radius: 0 0 0 16px;"></div>
+          <div style="position: absolute; bottom: 20px; right: 20px; width: 100px; height: 100px; border-right: 5px solid #d97706; border-bottom: 5px solid #d97706; border-radius: 0 0 16px 0;"></div>
           
-          <div style="padding: 48px; position: relative; z-index: 10; text-align: center;">
-            <!-- Bismillah -->
-            <p style="color: #b45309; font-size: 24px; margin: 0 0 20px 0; font-family: serif;">
-              بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-            </p>
+          <div style="padding: 40px 60px; position: relative; z-index: 10; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
             
-            <!-- Logo and Name -->
-            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
-              <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; border: 3px solid #059669; background: #065f46; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <img src="/images/logo.png" alt="Logo" style="width: 48px; height: 48px; object-fit: contain;" crossorigin="anonymous" />
-              </div>
-              <div style="text-align: left;">
-                <h2 style="font-size: 22px; font-weight: bold; color: #047857; font-style: italic; margin: 0;">
-                  Sahibzada Shariq Ahmed Tariqi
-                </h2>
-                <p style="font-size: 12px; color: #059669; letter-spacing: 2px; margin: 4px 0 0 0;">
-                  Spiritual Healing & Guidance
-                </p>
-              </div>
-            </div>
-            
-            <!-- Award Icon -->
-            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px;">
-              <div style="width: 60px; height: 2px; background: linear-gradient(to right, transparent, #d97706, #d97706);"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
-              <div style="width: 60px; height: 2px; background: linear-gradient(to left, transparent, #d97706, #d97706);"></div>
-            </div>
-            
-            <!-- Title -->
-            <h1 style="font-size: 36px; font-weight: bold; color: #065f46; letter-spacing: 3px; margin: 0 0 8px 0;">
-              Certificate of Completion
-            </h1>
-            <p style="color: #b45309; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600; margin: 0 0 24px 0;">
-              Sahibzada Shariq Ahmed Tariqi Academy
-            </p>
-            
-            <!-- Main Content -->
-            <div style="margin: 24px 0;">
-              <p style="color: #4b5563; font-size: 18px; margin: 0 0 16px 0;">This is to certify that</p>
+            <!-- Top Section -->
+            <div>
+              <!-- Bismillah -->
+              <p style="color: #b45309; font-size: 22px; margin: 0 0 12px 0; font-family: serif;">
+                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+              </p>
               
-              <h2 style="font-size: 32px; font-weight: bold; color: #047857; border-bottom: 3px solid #fbbf24; padding-bottom: 8px; display: inline-block; margin: 0 0 16px 0;">
+              <!-- Logo and Name -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 12px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 3px solid #059669; background: #065f46; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+                  <img src="/images/logo.png" alt="Logo" style="width: 42px; height: 42px; object-fit: contain;" crossorigin="anonymous" />
+                </div>
+                <div style="text-align: left;">
+                  <h2 style="font-size: 24px; font-weight: bold; color: #047857; font-style: italic; margin: 0;">
+                    Sahibzada Shariq Ahmed Tariqi
+                  </h2>
+                  <p style="font-size: 11px; color: #059669; letter-spacing: 3px; margin: 2px 0 0 0;">
+                    Spiritual Healing & Guidance
+                  </p>
+                </div>
+              </div>
+              
+              <!-- Award Icon -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 8px;">
+                <div style="width: 80px; height: 2px; background: linear-gradient(to right, transparent, #d97706, #d97706);"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+                <div style="width: 80px; height: 2px; background: linear-gradient(to left, transparent, #d97706, #d97706);"></div>
+              </div>
+              
+              <!-- Title -->
+              <h1 style="font-size: 42px; font-weight: bold; color: #065f46; letter-spacing: 4px; margin: 0 0 4px 0;">
+                Certificate of Completion
+              </h1>
+              <p style="color: #b45309; font-size: 12px; letter-spacing: 5px; text-transform: uppercase; font-weight: 600; margin: 0;">
+                Sahibzada Shariq Ahmed Tariqi Academy
+              </p>
+            </div>
+            
+            <!-- Middle Section - Main Content -->
+            <div style="margin: 16px 0;">
+              <p style="color: #4b5563; font-size: 16px; margin: 0 0 8px 0;">This is to certify that</p>
+              
+              <h2 style="font-size: 36px; font-weight: bold; color: #047857; border-bottom: 3px solid #fbbf24; padding-bottom: 6px; display: inline-block; margin: 0 0 8px 0;">
                 ${certificate.studentName}
               </h2>
               
-              <p style="color: #4b5563; font-size: 18px; margin: 0 0 12px 0;">has successfully completed the course</p>
+              <p style="color: #4b5563; font-size: 16px; margin: 0 0 8px 0;">has successfully completed the course</p>
               
-              <h3 style="font-size: 26px; font-weight: 600; color: #1f2937; font-style: italic; margin: 0 0 16px 0;">
+              <h3 style="font-size: 28px; font-weight: 600; color: #1f2937; font-style: italic; margin: 0 0 10px 0;">
                 "${certificate.courseTitle}"
               </h3>
               
-              <p style="font-size: 14px; font-weight: bold; color: #374151; max-width: 600px; margin: 0 auto 20px auto; line-height: 1.6;">
+              <p style="font-size: 13px; font-weight: 500; color: #374151; max-width: 700px; margin: 0 auto; line-height: 1.5;">
                 Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course and for the implementation of all prescribed practices.
               </p>
               
-              <p style="color: #6b7280; font-size: 14px; margin: 0;">Completed on</p>
-              <p style="font-weight: 600; color: #1f2937; font-size: 16px; margin: 4px 0 0 0;">${completionDate}</p>
+              <div style="margin-top: 10px;">
+                <p style="color: #6b7280; font-size: 12px; margin: 0;">Completed on</p>
+                <p style="font-weight: 600; color: #1f2937; font-size: 15px; margin: 2px 0 0 0;">${completionDate}</p>
+              </div>
             </div>
             
-            <!-- Signature Section -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; padding: 24px 32px 0 32px; margin-top: 32px;">
+            <!-- Bottom Section - Signature -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; padding: 0 20px;">
               <!-- Instructor Signature -->
               <div style="text-align: center; flex: 1;">
-                <div style="width: 140px; height: 60px; margin: 0 auto 8px auto; border: 1px solid #fcd34d; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%); box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; padding: 4px;">
+                <div style="width: 150px; height: 55px; margin: 0 auto 6px auto; border: 1px solid #fcd34d; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.08); overflow: hidden; padding: 4px;">
                   <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1769580381/shariq-website/products/pc9szshbrztkx4k9iki5.png" alt="Signature" style="width: 100%; height: 100%; object-fit: contain;" crossorigin="anonymous" />
                 </div>
-                <p style="font-size: 14px; font-weight: 600; color: #374151; margin: 0;">Sahibzada Shariq Ahmed Tariqi</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 4px 0 0 0;">Spiritual Guide & Teacher</p>
+                <p style="font-size: 13px; font-weight: 600; color: #374151; margin: 0;">Sahibzada Shariq Ahmed Tariqi</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Spiritual Guide & Teacher</p>
               </div>
               
               <!-- Official Stamp -->
               <div style="text-align: center; flex: 1;">
                 <div style="position: relative; display: inline-block;">
-                  <div style="width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%); padding: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 3px solid #fbbf24; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 85px; height: 85px; border-radius: 50%; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%); padding: 5px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); border: 3px solid #fbbf24; display: flex; align-items: center; justify-content: center;">
                     <img src="/images/certificate-stamp.png" alt="Official Stamp" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;" crossorigin="anonymous" />
                   </div>
-                  <div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; font-size: 8px; font-weight: bold; padding: 3px 10px; border-radius: 9999px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  <div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; font-size: 7px; font-weight: bold; padding: 2px 8px; border-radius: 9999px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     ✓ VERIFIED
                   </div>
                 </div>
@@ -140,19 +147,19 @@ const LMSCertificatePage = () => {
               
               <!-- QR Code and Certificate Number -->
               <div style="text-align: center; flex: 1;">
-                <div style="background: white; padding: 8px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: inline-block; margin-bottom: 8px;">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://shariqtariqi.com/verify-certificate/${certificate.verificationCode}" alt="QR Code" style="width: 80px; height: 80px;" />
+                <div style="background: white; padding: 6px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: inline-block; margin-bottom: 6px;">
+                  <img src="${qrCodeUrl}" alt="QR Code" style="width: 70px; height: 70px; display: block;" crossorigin="anonymous" />
                 </div>
-                <p style="font-size: 13px; font-family: monospace; color: #4b5563; margin: 0 0 8px 0;">${studentId}</p>
-                <div style="width: 120px; border-bottom: 2px solid #9ca3af; margin: 0 auto 6px auto;"></div>
-                <p style="font-size: 10px; color: #6b7280; margin: 0;">Certificate Number</p>
+                <p style="font-size: 12px; font-family: monospace; color: #374151; margin: 0 0 4px 0; font-weight: 600;">${studentId}</p>
+                <div style="width: 120px; border-bottom: 2px solid #9ca3af; margin: 0 auto 4px auto;"></div>
+                <p style="font-size: 9px; color: #6b7280; margin: 0;">Certificate Number</p>
               </div>
             </div>
             
-            <!-- Verification Code -->
-            <div style="text-align: center; margin-top: 20px;">
-              <p style="font-size: 11px; color: #9ca3af;">
-                Verify at: shariqtariqi.com/verify • Code: ${certificate.verificationCode}
+            <!-- Verification Footer -->
+            <div style="text-align: center; margin-top: 8px;">
+              <p style="font-size: 10px; color: #9ca3af; margin: 0;">
+                Verify at: sahibzadashariqahmedtariqi.com/verify • Code: ${certificate.verificationCode}
               </p>
             </div>
           </div>
@@ -161,12 +168,12 @@ const LMSCertificatePage = () => {
       
       // Create wrapper
       const wrapper = document.createElement('div');
-      wrapper.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 900px; background: white; z-index: -9999;';
+      wrapper.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 1200px; background: white; z-index: -9999;';
       wrapper.appendChild(downloadCard);
       document.body.appendChild(wrapper);
       
       // Wait for images to load
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       const cardElement = downloadCard.firstElementChild as HTMLElement;
       
@@ -176,11 +183,11 @@ const LMSCertificatePage = () => {
         useCORS: true,
         allowTaint: true,
         logging: false,
-        width: 900,
-        height: cardElement.scrollHeight + 20,
-        windowWidth: 900,
-        windowHeight: cardElement.scrollHeight + 20,
-        imageTimeout: 15000,
+        width: 1200,
+        height: 850,
+        windowWidth: 1200,
+        windowHeight: 850,
+        imageTimeout: 20000,
       });
       
       document.body.removeChild(wrapper);
