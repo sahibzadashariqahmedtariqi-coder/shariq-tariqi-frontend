@@ -8,7 +8,7 @@ import {
   BarChart3, User, CheckCircle2, LogOut, Sparkles,
   Zap, Target, Flame, Trophy, Gift, Rocket,
   CreditCard, Wallet, AlertCircle, Calendar, DollarSign,
-  X, Send, Upload, Banknote, Smartphone, Building2, History
+  X, Send, Banknote, Smartphone, Building2, History
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuthStore } from '../stores/authStore';
