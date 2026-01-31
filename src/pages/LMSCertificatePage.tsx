@@ -359,9 +359,9 @@ const LMSCertificatePage = () => {
 
           {/* Certificate Preview Modal */}
           {showPreview && (
-            <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
-              <div className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-start justify-center p-4 overflow-y-auto">
+              <div className="relative bg-white rounded-2xl max-w-5xl w-full my-4">
+                <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10 rounded-t-2xl">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                     <Award className="w-5 h-5 text-amber-500" />
                     Certificate Preview
@@ -374,8 +374,8 @@ const LMSCertificatePage = () => {
                   </button>
                 </div>
                 
-                <div className="p-4 bg-gray-100">
-                  <p className="text-xs text-gray-500 text-center mb-3">
+                <div className="p-6 bg-gray-100">
+                  <p className="text-xs text-gray-500 text-center mb-4">
                     Hover over certificate for interactive view
                   </p>
                   
@@ -384,7 +384,8 @@ const LMSCertificatePage = () => {
                     ref={certificateRef}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="relative bg-gradient-to-br from-amber-50 via-white to-emerald-50 border-8 border-double border-amber-600 rounded-lg shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden mx-auto max-w-3xl"
+                    className="relative bg-gradient-to-br from-amber-50 via-white to-emerald-50 border-8 border-double border-amber-600 rounded-lg shadow-2xl p-6 sm:p-8 md:p-10 overflow-hidden mx-auto max-w-4xl aspect-[1.414/1]"
+                    style={{ minHeight: '600px' }}
                   >
                     {/* Background Logo Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
@@ -542,7 +543,7 @@ const LMSCertificatePage = () => {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="sticky bottom-0 bg-gray-50 border-t p-4 flex flex-col sm:flex-row justify-center gap-3">
+                <div className="bg-gray-50 border-t p-4 flex flex-col sm:flex-row justify-center gap-3 rounded-b-2xl">
                   <button
                     onClick={() => setShowPreview(false)}
                     className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
