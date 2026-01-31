@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Play, Lock, CheckCircle, Clock, Award,
-  User, ChevronRight, FileText, Users
+  User, ChevronRight, FileText, Users, ChevronLeft
 } from 'lucide-react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -90,6 +90,17 @@ const LMSCoursePage = () => {
       <Header />
 
       <main className="pt-20">
+        {/* Back to LMS Dashboard Button */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Link
+            to="/lms"
+            className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium transition"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back to My Courses
+          </Link>
+        </div>
+
         {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-gray-900 to-emerald-900 text-white">
           <div className="absolute inset-0 opacity-20">
