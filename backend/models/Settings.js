@@ -140,7 +140,11 @@ const settingsSchema = new mongoose.Schema(
     // UPI Payment for India
     upiQrCode: {
       type: String,
-      default: '',
+      default: 'https://res.cloudinary.com/du7qzhimu/image/upload/v1769844371/shariq-website/products/gfaqobfajf0h4a7zhwqi.jpg',
+    },
+    upiQrCode2: {
+      type: String,
+      default: 'https://res.cloudinary.com/du7qzhimu/image/upload/v1769844448/shariq-website/products/mgmyknzidwwihzdjagbu.jpg',
     },
     upiId: {
       type: String,

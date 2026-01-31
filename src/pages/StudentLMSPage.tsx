@@ -1651,28 +1651,43 @@ const StudentLMSPage = () => {
                 )}
 
                 {/* UPI QR Code for Indian Users */}
-                {bankDetails?.upiQrCode && (
+                {(bankDetails?.upiQrCode || bankDetails?.upiQrCode2) && (
                   <div className="bg-gradient-to-br from-orange-900/30 to-amber-900/30 rounded-xl p-5 border border-orange-500/30">
                     <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
                       <span className="text-2xl">🇮🇳</span>
                       For Indian Users - UPI Payment
                     </h4>
-                    <div className="flex flex-col items-center">
-                      <img 
-                        src={bankDetails.upiQrCode} 
-                        alt="UPI QR Code" 
-                        className="w-48 h-48 rounded-lg border-4 border-white/20 bg-white p-2"
-                      />
-                      {bankDetails.upiId && (
-                        <div className="mt-3 text-center">
-                          <p className="text-gray-400 text-sm">UPI ID:</p>
-                          <p className="text-orange-400 font-medium">{bankDetails.upiId}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      {bankDetails.upiQrCode && (
+                        <div className="flex flex-col items-center">
+                          <img 
+                            src={bankDetails.upiQrCode} 
+                            alt="UPI QR Code 1" 
+                            className="w-full max-w-[160px] h-auto rounded-lg border-4 border-white/20 bg-white p-2"
+                          />
+                          <p className="text-orange-400 text-xs mt-2 font-medium">QR Code 1</p>
                         </div>
                       )}
-                      <p className="text-gray-400 text-xs mt-3 text-center">
-                        Scan this QR code with any UPI app (Google Pay, PhonePe, Paytm, etc.)
-                      </p>
+                      {bankDetails.upiQrCode2 && (
+                        <div className="flex flex-col items-center">
+                          <img 
+                            src={bankDetails.upiQrCode2} 
+                            alt="UPI QR Code 2" 
+                            className="w-full max-w-[160px] h-auto rounded-lg border-4 border-white/20 bg-white p-2"
+                          />
+                          <p className="text-orange-400 text-xs mt-2 font-medium">QR Code 2</p>
+                        </div>
+                      )}
                     </div>
+                    {bankDetails.upiId && (
+                      <div className="mt-3 text-center">
+                        <p className="text-gray-400 text-sm">UPI ID:</p>
+                        <p className="text-orange-400 font-medium">{bankDetails.upiId}</p>
+                      </div>
+                    )}
+                    <p className="text-gray-400 text-xs mt-3 text-center">
+                      Scan any QR code with UPI app (Google Pay, PhonePe, Paytm, etc.)
+                    </p>
                   </div>
                 )}
 
