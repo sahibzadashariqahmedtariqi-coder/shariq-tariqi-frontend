@@ -118,10 +118,7 @@ export default function Header() {
             ) : (
               <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
                 <Link to="/login">
-                  <Button variant="ghost" className="text-gray-200 hover:text-gold-400 hover:bg-primary-800 text-xs lg:text-sm px-3">Login</Button>
-                </Link>
-                <Link to="/register">
-                  <Button className="bg-gold-500 text-primary-900 hover:bg-gold-400 text-xs lg:text-sm px-3">Register</Button>
+                  <Button className="bg-gold-500 text-primary-900 hover:bg-gold-400 text-xs lg:text-sm px-3">Login</Button>
                 </Link>
               </div>
             )}
@@ -215,12 +212,9 @@ export default function Header() {
               ) : (
                 <>
                   <Link to="/login" onClick={closeMenu}>
-                    <Button variant="ghost" className="w-full text-gray-200 hover:text-gold-400 hover:bg-primary-800">
+                    <Button className="w-full bg-gold-500 text-primary-900 hover:bg-gold-400">
                       Login
                     </Button>
-                  </Link>
-                  <Link to="/register" onClick={closeMenu}>
-                    <Button className="w-full bg-gold-500 text-primary-900 hover:bg-gold-400">Register</Button>
                   </Link>
                 </>
               )}
