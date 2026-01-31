@@ -9,7 +9,7 @@ import {
   Users, Play, FileText, Video, Award, Search,
   ChevronDown, ChevronRight, X, Save, GripVertical,
   AlertTriangle, ArrowLeft, UserPlus, Key, ToggleLeft, ToggleRight, GraduationCap, Trash2, BookPlus, Check, Clock,
-  Wallet, Calendar, CreditCard, CheckCircle2, AlertCircle, Receipt, Eye, EyeOff, Sparkles
+  Wallet, Calendar, CreditCard, CheckCircle2, AlertCircle, Receipt, Eye, EyeOff, Sparkles, Download
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import api from '@/services/api';
