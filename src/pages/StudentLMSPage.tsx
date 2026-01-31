@@ -8,7 +8,7 @@ import {
   BarChart3, User, CheckCircle2, LogOut, Sparkles,
   Zap, Target, Flame, Trophy, Gift, Rocket,
   CreditCard, Wallet, AlertCircle, Calendar, DollarSign,
-  X, Send, Banknote, Smartphone, Building2, History
+  X, Banknote, Building2, History
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -136,12 +136,16 @@ const StudentLMSPage = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedFee, setSelectedFee] = useState<FeeRecord | null>(null);
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     amount: 0,
     paymentMethod: 'bank_transfer',
     transactionId: '',
     accountTitle: '',
     accountNumber: '',
+    paymentProof: '',
     remarks: ''
   });
   const queryClient = useQueryClient();
@@ -188,6 +192,42 @@ const StudentLMSPage = () => {
     enabled: activeTab === 'fee-payments'
   });
 
+  // Fetch bank details from settings
+  const { data: bankDetails } = useQuery({
+    queryKey: ['bank-settings'],
+    queryFn: async () => {
+      const res = await api.get('/settings');
+      return res.data.data;
+    },
+    enabled: showPaymentModal
+  });
+
+  // Handle file upload for payment proof
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPaymentProof(file);
+      setImagePreview(URL.createObjectURL(file));
+      
+      // Upload to cloudinary
+      try {
+        setUploadingProof(true);
+        const formData = new FormData();
+        formData.append('image', file);
+        const uploadRes = await api.post('/upload/payment-proof?folder=fee-payments', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (uploadRes.data.success) {
+          setPaymentForm({ ...paymentForm, paymentProof: uploadRes.data.url });
+        }
+      } catch (error) {
+        console.error('Failed to upload payment proof');
+      } finally {
+        setUploadingProof(false);
+      }
+    }
+  };
+
   // Payment submission mutation
   const submitPaymentMutation = useMutation({
     mutationFn: async (data: typeof paymentForm & { feeId: string }) => {
@@ -199,12 +239,15 @@ const StudentLMSPage = () => {
       queryClient.invalidateQueries({ queryKey: ['my-payment-requests'] });
       setShowPaymentModal(false);
       setSelectedFee(null);
+      setPaymentProof(null);
+      setImagePreview(null);
       setPaymentForm({
         amount: 0,
         paymentMethod: 'bank_transfer',
         transactionId: '',
         accountTitle: '',
         accountNumber: '',
+        paymentProof: '',
         remarks: ''
       });
       alert('Payment request submitted successfully! Admin will review and approve it.');
@@ -216,9 +259,16 @@ const StudentLMSPage = () => {
 
   const handlePayNow = (fee: FeeRecord) => {
     setSelectedFee(fee);
+    setPaymentProof(null);
+    setImagePreview(null);
     setPaymentForm({
-      ...paymentForm,
-      amount: fee.amount - fee.paidAmount
+      amount: fee.amount - fee.paidAmount,
+      paymentMethod: 'bank_transfer',
+      transactionId: '',
+      accountTitle: '',
+      accountNumber: '',
+      paymentProof: '',
+      remarks: ''
     });
     setShowPaymentModal(true);
   };
@@ -226,6 +276,10 @@ const StudentLMSPage = () => {
   const handleSubmitPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFee) return;
+    if (!paymentProof) {
+      alert('Please upload payment screenshot');
+      return;
+    }
     
     submitPaymentMutation.mutate({
       feeId: selectedFee._id,
@@ -1526,71 +1580,117 @@ const StudentLMSPage = () => {
               className="bg-slate-900 rounded-2xl border border-white/10 w-full max-w-lg max-h-[90vh] overflow-y-auto"
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Banknote className="w-6 h-6 text-emerald-400" />
-                    Submit Payment
-                  </h3>
-                  <p className="text-gray-400 text-sm mt-1">
-                    {selectedFee.month} {selectedFee.year} - Remaining: Rs {(selectedFee.amount - selectedFee.paidAmount).toLocaleString()}
-                  </p>
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 rounded-t-2xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <Banknote className="w-6 h-6" />
+                      Complete Payment
+                    </h3>
+                    <p className="text-emerald-100 text-sm mt-1">
+                      {selectedFee.month} {selectedFee.year}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowPaymentModal(false)}
+                    className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setShowPaymentModal(false)}
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition"
-                >
-                  <X className="w-5 h-5" />
-                </button>
               </div>
 
               {/* Modal Body */}
               <form onSubmit={handleSubmitPayment} className="p-6 space-y-5">
-                {/* Amount */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Payment Amount (Rs) *
-                  </label>
-                  <input
-                    type="number"
-                    value={paymentForm.amount}
-                    onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
-                    max={selectedFee.amount - selectedFee.paidAmount}
-                    min={1}
-                    required
-                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  />
-                  <p className="text-gray-500 text-xs mt-1">
-                    Max: Rs {(selectedFee.amount - selectedFee.paidAmount).toLocaleString()}
+                {/* Amount Summary */}
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5 text-center">
+                  <p className="text-gray-400 text-sm">Amount to Transfer</p>
+                  <p className="text-3xl font-bold text-emerald-400 mt-1">
+                    Rs {paymentForm.amount.toLocaleString()}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-2">
+                    Total Fee: Rs {selectedFee.amount.toLocaleString()} | 
+                    Already Paid: Rs {selectedFee.paidAmount.toLocaleString()}
                   </p>
                 </div>
 
-                {/* Payment Method */}
+                {/* Bank Details from Settings */}
+                {bankDetails && (
+                  <div className="bg-slate-800/50 rounded-xl p-5 border border-white/10">
+                    <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-emerald-400" />
+                      Bank Transfer Details
+                    </h4>
+                    <div className="space-y-3 text-sm">
+                      {bankDetails.bankName && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Bank Name:</span>
+                          <span className="text-white font-medium">{bankDetails.bankName}</span>
+                        </div>
+                      )}
+                      {bankDetails.accountTitle && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Account Title:</span>
+                          <span className="text-white font-medium">{bankDetails.accountTitle}</span>
+                        </div>
+                      )}
+                      {bankDetails.accountNumber && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Account Number:</span>
+                          <span className="text-white font-medium">{bankDetails.accountNumber}</span>
+                        </div>
+                      )}
+                      {bankDetails.ibanNumber && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">IBAN:</span>
+                          <span className="text-white font-medium text-xs">{bankDetails.ibanNumber}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Payment Screenshot Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Payment Method *
+                    Upload Payment Screenshot *
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { value: 'bank_transfer', label: 'Bank Transfer', icon: Building2 },
-                      { value: 'easypaisa', label: 'Easypaisa', icon: Smartphone },
-                      { value: 'jazzcash', label: 'JazzCash', icon: Smartphone },
-                      { value: 'other', label: 'Other', icon: CreditCard },
-                    ].map((method) => (
-                      <button
-                        key={method.value}
-                        type="button"
-                        onClick={() => setPaymentForm({ ...paymentForm, paymentMethod: method.value })}
-                        className={`p-3 rounded-xl border flex items-center gap-2 transition ${
-                          paymentForm.paymentMethod === method.value
-                            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                            : 'bg-slate-800 border-white/10 text-gray-400 hover:border-white/20'
-                        }`}
-                      >
-                        <method.icon className="w-5 h-5" />
-                        <span className="text-sm font-medium">{method.label}</span>
-                      </button>
-                    ))}
+                  <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center hover:border-emerald-500/50 transition cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="payment-proof-upload"
+                    />
+                    <label htmlFor="payment-proof-upload" className="cursor-pointer block">
+                      {paymentProof && imagePreview ? (
+                        <div className="space-y-3">
+                          <img 
+                            src={imagePreview} 
+                            alt="Payment Screenshot" 
+                            className="max-h-40 mx-auto rounded-lg border border-white/20"
+                          />
+                          <div className="flex items-center justify-center gap-2 text-emerald-400">
+                            <CheckCircle className="w-5 h-5" />
+                            <span className="text-sm font-medium">{paymentProof.name}</span>
+                          </div>
+                          {uploadingProof && (
+                            <div className="flex items-center justify-center gap-2 text-amber-400">
+                              <div className="w-4 h-4 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+                              <span className="text-xs">Uploading...</span>
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-500">Click to change image</p>
+                        </div>
+                      ) : (
+                        <div className="text-gray-400">
+                          <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                          <p className="font-medium">Click to upload payment screenshot</p>
+                          <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+                        </div>
+                      )}
+                    </label>
                   </div>
                 </div>
 
@@ -1604,50 +1704,23 @@ const StudentLMSPage = () => {
                     value={paymentForm.transactionId}
                     onChange={(e) => setPaymentForm({ ...paymentForm, transactionId: e.target.value })}
                     required
-                    placeholder="Enter transaction ID"
+                    placeholder="Enter transaction ID from your receipt"
                     className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
 
-                {/* Account Details */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Sender Account Title
-                    </label>
-                    <input
-                      type="text"
-                      value={paymentForm.accountTitle}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, accountTitle: e.target.value })}
-                      placeholder="Account holder name"
-                      className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Sender Account/Phone
-                    </label>
-                    <input
-                      type="text"
-                      value={paymentForm.accountNumber}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, accountNumber: e.target.value })}
-                      placeholder="Account or phone number"
-                      className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                {/* Remarks */}
+                {/* Sender Account Details */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Remarks (Optional)
+                    Your Account Number (Last 4 digits)
                   </label>
-                  <textarea
-                    value={paymentForm.remarks}
-                    onChange={(e) => setPaymentForm({ ...paymentForm, remarks: e.target.value })}
-                    rows={2}
-                    placeholder="Any additional notes..."
-                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                  <input
+                    type="text"
+                    value={paymentForm.accountNumber}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, accountNumber: e.target.value })}
+                    placeholder="XXXX"
+                    maxLength={4}
+                    className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
 
@@ -1662,8 +1735,8 @@ const StudentLMSPage = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={submitPaymentMutation.isPending}
-                    className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:from-emerald-400 hover:to-teal-400 transition disabled:opacity-50"
+                    disabled={submitPaymentMutation.isPending || uploadingProof || !paymentProof}
+                    className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:from-emerald-400 hover:to-teal-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitPaymentMutation.isPending ? (
                       <>
@@ -1672,8 +1745,8 @@ const StudentLMSPage = () => {
                       </>
                     ) : (
                       <>
-                        <Send className="w-5 h-5" />
-                        Submit Payment
+                        <CheckCircle className="w-5 h-5" />
+                        Confirm Payment
                       </>
                     )}
                   </button>
