@@ -41,18 +41,71 @@ const LMSCertificatePage = () => {
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code URL using reliable external API (no library needed)
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}&bgcolor=ffffff&color=1f2937&margin=5`;
-      
-      // Pre-load QR code image to ensure it's ready
-      const qrImage = new Image();
-      qrImage.crossOrigin = 'anonymous';
-      await new Promise<void>((resolve) => {
-        qrImage.onload = () => resolve();
-        qrImage.onerror = () => resolve(); // Continue even if error
-        qrImage.src = qrCodeUrl;
+      // Generate QR code as base64 using canvas (html2canvas compatible)
+      const qrDataUrl = await new Promise<string>((resolve) => {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}&bgcolor=ffffff&color=1f2937&margin=5`;
+        
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 150;
+            canvas.height = 150;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, 150, 150);
+              ctx.drawImage(img, 0, 0, 150, 150);
+              resolve(canvas.toDataURL('image/png'));
+            } else {
+              resolve(qrUrl);
+            }
+          } catch (e) {
+            console.error('QR canvas error:', e);
+            resolve(qrUrl);
+          }
+        };
+        
+        img.onerror = () => {
+          console.error('QR image load failed');
+          // Fallback: generate simple QR placeholder
+          const canvas = document.createElement('canvas');
+          canvas.width = 150;
+          canvas.height = 150;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 150, 150);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Scan to verify', 75, 75);
+          }
+          resolve(canvas.toDataURL('image/png'));
+        };
+        
+        img.src = qrUrl;
+        
         // Timeout fallback
-        setTimeout(() => resolve(), 3000);
+        setTimeout(() => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 150;
+          canvas.height = 150;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 150, 150);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('QR Code', 75, 70);
+            ctx.font = '10px Arial';
+            ctx.fillText(certificate._id.slice(-8), 75, 90);
+          }
+          resolve(canvas.toDataURL('image/png'));
+        }, 5000);
       });
       
       // Create fixed-size certificate HTML for download (LANDSCAPE)
@@ -162,7 +215,7 @@ const LMSCertificatePage = () => {
               <!-- QR Code and Certificate Number -->
               <div style="text-align: center; flex: 1;">
                 <div style="background: white; padding: 6px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: inline-block; margin-bottom: 6px;">
-                  <img src="${qrCodeUrl}" alt="QR Code" style="width: 80px; height: 80px; display: block;" crossorigin="anonymous" />
+                  <img src="${qrDataUrl}" alt="QR Code" style="width: 80px; height: 80px; display: block;" />
                 </div>
                 <p style="font-size: 12px; font-family: monospace; color: #374151; margin: 0 0 4px 0; font-weight: 600;">${studentId}</p>
                 <div style="width: 120px; border-bottom: 2px solid #9ca3af; margin: 0 auto 4px auto;"></div>
