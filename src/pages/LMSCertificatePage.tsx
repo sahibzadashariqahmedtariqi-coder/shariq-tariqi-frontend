@@ -41,72 +41,48 @@ const LMSCertificatePage = () => {
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code as base64 using canvas (html2canvas compatible)
-      const qrDataUrl = await new Promise<string>((resolve) => {
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}&bgcolor=ffffff&color=1f2937&margin=5`;
+      // Generate QR code using qrcode library with toCanvas method (100% local, no external API)
+      let qrDataUrl = '';
+      try {
+        const QRCode = await import('qrcode');
+        const canvas = document.createElement('canvas');
+        canvas.width = 150;
+        canvas.height = 150;
         
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = 150;
-            canvas.height = 150;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(0, 0, 150, 150);
-              ctx.drawImage(img, 0, 0, 150, 150);
-              resolve(canvas.toDataURL('image/png'));
-            } else {
-              resolve(qrUrl);
-            }
-          } catch (e) {
-            console.error('QR canvas error:', e);
-            resolve(qrUrl);
+        await QRCode.toCanvas(canvas, `https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
+          width: 150,
+          margin: 1,
+          color: {
+            dark: '#1f2937',
+            light: '#ffffff'
           }
-        };
+        });
         
-        img.onerror = () => {
-          console.error('QR image load failed');
-          // Fallback: generate simple QR placeholder
-          const canvas = document.createElement('canvas');
-          canvas.width = 150;
-          canvas.height = 150;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, 150, 150);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Scan to verify', 75, 75);
-          }
-          resolve(canvas.toDataURL('image/png'));
-        };
-        
-        img.src = qrUrl;
-        
-        // Timeout fallback
-        setTimeout(() => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 150;
-          canvas.height = 150;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, 150, 150);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('QR Code', 75, 70);
-            ctx.font = '10px Arial';
-            ctx.fillText(certificate._id.slice(-8), 75, 90);
-          }
-          resolve(canvas.toDataURL('image/png'));
-        }, 5000);
-      });
+        qrDataUrl = canvas.toDataURL('image/png');
+        console.log('QR Code generated successfully via toCanvas');
+      } catch (qrError) {
+        console.error('QR Code generation failed:', qrError);
+        // Fallback: Create a simple text-based placeholder
+        const canvas = document.createElement('canvas');
+        canvas.width = 150;
+        canvas.height = 150;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, 150, 150);
+          ctx.strokeStyle = '#1f2937';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(10, 10, 130, 130);
+          ctx.fillStyle = '#1f2937';
+          ctx.font = 'bold 14px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('VERIFIED', 75, 70);
+          ctx.font = '10px Arial';
+          ctx.fillText(studentId.slice(-12), 75, 90);
+          ctx.fillText('Scan QR on website', 75, 110);
+        }
+        qrDataUrl = canvas.toDataURL('image/png');
+      }
       
       // Create fixed-size certificate HTML for download (LANDSCAPE)
       const downloadCard = document.createElement('div');
