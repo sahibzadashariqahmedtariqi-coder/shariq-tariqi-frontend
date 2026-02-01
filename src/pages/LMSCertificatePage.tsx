@@ -41,15 +41,25 @@ const LMSCertificatePage = () => {
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code as data URL
-      const qrCanvas = document.createElement('canvas');
-      const QRCode = await import('qrcode');
-      await QRCode.toCanvas(qrCanvas, `https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
-        width: 100,
-        margin: 1,
-        color: { dark: '#1f2937', light: '#ffffff' }
+      // Generate QR code as data URL using external API (more reliable)
+      const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}`;
+      
+      // Pre-load the QR code image
+      const qrImage = new Image();
+      qrImage.crossOrigin = 'anonymous';
+      await new Promise((resolve, reject) => {
+        qrImage.onload = resolve;
+        qrImage.onerror = reject;
+        qrImage.src = qrDataUrl;
       });
-      const qrDataUrl = qrCanvas.toDataURL('image/png');
+      
+      // Convert QR image to base64
+      const qrCanvas = document.createElement('canvas');
+      qrCanvas.width = 150;
+      qrCanvas.height = 150;
+      const qrCtx = qrCanvas.getContext('2d');
+      qrCtx?.drawImage(qrImage, 0, 0, 150, 150);
+      const qrBase64 = qrCanvas.toDataURL('image/png');
       
       // Create fixed-size certificate HTML for download (LANDSCAPE)
       const downloadCard = document.createElement('div');
@@ -158,7 +168,7 @@ const LMSCertificatePage = () => {
               <!-- QR Code and Certificate Number -->
               <div style="text-align: center; flex: 1;">
                 <div style="background: white; padding: 6px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: inline-block; margin-bottom: 6px;">
-                  <img src="${qrDataUrl}" alt="QR Code" style="width: 80px; height: 80px; display: block;" />
+                  <img src="${qrBase64}" alt="QR Code" style="width: 80px; height: 80px; display: block;" />
                 </div>
                 <p style="font-size: 12px; font-family: monospace; color: #374151; margin: 0 0 4px 0; font-weight: 600;">${studentId}</p>
                 <div style="width: 120px; border-bottom: 2px solid #9ca3af; margin: 0 auto 4px auto;"></div>

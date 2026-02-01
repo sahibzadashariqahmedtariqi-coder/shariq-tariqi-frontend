@@ -1446,13 +1446,6 @@ const StudentLMSPage = () => {
                         Admin will verify and approve your payment
                       </p>
                     </div>
-                    <div className="mt-4 p-4 bg-slate-900/50 rounded-xl">
-                      <p className="text-sm text-gray-400 mb-2">Payment Account Details:</p>
-                      <div className="space-y-1 text-sm">
-                        <p className="text-white"><span className="text-gray-400">Bank:</span> JazzCash / Easypaisa / Bank Transfer</p>
-                        <p className="text-white"><span className="text-gray-400">Account:</span> Contact Admin for details</p>
-                      </div>
-                    </div>
                   </motion.div>
 
                   {/* My Payment Requests */}
