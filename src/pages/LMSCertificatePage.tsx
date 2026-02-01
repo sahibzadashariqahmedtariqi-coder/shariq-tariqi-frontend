@@ -41,13 +41,21 @@ const LMSCertificatePage = () => {
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code using qrcode library
-      const QRCode = await import('qrcode');
-      const qrBase64 = await QRCode.toDataURL(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
-        width: 150,
-        margin: 1,
-        color: { dark: '#1f2937', light: '#ffffff' }
-      });
+      // Generate QR code using qrcode library with error handling
+      let qrBase64 = '';
+      try {
+        const QRCode = await import('qrcode');
+        qrBase64 = await QRCode.toDataURL(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
+          width: 150,
+          margin: 1,
+          color: { dark: '#1f2937', light: '#ffffff' }
+        });
+        console.log('QR Code generated successfully');
+      } catch (qrError) {
+        console.error('QR Code generation error:', qrError);
+        // Fallback to Google Charts API if qrcode library fails
+        qrBase64 = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}&choe=UTF-8`;
+      }
       
       // Create fixed-size certificate HTML for download (LANDSCAPE)
       const downloadCard = document.createElement('div');
@@ -180,8 +188,30 @@ const LMSCertificatePage = () => {
       wrapper.appendChild(downloadCard);
       document.body.appendChild(wrapper);
       
-      // Wait for images to load
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait for all images to load properly
+      const images = wrapper.querySelectorAll('img');
+      const imageLoadPromises = Array.from(images).map((img) => {
+        return new Promise<void>((resolve) => {
+          if (img.complete) {
+            resolve();
+          } else {
+            img.onload = () => resolve();
+            img.onerror = () => {
+              console.warn('Image failed to load:', img.src);
+              resolve(); // Still resolve to continue with download
+            };
+          }
+        });
+      });
+      
+      // Wait for images with timeout
+      await Promise.race([
+        Promise.all(imageLoadPromises),
+        new Promise(resolve => setTimeout(resolve, 5000)) // 5 second timeout
+      ]);
+      
+      // Additional delay for rendering
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       const cardElement = downloadCard.firstElementChild as HTMLElement;
       
@@ -389,18 +419,23 @@ const LMSCertificatePage = () => {
                   </button>
                 </div>
                 
-                <div className="p-6 bg-gray-100">
+                <div className="p-4 sm:p-6 bg-gray-100 overflow-y-auto max-h-[calc(100vh-180px)]">
                   <p className="text-xs text-gray-500 text-center mb-4">
-                    Hover over certificate for interactive view
+                    Preview of your certificate
                   </p>
                   
-                  {/* Certificate Display */}
+                  {/* Certificate Display - Landscape Format */}
                   <motion.div
                     ref={certificateRef}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="relative bg-gradient-to-br from-amber-50 via-white to-emerald-50 border-8 border-double border-amber-600 rounded-lg shadow-2xl p-6 sm:p-8 md:p-10 overflow-hidden mx-auto max-w-4xl aspect-[1.414/1]"
-                    style={{ minHeight: '600px' }}
+                    className="relative bg-gradient-to-br from-amber-50 via-white to-emerald-50 border-8 border-double border-amber-600 rounded-lg shadow-2xl overflow-hidden mx-auto"
+                    style={{ 
+                      width: '100%', 
+                      maxWidth: '900px',
+                      aspectRatio: '1200 / 850',
+                      padding: 'clamp(16px, 3vw, 40px)'
+                    }}
                   >
                     {/* Background Logo Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
@@ -425,69 +460,72 @@ const LMSCertificatePage = () => {
                       <div className="w-full h-full border-r-4 border-b-4 border-amber-600 rounded-br-lg" />
                     </div>
 
-                    {/* Content */}
-                    <div className="relative z-10 text-center space-y-3 sm:space-y-4">
-                      {/* Bismillah */}
-                      <p className="text-amber-700 text-base sm:text-xl font-arabic" style={{ fontFamily: 'serif' }}>
-                        بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-                      </p>
+                    {/* Content - Flexbox for proper landscape fit */}
+                    <div className="relative z-10 h-full flex flex-col justify-between text-center">
+                      {/* Top Section */}
+                      <div className="space-y-1">
+                        {/* Bismillah */}
+                        <p className="text-amber-700 text-sm sm:text-base" style={{ fontFamily: 'serif' }}>
+                          بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                        </p>
 
-                      {/* Logo and Name */}
-                      <div className="flex items-center justify-center gap-2 sm:gap-3">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-emerald-600 shadow-lg bg-emerald-800 flex items-center justify-center">
-                          <img 
-                            src="/images/logo.png" 
-                            alt="Logo" 
-                            className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
-                          />
+                        {/* Logo and Name */}
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-emerald-600 shadow-lg bg-emerald-800 flex items-center justify-center">
+                            <img 
+                              src="/images/logo.png" 
+                              alt="Logo" 
+                              className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                            />
+                          </div>
+                          <div className="text-left">
+                            <h2 className="text-xs sm:text-sm font-bold text-emerald-700 italic" style={{ fontFamily: 'Georgia, serif' }}>
+                              Sahibzada Shariq Ahmed Tariqi
+                            </h2>
+                            <p className="text-[8px] sm:text-[10px] text-emerald-600 tracking-wider">
+                              Spiritual Healing & Guidance
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <h2 className="text-sm sm:text-lg font-bold text-emerald-700 italic" style={{ fontFamily: 'Georgia, serif' }}>
-                            Sahibzada Shariq Ahmed Tariqi
-                          </h2>
-                          <p className="text-[10px] sm:text-xs text-emerald-600 tracking-wider">
-                            Spiritual Healing & Guidance
-                          </p>
+
+                        {/* Award Icon */}
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-6 sm:w-8 h-0.5 bg-gradient-to-r from-transparent via-amber-600 to-amber-600" />
+                          <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-600" />
+                          <div className="w-6 sm:w-8 h-0.5 bg-gradient-to-l from-transparent via-amber-600 to-amber-600" />
                         </div>
+
+                        {/* Title */}
+                        <h1 className="text-lg sm:text-2xl font-bold text-emerald-800 tracking-wide">
+                          Certificate of Completion
+                        </h1>
+                        <p className="text-amber-700 text-[8px] sm:text-[10px] tracking-widest uppercase font-semibold">
+                          Sahibzada Shariq Ahmed Tariqi Academy
+                        </p>
                       </div>
 
-                      {/* Award Icon */}
-                      <div className="flex items-center justify-center gap-2 sm:gap-4">
-                        <div className="w-8 sm:w-12 h-0.5 bg-gradient-to-r from-transparent via-amber-600 to-amber-600" />
-                        <Award className="w-8 h-8 sm:w-10 sm:h-10 text-amber-600" />
-                        <div className="w-8 sm:w-12 h-0.5 bg-gradient-to-l from-transparent via-amber-600 to-amber-600" />
-                      </div>
-
-                      {/* Title */}
-                      <h1 className="text-xl sm:text-3xl font-bold text-emerald-800 tracking-wide">
-                        Certificate of Completion
-                      </h1>
-                      <p className="text-amber-700 text-[10px] sm:text-xs tracking-widest uppercase font-semibold">
-                        Sahibzada Shariq Ahmed Tariqi Academy
-                      </p>
-
-                      {/* Main Content */}
-                      <div className="space-y-2 sm:space-y-3 py-2 sm:py-4">
-                        <p className="text-gray-600 text-sm sm:text-base">This is to certify that</p>
+                      {/* Middle Section - Main Content */}
+                      <div className="space-y-1 py-2">
+                        <p className="text-gray-600 text-xs sm:text-sm">This is to certify that</p>
                         
-                        <h2 className="text-xl sm:text-2xl font-bold text-emerald-700 border-b-2 border-amber-400 pb-1 inline-block px-4 sm:px-6">
+                        <h2 className="text-base sm:text-xl font-bold text-emerald-700 border-b-2 border-amber-400 pb-0.5 inline-block px-3">
                           {certificate.studentName}
                         </h2>
                         
-                        <p className="text-gray-600 text-sm sm:text-base">has successfully completed the course</p>
+                        <p className="text-gray-600 text-xs sm:text-sm">has successfully completed the course</p>
                         
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-800 italic">
+                        <h3 className="text-sm sm:text-lg font-semibold text-gray-800 italic">
                           "{certificate.courseTitle}"
                         </h3>
                         
-                        <p className="text-xs sm:text-sm font-bold text-gray-800 px-4 sm:px-6 leading-relaxed">
-                          Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course and for the implementation of all prescribed practices.
+                        <p className="text-[9px] sm:text-xs font-medium text-gray-700 px-4 leading-relaxed max-w-lg mx-auto">
+                          Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course.
                         </p>
 
                         {/* Completion Date */}
                         <div className="text-gray-600">
-                          <p className="text-[10px] sm:text-xs">Completed on</p>
-                          <p className="font-semibold text-gray-800 text-xs sm:text-sm">
+                          <p className="text-[8px] sm:text-[10px]">Completed on</p>
+                          <p className="font-semibold text-gray-800 text-[10px] sm:text-xs">
                             {new Date(certificate.completionDate).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long',
@@ -497,32 +535,32 @@ const LMSCertificatePage = () => {
                         </div>
                       </div>
 
-                      {/* Signature Section */}
-                      <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end gap-4 sm:gap-0 px-2 sm:px-6 pt-2 sm:pt-4">
+                      {/* Bottom Section - Signature, Stamp, QR */}
+                      <div className="flex justify-between items-end px-2 sm:px-4">
                         {/* Instructor Signature */}
                         <div className="text-center flex-1">
-                          <div className="w-24 sm:w-28 h-12 sm:h-14 mx-auto mb-1 border border-amber-300 rounded-lg flex items-center justify-center bg-gradient-to-br from-amber-50/80 via-white to-emerald-50/50 shadow-sm overflow-hidden p-1">
+                          <div className="w-20 sm:w-24 h-10 sm:h-12 mx-auto mb-0.5 border border-amber-300 rounded-lg flex items-center justify-center bg-gradient-to-br from-amber-50/80 via-white to-emerald-50/50 shadow-sm overflow-hidden p-0.5">
                             <img 
                               src="https://res.cloudinary.com/du7qzhimu/image/upload/v1769580381/shariq-website/products/pc9szshbrztkx4k9iki5.png" 
                               alt="Signature" 
                               className="w-full h-full object-contain"
                             />
                           </div>
-                          <p className="text-[10px] sm:text-xs font-semibold text-gray-700">Sahibzada Shariq Ahmed Tariqi</p>
-                          <p className="text-[8px] sm:text-[10px] text-gray-500">Spiritual Guide & Teacher</p>
+                          <p className="text-[8px] sm:text-[10px] font-semibold text-gray-700">Sahibzada Shariq Ahmed Tariqi</p>
+                          <p className="text-[6px] sm:text-[8px] text-gray-500">Spiritual Guide & Teacher</p>
                         </div>
 
                         {/* Official Stamp */}
                         <div className="flex flex-col items-center flex-1">
                           <div className="relative">
-                            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-amber-50 via-white to-amber-100 p-1 sm:p-1.5 shadow-xl border-2 border-amber-400">
+                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-amber-50 via-white to-amber-100 p-1 shadow-xl border-2 border-amber-400">
                               <img 
                                 src="/images/certificate-stamp.png" 
                                 alt="Official Stamp" 
                                 className="w-full h-full object-contain rounded-full"
                               />
                             </div>
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[5px] sm:text-[6px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full shadow-md">
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[5px] font-bold px-1.5 py-0.5 rounded-full shadow-md">
                               ✓ VERIFIED
                             </div>
                           </div>
@@ -530,26 +568,26 @@ const LMSCertificatePage = () => {
 
                         {/* QR Code and Certificate Number */}
                         <div className="text-center flex-1 flex flex-col items-center">
-                          <div className="bg-white p-1 sm:p-1.5 rounded-md shadow-sm border border-gray-200 mb-1">
+                          <div className="bg-white p-1 rounded-md shadow-sm border border-gray-200 mb-0.5">
                             <QRCodeSVG 
                               value={`https://shariqtariqi.com/verify-certificate/${certificate.verificationCode}`}
-                              size={50}
+                              size={40}
                               level="M"
                               fgColor="#1f2937"
                               bgColor="#ffffff"
                             />
                           </div>
-                          <p className="text-[10px] sm:text-xs font-mono text-gray-600 mb-1">
+                          <p className="text-[8px] sm:text-[10px] font-mono text-gray-600 mb-0.5">
                             {certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber}
                           </p>
-                          <div className="w-24 sm:w-32 border-b-2 border-gray-400 mb-1 mx-auto" />
-                          <p className="text-[8px] sm:text-[10px] text-gray-500">Certificate Number</p>
+                          <div className="w-20 sm:w-24 border-b border-gray-400 mb-0.5 mx-auto" />
+                          <p className="text-[6px] sm:text-[8px] text-gray-500">Certificate Number</p>
                         </div>
                       </div>
 
-                      {/* Verification Code */}
-                      <div className="text-center pt-1 sm:pt-2">
-                        <p className="text-[8px] sm:text-[10px] text-gray-400">
+                      {/* Verification Code Footer */}
+                      <div className="text-center">
+                        <p className="text-[6px] sm:text-[8px] text-gray-400">
                           Verify at: shariqtariqi.com/verify • Code: {certificate.verificationCode}
                         </p>
                       </div>
