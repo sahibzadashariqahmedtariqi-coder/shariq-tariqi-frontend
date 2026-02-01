@@ -2,6 +2,7 @@ import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import html2canvas from 'html2canvas';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Award, Download, Share2,
@@ -16,6 +17,7 @@ const LMSCertificatePage = () => {
   const { certificateId } = useParams();
   const [searchParams] = useSearchParams();
   const certificateRef = useRef<HTMLDivElement>(null);
+  const downloadRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -28,285 +30,36 @@ const LMSCertificatePage = () => {
   });
 
   const handleDownload = async () => {
-    if (!certificate) return;
+    if (!certificate || !downloadRef.current) return;
     
     try {
       setDownloading(true);
       
-      const completionDate = new Date(certificate.completionDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+      // Wait for images to load
+      const images = downloadRef.current.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+      
+      // Small delay for rendering
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const canvas = await html2canvas(downloadRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: 1200,
+        height: 850,
       });
-      const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code as canvas using qrcode library
-      const QRCode = await import('qrcode');
-      const qrCanvas = document.createElement('canvas');
-      await QRCode.toCanvas(qrCanvas, `https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
-        width: 100,
-        margin: 1,
-        color: { dark: '#1f2937', light: '#ffffff' }
-      });
-      
-      // Load signature image
-      const signatureImg = new Image();
-      signatureImg.crossOrigin = 'anonymous';
-      signatureImg.src = 'https://res.cloudinary.com/du7qzhimu/image/upload/v1769580381/shariq-website/products/pc9szshbrztkx4k9iki5.png';
-      
-      // Load stamp image
-      const stampImg = new Image();
-      stampImg.crossOrigin = 'anonymous';
-      stampImg.src = `${window.location.origin}/images/certificate-stamp.png`;
-      
-      // Load logo for header and watermark
-      const logoImg = new Image();
-      logoImg.crossOrigin = 'anonymous';
-      logoImg.src = `${window.location.origin}/images/logo.png`;
-      
-      // Wait for all images to load
-      await Promise.all([
-        new Promise((resolve) => { signatureImg.onload = resolve; signatureImg.onerror = resolve; }),
-        new Promise((resolve) => { stampImg.onload = resolve; stampImg.onerror = resolve; }),
-        new Promise((resolve) => { logoImg.onload = resolve; logoImg.onerror = resolve; })
-      ]);
-      
-      // Create main canvas for certificate (Landscape 1200x850)
-      const canvas = document.createElement('canvas');
-      canvas.width = 1200;
-      canvas.height = 850;
-      const ctx = canvas.getContext('2d')!;
-      
-      // Background gradient
-      const gradient = ctx.createLinearGradient(0, 0, 1200, 850);
-      gradient.addColorStop(0, '#fffbeb');
-      gradient.addColorStop(0.5, '#ffffff');
-      gradient.addColorStop(1, '#ecfdf5');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 1200, 850);
-      
-      // Watermark logo (center, faded)
-      ctx.globalAlpha = 0.10;
-      ctx.drawImage(logoImg, 425, 225, 350, 350);
-      ctx.globalAlpha = 1.0;
-      
-      // Border - double border like preview
-      ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 8;
-      ctx.strokeRect(12, 12, 1176, 826);
-      
-      // Corner Decorations (like preview)
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = '#d97706';
-      // Top-left
-      ctx.beginPath();
-      ctx.moveTo(30, 80); ctx.lineTo(30, 30); ctx.lineTo(80, 30);
-      ctx.stroke();
-      // Top-right
-      ctx.beginPath();
-      ctx.moveTo(1170, 30); ctx.lineTo(1120, 30);
-      ctx.moveTo(1170, 30); ctx.lineTo(1170, 80);
-      ctx.stroke();
-      // Bottom-left
-      ctx.beginPath();
-      ctx.moveTo(30, 770); ctx.lineTo(30, 820); ctx.lineTo(80, 820);
-      ctx.stroke();
-      // Bottom-right
-      ctx.beginPath();
-      ctx.moveTo(1170, 770); ctx.lineTo(1170, 820); ctx.lineTo(1120, 820);
-      ctx.stroke();
-      
-      // ========== TOP SECTION ==========
-      
-      // Bismillah
-      ctx.fillStyle = '#b45309';
-      ctx.font = '22px serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', 600, 70);
-      
-      // Logo circle with image (like preview - left of name)
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(520, 115, 25, 0, Math.PI * 2);
-      ctx.fillStyle = '#065f46';
-      ctx.fill();
-      ctx.strokeStyle = '#059669';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      ctx.clip();
-      if (logoImg.complete && logoImg.naturalWidth > 0) {
-        ctx.drawImage(logoImg, 495, 90, 50, 50);
-      }
-      ctx.restore();
-      
-      // Header text (next to logo)
-      ctx.fillStyle = '#047857';
-      ctx.font = 'italic bold 26px Georgia';
-      ctx.textAlign = 'left';
-      ctx.fillText('Sahibzada Shariq Ahmed Tariqi', 555, 110);
-      ctx.fillStyle = '#059669';
-      ctx.font = '11px Arial';
-      ctx.fillText('Spiritual Healing & Guidance', 555, 130);
-      
-      // Award icon with lines
-      ctx.textAlign = 'center';
-      ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 2;
-      // Left line
-      ctx.beginPath();
-      ctx.moveTo(520, 170);
-      ctx.lineTo(580, 170);
-      ctx.stroke();
-      // Award circle
-      ctx.beginPath();
-      ctx.arc(600, 170, 18, 0, Math.PI * 2);
-      ctx.stroke();
-      // Award ribbon
-      ctx.beginPath();
-      ctx.moveTo(587, 185);
-      ctx.lineTo(600, 210);
-      ctx.lineTo(613, 185);
-      ctx.stroke();
-      // Right line
-      ctx.beginPath();
-      ctx.moveTo(620, 170);
-      ctx.lineTo(680, 170);
-      ctx.stroke();
-      
-      // Certificate of Completion
-      ctx.fillStyle = '#065f46';
-      ctx.font = 'bold 44px Georgia';
-      ctx.fillText('Certificate of Completion', 600, 260);
-      
-      // Academy name
-      ctx.fillStyle = '#b45309';
-      ctx.font = 'bold 12px Arial';
-      ctx.fillText('SAHIBZADA SHARIQ AHMED TARIQI ACADEMY', 600, 285);
-      
-      // ========== MIDDLE SECTION ==========
-      
-      // This is to certify
-      ctx.fillStyle = '#4b5563';
-      ctx.font = '17px Georgia';
-      ctx.fillText('This is to certify that', 600, 340);
-      
-      // Student name with underline
-      ctx.fillStyle = '#047857';
-      ctx.font = 'bold 36px Georgia';
-      ctx.fillText(certificate.studentName, 600, 390);
-      const nameWidth = ctx.measureText(certificate.studentName).width;
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(600 - nameWidth/2 - 15, 400);
-      ctx.lineTo(600 + nameWidth/2 + 15, 400);
-      ctx.stroke();
-      
-      // has successfully completed
-      ctx.fillStyle = '#4b5563';
-      ctx.font = '17px Georgia';
-      ctx.fillText('has successfully completed the course', 600, 440);
-      
-      // Course title
-      ctx.fillStyle = '#1f2937';
-      ctx.font = 'italic bold 28px Georgia';
-      ctx.fillText(`"${certificate.courseTitle}"`, 600, 485);
-      
-      // Ijazat text
-      ctx.fillStyle = '#374151';
-      ctx.font = '13px Georgia';
-      ctx.fillText('Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course.', 600, 525);
-      
-      // Completion date
-      ctx.fillStyle = '#6b7280';
-      ctx.font = '12px Arial';
-      ctx.fillText('Completed on', 600, 565);
-      ctx.fillStyle = '#1f2937';
-      ctx.font = 'bold 15px Arial';
-      ctx.fillText(completionDate, 600, 585);
-      
-      // ========== BOTTOM SECTION ==========
-      
-      // LEFT: Signature Box with Image
-      ctx.fillStyle = 'rgba(255, 251, 235, 0.8)';
-      ctx.fillRect(170, 660, 160, 60);
-      ctx.strokeStyle = '#fcd34d';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(170, 660, 160, 60);
-      if (signatureImg.complete && signatureImg.naturalWidth > 0) {
-        ctx.drawImage(signatureImg, 175, 663, 150, 54);
-      }
-      ctx.fillStyle = '#374151';
-      ctx.font = 'bold 13px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('Sahibzada Shariq Ahmed Tariqi', 250, 740);
-      ctx.fillStyle = '#6b7280';
-      ctx.font = '10px Arial';
-      ctx.fillText('Spiritual Guide & Teacher', 250, 755);
-      
-      // CENTER: Stamp with Image
-      // Outer circle with gradient
-      ctx.beginPath();
-      ctx.arc(600, 695, 48, 0, Math.PI * 2);
-      const stampGradient = ctx.createRadialGradient(600, 695, 0, 600, 695, 48);
-      stampGradient.addColorStop(0, '#ffffff');
-      stampGradient.addColorStop(0.5, '#fffbeb');
-      stampGradient.addColorStop(1, '#fef3c7');
-      ctx.fillStyle = stampGradient;
-      ctx.fill();
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      // Draw stamp image
-      if (stampImg.complete && stampImg.naturalWidth > 0) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(600, 695, 44, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(stampImg, 556, 651, 88, 88);
-        ctx.restore();
-      }
-      // Verified badge
-      ctx.fillStyle = '#10b981';
-      ctx.beginPath();
-      ctx.roundRect(560, 748, 80, 20, 10);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 11px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('✓ VERIFIED', 600, 762);
-      
-      // RIGHT: QR Code and Certificate Number
-      // White background for QR
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#e5e7eb';
-      ctx.lineWidth = 1;
-      ctx.fillRect(895, 655, 100, 100);
-      ctx.strokeRect(895, 655, 100, 100);
-      // Draw QR code
-      ctx.drawImage(qrCanvas, 900, 660, 90, 90);
-      // Certificate number
-      ctx.fillStyle = '#4b5563';
-      ctx.font = 'bold 11px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(studentId, 945, 772);
-      // Line under number
-      ctx.strokeStyle = '#9ca3af';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(880, 780);
-      ctx.lineTo(1010, 780);
-      ctx.stroke();
-      ctx.fillStyle = '#6b7280';
-      ctx.font = '9px Arial';
-      ctx.fillText('Certificate Number', 945, 795);
-      
-      // Verification footer
-      ctx.fillStyle = '#9ca3af';
-      ctx.font = '10px Arial';
-      ctx.fillText(`Verify at: sahibzadashariqahmedtariqi.com/verify • Code: ${certificate.verificationCode}`, 600, 825);
-      
-      // Download
       const link = document.createElement('a');
       link.download = `Certificate-${certificate.studentName}-${certificate.courseTitle}.png`;
       link.href = canvas.toDataURL('image/png', 1.0);
@@ -705,6 +458,152 @@ const LMSCertificatePage = () => {
           )}
         </div>
       </main>
+
+      {/* Hidden Certificate for Download - Fixed 1200x850 */}
+      {certificate && (
+        <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+          <div
+            ref={downloadRef}
+            style={{
+              width: '1200px',
+              height: '850px',
+              background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%)',
+              position: 'relative',
+              overflow: 'hidden',
+              fontFamily: 'Georgia, serif',
+              border: '8px solid #d97706',
+              borderRadius: '16px',
+              boxSizing: 'border-box',
+            }}
+          >
+            {/* Background Logo Watermark */}
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 0, opacity: 0.1 }}>
+              <img src="/images/logo.png" alt="Watermark" style={{ width: '350px', height: '350px', objectFit: 'contain' }} crossOrigin="anonymous" />
+            </div>
+            
+            {/* Corner Decorations */}
+            <div style={{ position: 'absolute', top: '20px', left: '20px', width: '80px', height: '80px', borderLeft: '4px solid #d97706', borderTop: '4px solid #d97706' }} />
+            <div style={{ position: 'absolute', top: '20px', right: '20px', width: '80px', height: '80px', borderRight: '4px solid #d97706', borderTop: '4px solid #d97706' }} />
+            <div style={{ position: 'absolute', bottom: '20px', left: '20px', width: '80px', height: '80px', borderLeft: '4px solid #d97706', borderBottom: '4px solid #d97706' }} />
+            <div style={{ position: 'absolute', bottom: '20px', right: '20px', width: '80px', height: '80px', borderRight: '4px solid #d97706', borderBottom: '4px solid #d97706' }} />
+            
+            <div style={{ padding: '30px 50px', position: 'relative', zIndex: 10, textAlign: 'center', height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              {/* Top Section */}
+              <div>
+                {/* Bismillah */}
+                <p style={{ color: '#b45309', fontSize: '22px', margin: '0 0 10px 0', fontFamily: 'serif' }}>
+                  بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                </p>
+                
+                {/* Logo and Name */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '10px' }}>
+                  <div style={{ width: '50px', height: '50px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #059669', background: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src="/images/logo.png" alt="Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} crossOrigin="anonymous" />
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <h2 style={{ fontSize: '26px', fontWeight: 'bold', color: '#047857', fontStyle: 'italic', margin: 0 }}>
+                      Sahibzada Shariq Ahmed Tariqi
+                    </h2>
+                    <p style={{ fontSize: '12px', color: '#059669', letterSpacing: '2px', margin: '2px 0 0 0' }}>
+                      Spiritual Healing & Guidance
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Award Icon */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '8px' }}>
+                  <div style={{ width: '60px', height: '2px', background: 'linear-gradient(to right, transparent, #d97706)' }} />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+                  <div style={{ width: '60px', height: '2px', background: 'linear-gradient(to left, transparent, #d97706)' }} />
+                </div>
+                
+                {/* Title */}
+                <h1 style={{ fontSize: '44px', fontWeight: 'bold', color: '#065f46', margin: '0 0 4px 0' }}>
+                  Certificate of Completion
+                </h1>
+                <p style={{ color: '#b45309', fontSize: '12px', letterSpacing: '4px', textTransform: 'uppercase', fontWeight: 600, margin: 0 }}>
+                  SAHIBZADA SHARIQ AHMED TARIQI ACADEMY
+                </p>
+              </div>
+              
+              {/* Middle Section */}
+              <div style={{ margin: '15px 0' }}>
+                <p style={{ color: '#4b5563', fontSize: '18px', margin: '0 0 8px 0' }}>This is to certify that</p>
+                
+                <h2 style={{ fontSize: '38px', fontWeight: 'bold', color: '#047857', borderBottom: '3px solid #fbbf24', paddingBottom: '6px', display: 'inline-block', margin: '0 0 8px 0' }}>
+                  {certificate.studentName}
+                </h2>
+                
+                <p style={{ color: '#4b5563', fontSize: '18px', margin: '0 0 8px 0' }}>has successfully completed the course</p>
+                
+                <h3 style={{ fontSize: '30px', fontWeight: 600, color: '#1f2937', fontStyle: 'italic', margin: '0 0 10px 0' }}>
+                  "{certificate.courseTitle}"
+                </h3>
+                
+                <p style={{ fontSize: '14px', fontWeight: 500, color: '#374151', maxWidth: '700px', margin: '0 auto', lineHeight: 1.5 }}>
+                  Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course.
+                </p>
+                
+                <div style={{ marginTop: '12px' }}>
+                  <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Completed on</p>
+                  <p style={{ fontWeight: 600, color: '#1f2937', fontSize: '16px', margin: '2px 0 0 0' }}>
+                    {new Date(certificate.completionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Bottom Section */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 30px' }}>
+                {/* Instructor Signature */}
+                <div style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ width: '150px', height: '55px', margin: '0 auto 6px auto', border: '1px solid #fcd34d', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%)', overflow: 'hidden', padding: '4px' }}>
+                    <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1769580381/shariq-website/products/pc9szshbrztkx4k9iki5.png" alt="Signature" style={{ width: '100%', height: '100%', objectFit: 'contain' }} crossOrigin="anonymous" />
+                  </div>
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: '#374151', margin: 0 }}>Sahibzada Shariq Ahmed Tariqi</p>
+                  <p style={{ fontSize: '11px', color: '#6b7280', margin: '2px 0 0 0' }}>Spiritual Guide & Teacher</p>
+                </div>
+                
+                {/* Official Stamp */}
+                <div style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%)', padding: '4px', border: '3px solid #fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src="/images/certificate-stamp.png" alt="Official Stamp" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} crossOrigin="anonymous" />
+                    </div>
+                    <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '9999px' }}>
+                      ✓ VERIFIED
+                    </div>
+                  </div>
+                </div>
+                
+                {/* QR Code */}
+                <div style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ background: 'white', padding: '8px', borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb', display: 'inline-block', marginBottom: '6px' }}>
+                    <QRCodeSVG 
+                      value={`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`}
+                      size={80}
+                      level="M"
+                      fgColor="#1f2937"
+                      bgColor="#ffffff"
+                    />
+                  </div>
+                  <p style={{ fontSize: '12px', fontFamily: 'monospace', color: '#374151', margin: '0 0 4px 0', fontWeight: 600 }}>
+                    {certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber}
+                  </p>
+                  <div style={{ width: '120px', borderBottom: '2px solid #9ca3af', margin: '0 auto 4px auto' }} />
+                  <p style={{ fontSize: '10px', color: '#6b7280', margin: 0 }}>Certificate Number</p>
+                </div>
+              </div>
+              
+              {/* Verification Footer */}
+              <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0 }}>
+                  Verify at: sahibzadashariqahmedtariqi.com/verify • Code: {certificate.verificationCode}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="print:hidden">
         <Footer />
