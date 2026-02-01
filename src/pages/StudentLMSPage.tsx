@@ -582,7 +582,7 @@ const StudentLMSPage = () => {
                       transition={{ delay: 0.6 }}
                       className="hidden lg:block"
                     >
-                      <div className="relative w-40 h-40">
+                      <div className="relative w-56 h-56">
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
@@ -591,10 +591,10 @@ const StudentLMSPage = () => {
                         <motion.div
                           animate={{ rotate: -360 }}
                           transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                          className="absolute inset-4 rounded-full border-2 border-dashed border-white/30"
+                          className="absolute inset-6 rounded-full border-2 border-dashed border-white/30"
                         />
-                        <div className="absolute inset-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                          <img src="/images/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
+                        <div className="absolute inset-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                          <img src="/images/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
                         </div>
                       </div>
                     </motion.div>
