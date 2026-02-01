@@ -49,6 +49,28 @@ const LMSCertificatePage = () => {
         color: { dark: '#1f2937', light: '#ffffff' }
       });
       
+      // Load signature image
+      const signatureImg = new Image();
+      signatureImg.crossOrigin = 'anonymous';
+      signatureImg.src = 'https://res.cloudinary.com/du7qzhimu/image/upload/v1769580381/shariq-website/products/pc9szshbrztkx4k9iki5.png';
+      
+      // Load stamp image
+      const stampImg = new Image();
+      stampImg.crossOrigin = 'anonymous';
+      stampImg.src = `${window.location.origin}/images/certificate-stamp.png`;
+      
+      // Load logo for watermark
+      const logoImg = new Image();
+      logoImg.crossOrigin = 'anonymous';
+      logoImg.src = `${window.location.origin}/images/logo.png`;
+      
+      // Wait for all images to load
+      await Promise.all([
+        new Promise((resolve) => { signatureImg.onload = resolve; signatureImg.onerror = resolve; }),
+        new Promise((resolve) => { stampImg.onload = resolve; stampImg.onerror = resolve; }),
+        new Promise((resolve) => { logoImg.onload = resolve; logoImg.onerror = resolve; })
+      ]);
+      
       // Create main canvas for certificate (Landscape 1200x850)
       const canvas = document.createElement('canvas');
       canvas.width = 1200;
@@ -62,6 +84,11 @@ const LMSCertificatePage = () => {
       gradient.addColorStop(1, '#ecfdf5');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, 1200, 850);
+      
+      // Watermark logo (center, faded)
+      ctx.globalAlpha = 0.06;
+      ctx.drawImage(logoImg, 350, 175, 500, 500);
+      ctx.globalAlpha = 1.0;
       
       // Border
       ctx.strokeStyle = '#d97706';
@@ -94,7 +121,6 @@ const LMSCertificatePage = () => {
       ctx.fillText('Sahibzada Shariq Ahmed Tariqi', 600, 130);
       ctx.fillStyle = '#059669';
       ctx.font = '12px Arial';
-      ctx.letterSpacing = '3px';
       ctx.fillText('Spiritual Healing & Guidance', 600, 150);
       
       // Award icon (simple representation)
@@ -153,10 +179,8 @@ const LMSCertificatePage = () => {
       // Ijazat text
       ctx.fillStyle = '#374151';
       ctx.font = '14px Georgia';
-      const ijazatText = 'Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course';
-      const ijazatText2 = 'and for the implementation of all prescribed practices.';
-      ctx.fillText(ijazatText, 600, 560);
-      ctx.fillText(ijazatText2, 600, 580);
+      ctx.fillText('Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course', 600, 560);
+      ctx.fillText('and for the implementation of all prescribed practices.', 600, 580);
       
       // Completion date
       ctx.fillStyle = '#6b7280';
@@ -166,49 +190,83 @@ const LMSCertificatePage = () => {
       ctx.font = 'bold 16px Arial';
       ctx.fillText(completionDate, 600, 640);
       
-      // Bottom section - Signature (Left)
-      ctx.fillStyle = '#374151';
-      ctx.font = 'bold 14px Arial';
-      ctx.fillText('Sahibzada Shariq Ahmed Tariqi', 250, 760);
-      ctx.fillStyle = '#6b7280';
-      ctx.font = '11px Arial';
-      ctx.fillText('Spiritual Guide & Teacher', 250, 778);
-      // Signature line
+      // ========== BOTTOM SECTION ==========
+      
+      // LEFT: Signature Box with Image
+      // Signature box background
+      ctx.fillStyle = '#fffbeb';
+      ctx.fillRect(175, 695, 150, 55);
       ctx.strokeStyle = '#fcd34d';
       ctx.lineWidth = 1;
-      ctx.strokeRect(175, 700, 150, 50);
+      ctx.strokeRect(175, 695, 150, 55);
+      // Draw signature image
+      if (signatureImg.complete && signatureImg.naturalWidth > 0) {
+        ctx.drawImage(signatureImg, 180, 698, 140, 50);
+      }
+      // Signature text
+      ctx.fillStyle = '#374151';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sahibzada Shariq Ahmed Tariqi', 250, 768);
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '11px Arial';
+      ctx.fillText('Spiritual Guide & Teacher', 250, 785);
       
-      // Stamp (Center)
+      // CENTER: Stamp with Image
+      // Stamp circle background
       ctx.beginPath();
-      ctx.arc(600, 730, 45, 0, Math.PI * 2);
+      ctx.arc(600, 720, 50, 0, Math.PI * 2);
+      ctx.fillStyle = '#fffdf7';
+      ctx.fill();
       ctx.strokeStyle = '#fbbf24';
       ctx.lineWidth = 3;
       ctx.stroke();
+      // Draw stamp image
+      if (stampImg.complete && stampImg.naturalWidth > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(600, 720, 47, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(stampImg, 553, 673, 94, 94);
+        ctx.restore();
+      }
+      // Verified badge
       ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 8px Arial';
-      ctx.fillText('✓ VERIFIED', 600, 785);
+      ctx.beginPath();
+      ctx.roundRect(565, 775, 70, 18, 9);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px Arial';
+      ctx.fillText('✓ VERIFIED', 600, 788);
       
-      // QR Code (Right) - Draw the generated QR canvas
-      ctx.drawImage(qrCanvas, 900, 680, 90, 90);
-      
+      // RIGHT: QR Code and Certificate Number
+      // QR Code background box
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 1;
+      ctx.fillRect(895, 678, 100, 100);
+      ctx.strokeRect(895, 678, 100, 100);
+      // Draw QR code
+      ctx.drawImage(qrCanvas, 900, 683, 90, 90);
       // Certificate number
       ctx.fillStyle = '#374151';
-      ctx.font = 'bold 13px monospace';
-      ctx.fillText(studentId, 945, 785);
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(studentId, 945, 795);
+      // Line under number
       ctx.strokeStyle = '#9ca3af';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(880, 795);
-      ctx.lineTo(1010, 795);
+      ctx.moveTo(880, 803);
+      ctx.lineTo(1010, 803);
       ctx.stroke();
       ctx.fillStyle = '#6b7280';
       ctx.font = '10px Arial';
-      ctx.fillText('Certificate Number', 945, 810);
+      ctx.fillText('Certificate Number', 945, 818);
       
       // Verification footer
       ctx.fillStyle = '#9ca3af';
       ctx.font = '11px Arial';
-      ctx.fillText(`Verify at: sahibzadashariqahmedtariqi.com/verify • Code: ${certificate.verificationCode}`, 600, 835);
+      ctx.fillText(`Verify at: sahibzadashariqahmedtariqi.com/verify • Code: ${certificate.verificationCode}`, 600, 840);
       
       // Download
       const link = document.createElement('a');
