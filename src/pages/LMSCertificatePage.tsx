@@ -41,21 +41,19 @@ const LMSCertificatePage = () => {
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code using qrcode library with error handling
-      let qrBase64 = '';
-      try {
-        const QRCode = await import('qrcode');
-        qrBase64 = await QRCode.toDataURL(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
-          width: 150,
-          margin: 1,
-          color: { dark: '#1f2937', light: '#ffffff' }
-        });
-        console.log('QR Code generated successfully');
-      } catch (qrError) {
-        console.error('QR Code generation error:', qrError);
-        // Fallback to Google Charts API if qrcode library fails
-        qrBase64 = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}&choe=UTF-8`;
-      }
+      // Generate QR code URL using reliable external API (no library needed)
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}&bgcolor=ffffff&color=1f2937&margin=5`;
+      
+      // Pre-load QR code image to ensure it's ready
+      const qrImage = new Image();
+      qrImage.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve) => {
+        qrImage.onload = () => resolve();
+        qrImage.onerror = () => resolve(); // Continue even if error
+        qrImage.src = qrCodeUrl;
+        // Timeout fallback
+        setTimeout(() => resolve(), 3000);
+      });
       
       // Create fixed-size certificate HTML for download (LANDSCAPE)
       const downloadCard = document.createElement('div');
@@ -164,7 +162,7 @@ const LMSCertificatePage = () => {
               <!-- QR Code and Certificate Number -->
               <div style="text-align: center; flex: 1;">
                 <div style="background: white; padding: 6px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; display: inline-block; margin-bottom: 6px;">
-                  <img src="${qrBase64}" alt="QR Code" style="width: 80px; height: 80px; display: block;" />
+                  <img src="${qrCodeUrl}" alt="QR Code" style="width: 80px; height: 80px; display: block;" crossorigin="anonymous" />
                 </div>
                 <p style="font-size: 12px; font-family: monospace; color: #374151; margin: 0 0 4px 0; font-weight: 600;">${studentId}</p>
                 <div style="width: 120px; border-bottom: 2px solid #9ca3af; margin: 0 auto 4px auto;"></div>
