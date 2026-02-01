@@ -41,15 +41,11 @@ const LMSCertificatePage = () => {
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code using qrcode library with toCanvas method (100% local, no external API)
+      // Generate QR code using qrcode library - toDataURL method
       let qrDataUrl = '';
       try {
         const QRCode = await import('qrcode');
-        const canvas = document.createElement('canvas');
-        canvas.width = 150;
-        canvas.height = 150;
-        
-        await QRCode.toCanvas(canvas, `https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
+        qrDataUrl = await QRCode.toDataURL(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
           width: 150,
           margin: 1,
           color: {
@@ -57,31 +53,11 @@ const LMSCertificatePage = () => {
             light: '#ffffff'
           }
         });
-        
-        qrDataUrl = canvas.toDataURL('image/png');
-        console.log('QR Code generated successfully via toCanvas');
+        console.log('QR Code generated successfully');
       } catch (qrError) {
         console.error('QR Code generation failed:', qrError);
-        // Fallback: Create a simple text-based placeholder
-        const canvas = document.createElement('canvas');
-        canvas.width = 150;
-        canvas.height = 150;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, 150, 150);
-          ctx.strokeStyle = '#1f2937';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(10, 10, 130, 130);
-          ctx.fillStyle = '#1f2937';
-          ctx.font = 'bold 14px Arial';
-          ctx.textAlign = 'center';
-          ctx.fillText('VERIFIED', 75, 70);
-          ctx.font = '10px Arial';
-          ctx.fillText(studentId.slice(-12), 75, 90);
-          ctx.fillText('Scan QR on website', 75, 110);
-        }
-        qrDataUrl = canvas.toDataURL('image/png');
+        // Fallback to external API
+        qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}`;
       }
       
       // Create fixed-size certificate HTML for download (LANDSCAPE)
