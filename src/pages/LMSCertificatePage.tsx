@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { QRCodeSVG } from 'qrcode.react';
+import QRCode from 'qrcode';
 import {
   Award, Download, Share2,
   ChevronLeft, Loader2, X
@@ -20,6 +21,7 @@ const LMSCertificatePage = () => {
   const downloadRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   const { data: certificate, isLoading, error } = useQuery({
     queryKey: ['certificate', certificateId],
@@ -28,6 +30,16 @@ const LMSCertificatePage = () => {
       return res.data.data;
     }
   });
+
+  // Generate QR code data URL when certificate loads
+  useEffect(() => {
+    if (certificate?._id) {
+      QRCode.toDataURL(
+        `https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`,
+        { width: 200, margin: 1, color: { dark: '#1f2937', light: '#ffffff' } }
+      ).then(setQrDataUrl).catch(console.error);
+    }
+  }, [certificate?._id]);
 
   const handleDownload = async () => {
     if (!certificate || !downloadRef.current) return;
@@ -578,13 +590,14 @@ const LMSCertificatePage = () => {
                 {/* QR Code */}
                 <div style={{ textAlign: 'center', flex: 1 }}>
                   <div style={{ background: 'white', padding: '8px', borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb', display: 'inline-block', marginBottom: '6px' }}>
-                    <QRCodeSVG 
-                      value={`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`}
-                      size={80}
-                      level="M"
-                      fgColor="#1f2937"
-                      bgColor="#ffffff"
-                    />
+                    {qrDataUrl && (
+                      <img 
+                        src={qrDataUrl} 
+                        alt="QR Code" 
+                        style={{ width: '80px', height: '80px', display: 'block' }}
+                        crossOrigin="anonymous"
+                      />
+                    )}
                   </div>
                   <p style={{ fontSize: '12px', fontFamily: 'monospace', color: '#374151', margin: '0 0 4px 0', fontWeight: 600 }}>
                     {certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber}
