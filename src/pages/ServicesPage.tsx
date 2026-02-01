@@ -91,9 +91,12 @@ const defaultServices = [
     icon: 'stethoscope',
     title: 'Traditional Hikmat',
     description: 'Prophetic medicine and natural healing treatments based on ancient wisdom',
-    features: ['Herbal remedies', 'Spiritual treatments', 'Natural cures', 'Holistic healing'],
-    price: 'PKR 2,500',
+    features: ['Herbal remedies', 'Natural cures', 'Holistic healing'],
+    price: 'PKR 2,000',
     priceLabel: '/consultation',
+    videoCallPrice: 'PKR 3,000',
+    priceINR: '₹700',
+    videoCallPriceINR: '₹1,000',
     isFree: false,
     appointmentService: 'Hikmat Consultation',
     gradient: 'from-amber-500 to-orange-600',
@@ -106,7 +109,10 @@ const defaultServices = [
     description: 'One-on-one spiritual guidance and mentorship for personal transformation',
     features: ['Life coaching', 'Spiritual development', 'Problem solving', 'Personal growth'],
     price: 'PKR 2,000',
-    priceLabel: '/hour',
+    priceLabel: '/consultation',
+    videoCallPrice: 'PKR 3,000',
+    priceINR: '₹700',
+    videoCallPriceINR: '₹1,000',
     isFree: false,
     appointmentService: 'Spiritual Consultation',
     gradient: 'from-primary-500 to-primary-700',
@@ -389,16 +395,48 @@ export default function ServicesPage() {
                     </div>
                   </div>
 
-                  {/* Price & Button */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className={`text-3xl font-bold ${service.isFree ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary-600 dark:text-gold-400'}`}>
+                  {/* Price Section */}
+                  {!service.isFree && (
+                    <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                      {/* In-Person Consultation */}
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">In-Person Consultation</p>
+                        <div className="flex items-baseline gap-3">
+                          <span className="text-2xl font-bold text-primary-600 dark:text-gold-400">
+                            {service.price}
+                          </span>
+                          <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                            {service.priceINR}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Video Call */}
+                      <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Video Call Consultation</p>
+                        <div className="flex items-baseline gap-3">
+                          <span className="text-2xl font-bold text-primary-600 dark:text-gold-400">
+                            {service.videoCallPrice}
+                          </span>
+                          <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                            {service.videoCallPriceINR}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Free Service Price */}
+                  {service.isFree && (
+                    <div className="mb-4">
+                      <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                         {service.price}
                       </span>
-                      {service.priceLabel && (
-                        <span className="text-gray-500 dark:text-gray-400 text-sm">{service.priceLabel}</span>
-                      )}
                     </div>
+                  )}
+
+                  {/* Button */}
+                  <div className="flex justify-end">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button 
                         onClick={() => handleBookNow(service)}
