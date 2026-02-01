@@ -47,11 +47,27 @@ const LMSCertificatePage = () => {
     try {
       setDownloading(true);
       
-      // Wait for images to load
+      // Generate QR code fresh if not available
+      let qrUrl = qrDataUrl;
+      if (!qrUrl) {
+        qrUrl = await QRCode.toDataURL(
+          `https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`,
+          { width: 200, margin: 1, color: { dark: '#1f2937', light: '#ffffff' } }
+        );
+        setQrDataUrl(qrUrl);
+      }
+      
+      // Find QR image and set src directly
+      const qrImg = downloadRef.current.querySelector('img[alt="QR Code"]') as HTMLImageElement;
+      if (qrImg && qrUrl) {
+        qrImg.src = qrUrl;
+      }
+      
+      // Wait for all images to load
       const images = downloadRef.current.querySelectorAll('img');
       await Promise.all(
         Array.from(images).map((img) => {
-          if (img.complete) return Promise.resolve();
+          if (img.complete && img.naturalWidth > 0) return Promise.resolve();
           return new Promise((resolve) => {
             img.onload = resolve;
             img.onerror = resolve;
@@ -59,8 +75,8 @@ const LMSCertificatePage = () => {
         })
       );
       
-      // Small delay for rendering
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Extra delay for QR to render
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       const canvas = await html2canvas(downloadRef.current, {
         backgroundColor: '#ffffff',
@@ -590,14 +606,11 @@ const LMSCertificatePage = () => {
                 {/* QR Code */}
                 <div style={{ textAlign: 'center', flex: 1 }}>
                   <div style={{ background: 'white', padding: '8px', borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb', display: 'inline-block', marginBottom: '6px' }}>
-                    {qrDataUrl && (
-                      <img 
-                        src={qrDataUrl} 
-                        alt="QR Code" 
-                        style={{ width: '80px', height: '80px', display: 'block' }}
-                        crossOrigin="anonymous"
-                      />
-                    )}
+                    <img 
+                      src={qrDataUrl || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'} 
+                      alt="QR Code" 
+                      style={{ width: '80px', height: '80px', display: 'block' }}
+                    />
                   </div>
                   <p style={{ fontSize: '12px', fontFamily: 'monospace', color: '#374151', margin: '0 0 4px 0', fontWeight: 600 }}>
                     {certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber}
