@@ -41,25 +41,13 @@ const LMSCertificatePage = () => {
       });
       const studentId = certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber;
       
-      // Generate QR code as data URL using external API (more reliable)
-      const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`)}`;
-      
-      // Pre-load the QR code image
-      const qrImage = new Image();
-      qrImage.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => {
-        qrImage.onload = resolve;
-        qrImage.onerror = reject;
-        qrImage.src = qrDataUrl;
+      // Generate QR code using qrcode library
+      const QRCode = await import('qrcode');
+      const qrBase64 = await QRCode.toDataURL(`https://sahibzadashariqahmedtariqi.com/lms/certificate/${certificate._id}`, {
+        width: 150,
+        margin: 1,
+        color: { dark: '#1f2937', light: '#ffffff' }
       });
-      
-      // Convert QR image to base64
-      const qrCanvas = document.createElement('canvas');
-      qrCanvas.width = 150;
-      qrCanvas.height = 150;
-      const qrCtx = qrCanvas.getContext('2d');
-      qrCtx?.drawImage(qrImage, 0, 0, 150, 150);
-      const qrBase64 = qrCanvas.toDataURL('image/png');
       
       // Create fixed-size certificate HTML for download (LANDSCAPE)
       const downloadCard = document.createElement('div');
