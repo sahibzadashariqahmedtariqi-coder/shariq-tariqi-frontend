@@ -476,15 +476,34 @@ export default function AppointmentsPage() {
                           <Phone className="inline h-4 w-4 mr-2" />
                           Phone Number *
                         </label>
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition-all"
-                          placeholder="+92 300 1234567"
-                        />
+                        <div className="flex">
+                          <select
+                            name="countryCode"
+                            value={countries.find(c => c.name === formData.country)?.code || '+92'}
+                            onChange={(e) => {
+                              const selectedCountry = countries.find(c => c.code === e.target.value)
+                              if (selectedCountry) {
+                                setFormData({ ...formData, country: selectedCountry.name })
+                              }
+                            }}
+                            className="px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition-all bg-gray-50 dark:bg-gray-600 font-medium min-w-[90px]"
+                          >
+                            {countries.filter(c => c.code).map((country) => (
+                              <option key={country.name} value={country.code}>
+                                {country.flag} {country.code}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            required
+                            className="flex-1 px-4 py-3 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition-all"
+                            placeholder="300 1234567"
+                          />
+                        </div>
                       </div>
                     </div>
 
