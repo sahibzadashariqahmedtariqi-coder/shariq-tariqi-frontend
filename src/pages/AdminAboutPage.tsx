@@ -37,31 +37,24 @@ export default function AdminAboutPage() {
   }, [])
 
   const loadSettings = async () => {
-    const saved = localStorage.getItem('aboutSettings')
-    let localData = saved ? JSON.parse(saved) : {}
-    
     try {
-      // Fetch from database
-      const response = await api.get('/stats')
-      const stats = response.data.data
+      // Fetch stats from database
+      const statsResponse = await api.get('/stats')
+      const stats = statsResponse.data.data
+      
+      // Fetch about settings from database
+      const aboutResponse = await api.get('/settings/about')
+      const aboutData = aboutResponse.data.data
       
       setSettings({
-        profileImage: localData.profileImage || '/images/about-profile.jpg',
+        profileImage: aboutData?.profileImage || '/images/about-profile.jpg',
         yearsExperience: stats.yearsOfExperience || 15,
         peopleHelped: stats.studentsTrained || 5000,
-        introductionText: localData.introductionText || settings.introductionText,
-        descriptionText: localData.descriptionText || settings.descriptionText
+        introductionText: aboutData?.introductionText || settings.introductionText,
+        descriptionText: aboutData?.descriptionText || settings.descriptionText
       })
     } catch (error) {
-      console.error('Error loading from database:', error)
-      // Fallback to localStorage
-      if (saved) {
-        try {
-          setSettings(JSON.parse(saved))
-        } catch (err) {
-          console.error('Error parsing saved settings:', err)
-        }
-      }
+      console.error('Error loading settings:', error)
     }
   }
 
@@ -87,15 +80,20 @@ export default function AdminAboutPage() {
 
   const handleSave = async () => {
     try {
-      // Save to database
+      // Save stats to database
       await api.put('/stats', {
         yearsOfExperience: settings.yearsExperience,
         studentsTrained: settings.peopleHelped
       })
       
-      // Save to localStorage
-      localStorage.setItem('aboutSettings', JSON.stringify(settings))
-      toast.success('About page settings saved successfully!')
+      // Save about settings to database (NOT localStorage)
+      await api.put('/settings/about', {
+        profileImage: settings.profileImage,
+        introductionText: settings.introductionText,
+        descriptionText: settings.descriptionText
+      })
+      
+      toast.success('About page settings saved to database!')
     } catch (error: any) {
       console.error('Save error:', error)
       toast.error(error.response?.data?.message || 'Failed to save settings')

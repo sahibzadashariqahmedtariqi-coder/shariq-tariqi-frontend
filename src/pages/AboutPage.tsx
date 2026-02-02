@@ -57,20 +57,23 @@ export default function AboutPage() {
     }
     fetchStats()
     
-    // Load about settings from localStorage
-    const savedAbout = localStorage.getItem('aboutSettings')
-    if (savedAbout) {
+    // Load about settings from API (database)
+    const fetchAboutSettings = async () => {
       try {
-        const parsed = JSON.parse(savedAbout)
-        setAboutData({
-          profileImage: parsed.profileImage || '/images/about-profile.jpg',
-          introductionText: parsed.introductionText || aboutData.introductionText,
-          descriptionText: parsed.descriptionText || aboutData.descriptionText
-        })
-      } catch (err) {
-        console.error('Error parsing about settings:', err)
+        const response = await api.get('/settings/about')
+        if (response.data.success && response.data.data) {
+          const data = response.data.data
+          setAboutData({
+            profileImage: data.profileImage || '/images/about-profile.jpg',
+            introductionText: data.introductionText || aboutData.introductionText,
+            descriptionText: data.descriptionText || aboutData.descriptionText
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching about settings:', error)
       }
     }
+    fetchAboutSettings()
   }, [])
 
   return (

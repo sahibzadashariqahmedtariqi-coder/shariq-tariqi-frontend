@@ -214,6 +214,20 @@ const settingsSchema = new mongoose.Schema(
       default: '',
     },
     
+    // About Page Settings
+    aboutProfileImage: {
+      type: String,
+      default: '/images/about-profile.jpg',
+    },
+    aboutIntroductionText: {
+      type: String,
+      default: 'Sahibzada Miya Huzoor Hakeem Shariq Ahmed Tariqi Jahangiri is an experienced Herbalist, Naturopath, Spiritual Healer, Counselor, Motivational Speaker, and Spiritual Teacher, dedicated to holistic healing through traditional Islamic medicine (Hikmat) and spiritual practices (Roohani Ilaj).',
+    },
+    aboutDescriptionText: {
+      type: String,
+      default: 'Born on 26 January 1995 in Karachi, his spiritual and practical training began in 2009 under the direct guidance of Mian Huzoor, from whom he received complete spiritual and professional upbringing. He was honored with spiritual Khilafat in 2018 during the Salana Urs Jashn-e-Usmani. He formally pursued Hikmat from 2012 and completed his F.T.J (Fazil-e-Tibb-ul-Jarahat) degree in 2018 from Qasmi College, Karachi, registered with the National Council for Tibb. Today, he conducts classes and courses in herbal medicine, naturopathy, and spiritual practices, while offering herbal treatment, spiritual healing, and counseling to help individuals achieve physical health, mental peace, and spiritual balance. All his knowledge, training, and spiritual blessings are a sacred trust received from Mian Huzoor.',
+    },
+    
     // For tracking updates
     lastUpdatedBy: {
       type: mongoose.Schema.Types.ObjectId,

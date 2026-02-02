@@ -311,3 +311,55 @@ export const updateSettings = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Get about page settings
+// @route   GET /api/settings/about
+// @access  Public
+export const getAboutSettings = async (req, res, next) => {
+  try {
+    const settings = await Settings.getInstance();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        profileImage: settings.aboutProfileImage,
+        introductionText: settings.aboutIntroductionText,
+        descriptionText: settings.aboutDescriptionText,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update about page settings
+// @route   PUT /api/settings/about
+// @access  Private/Admin
+export const updateAboutSettings = async (req, res, next) => {
+  try {
+    const { profileImage, introductionText, descriptionText } = req.body;
+
+    let settings = await Settings.getInstance();
+
+    if (profileImage !== undefined) settings.aboutProfileImage = profileImage;
+    if (introductionText !== undefined) settings.aboutIntroductionText = introductionText;
+    if (descriptionText !== undefined) settings.aboutDescriptionText = descriptionText;
+
+    settings.lastUpdatedBy = req.user._id;
+    settings.lastUpdatedAt = Date.now();
+
+    await settings.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'About settings updated successfully',
+      data: {
+        profileImage: settings.aboutProfileImage,
+        introductionText: settings.aboutIntroductionText,
+        descriptionText: settings.aboutDescriptionText,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
