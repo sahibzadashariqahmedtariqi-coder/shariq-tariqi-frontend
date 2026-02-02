@@ -182,66 +182,78 @@ const LMSCertificatePage = () => {
       
       // ===== BOTTOM SECTION =====
       
-      // LEFT: Signature
-      ctx.fillStyle = 'rgba(255, 251, 235, 0.9)';
-      ctx.fillRect(165, 655, 170, 65);
+      // LEFT: Signature box with better styling
+      ctx.fillStyle = 'rgba(255, 251, 235, 0.95)';
+      ctx.fillRect(155, 640, 190, 75);
       ctx.strokeStyle = '#fcd34d';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(165, 655, 170, 65);
-      ctx.drawImage(signatureImg, 170, 658, 160, 58);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(155, 640, 190, 75);
+      // Draw signature image
+      ctx.drawImage(signatureImg, 160, 645, 180, 65);
+      // Signature name and title
       ctx.fillStyle = '#374151';
       ctx.font = 'bold 14px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('Sahibzada Shariq Ahmed Tariqi', 250, 740);
+      ctx.fillText('Sahibzada Shariq Ahmed Tariqi', 250, 735);
       ctx.fillStyle = '#6b7280';
       ctx.font = '11px Arial';
-      ctx.fillText('Spiritual Guide & Teacher', 250, 758);
+      ctx.fillText('Spiritual Guide & Teacher', 250, 755);
       
-      // CENTER: Stamp
+      // CENTER: Stamp - Draw the actual stamp image properly
+      // Outer circle with gradient
       ctx.beginPath();
-      ctx.arc(600, 695, 50, 0, Math.PI * 2);
-      const stampGrad = ctx.createRadialGradient(600, 695, 0, 600, 695, 50);
+      ctx.arc(600, 690, 55, 0, Math.PI * 2);
+      const stampGrad = ctx.createRadialGradient(600, 690, 0, 600, 690, 55);
       stampGrad.addColorStop(0, '#ffffff');
-      stampGrad.addColorStop(1, '#fef3c7');
+      stampGrad.addColorStop(0.7, '#fef3c7');
+      stampGrad.addColorStop(1, '#fbbf24');
       ctx.fillStyle = stampGrad;
       ctx.fill();
-      ctx.strokeStyle = '#fbbf24';
+      ctx.strokeStyle = '#d97706';
       ctx.lineWidth = 3;
       ctx.stroke();
+      
+      // Inner stamp image
       ctx.save();
       ctx.beginPath();
-      ctx.arc(600, 695, 46, 0, Math.PI * 2);
+      ctx.arc(600, 690, 48, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(stampImg, 554, 649, 92, 92);
+      ctx.drawImage(stampImg, 552, 642, 96, 96);
       ctx.restore();
-      // Verified badge
+      
+      // Verified badge below stamp
       ctx.fillStyle = '#10b981';
       ctx.beginPath();
-      ctx.roundRect(555, 750, 90, 22, 11);
+      ctx.roundRect(555, 752, 90, 24, 12);
       ctx.fill();
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 12px Arial';
-      ctx.fillText('✓ VERIFIED', 600, 766);
+      ctx.textAlign = 'center';
+      ctx.fillText('✓ VERIFIED', 600, 769);
       
-      // RIGHT: QR Code
+      // RIGHT: QR Code with better styling
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(895, 640, 100, 100);
+      ctx.fillRect(890, 635, 110, 110);
       ctx.strokeStyle = '#e5e7eb';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(895, 640, 100, 100);
-      ctx.drawImage(qrImg, 900, 645, 90, 90);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(890, 635, 110, 110);
+      ctx.drawImage(qrImg, 895, 640, 100, 100);
+      // Certificate ID
       ctx.fillStyle = '#374151';
       ctx.font = 'bold 12px monospace';
-      ctx.fillText(studentId, 945, 758);
+      ctx.textAlign = 'center';
+      ctx.fillText(studentId, 945, 765);
+      // Underline
       ctx.strokeStyle = '#9ca3af';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(880, 766);
-      ctx.lineTo(1010, 766);
+      ctx.moveTo(875, 775);
+      ctx.lineTo(1015, 775);
       ctx.stroke();
+      // Label
       ctx.fillStyle = '#6b7280';
       ctx.font = '10px Arial';
-      ctx.fillText('Certificate Number', 945, 782);
+      ctx.fillText('Certificate Number', 945, 792);
       
       // Footer
       ctx.fillStyle = '#9ca3af';
