@@ -521,7 +521,7 @@ export default function AppointmentsPage() {
                       >
                         {services.map((service) => (
                           <option key={service.name} value={service.name}>
-                            {service.name} {service.fee > 0 ? `- PKR ${service.fee}` : ''}
+                            {service.name} {service.fee > 0 ? `- PKR ${service.fee.toLocaleString()}` : ''}{service.feeINR > 0 ? ` / ₹${service.feeINR.toLocaleString()} INR` : ''}
                           </option>
                         ))}
                       </select>
