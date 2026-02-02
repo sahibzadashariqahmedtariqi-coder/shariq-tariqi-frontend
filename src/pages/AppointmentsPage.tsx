@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign, Sparkles, Heart, Star, Users, Video, MapPin } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Phone, PhoneCall, MessageSquare, CheckCircle, DollarSign, Sparkles, Heart, Star, Users, Video } from 'lucide-react'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
 import apiClient from '@/services/api'
 
@@ -119,7 +119,7 @@ export default function AppointmentsPage() {
     date: '',
     time: '',
     service: preSelectedService,
-    consultationType: 'in-person', // 'in-person' or 'video-call'
+    consultationType: 'voice-call', // 'voice-call' or 'video-call'
     message: '',
   })
   const [isSubmitted, _setIsSubmitted] = useState(false)
@@ -137,7 +137,7 @@ export default function AppointmentsPage() {
     hikmatFeeVideoCall: 3000,
     ruqyahFeeVideoCall: 3000,
     taveezFeeVideoCall: 3000,
-    // INR In-Person
+    // INR Voice Call
     consultationFeeINR: 700,
     healingFeeINR: 700,
     hikmatFeeINR: 700,
@@ -527,7 +527,7 @@ export default function AppointmentsPage() {
                       </select>
                     </div>
 
-                    {/* Consultation Type - In-Person or Video Call */}
+                    {/* Consultation Type - Voice Call or Video Call */}
                     <div>
                       <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
                         <Video className="inline h-4 w-4 mr-2" />
@@ -536,16 +536,16 @@ export default function AppointmentsPage() {
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           type="button"
-                          onClick={() => setFormData({ ...formData, consultationType: 'in-person' })}
+                          onClick={() => setFormData({ ...formData, consultationType: 'voice-call' })}
                           className={`p-4 rounded-xl border-2 transition-all ${
-                            formData.consultationType === 'in-person'
+                            formData.consultationType === 'voice-call'
                               ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
                               : 'border-gray-300 dark:border-gray-600 hover:border-primary-300'
                           }`}
                         >
-                          <MapPin className={`h-6 w-6 mx-auto mb-2 ${formData.consultationType === 'in-person' ? 'text-primary-600' : 'text-gray-400'}`} />
-                          <p className={`font-semibold ${formData.consultationType === 'in-person' ? 'text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400'}`}>In-Person</p>
-                          <p className="text-xs text-gray-500 mt-1">Visit our location</p>
+                          <PhoneCall className={`h-6 w-6 mx-auto mb-2 ${formData.consultationType === 'voice-call' ? 'text-primary-600' : 'text-gray-400'}`} />
+                          <p className={`font-semibold ${formData.consultationType === 'voice-call' ? 'text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400'}`}>Voice Call</p>
+                          <p className="text-xs text-gray-500 mt-1">Phone consultation</p>
                         </button>
                         <button
                           type="button"
@@ -565,7 +565,7 @@ export default function AppointmentsPage() {
                       <div className="mt-3 p-3 bg-gradient-to-r from-primary-50 to-emerald-50 dark:from-primary-900/30 dark:to-emerald-900/30 rounded-lg">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600 dark:text-gray-300">
-                            {formData.consultationType === 'video-call' ? 'Video Call Fee:' : 'In-Person Fee:'}
+                            {formData.consultationType === 'video-call' ? 'Video Call Fee:' : 'Voice Call Fee:'}
                           </span>
                           <div className="flex items-baseline gap-2">
                             <span className="text-lg font-bold text-primary-700 dark:text-gold-400">
@@ -661,10 +661,10 @@ export default function AppointmentsPage() {
                   Services & Charges
                 </h3>
                 
-                {/* In-Person Charges */}
+                {/* Voice Call Charges */}
                 <div className="mb-4">
                   <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-2 flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> In-Person
+                    <PhoneCall className="h-3 w-3" /> Voice Call
                   </p>
                   <ul className="space-y-2">
                     {services.filter(s => s.fee > 0).map((service) => (
