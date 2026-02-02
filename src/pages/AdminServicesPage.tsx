@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Plus, Trash2, Edit, X, Heart, Stethoscope, BookOpen, MessageCircle, Eye, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Edit, X, Heart, Stethoscope, BookOpen, MessageCircle, Eye } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import api from '@/services/api'
@@ -302,12 +302,20 @@ export default function AdminServicesPage() {
                 Preview Page
               </Button>
             </Link>
-            <Button onClick={handleAddNew} className="gap-2">
+            <Button onClick={handleAddNew} className="gap-2" disabled={saving}>
               <Plus className="h-5 w-5" />
-              Add New Service
+              {saving ? 'Saving...' : 'Add New Service'}
             </Button>
           </div>
         </div>
+
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading services...</p>
+          </div>
+        )}
 
         {/* Edit/Add Form Modal */}
         {editingService && (
