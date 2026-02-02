@@ -105,8 +105,8 @@ export default function Header() {
             {/* Auth Buttons */}
             {isAuthenticated ? (
               <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
-                {/* LMS Button for Users (Students) */}
-                {user?.role === 'user' && (
+                {/* LMS Button for Users (Students) - show if not admin */}
+                {user?.role !== 'admin' && (
                   <Link to="/lms/my-courses" className="flex items-center space-x-1.5 text-xs lg:text-sm font-medium text-gray-200 transition-colors hover:text-gold-400 whitespace-nowrap bg-primary-800 px-3 py-1.5 rounded-lg">
                     <GraduationCap className="h-4 w-4" />
                     <span>My LMS</span>
@@ -199,8 +199,8 @@ export default function Header() {
               
               {isAuthenticated ? (
                 <>
-                  {/* LMS Button for Users (Students) - Mobile */}
-                  {user?.role === 'user' && (
+                  {/* LMS Button for Users (Students) - Mobile - show if not admin */}
+                  {user?.role !== 'admin' && (
                     <Link to="/lms/my-courses" onClick={closeMenu}>
                       <Button variant="ghost" className="w-full text-gold-400 bg-primary-800 hover:bg-primary-700 flex items-center justify-center gap-2">
                         <GraduationCap className="h-4 w-4" />
