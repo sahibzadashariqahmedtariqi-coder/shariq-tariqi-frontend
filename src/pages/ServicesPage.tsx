@@ -454,11 +454,12 @@ export default function ServicesPage() {
                           <Phone className="w-3.5 h-3.5" />
                           Voice Call Consultation
                         </p>
-                        <div className="flex items-baseline gap-3">
+                        <div className="flex items-baseline gap-2">
                           <span className={`text-2xl font-bold ${service.priceText}`}>
                             {service.price}
                           </span>
-                          <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                          <span className={`text-lg ${service.priceText}`}>/</span>
+                          <span className={`text-lg font-semibold ${service.priceText}`}>
                             {service.priceINR}
                           </span>
                         </div>
@@ -470,11 +471,12 @@ export default function ServicesPage() {
                           <Video className="w-3.5 h-3.5" />
                           Video Call Consultation
                         </p>
-                        <div className="flex items-baseline gap-3">
+                        <div className="flex items-baseline gap-2">
                           <span className={`text-2xl font-bold ${service.priceText}`}>
                             {service.videoCallPrice}
                           </span>
-                          <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                          <span className={`text-lg ${service.priceText}`}>/</span>
+                          <span className={`text-lg font-semibold ${service.priceText}`}>
                             {service.videoCallPriceINR}
                           </span>
                         </div>
