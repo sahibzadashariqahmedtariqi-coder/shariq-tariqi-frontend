@@ -448,11 +448,13 @@ export default function ProductDetailPage() {
                 size="lg"
               >
                 <ShoppingCart className="h-6 w-6" />
-                {product.isPdfOnly 
-                  ? 'Buy PDF'
-                  : (purchaseType === 'hardcopy' 
-                      ? (product.stock === 0 ? 'Out of Stock' : 'Buy Hard Copy')
-                      : 'Buy PDF')
+                {product.category === 'Books' 
+                  ? (product.isPdfOnly 
+                      ? 'Buy PDF'
+                      : (purchaseType === 'hardcopy' 
+                          ? (product.stock === 0 ? 'Out of Stock' : 'Buy Hard Copy')
+                          : 'Buy PDF'))
+                  : (product.stock === 0 ? 'Out of Stock' : 'Add to Cart')
                 }
               </Button>
 
