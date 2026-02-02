@@ -116,12 +116,33 @@ export default function AppointmentsPage() {
     name: '',
     email: '',
     phone: '',
+    country: 'Pakistan',
     date: '',
     time: '',
     service: preSelectedService,
     consultationType: 'voice-call', // 'voice-call' or 'video-call'
     message: '',
   })
+
+  // Country list with codes
+  const countries = [
+    { name: 'Pakistan', code: '+92', flag: '🇵🇰' },
+    { name: 'India', code: '+91', flag: '🇮🇳' },
+    { name: 'United Arab Emirates', code: '+971', flag: '🇦🇪' },
+    { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦' },
+    { name: 'United Kingdom', code: '+44', flag: '🇬🇧' },
+    { name: 'United States', code: '+1', flag: '🇺🇸' },
+    { name: 'Canada', code: '+1', flag: '🇨🇦' },
+    { name: 'Australia', code: '+61', flag: '🇦🇺' },
+    { name: 'Germany', code: '+49', flag: '🇩🇪' },
+    { name: 'Bangladesh', code: '+880', flag: '🇧🇩' },
+    { name: 'Malaysia', code: '+60', flag: '🇲🇾' },
+    { name: 'Qatar', code: '+974', flag: '🇶🇦' },
+    { name: 'Kuwait', code: '+965', flag: '🇰🇼' },
+    { name: 'Oman', code: '+968', flag: '🇴🇲' },
+    { name: 'Bahrain', code: '+973', flag: '🇧🇭' },
+    { name: 'Other', code: '', flag: '🌍' },
+  ]
   const [isSubmitted, _setIsSubmitted] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
   const [_loadingSettings, setLoadingSettings] = useState(true)
@@ -467,6 +488,26 @@ export default function AppointmentsPage() {
                       </div>
                     </div>
 
+                    {/* Country Selection */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
+                        🌍 Country *
+                      </label>
+                      <select
+                        name="country"
+                        value={formData.country}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white transition-all"
+                      >
+                        {countries.map((country) => (
+                          <option key={country.name} value={country.name}>
+                            {country.flag} {country.name} {country.code && `(${country.code})`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
                     {/* Date and Time */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
@@ -678,7 +719,7 @@ export default function AppointmentsPage() {
                             PKR {service.fee}
                           </span>
                           <span className="text-xs text-emerald-600 dark:text-emerald-400">
-                            / ₹{service.feeINR}
+                            / ₹{service.feeINR} INR
                           </span>
                         </div>
                       </li>
@@ -703,7 +744,7 @@ export default function AppointmentsPage() {
                             PKR {service.videoFee}
                           </span>
                           <span className="text-xs text-emerald-600 dark:text-emerald-400">
-                            / ₹{service.videoFeeINR}
+                            / ₹{service.videoFeeINR} INR
                           </span>
                         </div>
                       </li>
