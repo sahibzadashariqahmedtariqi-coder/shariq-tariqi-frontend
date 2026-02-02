@@ -131,36 +131,60 @@ const iconMap: { [key: string]: React.ReactNode } = {
 }
 
 // Gradient to background/icon background mapping
-const gradientStyles: { [key: string]: { bgGradient: string, iconBg: string, colorClass: string } } = {
+const gradientStyles: { [key: string]: { bgGradient: string, iconBg: string, colorClass: string, priceBox: string, priceText: string, priceBorder: string, priceDot: string } } = {
   'from-emerald-500 to-teal-600': {
     bgGradient: 'from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20',
     iconBg: 'bg-emerald-100 dark:bg-emerald-900/50',
-    colorClass: 'text-emerald-600 dark:text-emerald-400'
+    colorClass: 'text-emerald-600 dark:text-emerald-400',
+    priceBox: 'from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-emerald-200 dark:border-emerald-700',
+    priceText: 'text-emerald-700 dark:text-emerald-400',
+    priceBorder: 'border-emerald-200 dark:border-emerald-700',
+    priceDot: 'bg-emerald-500'
   },
   'from-amber-500 to-orange-600': {
     bgGradient: 'from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20',
     iconBg: 'bg-amber-100 dark:bg-amber-900/50',
-    colorClass: 'text-amber-600 dark:text-amber-400'
+    colorClass: 'text-amber-600 dark:text-amber-400',
+    priceBox: 'from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200 dark:border-amber-700',
+    priceText: 'text-amber-700 dark:text-amber-400',
+    priceBorder: 'border-amber-200 dark:border-amber-700',
+    priceDot: 'bg-amber-500'
   },
   'from-primary-500 to-primary-700': {
     bgGradient: 'from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20',
     iconBg: 'bg-primary-100 dark:bg-primary-900/50',
-    colorClass: 'text-primary-600 dark:text-primary-400'
+    colorClass: 'text-primary-600 dark:text-primary-400',
+    priceBox: 'from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/30 border-primary-200 dark:border-primary-700',
+    priceText: 'text-primary-700 dark:text-primary-400',
+    priceBorder: 'border-primary-200 dark:border-primary-700',
+    priceDot: 'bg-primary-500'
   },
   'from-purple-500 to-indigo-600': {
     bgGradient: 'from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20',
     iconBg: 'bg-purple-100 dark:bg-purple-900/50',
-    colorClass: 'text-purple-600 dark:text-purple-400'
+    colorClass: 'text-purple-600 dark:text-purple-400',
+    priceBox: 'from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 border-purple-200 dark:border-purple-700',
+    priceText: 'text-purple-700 dark:text-purple-400',
+    priceBorder: 'border-purple-200 dark:border-purple-700',
+    priceDot: 'bg-purple-500'
   },
   'from-rose-500 to-pink-600': {
     bgGradient: 'from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20',
     iconBg: 'bg-rose-100 dark:bg-rose-900/50',
-    colorClass: 'text-rose-600 dark:text-rose-400'
+    colorClass: 'text-rose-600 dark:text-rose-400',
+    priceBox: 'from-rose-50 to-pink-50 dark:from-rose-900/30 dark:to-pink-900/30 border-rose-200 dark:border-rose-700',
+    priceText: 'text-rose-700 dark:text-rose-400',
+    priceBorder: 'border-rose-200 dark:border-rose-700',
+    priceDot: 'bg-rose-500'
   },
   'from-blue-500 to-cyan-600': {
     bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20',
     iconBg: 'bg-blue-100 dark:bg-blue-900/50',
-    colorClass: 'text-blue-600 dark:text-blue-400'
+    colorClass: 'text-blue-600 dark:text-blue-400',
+    priceBox: 'from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 border-blue-200 dark:border-blue-700',
+    priceText: 'text-blue-700 dark:text-blue-400',
+    priceBorder: 'border-blue-200 dark:border-blue-700',
+    priceDot: 'bg-blue-500'
   },
 }
 
@@ -397,15 +421,15 @@ export default function ServicesPage() {
 
                   {/* Price Section */}
                   {!service.isFree && (
-                    <div className="mb-4 p-4 bg-gradient-to-br from-primary-50 to-emerald-50 dark:from-primary-900/30 dark:to-emerald-900/30 rounded-xl border border-primary-100 dark:border-primary-800">
-                      {/* In-Person Consultation */}
+                    <div className={`mb-4 p-4 bg-gradient-to-br ${styles.priceBox} rounded-xl border`}>
+                      {/* Voice Call Consultation */}
                       <div className="mb-3">
-                        <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-1 flex items-center gap-1">
-                          <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
-                          In-Person Consultation
+                        <p className={`text-xs font-semibold ${styles.priceText} mb-1 flex items-center gap-1`}>
+                          <span className={`w-2 h-2 ${styles.priceDot} rounded-full`}></span>
+                          Voice Call Consultation
                         </p>
                         <div className="flex items-baseline gap-3">
-                          <span className="text-2xl font-bold text-primary-700 dark:text-gold-400">
+                          <span className={`text-2xl font-bold ${styles.priceText}`}>
                             {service.price}
                           </span>
                           <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
@@ -415,7 +439,7 @@ export default function ServicesPage() {
                       </div>
                       
                       {/* Video Call */}
-                      <div className="pt-3 border-t border-primary-200 dark:border-primary-700">
+                      <div className={`pt-3 border-t ${styles.priceBorder}`}>
                         <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-1 flex items-center gap-1">
                           <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
                           Video Call Consultation
