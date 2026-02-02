@@ -134,10 +134,10 @@ export default function AboutPage() {
                 className="space-y-6"
               >
                 <div className="prose dark:prose-invert max-w-none">
-                  <p className="text-sm sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                     {aboutData.introductionText}
                   </p>
-                  <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                     {aboutData.descriptionText}
                   </p>
                 </div>
