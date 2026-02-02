@@ -2,9 +2,10 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Plus, Trash2, Edit, X, Heart, Stethoscope, BookOpen, MessageCircle, Eye } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Edit, X, Heart, Stethoscope, BookOpen, MessageCircle, Eye, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
+import api from '@/services/api'
 
 interface Service {
   id: string
@@ -99,25 +100,86 @@ export default function AdminServicesPage() {
   const [editingService, setEditingService] = useState<Service | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [newFeature, setNewFeature] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    // Load services from localStorage or use defaults
-    const savedServices = localStorage.getItem('adminServices')
-    if (savedServices) {
-      setServices(JSON.parse(savedServices))
-    } else {
-      setServices(defaultServices)
-      localStorage.setItem('adminServices', JSON.stringify(defaultServices))
+    // Load services from database API
+    const loadServices = async () => {
+      try {
+        setLoading(true)
+        const response = await api.get('/services?all=true')
+        if (response.data.success && response.data.data.length > 0) {
+          // Map database services to frontend format
+          const mappedServices = response.data.data.map((s: any) => ({
+            id: s.serviceId,
+            title: s.title,
+            description: s.description,
+            features: s.features || [],
+            price: s.price?.toString() || '',
+            priceLabel: s.priceLabel || '/consultation',
+            videoCallPrice: s.videoCallPrice?.toString() || '',
+            priceINR: s.priceINR?.toString() || '',
+            videoCallPriceINR: s.videoCallPriceINR?.toString() || '',
+            isFree: s.isFree || false,
+            isActive: s.isActive !== false,
+            whatsappMessage: s.whatsappMessage || '',
+            appointmentService: s.appointmentService || '',
+            icon: s.icon || 'heart',
+            gradient: s.gradient || 'from-primary-500 to-primary-700',
+            stats: s.stats || { served: '1000+', rating: '4.8' },
+          }))
+          setServices(mappedServices)
+        } else {
+          // No services in DB, use defaults
+          setServices(defaultServices)
+        }
+      } catch (error) {
+        console.error('Error loading services:', error)
+        setServices(defaultServices)
+      } finally {
+        setLoading(false)
+      }
     }
+    loadServices()
   }, [])
 
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/login" replace />
   }
 
-  const saveServices = (updatedServices: Service[]) => {
-    setServices(updatedServices)
-    localStorage.setItem('adminServices', JSON.stringify(updatedServices))
+  const saveServices = async (updatedServices: Service[]) => {
+    try {
+      setSaving(true)
+      // Convert to database format and save via API
+      const dbServices = updatedServices.map((s, index) => ({
+        serviceId: s.id,
+        title: s.title,
+        description: s.description,
+        features: s.features,
+        price: parseFloat(s.price) || 0,
+        priceLabel: s.priceLabel || '/consultation',
+        videoCallPrice: parseFloat(s.videoCallPrice || '0') || 0,
+        priceINR: parseFloat(s.priceINR || '0') || 0,
+        videoCallPriceINR: parseFloat(s.videoCallPriceINR || '0') || 0,
+        isFree: s.isFree,
+        isActive: s.isActive,
+        whatsappMessage: s.whatsappMessage || '',
+        appointmentService: s.appointmentService || s.title,
+        icon: s.icon,
+        gradient: s.gradient,
+        stats: s.stats,
+        order: index,
+      }))
+
+      await api.put('/services/bulk', { services: dbServices })
+      setServices(updatedServices)
+    } catch (error) {
+      console.error('Error saving services:', error)
+      toast.error('Failed to save to database')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleEdit = (service: Service) => {

@@ -209,44 +209,48 @@ export default function ServicesPage() {
     return `₹${Number(priceStr).toLocaleString()} INR`;
   };
 
-  // Load services from localStorage (synced with AdminServicesPage)
+  // Load services from database API
   useEffect(() => {
-    const loadServices = () => {
-      const saved = localStorage.getItem('adminServices')
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved)
-          // Merge with defaults to ensure all fields exist and filter out inactive services
-          const mergedServices = parsed
+    const loadServices = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://shariq-tariqi-backend.onrender.com/api'}/services`)
+        const data = await response.json()
+        
+        if (data.success && data.data && data.data.length > 0) {
+          // Map database services to frontend format
+          const mappedServices = data.data
             .filter((s: any) => s.isActive !== false)
             .map((service: any) => {
-              const defaultService = defaultServices.find(d => d.id === service.id)
+              const defaultService = defaultServices.find(d => d.id === service.serviceId)
               return {
                 ...defaultService,
-                ...service,
-                // Handle iconName vs icon field compatibility
-                icon: service.icon || service.iconName || 'heart',
-                // Format prices with proper prefixes
+                id: service.serviceId,
+                icon: service.icon || 'heart',
+                title: service.title,
+                description: service.description,
+                features: service.features || [],
                 price: service.isFree ? 'FREE' : formatPKR(service.price),
                 videoCallPrice: formatPKR(service.videoCallPrice),
                 priceINR: formatINR(service.priceINR),
                 videoCallPriceINR: formatINR(service.videoCallPriceINR),
+                isFree: service.isFree,
+                whatsappMessage: service.whatsappMessage,
+                appointmentService: service.appointmentService,
+                gradient: service.gradient || 'from-primary-500 to-primary-700',
+                stats: service.stats || { served: '1000+', rating: '4.8' },
               }
             })
-          setServicesData(mergedServices.length > 0 ? mergedServices : defaultServices)
-        } catch {
+          setServicesData(mappedServices.length > 0 ? mappedServices : defaultServices)
+        } else {
           setServicesData(defaultServices)
         }
-      } else {
+      } catch (error) {
+        console.error('Error loading services from API:', error)
         setServicesData(defaultServices)
       }
     }
 
     loadServices()
-
-    // Listen for storage changes (for live updates if admin is in another tab)
-    window.addEventListener('storage', loadServices)
-    return () => window.removeEventListener('storage', loadServices)
   }, [])
 
   // Convert servicesData to include React icons and gradient styles
