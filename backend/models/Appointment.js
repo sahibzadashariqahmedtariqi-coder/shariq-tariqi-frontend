@@ -19,6 +19,11 @@ const appointmentSchema = new mongoose.Schema({
     required: [true, 'Please provide your phone number'],
     trim: true
   },
+  country: {
+    type: String,
+    default: 'Pakistan',
+    trim: true
+  },
   date: {
     type: Date,
     required: [true, 'Please select appointment date']
