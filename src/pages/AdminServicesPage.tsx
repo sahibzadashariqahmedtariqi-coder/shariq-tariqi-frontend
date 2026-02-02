@@ -13,6 +13,9 @@ interface Service {
   features: string[]
   price: string
   priceLabel?: string
+  videoCallPrice?: string
+  priceINR?: string
+  videoCallPriceINR?: string
   isFree: boolean
   isActive: boolean
   whatsappMessage?: string
@@ -43,9 +46,12 @@ const defaultServices: Service[] = [
     id: 'hikmat',
     title: 'Traditional Hikmat',
     description: 'Prophetic medicine and natural healing treatments based on ancient wisdom',
-    features: ['Herbal remedies', 'Spiritual treatments', 'Natural cures', 'Holistic healing'],
-    price: 'PKR 2,500',
+    features: ['Herbal remedies', 'Natural cures', 'Holistic healing'],
+    price: 'PKR 2,000',
     priceLabel: '/consultation',
+    videoCallPrice: 'PKR 3,000',
+    priceINR: '₹700',
+    videoCallPriceINR: '₹1,000',
     isFree: false,
     isActive: true,
     appointmentService: 'Hikmat Consultation',
@@ -59,7 +65,10 @@ const defaultServices: Service[] = [
     description: 'One-on-one spiritual guidance and mentorship for personal transformation',
     features: ['Life coaching', 'Spiritual development', 'Problem solving', 'Personal growth'],
     price: 'PKR 2,000',
-    priceLabel: '/hour',
+    priceLabel: '/consultation',
+    videoCallPrice: 'PKR 3,000',
+    priceINR: '₹700',
+    videoCallPriceINR: '₹1,000',
     isFree: false,
     isActive: true,
     appointmentService: 'Spiritual Consultation',
@@ -124,6 +133,9 @@ export default function AdminServicesPage() {
       features: [],
       price: '',
       priceLabel: '',
+      videoCallPrice: '',
+      priceINR: '',
+      videoCallPriceINR: '',
       isFree: false,
       isActive: true,
       whatsappMessage: '',
@@ -282,7 +294,7 @@ export default function AdminServicesPage() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                      Price
+                      Price (In-Person PKR)
                     </label>
                     <input
                       type="text"
@@ -305,6 +317,50 @@ export default function AdminServicesPage() {
                       placeholder="e.g., /hour or /consultation"
                     />
                   </div>
+
+                  {/* Video Call & INR Prices */}
+                  {!editingService.isFree && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-amber-600 dark:text-amber-400">
+                          Video Call Price (PKR)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingService.videoCallPrice || ''}
+                          onChange={(e) => setEditingService({ ...editingService, videoCallPrice: e.target.value })}
+                          className="w-full px-4 py-3 border border-amber-300 rounded-lg dark:bg-gray-700 dark:border-amber-600 dark:text-white"
+                          placeholder="e.g., PKR 3,000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-emerald-600 dark:text-emerald-400">
+                          In-Person Price (₹ INR)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingService.priceINR || ''}
+                          onChange={(e) => setEditingService({ ...editingService, priceINR: e.target.value })}
+                          className="w-full px-4 py-3 border border-emerald-300 rounded-lg dark:bg-gray-700 dark:border-emerald-600 dark:text-white"
+                          placeholder="e.g., ₹700"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-emerald-600 dark:text-emerald-400">
+                          Video Call Price (₹ INR)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingService.videoCallPriceINR || ''}
+                          onChange={(e) => setEditingService({ ...editingService, videoCallPriceINR: e.target.value })}
+                          className="w-full px-4 py-3 border border-emerald-300 rounded-lg dark:bg-gray-700 dark:border-emerald-600 dark:text-white"
+                          placeholder="e.g., ₹1,000"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">

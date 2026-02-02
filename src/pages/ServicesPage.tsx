@@ -397,12 +397,15 @@ export default function ServicesPage() {
 
                   {/* Price Section */}
                   {!service.isFree && (
-                    <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                    <div className="mb-4 p-4 bg-gradient-to-br from-primary-50 to-emerald-50 dark:from-primary-900/30 dark:to-emerald-900/30 rounded-xl border border-primary-100 dark:border-primary-800">
                       {/* In-Person Consultation */}
                       <div className="mb-3">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">In-Person Consultation</p>
+                        <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-1 flex items-center gap-1">
+                          <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
+                          In-Person Consultation
+                        </p>
                         <div className="flex items-baseline gap-3">
-                          <span className="text-2xl font-bold text-primary-600 dark:text-gold-400">
+                          <span className="text-2xl font-bold text-primary-700 dark:text-gold-400">
                             {service.price}
                           </span>
                           <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
@@ -412,10 +415,13 @@ export default function ServicesPage() {
                       </div>
                       
                       {/* Video Call */}
-                      <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Video Call Consultation</p>
+                      <div className="pt-3 border-t border-primary-200 dark:border-primary-700">
+                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-1 flex items-center gap-1">
+                          <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                          Video Call Consultation
+                        </p>
                         <div className="flex items-baseline gap-3">
-                          <span className="text-2xl font-bold text-primary-600 dark:text-gold-400">
+                          <span className="text-2xl font-bold text-amber-700 dark:text-amber-400">
                             {service.videoCallPrice}
                           </span>
                           <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">

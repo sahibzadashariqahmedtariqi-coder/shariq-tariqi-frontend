@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign, Sparkles, Heart, Star, Users } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle, DollarSign, Sparkles, Heart, Star, Users, Video, MapPin } from 'lucide-react'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
 import apiClient from '@/services/api'
 
@@ -80,6 +80,24 @@ interface AppointmentSettings {
   hikmatFee: number
   ruqyahFee: number
   taveezFee: number
+  // Video Call Fees (PKR)
+  consultationFeeVideoCall: number
+  healingFeeVideoCall: number
+  hikmatFeeVideoCall: number
+  ruqyahFeeVideoCall: number
+  taveezFeeVideoCall: number
+  // INR Fees
+  consultationFeeINR: number
+  healingFeeINR: number
+  hikmatFeeINR: number
+  ruqyahFeeINR: number
+  taveezFeeINR: number
+  // Video Call INR
+  consultationFeeVideoCallINR: number
+  healingFeeVideoCallINR: number
+  hikmatFeeVideoCallINR: number
+  ruqyahFeeVideoCallINR: number
+  taveezFeeVideoCallINR: number
   workingHoursStart: string
   workingHoursEnd: string
   workingDays: string[]
@@ -101,6 +119,7 @@ export default function AppointmentsPage() {
     date: '',
     time: '',
     service: preSelectedService,
+    consultationType: 'in-person', // 'in-person' or 'video-call'
     message: '',
   })
   const [isSubmitted, _setIsSubmitted] = useState(false)
@@ -108,10 +127,28 @@ export default function AppointmentsPage() {
   const [_loadingSettings, setLoadingSettings] = useState(true)
   const [settings, setSettings] = useState<AppointmentSettings>({
     consultationFee: 2000,
-    healingFee: 3000,
-    hikmatFee: 2500,
-    ruqyahFee: 3500,
-    taveezFee: 1500,
+    healingFee: 2000,
+    hikmatFee: 2000,
+    ruqyahFee: 2000,
+    taveezFee: 2000,
+    // Video Call PKR
+    consultationFeeVideoCall: 3000,
+    healingFeeVideoCall: 3000,
+    hikmatFeeVideoCall: 3000,
+    ruqyahFeeVideoCall: 3000,
+    taveezFeeVideoCall: 3000,
+    // INR In-Person
+    consultationFeeINR: 700,
+    healingFeeINR: 700,
+    hikmatFeeINR: 700,
+    ruqyahFeeINR: 700,
+    taveezFeeINR: 700,
+    // Video Call INR
+    consultationFeeVideoCallINR: 1000,
+    healingFeeVideoCallINR: 1000,
+    hikmatFeeVideoCallINR: 1000,
+    ruqyahFeeVideoCallINR: 1000,
+    taveezFeeVideoCallINR: 1000,
     workingHoursStart: '09:00',
     workingHoursEnd: '18:00',
     workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -140,13 +177,56 @@ export default function AppointmentsPage() {
   }, [])
 
   const services = [
-    { name: 'Spiritual Consultation', fee: settings.consultationFee },
-    { name: 'Traditional Healing', fee: settings.healingFee },
-    { name: 'Hikmat Consultation', fee: settings.hikmatFee },
-    { name: 'Ruqyah Session', fee: settings.ruqyahFee },
-    { name: 'Taveez & Amulets', fee: settings.taveezFee },
-    { name: 'Other', fee: 0 },
+    { 
+      name: 'Spiritual Consultation', 
+      fee: settings.consultationFee, 
+      videoFee: settings.consultationFeeVideoCall,
+      feeINR: settings.consultationFeeINR,
+      videoFeeINR: settings.consultationFeeVideoCallINR 
+    },
+    { 
+      name: 'Traditional Healing', 
+      fee: settings.healingFee, 
+      videoFee: settings.healingFeeVideoCall,
+      feeINR: settings.healingFeeINR,
+      videoFeeINR: settings.healingFeeVideoCallINR 
+    },
+    { 
+      name: 'Hikmat Consultation', 
+      fee: settings.hikmatFee, 
+      videoFee: settings.hikmatFeeVideoCall,
+      feeINR: settings.hikmatFeeINR,
+      videoFeeINR: settings.hikmatFeeVideoCallINR 
+    },
+    { 
+      name: 'Ruqyah Session', 
+      fee: settings.ruqyahFee, 
+      videoFee: settings.ruqyahFeeVideoCall,
+      feeINR: settings.ruqyahFeeINR,
+      videoFeeINR: settings.ruqyahFeeVideoCallINR 
+    },
+    { 
+      name: 'Taveez & Amulets', 
+      fee: settings.taveezFee, 
+      videoFee: settings.taveezFeeVideoCall,
+      feeINR: settings.taveezFeeINR,
+      videoFeeINR: settings.taveezFeeVideoCallINR 
+    },
+    { name: 'Other', fee: 0, videoFee: 0, feeINR: 0, videoFeeINR: 0 },
   ]
+
+  // Get current service fee based on consultation type
+  const getCurrentFee = () => {
+    const selectedService = services.find(s => s.name === formData.service)
+    if (!selectedService) return 0
+    return formData.consultationType === 'video-call' ? selectedService.videoFee : selectedService.fee
+  }
+
+  const getCurrentFeeINR = () => {
+    const selectedService = services.find(s => s.name === formData.service)
+    if (!selectedService) return 0
+    return formData.consultationType === 'video-call' ? selectedService.videoFeeINR : selectedService.feeINR
+  }
 
   const timeSlots = [
     '9:00 AM',
@@ -447,6 +527,60 @@ export default function AppointmentsPage() {
                       </select>
                     </div>
 
+                    {/* Consultation Type - In-Person or Video Call */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
+                        <Video className="inline h-4 w-4 mr-2" />
+                        Consultation Type *
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, consultationType: 'in-person' })}
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            formData.consultationType === 'in-person'
+                              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
+                              : 'border-gray-300 dark:border-gray-600 hover:border-primary-300'
+                          }`}
+                        >
+                          <MapPin className={`h-6 w-6 mx-auto mb-2 ${formData.consultationType === 'in-person' ? 'text-primary-600' : 'text-gray-400'}`} />
+                          <p className={`font-semibold ${formData.consultationType === 'in-person' ? 'text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400'}`}>In-Person</p>
+                          <p className="text-xs text-gray-500 mt-1">Visit our location</p>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, consultationType: 'video-call' })}
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            formData.consultationType === 'video-call'
+                              ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                              : 'border-gray-300 dark:border-gray-600 hover:border-amber-300'
+                          }`}
+                        >
+                          <Video className={`h-6 w-6 mx-auto mb-2 ${formData.consultationType === 'video-call' ? 'text-amber-600' : 'text-gray-400'}`} />
+                          <p className={`font-semibold ${formData.consultationType === 'video-call' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-600 dark:text-gray-400'}`}>Video Call</p>
+                          <p className="text-xs text-gray-500 mt-1">Online consultation</p>
+                        </button>
+                      </div>
+                      {/* Price Display */}
+                      <div className="mt-3 p-3 bg-gradient-to-r from-primary-50 to-emerald-50 dark:from-primary-900/30 dark:to-emerald-900/30 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                            {formData.consultationType === 'video-call' ? 'Video Call Fee:' : 'In-Person Fee:'}
+                          </span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-lg font-bold text-primary-700 dark:text-gold-400">
+                              PKR {getCurrentFee().toLocaleString()}
+                            </span>
+                            {getCurrentFeeINR() > 0 && (
+                              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                                / ₹{getCurrentFeeINR().toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Message */}
                     <div>
                       <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
@@ -526,19 +660,56 @@ export default function AppointmentsPage() {
                   <DollarSign className="h-5 w-5" />
                   Services & Charges
                 </h3>
-                <ul className="space-y-3">
-                  {services.filter(s => s.fee > 0).map((service) => (
-                    <li key={service.name} className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                        {service.name}
-                      </span>
-                      <span className="font-bold text-primary-600 dark:text-gold-400">
-                        PKR {service.fee}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                
+                {/* In-Person Charges */}
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-2 flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> In-Person
+                  </p>
+                  <ul className="space-y-2">
+                    {services.filter(s => s.fee > 0).map((service) => (
+                      <li key={service.name} className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          {service.name}
+                        </span>
+                        <div className="flex items-baseline gap-1">
+                          <span className="font-bold text-primary-600 dark:text-gold-400">
+                            PKR {service.fee}
+                          </span>
+                          <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                            / ₹{service.feeINR}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Video Call Charges */}
+                <div className="pt-4 border-t border-primary-200 dark:border-primary-700">
+                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 flex items-center gap-1">
+                    <Video className="h-3 w-3" /> Video Call
+                  </p>
+                  <ul className="space-y-2">
+                    {services.filter(s => s.videoFee > 0).map((service) => (
+                      <li key={service.name + '-video'} className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                          {service.name}
+                        </span>
+                        <div className="flex items-baseline gap-1">
+                          <span className="font-bold text-amber-600 dark:text-amber-400">
+                            PKR {service.videoFee}
+                          </span>
+                          <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                            / ₹{service.videoFeeINR}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
 
               {/* Important Note */}
