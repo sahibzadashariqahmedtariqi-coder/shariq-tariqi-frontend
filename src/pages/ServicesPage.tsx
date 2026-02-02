@@ -237,6 +237,10 @@ export default function ServicesPage() {
         bgGradient: gradientStyle.bgGradient,
         iconBg: gradientStyle.iconBg,
         colorClass: gradientStyle.colorClass,
+        priceBox: gradientStyle.priceBox,
+        priceText: gradientStyle.priceText,
+        priceBorder: gradientStyle.priceBorder,
+        priceDot: gradientStyle.priceDot,
       }
     })
   }, [servicesData])
@@ -421,15 +425,15 @@ export default function ServicesPage() {
 
                   {/* Price Section */}
                   {!service.isFree && (
-                    <div className={`mb-4 p-4 bg-gradient-to-br ${styles.priceBox} rounded-xl border`}>
+                    <div className={`mb-4 p-4 bg-gradient-to-br ${service.priceBox} rounded-xl border`}>
                       {/* Voice Call Consultation */}
                       <div className="mb-3">
-                        <p className={`text-xs font-semibold ${styles.priceText} mb-1 flex items-center gap-1`}>
-                          <span className={`w-2 h-2 ${styles.priceDot} rounded-full`}></span>
+                        <p className={`text-xs font-semibold ${service.priceText} mb-1 flex items-center gap-1`}>
+                          <span className={`w-2 h-2 ${service.priceDot} rounded-full`}></span>
                           Voice Call Consultation
                         </p>
                         <div className="flex items-baseline gap-3">
-                          <span className={`text-2xl font-bold ${styles.priceText}`}>
+                          <span className={`text-2xl font-bold ${service.priceText}`}>
                             {service.price}
                           </span>
                           <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
@@ -439,7 +443,7 @@ export default function ServicesPage() {
                       </div>
                       
                       {/* Video Call */}
-                      <div className={`pt-3 border-t ${styles.priceBorder}`}>
+                      <div className={`pt-3 border-t ${service.priceBorder}`}>
                         <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-1 flex items-center gap-1">
                           <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
                           Video Call Consultation
