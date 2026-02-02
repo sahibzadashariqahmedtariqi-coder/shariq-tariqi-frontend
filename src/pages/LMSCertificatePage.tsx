@@ -17,6 +17,7 @@ const LMSCertificatePage = () => {
   const { certificateId } = useParams();
   const [searchParams] = useSearchParams();
   const certificateRef = useRef<HTMLDivElement>(null);
+  const downloadRef = useRef<HTMLDivElement>(null); // Hidden fixed-size certificate for download
   const [downloading, setDownloading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -29,33 +30,25 @@ const LMSCertificatePage = () => {
   });
 
   const handleDownload = async () => {
-    if (!certificate) return;
-    
-    // If preview not open, open it first then download after render
-    if (!showPreview || !certificateRef.current) {
-      setShowPreview(true);
-      toast.loading('Preparing certificate...', { duration: 2000 });
-      // Wait for preview to render and retry
-      setTimeout(() => handleDownload(), 1500);
-      return;
-    }
+    if (!certificate || !downloadRef.current) return;
     
     try {
       setDownloading(true);
-      toast.dismiss();
       toast.loading('Generating certificate...');
       
       // Wait a bit for images to load
       await new Promise(r => setTimeout(r, 500));
       
-      // Use html2canvas to capture the exact preview
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 3, // High quality
+      // Use html2canvas to capture the hidden fixed-size certificate
+      const canvas = await html2canvas(downloadRef.current, {
+        scale: 2, // High quality
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
         imageTimeout: 15000,
+        width: 1200,
+        height: 850,
       });
       
       // Download the canvas as PNG
@@ -461,6 +454,188 @@ const LMSCertificatePage = () => {
       <div className="print:hidden">
         <Footer />
       </div>
+
+      {/* Hidden Fixed-Size Certificate for Download - Always Desktop Size */}
+      {certificate && (
+        <div 
+          style={{ 
+            position: 'fixed', 
+            left: '-9999px', 
+            top: '0', 
+            width: '1200px', 
+            height: '850px',
+            zIndex: -1,
+            opacity: 1,
+            pointerEvents: 'none'
+          }}
+        >
+          <div
+            ref={downloadRef}
+            style={{ 
+              width: '1200px', 
+              height: '850px',
+              background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #ecfdf5 100%)',
+              border: '8px double #d97706',
+              borderRadius: '8px',
+              padding: '40px',
+              position: 'relative',
+              boxSizing: 'border-box',
+              fontFamily: 'Georgia, serif'
+            }}
+          >
+            {/* Background Logo Watermark */}
+            <div style={{ 
+              position: 'absolute', 
+              top: '50%', 
+              left: '50%', 
+              transform: 'translate(-50%, -50%)',
+              opacity: 0.1,
+              pointerEvents: 'none'
+            }}>
+              <img 
+                src="/images/logo.png" 
+                alt="Background Seal" 
+                style={{ width: '350px', height: '350px', objectFit: 'contain' }}
+              />
+            </div>
+
+            {/* Corner Decorations */}
+            <div style={{ position: 'absolute', top: '16px', left: '16px', width: '80px', height: '80px', borderLeft: '4px solid #d97706', borderTop: '4px solid #d97706', borderTopLeftRadius: '8px' }} />
+            <div style={{ position: 'absolute', top: '16px', right: '16px', width: '80px', height: '80px', borderRight: '4px solid #d97706', borderTop: '4px solid #d97706', borderTopRightRadius: '8px' }} />
+            <div style={{ position: 'absolute', bottom: '16px', left: '16px', width: '80px', height: '80px', borderLeft: '4px solid #d97706', borderBottom: '4px solid #d97706', borderBottomLeftRadius: '8px' }} />
+            <div style={{ position: 'absolute', bottom: '16px', right: '16px', width: '80px', height: '80px', borderRight: '4px solid #d97706', borderBottom: '4px solid #d97706', borderBottomRightRadius: '8px' }} />
+
+            {/* Content */}
+            <div style={{ position: 'relative', zIndex: 10, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: 'center' }}>
+              {/* Top Section */}
+              <div>
+                {/* Bismillah */}
+                <p style={{ color: '#b45309', fontSize: '18px', marginBottom: '8px' }}>
+                  بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                </p>
+
+                {/* Logo and Name */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '8px' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #059669', backgroundColor: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src="/images/logo.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#047857', fontStyle: 'italic', margin: 0 }}>
+                      Sahibzada Shariq Ahmed Tariqi
+                    </h2>
+                    <p style={{ fontSize: '11px', color: '#059669', letterSpacing: '1px', margin: 0 }}>
+                      Spiritual Healing & Guidance
+                    </p>
+                  </div>
+                </div>
+
+                {/* Award Icon Divider */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ width: '40px', height: '2px', background: 'linear-gradient(to right, transparent, #d97706)' }} />
+                  <Award style={{ width: '32px', height: '32px', color: '#d97706' }} />
+                  <div style={{ width: '40px', height: '2px', background: 'linear-gradient(to left, transparent, #d97706)' }} />
+                </div>
+
+                {/* Title */}
+                <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: '#065f46', letterSpacing: '2px', margin: '0 0 4px 0' }}>
+                  Certificate of Completion
+                </h1>
+                <p style={{ color: '#b45309', fontSize: '12px', letterSpacing: '3px', textTransform: 'uppercase', fontWeight: '600', margin: 0 }}>
+                  Sahibzada Shariq Ahmed Tariqi Academy
+                </p>
+              </div>
+
+              {/* Middle Section - Main Content */}
+              <div style={{ padding: '16px 0' }}>
+                <p style={{ color: '#4b5563', fontSize: '16px', marginBottom: '8px' }}>This is to certify that</p>
+                
+                <h2 style={{ fontSize: '32px', fontWeight: 'bold', color: '#047857', borderBottom: '3px solid #fbbf24', paddingBottom: '4px', display: 'inline-block', margin: '0 0 8px 0' }}>
+                  {certificate.studentName}
+                </h2>
+                
+                <p style={{ color: '#4b5563', fontSize: '16px', marginBottom: '8px' }}>has successfully completed the course</p>
+                
+                <h3 style={{ fontSize: '24px', fontWeight: '600', color: '#1f2937', fontStyle: 'italic', margin: '0 0 12px 0' }}>
+                  "{certificate.courseTitle}"
+                </h3>
+                
+                <p style={{ fontSize: '13px', fontWeight: '500', color: '#374151', maxWidth: '600px', margin: '0 auto 12px auto', lineHeight: '1.5' }}>
+                  Special Permission (Ijazat-e-Khaas) is granted for all teachings of this course.
+                </p>
+
+                {/* Completion Date */}
+                <div>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0' }}>Completed on</p>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', margin: 0 }}>
+                    {new Date(certificate.completionDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Section - Signature, Stamp, QR */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 16px' }}>
+                {/* Instructor Signature */}
+                <div style={{ textAlign: 'center', flex: 1 }}>
+                  <div style={{ width: '140px', height: '60px', margin: '0 auto 4px auto', border: '1px solid #fcd34d', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, rgba(255,251,235,0.8), white, rgba(236,253,245,0.5))', overflow: 'hidden', padding: '4px' }}>
+                    <img 
+                      src="https://res.cloudinary.com/du7qzhimu/image/upload/v1769580381/shariq-website/products/pc9szshbrztkx4k9iki5.png" 
+                      alt="Signature" 
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  </div>
+                  <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151', margin: '0 0 2px 0' }}>Sahibzada Shariq Ahmed Tariqi</p>
+                  <p style={{ fontSize: '10px', color: '#6b7280', margin: 0 }}>Spiritual Guide & Teacher</p>
+                </div>
+
+                {/* Official Stamp */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                  <div style={{ position: 'relative' }}>
+                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #fffbeb, white, #fef3c7)', padding: '4px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', border: '2px solid #fbbf24' }}>
+                      <img 
+                        src="/images/certificate-stamp.png" 
+                        alt="Official Stamp" 
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }}
+                      />
+                    </div>
+                    <div style={{ position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#10b981', color: 'white', fontSize: '8px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '10px' }}>
+                      ✓ VERIFIED
+                    </div>
+                  </div>
+                </div>
+
+                {/* QR Code and Certificate Number */}
+                <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div style={{ backgroundColor: 'white', padding: '4px', borderRadius: '4px', border: '1px solid #e5e7eb', marginBottom: '4px' }}>
+                    <QRCodeSVG 
+                      value={`https://shariqtariqi.com/verify-certificate/${certificate.verificationCode}`}
+                      size={60}
+                      level="M"
+                      fgColor="#1f2937"
+                      bgColor="#ffffff"
+                    />
+                  </div>
+                  <p style={{ fontSize: '11px', fontFamily: 'monospace', color: '#4b5563', margin: '0 0 4px 0' }}>
+                    {certificate.user?.studentId || certificate.user?.lmsStudentId || certificate.certificateNumber}
+                  </p>
+                  <div style={{ width: '100px', borderBottom: '1px solid #9ca3af', margin: '0 auto 4px auto' }} />
+                  <p style={{ fontSize: '9px', color: '#6b7280', margin: 0 }}>Certificate Number</p>
+                </div>
+              </div>
+
+              {/* Verification Code Footer */}
+              <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                <p style={{ fontSize: '10px', color: '#9ca3af', margin: 0 }}>
+                  Verify at: shariqtariqi.com/verify • Code: {certificate.verificationCode}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
