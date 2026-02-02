@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async'
-import { Heart, BookOpen, Stethoscope, MessageCircle, Star, Users, Clock, Shield, Sparkles } from 'lucide-react'
+import { Heart, BookOpen, Stethoscope, MessageCircle, Star, Users, Clock, Shield, Sparkles, Phone, Video } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -428,8 +428,8 @@ export default function ServicesPage() {
                     <div className={`mb-4 p-4 bg-gradient-to-br ${service.priceBox} rounded-xl border`}>
                       {/* Voice Call Consultation */}
                       <div className="mb-3">
-                        <p className={`text-xs font-semibold ${service.priceText} mb-1 flex items-center gap-1`}>
-                          <span className={`w-2 h-2 ${service.priceDot} rounded-full`}></span>
+                        <p className={`text-xs font-semibold ${service.priceText} mb-1 flex items-center gap-1.5`}>
+                          <Phone className="w-3.5 h-3.5" />
                           Voice Call Consultation
                         </p>
                         <div className="flex items-baseline gap-3">
@@ -444,12 +444,12 @@ export default function ServicesPage() {
                       
                       {/* Video Call */}
                       <div className={`pt-3 border-t ${service.priceBorder}`}>
-                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-1 flex items-center gap-1">
-                          <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                        <p className={`text-xs font-semibold ${service.priceText} mb-1 flex items-center gap-1.5`}>
+                          <Video className="w-3.5 h-3.5" />
                           Video Call Consultation
                         </p>
                         <div className="flex items-baseline gap-3">
-                          <span className="text-2xl font-bold text-amber-700 dark:text-amber-400">
+                          <span className={`text-2xl font-bold ${service.priceText}`}>
                             {service.videoCallPrice}
                           </span>
                           <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
