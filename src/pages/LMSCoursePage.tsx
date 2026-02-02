@@ -262,17 +262,28 @@ const LMSCoursePage = () => {
                 </div>
 
                 {/* Classes */}
-                <div className="divide-y">
+                <div className="divide-y divide-gray-100">
                   {sectionClasses.map((classItem: any, classIndex: number) => {
                     const progress = progressMap[classItem._id];
                     const isCompleted = progress?.status === 'completed';
                     const isLocked = classItem.isLocked;
+                    
+                    // Alternating gradient colors for each class row
+                    const rowColors = [
+                      'bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100',
+                      'bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100',
+                      'bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100',
+                      'bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100',
+                      'bg-gradient-to-r from-rose-50 to-red-50 hover:from-rose-100 hover:to-red-100',
+                      'bg-gradient-to-r from-cyan-50 to-sky-50 hover:from-cyan-100 hover:to-sky-100',
+                    ];
+                    const rowColor = rowColors[classIndex % rowColors.length];
 
                     return (
                       <div
                         key={classItem._id}
-                        className={`flex items-center gap-4 p-4 transition ${
-                          isLocked ? 'opacity-60' : 'hover:bg-gray-50 cursor-pointer'
+                        className={`flex items-center gap-4 p-4 transition-all duration-300 ${
+                          isLocked ? 'opacity-60 bg-gray-50' : `${rowColor} cursor-pointer`
                         }`}
                         onClick={() => {
                           if (!isLocked) {
