@@ -5,7 +5,17 @@ import Service from '../models/Service.js';
 // @access  Public
 export const getAllServices = async (req, res, next) => {
   try {
-    const { category, page = 1, limit = 12 } = req.query;
+    const { category, page = 1, limit = 50, all } = req.query;
+
+    // If 'all' query param is set, return all services including inactive
+    if (all === 'true') {
+      const services = await Service.find().sort({ order: 1, createdAt: -1 });
+      return res.status(200).json({
+        success: true,
+        count: services.length,
+        data: services
+      });
+    }
 
     let query = { isActive: true };
 
@@ -16,7 +26,7 @@ export const getAllServices = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const services = await Service.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ order: 1, createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
@@ -141,6 +151,45 @@ export const deleteService = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Service deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Bulk update/upsert services
+// @route   PUT /api/services/bulk
+// @access  Private/Admin
+export const bulkUpdateServices = async (req, res, next) => {
+  try {
+    const { services } = req.body;
+
+    if (!services || !Array.isArray(services)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Services array is required'
+      });
+    }
+
+    const results = [];
+
+    for (const service of services) {
+      if (service.serviceId) {
+        // Upsert based on serviceId
+        const updated = await Service.findOneAndUpdate(
+          { serviceId: service.serviceId },
+          service,
+          { new: true, upsert: true, runValidators: true }
+        );
+        results.push(updated);
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Services updated successfully',
+      count: results.length,
+      data: results
     });
   } catch (error) {
     next(error);

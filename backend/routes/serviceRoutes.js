@@ -5,7 +5,8 @@ import {
   createService,
   updateService,
   deleteService,
-  getFeaturedServices
+  getFeaturedServices,
+  bulkUpdateServices
 } from '../controllers/serviceController.js';
 import { protect, admin } from '../middleware/auth.js';
 
@@ -18,6 +19,7 @@ router.get('/:id', getServiceById);
 
 // Admin routes
 router.post('/', protect, admin, createService);
+router.put('/bulk', protect, admin, bulkUpdateServices);
 router.put('/:id', protect, admin, updateService);
 router.delete('/:id', protect, admin, deleteService);
 

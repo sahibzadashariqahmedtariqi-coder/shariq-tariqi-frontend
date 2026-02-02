@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
 const serviceSchema = new mongoose.Schema({
+  serviceId: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
   title: {
     type: String,
     required: [true, 'Please provide service title'],
@@ -18,7 +24,7 @@ const serviceSchema = new mongoose.Schema({
   },
   icon: {
     type: String,
-    default: 'Heart'
+    default: 'heart'
   },
   image: {
     type: String
@@ -28,14 +34,52 @@ const serviceSchema = new mongoose.Schema({
     enum: ['healing', 'consultation', 'therapy', 'spiritual', 'other'],
     default: 'healing'
   },
+  // PKR Prices
   price: {
     type: Number,
     default: 0
+  },
+  videoCallPrice: {
+    type: Number,
+    default: 0
+  },
+  // INR Prices
+  priceINR: {
+    type: Number,
+    default: 0
+  },
+  videoCallPriceINR: {
+    type: Number,
+    default: 0
+  },
+  priceLabel: {
+    type: String,
+    default: '/consultation'
   },
   duration: {
     type: String
   },
   features: [String],
+  gradient: {
+    type: String,
+    default: 'from-primary-500 to-primary-700'
+  },
+  stats: {
+    served: { type: String, default: '1000+' },
+    rating: { type: String, default: '4.8' }
+  },
+  isFree: {
+    type: Boolean,
+    default: false
+  },
+  whatsappMessage: {
+    type: String,
+    default: ''
+  },
+  appointmentService: {
+    type: String,
+    default: ''
+  },
   isFeatured: {
     type: Boolean,
     default: false
@@ -43,6 +87,10 @@ const serviceSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  order: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
