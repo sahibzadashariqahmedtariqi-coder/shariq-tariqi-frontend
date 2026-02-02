@@ -202,10 +202,11 @@ export default function ServicesPage() {
 
   // Helper function to format price with INR prefix
   const formatINR = (price: string | number | undefined) => {
-    if (!price) return '₹0';
+    if (!price) return '₹0 INR';
     const priceStr = String(price);
-    if (priceStr.includes('₹')) return priceStr;
-    return `₹${Number(priceStr).toLocaleString()}`;
+    if (priceStr.includes('₹') && priceStr.toLowerCase().includes('inr')) return priceStr;
+    if (priceStr.includes('₹')) return `${priceStr} INR`;
+    return `₹${Number(priceStr).toLocaleString()} INR`;
   };
 
   // Load services from localStorage (synced with AdminServicesPage)
