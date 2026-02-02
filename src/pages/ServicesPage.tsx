@@ -192,6 +192,22 @@ export default function ServicesPage() {
   const navigate = useNavigate()
   const [servicesData, setServicesData] = useState(defaultServices)
 
+  // Helper function to format price with PKR prefix
+  const formatPKR = (price: string | number | undefined) => {
+    if (!price) return 'PKR 0';
+    const priceStr = String(price);
+    if (priceStr.toLowerCase().includes('pkr') || priceStr.toLowerCase() === 'free') return priceStr;
+    return `PKR ${Number(priceStr).toLocaleString()}`;
+  };
+
+  // Helper function to format price with INR prefix
+  const formatINR = (price: string | number | undefined) => {
+    if (!price) return '₹0';
+    const priceStr = String(price);
+    if (priceStr.includes('₹')) return priceStr;
+    return `₹${Number(priceStr).toLocaleString()}`;
+  };
+
   // Load services from localStorage (synced with AdminServicesPage)
   useEffect(() => {
     const loadServices = () => {
@@ -209,6 +225,11 @@ export default function ServicesPage() {
                 ...service,
                 // Handle iconName vs icon field compatibility
                 icon: service.icon || service.iconName || 'heart',
+                // Format prices with proper prefixes
+                price: service.isFree ? 'FREE' : formatPKR(service.price),
+                videoCallPrice: formatPKR(service.videoCallPrice),
+                priceINR: formatINR(service.priceINR),
+                videoCallPriceINR: formatINR(service.videoCallPriceINR),
               }
             })
           setServicesData(mergedServices.length > 0 ? mergedServices : defaultServices)
