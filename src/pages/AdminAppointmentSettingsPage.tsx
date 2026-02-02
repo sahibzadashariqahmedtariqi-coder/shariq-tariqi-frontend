@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import apiClient from '@/services/api'
 
 interface AppointmentSettings {
-  // PKR In-Person Fees
+  // PKR Voice Call Fees
   consultationFee: number
   healingFee: number
   hikmatFee: number
@@ -20,7 +20,7 @@ interface AppointmentSettings {
   hikmatFeeVideoCall: number
   ruqyahFeeVideoCall: number
   taveezFeeVideoCall: number
-  // INR In-Person Fees
+  // INR Voice Call Fees
   consultationFeeINR: number
   healingFeeINR: number
   hikmatFeeINR: number
@@ -51,7 +51,7 @@ export default function AdminAppointmentSettingsPage() {
   }
 
   const [settings, setSettings] = useState<AppointmentSettings>({
-    // PKR In-Person Fees
+    // PKR Voice Call Fees
     consultationFee: 2000,
     healingFee: 2000,
     hikmatFee: 2000,
@@ -63,7 +63,7 @@ export default function AdminAppointmentSettingsPage() {
     hikmatFeeVideoCall: 3000,
     ruqyahFeeVideoCall: 3000,
     taveezFeeVideoCall: 3000,
-    // INR In-Person Fees
+    // INR Voice Call Fees
     consultationFeeINR: 700,
     healingFeeINR: 700,
     hikmatFeeINR: 700,
@@ -191,7 +191,7 @@ export default function AdminAppointmentSettingsPage() {
             {/* Currency and Mode Tabs Info */}
             <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Set prices for both <strong>In-Person</strong> and <strong>Video Call</strong> consultations in <strong>PKR</strong> (Pakistani Rupees) and <strong>INR</strong> (Indian Rupees)
+                Set prices for both <strong>Voice Call</strong> and <strong>Video Call</strong> consultations in <strong>PKR</strong> (Pakistani Rupees) and <strong>INR</strong> (Indian Rupees)
               </p>
             </div>
 
@@ -202,7 +202,7 @@ export default function AdminAppointmentSettingsPage() {
                 <h3 className="font-semibold text-lg mb-4 text-primary-700 dark:text-primary-400">Spiritual Consultation</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">In-Person (PKR)</label>
+                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">Voice Call (PKR)</label>
                     <input type="number" value={settings.consultationFee} onChange={(e) => handleChange('consultationFee', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
@@ -210,7 +210,7 @@ export default function AdminAppointmentSettingsPage() {
                     <input type="number" value={settings.consultationFeeVideoCall} onChange={(e) => handleChange('consultationFeeVideoCall', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">In-Person (₹ INR)</label>
+                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">Voice Call (₹ INR)</label>
                     <input type="number" value={settings.consultationFeeINR} onChange={(e) => handleChange('consultationFeeINR', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
@@ -225,7 +225,7 @@ export default function AdminAppointmentSettingsPage() {
                 <h3 className="font-semibold text-lg mb-4 text-primary-700 dark:text-primary-400">Traditional Healing</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">In-Person (PKR)</label>
+                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">Voice Call (PKR)</label>
                     <input type="number" value={settings.healingFee} onChange={(e) => handleChange('healingFee', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
@@ -233,7 +233,7 @@ export default function AdminAppointmentSettingsPage() {
                     <input type="number" value={settings.healingFeeVideoCall} onChange={(e) => handleChange('healingFeeVideoCall', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">In-Person (₹ INR)</label>
+                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">Voice Call (₹ INR)</label>
                     <input type="number" value={settings.healingFeeINR} onChange={(e) => handleChange('healingFeeINR', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
@@ -248,7 +248,7 @@ export default function AdminAppointmentSettingsPage() {
                 <h3 className="font-semibold text-lg mb-4 text-primary-700 dark:text-primary-400">Hikmat Consultation</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">In-Person (PKR)</label>
+                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">Voice Call (PKR)</label>
                     <input type="number" value={settings.hikmatFee} onChange={(e) => handleChange('hikmatFee', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
@@ -256,7 +256,7 @@ export default function AdminAppointmentSettingsPage() {
                     <input type="number" value={settings.hikmatFeeVideoCall} onChange={(e) => handleChange('hikmatFeeVideoCall', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">In-Person (₹ INR)</label>
+                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">Voice Call (₹ INR)</label>
                     <input type="number" value={settings.hikmatFeeINR} onChange={(e) => handleChange('hikmatFeeINR', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
@@ -271,7 +271,7 @@ export default function AdminAppointmentSettingsPage() {
                 <h3 className="font-semibold text-lg mb-4 text-primary-700 dark:text-primary-400">Ruqyah Session</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">In-Person (PKR)</label>
+                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">Voice Call (PKR)</label>
                     <input type="number" value={settings.ruqyahFee} onChange={(e) => handleChange('ruqyahFee', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
@@ -279,7 +279,7 @@ export default function AdminAppointmentSettingsPage() {
                     <input type="number" value={settings.ruqyahFeeVideoCall} onChange={(e) => handleChange('ruqyahFeeVideoCall', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">In-Person (₹ INR)</label>
+                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">Voice Call (₹ INR)</label>
                     <input type="number" value={settings.ruqyahFeeINR} onChange={(e) => handleChange('ruqyahFeeINR', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
@@ -294,7 +294,7 @@ export default function AdminAppointmentSettingsPage() {
                 <h3 className="font-semibold text-lg mb-4 text-primary-700 dark:text-primary-400">Taveez & Amulets</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">In-Person (PKR)</label>
+                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">Voice Call (PKR)</label>
                     <input type="number" value={settings.taveezFee} onChange={(e) => handleChange('taveezFee', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
@@ -302,7 +302,7 @@ export default function AdminAppointmentSettingsPage() {
                     <input type="number" value={settings.taveezFeeVideoCall} onChange={(e) => handleChange('taveezFeeVideoCall', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">In-Person (₹ INR)</label>
+                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">Voice Call (₹ INR)</label>
                     <input type="number" value={settings.taveezFeeINR} onChange={(e) => handleChange('taveezFeeINR', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
@@ -459,15 +459,15 @@ export default function AdminAppointmentSettingsPage() {
           </h3>
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 space-y-4">
             <div>
-              <h4 className="font-bold text-lg mb-2">Service Charges (In-Person | Video Call):</h4>
+              <h4 className="font-bold text-lg mb-2">Service Charges (Voice Call | Video Call):</h4>
               <div className="overflow-x-auto">
                 <table className="text-sm w-full">
                   <thead>
                     <tr className="border-b dark:border-gray-700">
                       <th className="text-left py-2">Service</th>
-                      <th className="text-center py-2">PKR (In-Person)</th>
+                      <th className="text-center py-2">PKR (Voice Call)</th>
                       <th className="text-center py-2">PKR (Video)</th>
-                      <th className="text-center py-2">INR (In-Person)</th>
+                      <th className="text-center py-2">INR (Voice Call)</th>
                       <th className="text-center py-2">INR (Video)</th>
                     </tr>
                   </thead>

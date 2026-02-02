@@ -65,7 +65,7 @@ const settingsSchema = new mongoose.Schema(
       default: 'Rooted in the timeless wisdom of Sufism and the healing sciences of Hikmat, illuminating hearts with divine knowledge of spirituality and traditional healing.',
     },
     
-    // Appointment Settings
+    // Appointment Settings - PKR Voice Call
     consultationFee: {
       type: Number,
       default: 2000,
@@ -85,6 +85,69 @@ const settingsSchema = new mongoose.Schema(
     taveezFee: {
       type: Number,
       default: 1500,
+    },
+    // PKR Video Call Fees
+    consultationFeeVideoCall: {
+      type: Number,
+      default: 3000,
+    },
+    healingFeeVideoCall: {
+      type: Number,
+      default: 4000,
+    },
+    hikmatFeeVideoCall: {
+      type: Number,
+      default: 3500,
+    },
+    ruqyahFeeVideoCall: {
+      type: Number,
+      default: 4500,
+    },
+    taveezFeeVideoCall: {
+      type: Number,
+      default: 2500,
+    },
+    // INR Voice Call Fees
+    consultationFeeINR: {
+      type: Number,
+      default: 700,
+    },
+    healingFeeINR: {
+      type: Number,
+      default: 1000,
+    },
+    hikmatFeeINR: {
+      type: Number,
+      default: 850,
+    },
+    ruqyahFeeINR: {
+      type: Number,
+      default: 1200,
+    },
+    taveezFeeINR: {
+      type: Number,
+      default: 500,
+    },
+    // INR Video Call Fees
+    consultationFeeVideoCallINR: {
+      type: Number,
+      default: 1000,
+    },
+    healingFeeVideoCallINR: {
+      type: Number,
+      default: 1400,
+    },
+    hikmatFeeVideoCallINR: {
+      type: Number,
+      default: 1200,
+    },
+    ruqyahFeeVideoCallINR: {
+      type: Number,
+      default: 1600,
+    },
+    taveezFeeVideoCallINR: {
+      type: Number,
+      default: 850,
     },
     workingHoursStart: {
       type: String,
