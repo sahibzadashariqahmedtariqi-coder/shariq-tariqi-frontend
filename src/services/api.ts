@@ -105,7 +105,7 @@ const showSessionExpiredModal = (redirectUrl: string) => {
     line-height: 1.8;
     position: relative;
   `;
-  urduText.textContent = 'آپ کو کسی اور ڈیوائس سے لاگ آؤٹ کر دیا گیا ہے۔';
+  urduText.textContent = 'آپ کسی دوسری ڈیوائس پر لاگ اِن ہو چکے ہیں، اس لیے یہاں سے لاگ آؤٹ کر دیا گیا ہے';
   modal.appendChild(urduText);
 
   // English text
