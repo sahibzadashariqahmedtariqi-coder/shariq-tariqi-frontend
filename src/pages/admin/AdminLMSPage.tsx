@@ -149,8 +149,8 @@ const AdminLMSPage = () => {
   const [reviewingRequest, setReviewingRequest] = useState<string | null>(null);
   const [reviewAdminRemarks, setReviewAdminRemarks] = useState('');
 
-  // Redirect to login if not authenticated or not admin
-  if (!isAuthenticated || user?.role !== 'admin') {
+  // Redirect to login if not authenticated or not admin/super_admin
+  if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'super_admin')) {
     return <Navigate to="/login" replace />;
   }
 
