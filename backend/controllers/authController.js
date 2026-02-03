@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 import User from '../models/User.js';
+import AuditLog from '../models/AuditLog.js';
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -101,6 +102,18 @@ export const login = async (req, res, next) => {
     // Generate token
     const token = generateToken(user._id);
 
+    // Create audit log for login
+    await AuditLog.log({
+      user: user._id,
+      userName: user.name,
+      userEmail: user.email,
+      userRole: user.role,
+      action: 'LOGIN',
+      description: `User logged in successfully`,
+      ipAddress: req.ip || req.connection?.remoteAddress,
+      userAgent: req.get('User-Agent')
+    });
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -181,6 +194,18 @@ export const changePassword = async (req, res, next) => {
     // Update password
     user.password = newPassword;
     await user.save();
+
+    // Create audit log for password change
+    await AuditLog.log({
+      user: user._id,
+      userName: user.name,
+      userEmail: user.email,
+      userRole: user.role,
+      action: 'PASSWORD_CHANGE',
+      description: 'User changed their password',
+      ipAddress: req.ip || req.connection?.remoteAddress,
+      userAgent: req.get('User-Agent')
+    });
 
     res.status(200).json({
       success: true,

@@ -31,6 +31,8 @@ import lmsRoutes from './routes/lmsRoutes.js';
 import lmsFeeRoutes from './routes/lmsFeeRoutes.js';
 import mureedRoutes from './routes/mureedRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
+import auditLogRoutes from './routes/auditLogRoutes.js';
+import sessionRoutes from './routes/sessionRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -64,17 +66,17 @@ app.use(helmet({
 // Rate Limiting - Prevent brute force attacks
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limit each IP to 200 requests per windowMs
+  max: 500, // Limit each IP to 500 requests per windowMs
   message: { success: false, message: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use('/api', limiter);
 
-// Rate limit for auth routes (login, register) - More relaxed
+// Rate limit for auth routes (login, register)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // 50 attempts per 15 minutes
+  max: 500, // 500 attempts per 15 minutes
   message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' }
 });
 app.use('/api/auth/login', authLimiter);
@@ -125,6 +127,8 @@ app.use('/api/lms', lmsRoutes);
 app.use('/api/lms/fees', lmsFeeRoutes);
 app.use('/api/mureeds', mureedRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/audit-logs', auditLogRoutes);
+app.use('/api/sessions', sessionRoutes);
 
 // Error Handler Middleware (must be last)
 app.use(errorHandler);

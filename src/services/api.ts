@@ -28,8 +28,26 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      window.location.href = '/login';
+      // Check if session was replaced (logged in from another device)
+      if (error.response?.data?.code === 'SESSION_REPLACED') {
+        // Clear all auth data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('auth-storage');
+        
+        // Show alert to user
+        alert('آپ کو کسی اور ڈیوائس سے لاگ آؤٹ کر دیا گیا ہے۔ براہ کرم دوبارہ لاگ ان کریں۔\n\nYou have been logged out because your account was accessed from another device. Please login again.');
+        
+        // Redirect to appropriate login page
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/lms') || currentPath.includes('/student')) {
+          window.location.href = '/lms/login';
+        } else {
+          window.location.href = '/login';
+        }
+      } else {
+        localStorage.removeItem('authToken');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import LMSEnrollment from '../models/LMSEnrollment.js';
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
+import AuditLog from '../models/AuditLog.js';
 
 // Generate unique LMS Student ID
 const generateLMSStudentId = async () => {
@@ -47,6 +48,21 @@ export const createLMSStudent = asyncHandler(async (req, res) => {
     lmsStudentId,
     lmsAccessEnabled: true,
     lmsCreatedBy: req.user._id
+  });
+
+  // Create audit log
+  await AuditLog.log({
+    user: req.user._id,
+    userName: req.user.name,
+    userEmail: req.user.email,
+    userRole: req.user.role,
+    action: 'LMS_STUDENT_CREATE',
+    targetType: 'User',
+    targetId: student._id,
+    targetName: student.name,
+    description: `Created LMS student: ${student.name} (${student.lmsStudentId})`,
+    ipAddress: req.ip,
+    userAgent: req.get('User-Agent')
   });
 
   res.status(201).json({
@@ -302,17 +318,34 @@ export const lmsStudentLogin = asyncHandler(async (req, res) => {
     throw new Error('Invalid credentials');
   }
 
-  // Update last login
+  // Generate unique session token for single device login
+  const { v4: uuidv4 } = await import('uuid');
+  const sessionToken = uuidv4();
+
+  // Update last login and active session token
   student.lastLogin = new Date();
+  student.activeSessionToken = sessionToken;
   await student.save({ validateBeforeSave: false });
 
-  // Generate token
+  // Generate JWT with session token embedded
   const jwt = await import('jsonwebtoken');
   const token = jwt.default.sign(
-    { id: student._id },
+    { id: student._id, sessionToken },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRE || '30d' }
   );
+
+  // Create audit log
+  await AuditLog.log({
+    user: student._id,
+    userName: student.name,
+    userEmail: student.email,
+    userRole: student.role,
+    action: 'LOGIN',
+    description: 'LMS Student logged in (single device enforced)',
+    ipAddress: req.ip,
+    userAgent: req.get('User-Agent')
+  });
 
   res.status(200).json({
     success: true,

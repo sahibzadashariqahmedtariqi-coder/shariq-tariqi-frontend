@@ -12,8 +12,8 @@ export const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from token
-      req.user = await User.findById(decoded.id).select('-password');
+      // Get user from token (include activeSessionToken for LMS students)
+      req.user = await User.findById(decoded.id).select('-password +activeSessionToken');
 
       if (!req.user) {
         return res.status(401).json({
@@ -21,6 +21,21 @@ export const protect = async (req, res, next) => {
           message: 'User not found'
         });
       }
+
+      // For LMS students, verify single device login
+      if (req.user.isLMSStudent && decoded.sessionToken) {
+        // Check if session token matches the active one in database
+        if (req.user.activeSessionToken !== decoded.sessionToken) {
+          return res.status(401).json({
+            success: false,
+            message: 'Session expired. You have been logged in from another device. Please login again.',
+            code: 'SESSION_REPLACED'
+          });
+        }
+      }
+
+      // Remove activeSessionToken from req.user before proceeding
+      req.user.activeSessionToken = undefined;
 
       next();
     } catch (error) {
@@ -40,7 +55,7 @@ export const protect = async (req, res, next) => {
 };
 
 export const admin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'super_admin')) {
     next();
   } else {
     res.status(403).json({

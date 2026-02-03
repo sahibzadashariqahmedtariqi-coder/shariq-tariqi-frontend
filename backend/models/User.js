@@ -54,6 +54,11 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User' // Admin who created this student account
   },
+  // Active session token for single device login (LMS students only)
+  activeSessionToken: {
+    type: String,
+    select: false // Hidden by default for security
+  },
   // ========== END LMS STUDENT FIELDS ==========
   phone: {
     type: String,
