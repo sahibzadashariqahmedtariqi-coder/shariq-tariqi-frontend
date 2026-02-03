@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useState, useEffect } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Plus, Trash2, UserCheck, UserX, Search, Mail, Phone, User as UserIcon, ArrowLeft, BookOpen, Key, X } from 'lucide-react'
+import { Plus, Trash2, UserCheck, UserX, Search, Mail, Phone, User as UserIcon, ArrowLeft, BookOpen, Key, X, Eye, EyeOff, Lock } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/services/api'
 import toast from 'react-hot-toast'
@@ -34,6 +34,7 @@ interface User {
   createdAt: string
   enrolledCourses?: string[]
   grantedCourses?: GrantedCourse[]
+  adminSetPassword?: string // Password set by admin (only visible to super admin)
 }
 
 interface Course {
@@ -361,6 +362,14 @@ export default function AdminUsersPage() {
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Contact
                     </th>
+                    {user?.isSuperAdmin && (
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <span className="flex items-center gap-1">
+                          <Lock className="h-3 w-3" />
+                          Password
+                        </span>
+                      </th>
+                    )}
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Role
                     </th>
@@ -404,6 +413,16 @@ export default function AdminUsersPage() {
                           )}
                         </div>
                       </td>
+                      {/* Password Column - Only for Super Admin */}
+                      {user?.isSuperAdmin && (
+                        <td className="px-6 py-4">
+                          {userData.adminSetPassword ? (
+                            <PasswordCell password={userData.adminSetPassword} />
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">User-set</span>
+                          )}
+                        </td>
+                      )}
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
                           userData.isSuperAdmin
@@ -808,5 +827,25 @@ export default function AdminUsersPage() {
         )}
       </div>
     </>
+  )
+}
+
+// Password Cell Component with show/hide toggle
+function PasswordCell({ password }: { password: string }) {
+  const [show, setShow] = useState(false)
+  
+  return (
+    <div className="flex items-center gap-2">
+      <span className="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+        {show ? password : '••••••••'}
+      </span>
+      <button
+        onClick={() => setShow(!show)}
+        className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        title={show ? 'Hide Password' : 'Show Password'}
+      >
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
   )
 }
