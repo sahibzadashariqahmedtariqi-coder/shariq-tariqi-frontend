@@ -77,7 +77,7 @@ export interface User {
   avatar?: string;
   enrolledCourses: string[];
   appointments: Appointment[];
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'super_admin' | 'lms_student';
   isSuperAdmin?: boolean;
   isPaidStudent?: boolean;
   studentId?: string;
