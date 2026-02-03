@@ -195,14 +195,8 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('authToken');
         localStorage.removeItem('auth-storage');
         
-        // Determine redirect URL
-        const currentPath = window.location.pathname;
-        const redirectUrl = (currentPath.includes('/lms') || currentPath.includes('/student')) 
-          ? '/lms/login' 
-          : '/login';
-        
-        // Show beautiful modal
-        showSessionExpiredModal(redirectUrl);
+        // All login is on /login page (both admin and LMS student)
+        showSessionExpiredModal('/login');
       } else {
         localStorage.removeItem('authToken');
         window.location.href = '/login';
