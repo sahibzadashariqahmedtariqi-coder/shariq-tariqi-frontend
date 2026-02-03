@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters'],
     select: false
   },
+  // Admin-set password (only visible to super admin)
+  adminSetPassword: {
+    type: String,
+    select: false // Hidden by default
+  },
   role: {
     type: String,
     enum: ['user', 'admin', 'lms_student'],

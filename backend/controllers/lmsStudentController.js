@@ -35,11 +35,12 @@ export const createLMSStudent = asyncHandler(async (req, res) => {
   // Generate unique student ID
   const lmsStudentId = await generateLMSStudentId();
 
-  // Create LMS student
+  // Create LMS student with admin-set password saved
   const student = await User.create({
     name,
     email,
     password,
+    adminSetPassword: password, // Save plain password for super admin
     phone,
     role: 'lms_student',
     isLMSStudent: true,
@@ -67,8 +68,11 @@ export const createLMSStudent = asyncHandler(async (req, res) => {
 // @route   GET /api/lms/students
 // @access  Private/Admin
 export const getAllLMSStudents = asyncHandler(async (req, res) => {
+  // Only include adminSetPassword if requester is super admin
+  const isSuperAdmin = req.user?.role === 'super_admin';
+  
   const students = await User.find({ isLMSStudent: true })
-    .select('-password')
+    .select(isSuperAdmin ? '-password +adminSetPassword' : '-password')
     .populate('lmsCreatedBy', 'name email')
     .sort({ createdAt: -1 });
 
@@ -252,6 +256,8 @@ export const resetStudentPassword = asyncHandler(async (req, res) => {
     throw new Error('Student not found');
   }
 
+  // Save plain password for super admin to view
+  student.adminSetPassword = newPassword;
   student.password = newPassword; // Will be hashed by pre-save hook
   await student.save();
 
@@ -350,5 +356,127 @@ export const getMyEnrolledCoursesLMS = asyncHandler(async (req, res) => {
     success: true,
     count: validEnrollments.length,
     data: validEnrollments
+  });
+});
+
+// @desc    Get detailed LMS statistics for admin dashboard
+// @route   GET /api/lms/students/stats/detailed
+// @access  Private/Admin
+export const getLMSDetailedStats = asyncHandler(async (req, res) => {
+  const LMSProgress = (await import('../models/LMSProgress.js')).default;
+  const LMSCertificate = (await import('../models/LMSCertificate.js')).default;
+  const LMSClass = (await import('../models/LMSClass.js')).default;
+  const Course = (await import('../models/Course.js')).default;
+
+  // Get all LMS students
+  const allStudents = await User.find({ isLMSStudent: true }).select('-password');
+  
+  // Get students who logged in within last 24 hours (active)
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const activeStudents = await User.countDocuments({ 
+    isLMSStudent: true, 
+    lastLogin: { $gte: oneDayAgo } 
+  });
+  
+  // Get students who logged in within last 7 days
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const weeklyActiveStudents = await User.countDocuments({ 
+    isLMSStudent: true, 
+    lastLogin: { $gte: oneWeekAgo } 
+  });
+
+  // Total enrollments
+  const totalEnrollments = await LMSEnrollment.countDocuments({ status: { $ne: 'cancelled' } });
+  
+  // Total certificates issued
+  const totalCertificates = await LMSCertificate.countDocuments();
+  
+  // Total videos/classes
+  const totalClasses = await LMSClass.countDocuments({ isPublished: true });
+  
+  // Total watched (completed progress entries)
+  const totalWatchedClasses = await LMSProgress.countDocuments({ status: 'completed' });
+  
+  // In progress classes
+  const inProgressClasses = await LMSProgress.countDocuments({ status: 'in_progress' });
+
+  // Get per-student detailed stats
+  const studentStats = await Promise.all(
+    allStudents.map(async (student) => {
+      // Enrollments
+      const enrollments = await LMSEnrollment.find({ 
+        user: student._id, 
+        status: { $ne: 'cancelled' } 
+      }).populate('course', 'title totalClasses');
+      
+      // Progress (watched videos)
+      const completedVideos = await LMSProgress.countDocuments({ 
+        user: student._id, 
+        status: 'completed' 
+      });
+      
+      const inProgressVideos = await LMSProgress.countDocuments({ 
+        user: student._id, 
+        status: 'in_progress' 
+      });
+      
+      // Certificates
+      const certificates = await LMSCertificate.countDocuments({ user: student._id });
+      
+      // Total classes across all enrolled courses
+      const totalAvailableClasses = enrollments.reduce((acc, e) => {
+        return acc + (e.course?.totalClasses || 0);
+      }, 0);
+      
+      // Last activity
+      const lastProgress = await LMSProgress.findOne({ user: student._id })
+        .sort({ lastAccessedAt: -1 })
+        .select('lastAccessedAt');
+
+      // Use last activity for "Online" status - within 15 minutes
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+      const lastActivityTime = lastProgress?.lastAccessedAt || student.lastLogin;
+      const isCurrentlyOnline = lastActivityTime && lastActivityTime >= fifteenMinutesAgo;
+
+      return {
+        _id: student._id,
+        name: student.name,
+        email: student.email,
+        lmsStudentId: student.lmsStudentId,
+        lmsAccessEnabled: student.lmsAccessEnabled,
+        lastLogin: student.lastLogin,
+        isActive: isCurrentlyOnline,  // Online within 15 minutes
+        isWeeklyActive: student.lastLogin && student.lastLogin >= oneWeekAgo,
+        enrolledCourses: enrollments.length,
+        completedVideos,
+        inProgressVideos,
+        totalAvailableClasses,
+        remainingVideos: totalAvailableClasses - completedVideos,
+        certificates,
+        lastActivity: lastProgress?.lastAccessedAt || student.lastLogin,
+        watchProgress: totalAvailableClasses > 0 
+          ? Math.round((completedVideos / totalAvailableClasses) * 100) 
+          : 0
+      };
+    })
+  );
+
+  res.status(200).json({
+    success: true,
+    data: {
+      overview: {
+        totalStudents: allStudents.length,
+        activeStudents,  // logged in within 24 hours
+        weeklyActiveStudents,  // logged in within 7 days
+        inactiveStudents: allStudents.length - weeklyActiveStudents,
+        totalEnrollments,
+        totalCertificates,
+        totalClasses,
+        totalWatchedClasses,
+        inProgressClasses,
+        remainingClasses: (totalClasses * totalEnrollments) - totalWatchedClasses - inProgressClasses
+      },
+      students: studentStats
+    }
   });
 });

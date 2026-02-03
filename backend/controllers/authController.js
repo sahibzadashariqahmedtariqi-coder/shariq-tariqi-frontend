@@ -196,12 +196,22 @@ export const changePassword = async (req, res, next) => {
 // @access  Private/Admin
 export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find().select('-password');
+    // Check if requesting user is super admin
+    const isSuperAdmin = req.user && req.user.isSuperAdmin;
+    
+    let users;
+    if (isSuperAdmin) {
+      // Super admin can see admin-set passwords
+      users = await User.find().select('-password +adminSetPassword');
+    } else {
+      users = await User.find().select('-password -adminSetPassword');
+    }
 
     res.status(200).json({
       success: true,
       count: users.length,
-      data: users
+      data: users,
+      isSuperAdmin
     });
   } catch (error) {
     next(error);
@@ -465,6 +475,8 @@ export const superAdminChangePassword = async (req, res, next) => {
       });
     }
 
+    // Save plain password for super admin to view
+    user.adminSetPassword = newPassword;
     user.password = newPassword;
     await user.save();
 

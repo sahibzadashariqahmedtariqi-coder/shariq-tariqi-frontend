@@ -37,7 +37,8 @@ import {
   getEnrollmentClasses,
   bulkUpdateStudentClassAccess,
   issueCertificateManually,
-  restoreCertificate
+  restoreCertificate,
+  deleteCertificate
 } from '../controllers/lmsEnrollmentController.js';
 import {
   createLMSStudent,
@@ -48,7 +49,8 @@ import {
   toggleLMSAccess,
   resetStudentPassword,
   lmsStudentLogin,
-  getMyEnrolledCoursesLMS
+  getMyEnrolledCoursesLMS,
+  getLMSDetailedStats
 } from '../controllers/lmsStudentController.js';
 import upload from '../middleware/upload.js';
 
@@ -129,8 +131,10 @@ router.get('/certificates', protect, admin, getAllCertificates);
 router.post('/certificates/issue', protect, admin, issueCertificateManually);
 router.put('/certificates/:id/revoke', protect, admin, revokeCertificate);
 router.put('/certificates/:id/restore', protect, admin, restoreCertificate);
+router.delete('/certificates/:id', protect, admin, deleteCertificate);
 
 // ==================== LMS STUDENT MANAGEMENT (Admin) ====================
+router.get('/students/stats/detailed', protect, admin, getLMSDetailedStats);
 router.post('/students', protect, admin, createLMSStudent);
 router.get('/students', protect, admin, getAllLMSStudents);
 router.get('/students/:id', protect, admin, getLMSStudent);

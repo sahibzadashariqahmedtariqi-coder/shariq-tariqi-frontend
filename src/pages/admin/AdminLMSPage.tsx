@@ -321,6 +321,7 @@ const AdminLMSPage = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['lms-students'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-detailed-stats'] });
       toast.success(data.message);
     },
     onError: (error: any) => {
@@ -1096,6 +1097,7 @@ const AdminLMSPage = () => {
               setSelectedStudentForEnroll(student);
               setShowStudentEnrollModal(true);
             }}
+            isSuperAdmin={user?.role === 'super_admin'}
           />
         )}
 
@@ -2145,7 +2147,8 @@ const StudentsSection = ({
   onDeleteStudent, 
   onToggleAccess,
   onResetPassword,
-  onEnrollInCourses
+  onEnrollInCourses,
+  isSuperAdmin
 }: {
   students: LMSStudent[];
   studentStats: any[];
@@ -2156,8 +2159,22 @@ const StudentsSection = ({
   onToggleAccess: (id: string) => void;
   onResetPassword: (id: string, newPassword: string) => void;
   onEnrollInCourses: (student: LMSStudent) => void;
+  isSuperAdmin: boolean;
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+
+  const togglePasswordVisibility = (studentId: string) => {
+    setVisiblePasswords(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(studentId)) {
+        newSet.delete(studentId);
+      } else {
+        newSet.add(studentId);
+      }
+      return newSet;
+    });
+  };
 
   // Merge students with their stats
   const studentsWithStats = students.map(student => {
@@ -2216,6 +2233,11 @@ const StudentsSection = ({
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Student ID</th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Name</th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Email</th>
+                {isSuperAdmin && (
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">
+                    <span className="text-purple-600">Password</span>
+                  </th>
+                )}
                 <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Courses</th>
                 <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
                   <span className="text-green-600">Watched</span>
@@ -2251,6 +2273,32 @@ const StudentsSection = ({
                     </div>
                   </td>
                   <td className="px-3 py-3 text-xs text-gray-600">{student.email}</td>
+                  {isSuperAdmin && (
+                    <td className="px-3 py-3">
+                      {student.adminSetPassword ? (
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-mono text-purple-600">
+                            {visiblePasswords.has(student._id) 
+                              ? student.adminSetPassword 
+                              : '••••••••'}
+                          </span>
+                          <button
+                            onClick={() => togglePasswordVisibility(student._id)}
+                            className="p-1 text-gray-400 hover:text-purple-600 transition"
+                            title={visiblePasswords.has(student._id) ? "Hide Password" : "Show Password"}
+                          >
+                            {visiblePasswords.has(student._id) ? (
+                              <EyeOff className="w-3 h-3" />
+                            ) : (
+                              <Eye className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">Not set</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-3 py-3 text-center">
                     <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">
                       {student.enrolledCourses || 0}
@@ -3710,6 +3758,19 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/lms/certificates/${id}`);
+    },
+    onSuccess: () => {
+      toast.success('Certificate deleted permanently');
+      queryClient.invalidateQueries({ queryKey: ['lms-certificates'] });
+    },
+    onError: () => {
+      toast.error('Failed to delete certificate');
+    }
+  });
+
   // Filter certificates
   const filteredCertificates = useMemo(() => {
     if (!certificatesData) return [];
@@ -3954,6 +4015,17 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
                             <CheckCircle2 className="w-4 h-4" />
                           </button>
                         )}
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to permanently delete this certificate? This action cannot be undone.')) {
+                              deleteMutation.mutate(cert._id);
+                            }
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition"
+                          title="Delete Certificate Permanently"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>

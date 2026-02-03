@@ -155,6 +155,23 @@ export const getCourseForStudent = async (req, res) => {
       .select('title description section order duration isLocked pdfAttachment')
       .sort({ section: 1, order: 1 });
 
+    // Apply per-student lock/unlock status to classes
+    const classesWithStudentLockStatus = classes.map(cls => {
+      const clsId = cls._id.toString();
+      const isStudentLocked = enrollment.lockedClasses && 
+        enrollment.lockedClasses.some(id => id.toString() === clsId);
+      const isStudentUnlocked = enrollment.unlockedClasses && 
+        enrollment.unlockedClasses.some(id => id.toString() === clsId);
+      
+      // Final lock status: locked if (globally locked AND not student-unlocked) OR student-locked
+      const finalLocked = isStudentLocked || (cls.isLocked && !isStudentUnlocked);
+      
+      return {
+        ...cls.toObject(),
+        isLocked: finalLocked
+      };
+    });
+
     // Get user's progress for all classes
     const progress = await LMSProgress.find({
       user: req.user._id,
@@ -181,7 +198,7 @@ export const getCourseForStudent = async (req, res) => {
           certificateIssued: enrollment.certificateIssued,
           certificateId: enrollment.certificateId
         },
-        classes,
+        classes: classesWithStudentLockStatus,
         progressMap
       }
     });

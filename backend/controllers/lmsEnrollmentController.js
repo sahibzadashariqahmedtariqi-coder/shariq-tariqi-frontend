@@ -310,8 +310,23 @@ export const watchClass = async (req, res) => {
       });
     }
 
-    // Check if class is locked (unless it's a preview)
-    if (classItem.isLocked && !classItem.isPreview) {
+    // Check if class is specifically locked for this student (per-student lock)
+    const isStudentLocked = enrollment.lockedClasses && 
+      enrollment.lockedClasses.some(id => id.toString() === classId);
+    
+    if (isStudentLocked) {
+      return res.status(403).json({
+        success: false,
+        message: 'This class has been locked for you by the instructor.',
+        locked: true
+      });
+    }
+
+    // Check if class is globally locked (unless it's a preview or specifically unlocked for student)
+    const isStudentUnlocked = enrollment.unlockedClasses && 
+      enrollment.unlockedClasses.some(id => id.toString() === classId);
+    
+    if (classItem.isLocked && !classItem.isPreview && !isStudentUnlocked) {
       return res.status(403).json({
         success: false,
         message: 'This class is locked. It will be unlocked by the instructor soon.',
@@ -354,6 +369,23 @@ export const watchClass = async (req, res) => {
       .select('title section order isLocked')
       .sort({ section: 1, order: 1 });
 
+    // Apply per-student lock/unlock status to classes
+    const classesWithStudentLockStatus = allClasses.map(cls => {
+      const clsId = cls._id.toString();
+      const isStudentLocked = enrollment.lockedClasses && 
+        enrollment.lockedClasses.some(id => id.toString() === clsId);
+      const isStudentUnlocked = enrollment.unlockedClasses && 
+        enrollment.unlockedClasses.some(id => id.toString() === clsId);
+      
+      // Final lock status: locked if (globally locked AND not student-unlocked) OR student-locked
+      const finalLocked = isStudentLocked || (cls.isLocked && !isStudentUnlocked);
+      
+      return {
+        ...cls.toObject(),
+        isLocked: finalLocked
+      };
+    });
+
     // Get user's progress for all classes
     const userProgress = await LMSProgress.find({
       user: req.user._id,
@@ -377,7 +409,7 @@ export const watchClass = async (req, res) => {
           _id: enrollment._id,
           progress: enrollment.progress
         },
-        allClasses,
+        allClasses: classesWithStudentLockStatus,
         progressMap
       }
     });
@@ -1065,6 +1097,28 @@ export const restoreCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error('Error restoring certificate:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Delete certificate permanently (Admin)
+// @route   DELETE /api/lms/certificates/:id
+// @access  Admin
+export const deleteCertificate = async (req, res) => {
+  try {
+    const certificate = await LMSCertificate.findById(req.params.id);
+    if (!certificate) {
+      return res.status(404).json({ success: false, message: 'Certificate not found' });
+    }
+
+    await LMSCertificate.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: 'Certificate deleted permanently'
+    });
+  } catch (error) {
+    console.error('Error deleting certificate:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
