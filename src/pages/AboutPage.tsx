@@ -36,11 +36,12 @@ export default function AboutPage() {
     yearsExperience: 15,
     peopleHelped: 5000
   })
-  const [aboutData, setAboutData] = useState({
-    profileImage: '/images/about-profile.jpg',
-    introductionText: 'Sahibzada Shariq Ahmed Tariqi is a dedicated spiritual healer and practitioner of traditional Islamic medicine. With deep knowledge in Roohaniyat (spirituality) and Hikmat (traditional Islamic medicine), he serves humanity through the prophetic traditions of healing.',
-    descriptionText: 'Through years of dedicated study and practice, Sahibzada Shariq Ahmed Tariqi has mastered the art of spiritual healing and traditional Islamic medicine, helping countless individuals find peace, health, and spiritual enlightenment.'
-  })
+  const [aboutData, setAboutData] = useState<{
+    profileImage: string;
+    introductionText: string;
+    descriptionText: string;
+  } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -65,16 +66,48 @@ export default function AboutPage() {
           const data = response.data.data
           setAboutData({
             profileImage: data.profileImage || '/images/about-profile.jpg',
-            introductionText: data.introductionText || aboutData.introductionText,
-            descriptionText: data.descriptionText || aboutData.descriptionText
+            introductionText: data.introductionText || 'Sahibzada Shariq Ahmed Tariqi is a dedicated spiritual healer and practitioner of traditional Islamic medicine. With deep knowledge in Roohaniyat (spirituality) and Hikmat (traditional Islamic medicine), he serves humanity through the prophetic traditions of healing.',
+            descriptionText: data.descriptionText || 'Through years of dedicated study and practice, Sahibzada Shariq Ahmed Tariqi has mastered the art of spiritual healing and traditional Islamic medicine, helping countless individuals find peace, health, and spiritual enlightenment.'
+          })
+        } else {
+          // Fallback to default values
+          setAboutData({
+            profileImage: '/images/about-profile.jpg',
+            introductionText: 'Sahibzada Shariq Ahmed Tariqi is a dedicated spiritual healer and practitioner of traditional Islamic medicine. With deep knowledge in Roohaniyat (spirituality) and Hikmat (traditional Islamic medicine), he serves humanity through the prophetic traditions of healing.',
+            descriptionText: 'Through years of dedicated study and practice, Sahibzada Shariq Ahmed Tariqi has mastered the art of spiritual healing and traditional Islamic medicine, helping countless individuals find peace, health, and spiritual enlightenment.'
           })
         }
       } catch (error) {
         console.error('Error fetching about settings:', error)
+        // Fallback to default values on error
+        setAboutData({
+          profileImage: '/images/about-profile.jpg',
+          introductionText: 'Sahibzada Shariq Ahmed Tariqi is a dedicated spiritual healer and practitioner of traditional Islamic medicine. With deep knowledge in Roohaniyat (spirituality) and Hikmat (traditional Islamic medicine), he serves humanity through the prophetic traditions of healing.',
+          descriptionText: 'Through years of dedicated study and practice, Sahibzada Shariq Ahmed Tariqi has mastered the art of spiritual healing and traditional Islamic medicine, helping countless individuals find peace, health, and spiritual enlightenment.'
+        })
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchAboutSettings()
   }, [])
+
+  // Show loading state until data is fetched
+  if (isLoading || !aboutData) {
+    return (
+      <>
+        <Helmet>
+          <title>About Sahibzada Shariq Ahmed Tariqi</title>
+        </Helmet>
+        <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          </div>
+        </div>
+      </>
+    )
+  }
 
   return (
     <>
