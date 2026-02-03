@@ -170,8 +170,7 @@ const StudentLMSPage = () => {
     queryFn: async () => {
       const res = await api.get('/lms/certificates/my');
       return res.data.data;
-    },
-    enabled: activeTab === 'certificates'
+    }
   });
 
   const { data: feeData, isLoading: loadingFees } = useQuery({
