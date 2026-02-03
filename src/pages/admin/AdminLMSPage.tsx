@@ -163,6 +163,15 @@ const AdminLMSPage = () => {
     }
   });
 
+  // Fetch detailed LMS stats
+  const { data: detailedStatsData } = useQuery({
+    queryKey: ['lms-detailed-stats'],
+    queryFn: async () => {
+      const res = await api.get('/lms/students/stats/detailed');
+      return res.data.data;
+    }
+  });
+
   // Fetch classes for selected course
   const { data: classesData, isLoading: loadingClasses } = useQuery({
     queryKey: ['lms-classes', expandedCourse],
@@ -601,52 +610,99 @@ const AdminLMSPage = () => {
             </div>
 
             {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+          {/* Basic Stats Row */}
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-100 rounded-lg">
-                <BookOpen className="w-6 h-6 text-emerald-600" />
+                <BookOpen className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{coursesData?.length || 0}</p>
-                <p className="text-sm text-gray-600">Total Courses</p>
+                <p className="text-xl font-bold">{coursesData?.length || 0}</p>
+                <p className="text-xs text-gray-600">Total Courses</p>
               </div>
             </div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <Video className="w-6 h-6 text-blue-600" />
+                <Video className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
-                  {coursesData?.reduce((acc: number, c: LMSCourse) => acc + c.totalClasses, 0) || 0}
+                <p className="text-xl font-bold">
+                  {detailedStatsData?.overview?.totalClasses || 0}
                 </p>
-                <p className="text-sm text-gray-600">Total Classes</p>
+                <p className="text-xs text-gray-600">Total Classes</p>
               </div>
             </div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
+                <Users className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
-                  {coursesData?.reduce((acc: number, c: LMSCourse) => acc + c.enrollmentCount, 0) || 0}
+                <p className="text-xl font-bold">
+                  {detailedStatsData?.overview?.totalEnrollments || 0}
                 </p>
-                <p className="text-sm text-gray-600">Total Enrollments</p>
+                <p className="text-xs text-gray-600">Total Enrollments</p>
               </div>
             </div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-amber-100 rounded-lg">
-                <Award className="w-6 h-6 text-amber-600" />
+                <Award className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">0</p>
-                <p className="text-sm text-gray-600">Certificates Issued</p>
+                <p className="text-xl font-bold">{detailedStatsData?.overview?.totalCertificates || 0}</p>
+                <p className="text-xs text-gray-600">Certificates</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Student Activity Stats */}
+          <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-xl shadow-sm text-white">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xl font-bold">{detailedStatsData?.overview?.totalStudents || 0}</p>
+                <p className="text-xs opacity-90">Total Students</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-green-400 to-teal-500 p-4 rounded-xl shadow-sm text-white">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Play className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xl font-bold">{detailedStatsData?.overview?.activeStudents || 0}</p>
+                <p className="text-xs opacity-90">Active (24h)</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-xl shadow-sm text-white">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xl font-bold">{detailedStatsData?.overview?.totalWatchedClasses || 0}</p>
+                <p className="text-xs opacity-90">Videos Watched</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-orange-500 to-red-500 p-4 rounded-xl shadow-sm text-white">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xl font-bold">{detailedStatsData?.overview?.inProgressClasses || 0}</p>
+                <p className="text-xs opacity-90">In Progress</p>
               </div>
             </div>
           </div>
@@ -1019,6 +1075,7 @@ const AdminLMSPage = () => {
         {activeTab === 'students' && (
           <StudentsSection 
             students={studentsData || []}
+            studentStats={detailedStatsData?.students || []}
             loading={loadingStudents}
             onCreateStudent={() => {
               setEditingStudent(null);
@@ -2081,6 +2138,7 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
 // Students Section Component
 const StudentsSection = ({ 
   students, 
+  studentStats,
   loading, 
   onCreateStudent, 
   onEditStudent, 
@@ -2090,6 +2148,7 @@ const StudentsSection = ({
   onEnrollInCourses
 }: {
   students: LMSStudent[];
+  studentStats: any[];
   loading: boolean;
   onCreateStudent: () => void;
   onEditStudent: (student: LMSStudent) => void;
@@ -2100,7 +2159,13 @@ const StudentsSection = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredStudents = students.filter(student => 
+  // Merge students with their stats
+  const studentsWithStats = students.map(student => {
+    const stats = studentStats.find(s => s._id === student._id) || {};
+    return { ...student, ...stats };
+  });
+
+  const filteredStudents = studentsWithStats.filter(student => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.lmsStudentId.toLowerCase().includes(searchTerm.toLowerCase())
@@ -2144,63 +2209,92 @@ const StudentsSection = ({
           <p className="text-gray-500 mt-1">Create student accounts to give them access to LMS courses</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white rounded-xl border overflow-hidden overflow-x-auto">
+          <table className="w-full min-w-[1200px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Student ID</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Email</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Phone</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Enrolled Courses</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Access</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Actions</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Student ID</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Name</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Email</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Courses</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
+                  <span className="text-green-600">Watched</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
+                  <span className="text-orange-600">In Progress</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
+                  <span className="text-blue-600">Remaining</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
+                  <span className="text-amber-600">Certs</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Status</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Access</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {filteredStudents.map((student) => (
+              {filteredStudents.map((student: any) => (
                 <tr key={student._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-mono text-emerald-600">{student.lmsStudentId}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                        <GraduationCap className="w-4 h-4 text-emerald-600" />
+                  <td className="px-3 py-3 text-xs font-mono text-emerald-600">{student.lmsStudentId}</td>
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                        student.isActive ? 'bg-green-100' : student.isWeeklyActive ? 'bg-amber-100' : 'bg-gray-100'
+                      }`}>
+                        <GraduationCap className={`w-3.5 h-3.5 ${
+                          student.isActive ? 'text-green-600' : student.isWeeklyActive ? 'text-amber-600' : 'text-gray-400'
+                        }`} />
                       </div>
-                      <span className="font-medium">{student.name}</span>
+                      <span className="font-medium text-sm">{student.name}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{student.email}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{student.phone || '-'}</td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex flex-col items-center gap-1">
-                      {student.enrolledCoursesList && student.enrolledCoursesList.length > 0 ? (
-                        <div className="flex flex-wrap justify-center gap-1 max-w-[200px]">
-                          {student.enrolledCoursesList.map((course, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs truncate max-w-[150px]"
-                              title={course.courseTitle}
-                            >
-                              {course.courseTitle}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">No courses</span>
-                      )}
-                      <button
-                        onClick={() => onEnrollInCourses(student)}
-                        className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition mt-1"
-                        title="Click to manage enrollments"
-                      >
-                        + Enroll
-                      </button>
-                    </div>
+                  <td className="px-3 py-3 text-xs text-gray-600">{student.email}</td>
+                  <td className="px-3 py-3 text-center">
+                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">
+                      {student.enrolledCourses || 0}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 py-3 text-center">
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                      {student.completedVideos || 0}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-center">
+                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold">
+                      {student.inProgressVideos || 0}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-center">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
+                      {student.remainingVideos || 0}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-center">
+                    <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+                      {student.certificates || 0}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-center">
+                    {student.isActive ? (
+                      <span className="px-2 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
+                        Online
+                      </span>
+                    ) : student.isWeeklyActive ? (
+                      <span className="px-2 py-1 bg-amber-500 text-white rounded-full text-xs font-bold">
+                        This Week
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 bg-gray-300 text-gray-700 rounded-full text-xs font-bold">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-3 text-center">
                     <button
                       onClick={() => onToggleAccess(student._id)}
-                      className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs mx-auto ${
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs mx-auto ${
                         student.lmsAccessEnabled 
                           ? 'bg-green-100 text-green-700' 
                           : 'bg-red-100 text-red-700'
@@ -2208,22 +2302,22 @@ const StudentsSection = ({
                     >
                       {student.lmsAccessEnabled ? (
                         <>
-                          <ToggleRight className="w-4 h-4" />
-                          Enabled
+                          <ToggleRight className="w-3 h-3" />
+                          On
                         </>
                       ) : (
                         <>
-                          <ToggleLeft className="w-4 h-4" />
-                          Disabled
+                          <ToggleLeft className="w-3 h-3" />
+                          Off
                         </>
                       )}
                     </button>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
+                  <td className="px-3 py-3">
+                    <div className="flex items-center justify-center gap-1">
                       <button
                         onClick={() => onEnrollInCourses(student)}
-                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                        className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg"
                         title="Enroll in Courses"
                       >
                         <BookPlus className="w-4 h-4" />
@@ -2237,21 +2331,21 @@ const StudentsSection = ({
                             toast.error('Password must be at least 6 characters');
                           }
                         }}
-                        className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg"
+                        className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg"
                         title="Reset Password"
                       >
                         <Key className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onEditStudent(student)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
                         title="Edit"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDeleteStudent(student._id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
