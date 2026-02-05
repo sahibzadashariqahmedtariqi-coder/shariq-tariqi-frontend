@@ -268,6 +268,20 @@ const AdminLMSPage = () => {
     }
   });
 
+  // Delete payment request mutation
+  const deletePaymentRequestMutation = useMutation({
+    mutationFn: async (requestId: string) => {
+      await api.delete(`/lms/fees/payment-requests/${requestId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payment-requests'] });
+      toast.success('Payment request deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete payment request');
+    }
+  });
+
   // LMS Student Mutations
   const createStudentMutation = useMutation({
     mutationFn: async (data: { name: string; email: string; password: string; phone?: string }) => {
@@ -1345,12 +1359,28 @@ const AdminLMSPage = () => {
                       </div>
                     )}
 
-                    {/* Reviewed Info */}
-                    {request.status !== 'pending' && request.reviewedAt && (
-                      <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400">
-                        Reviewed by {request.reviewedBy?.name} on {new Date(request.reviewedAt).toLocaleDateString('en-US', {
-                          month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                        })}
+                    {/* Reviewed Info + Delete Button */}
+                    {request.status !== 'pending' && (
+                      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                        {request.reviewedAt && (
+                          <p className="text-xs text-gray-400">
+                            Reviewed by {request.reviewedBy?.name} on {new Date(request.reviewedAt).toLocaleDateString('en-US', {
+                              month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                            })}
+                          </p>
+                        )}
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to delete this payment request?')) {
+                              deletePaymentRequestMutation.mutate(request._id);
+                            }
+                          }}
+                          disabled={deletePaymentRequestMutation.isPending}
+                          className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition disabled:opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </button>
                       </div>
                     )}
                   </div>

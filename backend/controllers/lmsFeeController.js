@@ -439,3 +439,23 @@ export const reviewPaymentRequest = asyncHandler(async (req, res) => {
     data: updatedRequest
   });
 });
+
+// @desc    Delete payment request
+// @route   DELETE /api/lms/fees/payment-requests/:requestId
+// @access  Private/Admin
+export const deletePaymentRequest = asyncHandler(async (req, res) => {
+  const { requestId } = req.params;
+  
+  const paymentRequest = await LMSPaymentRequest.findById(requestId);
+  if (!paymentRequest) {
+    res.status(404);
+    throw new Error('Payment request not found');
+  }
+  
+  await LMSPaymentRequest.findByIdAndDelete(requestId);
+  
+  res.json({
+    success: true,
+    message: 'Payment request deleted successfully'
+  });
+});

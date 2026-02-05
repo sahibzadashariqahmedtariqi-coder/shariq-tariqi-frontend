@@ -11,7 +11,8 @@ import {
   submitPaymentRequest,
   getMyPaymentRequests,
   getAllPaymentRequests,
-  reviewPaymentRequest
+  reviewPaymentRequest,
+  deletePaymentRequest
 } from '../controllers/lmsFeeController.js';
 import { protect, admin } from '../middleware/auth.js';
 
@@ -29,6 +30,7 @@ router.use(admin);
 // Admin: Payment requests management
 router.get('/payment-requests', getAllPaymentRequests);
 router.put('/payment-requests/:requestId', reviewPaymentRequest);
+router.delete('/payment-requests/:requestId', deletePaymentRequest);
 
 // Fee routes
 router.route('/')
