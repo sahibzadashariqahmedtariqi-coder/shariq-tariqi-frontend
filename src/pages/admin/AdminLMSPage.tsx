@@ -1274,6 +1274,22 @@ const AdminLMSPage = () => {
                         }`}>
                           {request.status}
                         </span>
+
+                        {/* Delete Button - always visible for reviewed requests */}
+                        {request.status !== 'pending' && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to delete this payment request?')) {
+                                deletePaymentRequestMutation.mutate(request._id);
+                              }
+                            }}
+                            disabled={deletePaymentRequestMutation.isPending}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition disabled:opacity-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        )}
                       </div>
                     </div>
 
