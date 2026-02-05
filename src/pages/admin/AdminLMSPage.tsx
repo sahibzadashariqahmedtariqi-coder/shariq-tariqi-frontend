@@ -1375,28 +1375,14 @@ const AdminLMSPage = () => {
                       </div>
                     )}
 
-                    {/* Reviewed Info + Delete Button */}
-                    {request.status !== 'pending' && (
-                      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        {request.reviewedAt && (
-                          <p className="text-xs text-gray-400">
-                            Reviewed by {request.reviewedBy?.name} on {new Date(request.reviewedAt).toLocaleDateString('en-US', {
-                              month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                            })}
-                          </p>
-                        )}
-                        <button
-                          onClick={() => {
-                            if (window.confirm('Are you sure you want to delete this payment request?')) {
-                              deletePaymentRequestMutation.mutate(request._id);
-                            }
-                          }}
-                          disabled={deletePaymentRequestMutation.isPending}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition disabled:opacity-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </button>
+                    {/* Reviewed Info */}
+                    {request.status !== 'pending' && request.reviewedAt && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <p className="text-xs text-gray-400">
+                          Reviewed by {request.reviewedBy?.name} on {new Date(request.reviewedAt).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                          })}
+                        </p>
                       </div>
                     )}
                   </div>
