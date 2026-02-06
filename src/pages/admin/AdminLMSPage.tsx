@@ -148,6 +148,13 @@ const AdminLMSPage = () => {
   // Payment request review state
   const [reviewingRequest, setReviewingRequest] = useState<string | null>(null);
   const [reviewAdminRemarks, setReviewAdminRemarks] = useState('');
+  
+  // Delete confirmation modal state
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
+    isOpen: boolean;
+    requestId: string | null;
+    type: 'payment-request' | null;
+  }>({ isOpen: false, requestId: null, type: null });
 
   // Redirect to login if not authenticated or not admin/super_admin
   if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'super_admin')) {
@@ -1278,11 +1285,11 @@ const AdminLMSPage = () => {
                         {/* Delete Button - always visible for reviewed requests */}
                         {request.status !== 'pending' && (
                           <button
-                            onClick={() => {
-                              if (window.confirm('Are you sure you want to delete this payment request?')) {
-                                deletePaymentRequestMutation.mutate(request._id);
-                              }
-                            }}
+                            onClick={() => setDeleteConfirmModal({ 
+                              isOpen: true, 
+                              requestId: request._id, 
+                              type: 'payment-request' 
+                            })}
                             disabled={deletePaymentRequestMutation.isPending}
                             className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition disabled:opacity-50"
                           >
@@ -1395,6 +1402,68 @@ const AdminLMSPage = () => {
         {activeTab === 'certificates' && (
           <CertificatesSection courses={coursesData || []} />
         )}
+
+        {/* Delete Confirmation Modal */}
+        <AnimatePresence>
+          {deleteConfirmModal.isOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setDeleteConfirmModal({ isOpen: false, requestId: null, type: null })}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              />
+              
+              {/* Modal */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
+              >
+                {/* Warning Icon */}
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg">
+                  <Trash2 className="w-8 h-8 text-white" />
+                </div>
+                
+                {/* Title */}
+                <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+                  Delete Payment Request?
+                </h3>
+                
+                {/* Description */}
+                <p className="text-gray-500 text-center mb-6">
+                  Are you sure you want to delete this payment request? This action cannot be undone.
+                </p>
+                
+                {/* Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDeleteConfirmModal({ isOpen: false, requestId: null, type: null })}
+                    className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (deleteConfirmModal.requestId) {
+                        deletePaymentRequestMutation.mutate(deleteConfirmModal.requestId);
+                        setDeleteConfirmModal({ isOpen: false, requestId: null, type: null });
+                      }
+                    }}
+                    disabled={deletePaymentRequestMutation.isPending}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 transition shadow-lg disabled:opacity-50"
+                  >
+                    {deletePaymentRequestMutation.isPending ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* Student Modal */}
         <StudentModal
