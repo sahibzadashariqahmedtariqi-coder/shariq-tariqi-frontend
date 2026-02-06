@@ -4192,6 +4192,15 @@ const FeeManagementSection = ({
     amount: 5000,
     dueDate: new Date().toISOString().split('T')[0]
   });
+  
+  // Paid amount modal state
+  const [paidAmountModal, setPaidAmountModal] = useState<{
+    isOpen: boolean;
+    feeId: string | null;
+    currentAmount: number;
+    maxAmount: number;
+    newAmount: string;
+  }>({ isOpen: false, feeId: null, currentAmount: 0, maxAmount: 0, newAmount: '' });
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -4427,16 +4436,13 @@ const FeeManagementSection = ({
                       )}
                       <button
                         onClick={() => {
-                          const newAmount = prompt('Enter paid amount:', fee.paidAmount.toString());
-                          if (newAmount !== null) {
-                            const amount = parseFloat(newAmount);
-                            if (!isNaN(amount) && amount >= 0) {
-                              onUpdateFeeStatus(fee._id, { 
-                                paidAmount: amount,
-                                status: amount >= fee.amount ? 'paid' : amount > 0 ? 'partial' : 'pending'
-                              });
-                            }
-                          }
+                          setPaidAmountModal({
+                            isOpen: true,
+                            feeId: fee._id,
+                            currentAmount: fee.paidAmount,
+                            maxAmount: fee.amount,
+                            newAmount: fee.paidAmount.toString()
+                          });
                         }}
                         className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
                         title="Update Payment"
@@ -4545,6 +4551,86 @@ const FeeManagementSection = ({
           </motion.div>
         </div>
       )}
+
+      {/* Paid Amount Modal */}
+      <AnimatePresence>
+        {paidAmountModal.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPaidAmountModal({ isOpen: false, feeId: null, currentAmount: 0, maxAmount: 0, newAmount: '' })}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
+            >
+              {/* Icon */}
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <CreditCard className="w-8 h-8 text-white" />
+              </div>
+              
+              {/* Title */}
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+                Update Payment
+              </h3>
+              
+              {/* Description */}
+              <p className="text-gray-500 text-center mb-6">
+                Enter the paid amount (Max: Rs. {paidAmountModal.maxAmount.toLocaleString()})
+              </p>
+              
+              {/* Input */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Paid Amount (Rs.)</label>
+                <input
+                  type="number"
+                  value={paidAmountModal.newAmount}
+                  onChange={(e) => setPaidAmountModal({ ...paidAmountModal, newAmount: e.target.value })}
+                  placeholder="Enter amount..."
+                  min="0"
+                  max={paidAmountModal.maxAmount}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+                  autoFocus
+                />
+              </div>
+              
+              {/* Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPaidAmountModal({ isOpen: false, feeId: null, currentAmount: 0, maxAmount: 0, newAmount: '' })}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const amount = parseFloat(paidAmountModal.newAmount);
+                    if (!isNaN(amount) && amount >= 0 && paidAmountModal.feeId) {
+                      onUpdateFeeStatus(paidAmountModal.feeId, { 
+                        paidAmount: amount,
+                        status: amount >= paidAmountModal.maxAmount ? 'paid' : amount > 0 ? 'partial' : 'pending'
+                      });
+                      setPaidAmountModal({ isOpen: false, feeId: null, currentAmount: 0, maxAmount: 0, newAmount: '' });
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition shadow-lg"
+                >
+                  Update
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
