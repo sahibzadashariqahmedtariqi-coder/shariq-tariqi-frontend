@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, Navigate } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, Video, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck, Heart } from 'lucide-react';
+import { BookOpen, Calendar, ShoppingBag, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck, Heart } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore'
 
 export default function AdminDashboardPage() {
@@ -80,13 +80,6 @@ export default function AdminDashboardPage() {
       icon: TrendingUp,
       path: '/admin/stats',
       color: 'bg-indigo-500',
-    },
-    {
-      title: 'Manage Videos',
-      description: 'Add or remove YouTube videos',
-      icon: Video,
-      path: '/admin/videos',
-      color: 'bg-red-500',
     },
     {
       title: 'Manage Services',
