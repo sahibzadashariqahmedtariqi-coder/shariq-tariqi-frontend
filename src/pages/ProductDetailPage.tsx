@@ -64,14 +64,20 @@ export default function ProductDetailPage() {
         const allProductsRes = await apiClient.get('/products?limit=100')
         let allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
         
-        console.log('🔍 Total products from API:', allProducts.length)
+        // Debug: Show category breakdown
+        const categories = allProducts.reduce((acc: any, p) => {
+          acc[p.category] = (acc[p.category] || 0) + 1
+          return acc
+        }, {})
+        console.log('🔍 Products by category:', categories)
+        console.log('🔍 Total from API:', allProducts.length)
         
-        // Exclude current product AND pdf category (Free PDFs) - same as ProductsPage "All Products"
+        // Exclude current product AND pdf category (Free PDFs)
         allProducts = allProducts.filter((p) => {
           return p._id !== id && p.category !== 'pdf'
         })
         
-        console.log('✅ Related Products (herbal/spiritual/books):', allProducts.length)
+        console.log('✅ Related (excluding pdf):', allProducts.length)
         setRelatedProducts(allProducts.slice(0, 10))
         
       } catch (error: any) {
