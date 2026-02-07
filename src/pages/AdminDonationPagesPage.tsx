@@ -138,13 +138,21 @@ export default function AdminDonationPagesPage() {
   const handleCoverUpload = async (file: File) => {
     try {
       setUploadingCover(true)
+      console.log('📤 Uploading cover image:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2), 'MB')
       const res = await uploadApi.uploadImage(file, 'donation-pages')
-      if (res.data?.url) {
-        setFormData((prev) => ({ ...prev, coverImage: res.data.url }))
+      console.log('✅ Cover upload response:', res.data)
+      const imageUrl = res.data?.data?.url || res.data?.url
+      if (imageUrl) {
+        setFormData((prev) => ({ ...prev, coverImage: imageUrl }))
         toast.success('Cover image uploaded')
+      } else {
+        console.error('❌ No URL in response:', res)
+        toast.error('Upload failed - no URL returned')
       }
-    } catch (error) {
-      toast.error('Failed to upload image')
+    } catch (error: any) {
+      console.error('❌ Cover upload error:', error.response?.data || error.message || error)
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to upload image'
+      toast.error(errorMsg)
     } finally {
       setUploadingCover(false)
     }
@@ -153,13 +161,21 @@ export default function AdminDonationPagesPage() {
   const handleGalleryUpload = async (file: File) => {
     try {
       setUploadingGallery(true)
+      console.log('📤 Uploading gallery image:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2), 'MB')
       const res = await uploadApi.uploadImage(file, 'donation-pages')
-      if (res.data?.url) {
-        setFormData((prev) => ({ ...prev, galleryImages: [...prev.galleryImages, res.data.url] }))
+      console.log('✅ Upload response:', res.data)
+      const imageUrl = res.data?.data?.url || res.data?.url
+      if (imageUrl) {
+        setFormData((prev) => ({ ...prev, galleryImages: [...prev.galleryImages, imageUrl] }))
         toast.success('Gallery image uploaded')
+      } else {
+        console.error('❌ No URL in response:', res)
+        toast.error('Upload failed - no URL returned')
       }
-    } catch (error) {
-      toast.error('Failed to upload image')
+    } catch (error: any) {
+      console.error('❌ Gallery upload error:', error.response?.data || error.message || error)
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to upload image'
+      toast.error(errorMsg)
     } finally {
       setUploadingGallery(false)
     }
