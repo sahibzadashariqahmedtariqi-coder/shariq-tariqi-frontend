@@ -92,21 +92,42 @@ export default function ProductDetailPage() {
         try {
           const allProductsRes = await apiClient.get('/products')
           const allProducts = allProductsRes.data.data || allProductsRes.data || []
-          const related = allProducts
+          console.log('All products for related:', allProducts.length)
+          
+          // First try: paid, physical, in-stock products from same category
+          let related = allProducts
             .filter((p: Product) => p._id !== id)
-            .filter((p: Product) => p.price > 0) // Exclude free products
-            .filter((p: Product) => !p.isPdfOnly) // Exclude PDF-only products
-            .filter((p: Product) => p.stock > 0) // Only show in-stock products
+            .filter((p: Product) => p.price > 0)
+            .filter((p: Product) => !p.isPdfOnly)
+            .filter((p: Product) => p.stock > 0)
             .filter((p: Product) => p.category === productData.category || p.isFeatured)
-            .slice(0, 4)
+            .slice(0, 6)
           
-          // Fallback: if no related products found, get any paid physical products
-          const fallbackProducts = allProducts
-            .filter((p: Product) => p._id !== id)
-            .filter((p: Product) => p.price > 0 && !p.isPdfOnly && p.stock > 0)
-            .slice(0, 4)
+          // Second try: any paid physical products (in-stock)
+          if (related.length === 0) {
+            related = allProducts
+              .filter((p: Product) => p._id !== id)
+              .filter((p: Product) => p.price > 0 && !p.isPdfOnly && p.stock > 0)
+              .slice(0, 6)
+          }
           
-          setRelatedProducts(related.length > 0 ? related : fallbackProducts)
+          // Third try: any paid products (including PDFs but not free)
+          if (related.length === 0) {
+            related = allProducts
+              .filter((p: Product) => p._id !== id)
+              .filter((p: Product) => p.price > 0)
+              .slice(0, 6)
+          }
+          
+          // Last resort: show any products except current one
+          if (related.length === 0) {
+            related = allProducts
+              .filter((p: Product) => p._id !== id)
+              .slice(0, 6)
+          }
+          
+          console.log('Related products found:', related.length)
+          setRelatedProducts(related)
         } catch (e) {
           console.log('Could not fetch related products')
         }
