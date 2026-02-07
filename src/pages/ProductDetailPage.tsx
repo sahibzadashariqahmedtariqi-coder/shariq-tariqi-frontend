@@ -88,18 +88,17 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch related products - exclude only free PDFs
+        // Fetch related products - same as All Products page (exclude category: 'pdf')
         try {
           const allProductsRes = await apiClient.get('/products')
           const allProducts = allProductsRes.data.data || allProductsRes.data || []
           
-          // Show all products except current one and free products (price = 0 or undefined)
+          // Same filter as All Products page - hide PDFs category
           const related = allProducts
-            .filter((p: Product) => p._id !== id)
-            .filter((p: Product) => (p.price || 0) > 0) // Exclude free products (handle undefined)
+            .filter((p: Product) => p._id !== id) // Exclude current product
+            .filter((p: Product) => p.category !== 'pdf') // Same filter as All Products page
             .slice(0, 8)
           
-          console.log('Total products:', allProducts.length, 'Related:', related.length)
           setRelatedProducts(related)
         } catch (e) {
           console.log('Could not fetch related products')
