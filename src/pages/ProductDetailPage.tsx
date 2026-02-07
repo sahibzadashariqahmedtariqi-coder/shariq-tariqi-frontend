@@ -88,18 +88,16 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch related products - same as All Products page (exclude category: 'pdf')
+        // Fetch related products - show all products except current
         try {
           const allProductsRes = await apiClient.get('/products')
           const allProducts = allProductsRes.data.data || allProductsRes.data || []
           
-          // Same filter as All Products page - hide PDFs category
+          // Show all products except current one (no category filter)
           const related = allProducts
-            .filter((p: Product) => p._id !== id) // Exclude current product
-            .filter((p: Product) => p.category?.toLowerCase() !== 'pdf') // Same filter as All Products page
+            .filter((p: Product) => p._id !== id) // Only exclude current product
             .slice(0, 8)
           
-          console.log('🔍 Products Debug:', { total: allProducts.length, related: related.length, current: id })
           setRelatedProducts(related)
         } catch (e) {
           console.error('❌ Could not fetch related products:', e)
