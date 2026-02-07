@@ -93,12 +93,13 @@ export default function ProductDetailPage() {
           const allProductsRes = await apiClient.get('/products')
           const allProducts = allProductsRes.data.data || allProductsRes.data || []
           
-          // Show all products except current one and free PDFs (price = 0)
+          // Show all products except current one and free products (price = 0 or undefined)
           const related = allProducts
             .filter((p: Product) => p._id !== id)
-            .filter((p: Product) => p.price > 0) // Only exclude free products
-            .slice(0, 6)
+            .filter((p: Product) => (p.price || 0) > 0) // Exclude free products (handle undefined)
+            .slice(0, 8)
           
+          console.log('Total products:', allProducts.length, 'Related:', related.length)
           setRelatedProducts(related)
         } catch (e) {
           console.log('Could not fetch related products')
