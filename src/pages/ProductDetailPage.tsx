@@ -88,14 +88,15 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch related products - show all products except current
+        // Fetch related products - show all except current and free PDFs (price = 0)
         try {
           const allProductsRes = await apiClient.get('/products')
           const allProducts = allProductsRes.data.data || allProductsRes.data || []
           
-          // Show all products except current one (no category filter)
+          // Exclude current product and free PDFs (price = 0 or no price)
           const related = allProducts
-            .filter((p: Product) => p._id !== id) // Only exclude current product
+            .filter((p: Product) => p._id !== id)
+            .filter((p: Product) => p.price && p.price > 0) // Exclude free PDFs
             .slice(0, 8)
           
           setRelatedProducts(related)
