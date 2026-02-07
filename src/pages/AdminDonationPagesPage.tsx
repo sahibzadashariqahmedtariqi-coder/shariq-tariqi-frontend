@@ -235,6 +235,17 @@ export default function AdminDonationPagesPage() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Donation Pages</h1>
               <p className="text-gray-600 dark:text-gray-400">Create beautiful pages for donation campaigns</p>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                resetForm()
+                setSelectedDropdown('')
+                window.scrollTo({ top: document.getElementById('donation-form')?.offsetTop || 500, behavior: 'smooth' })
+              }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all transform hover:scale-105"
+            >
+              <span className="text-xl">+</span> Create New Page
+            </button>
           </div>
 
           {/* Page Selection Dropdown */}
@@ -303,7 +314,7 @@ export default function AdminDonationPagesPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 mb-10 border border-gray-100 dark:border-gray-700">
+          <form id="donation-form" onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 mb-10 border border-gray-100 dark:border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Title *</label>
