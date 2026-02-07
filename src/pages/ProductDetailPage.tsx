@@ -60,14 +60,14 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch ALL products for related section - NO FILTERS
+        // Fetch ALL products for related section - Exclude Free PDFs
         const allProductsRes = await apiClient.get('/products')
         let allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
         
-        // Only exclude current product - NO OTHER FILTERS
-        allProducts = allProducts.filter((p) => p._id !== id)
+        // Exclude current product AND Free PDFs (price = 0 or no price)
+        allProducts = allProducts.filter((p) => p._id !== id && p.price && p.price > 0)
         
-        console.log('✅ Related Products:', allProducts.length, allProducts)
+        console.log('✅ Related Products (Paid Only):', allProducts.length)
         setRelatedProducts(allProducts.slice(0, 10))
         
       } catch (error: any) {
