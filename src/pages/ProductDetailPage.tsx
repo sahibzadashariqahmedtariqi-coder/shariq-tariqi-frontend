@@ -80,15 +80,25 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch related products (same category, exclude current)
+        // Fetch related products (same category, exclude current, exclude free PDFs)
         try {
           const allProductsRes = await apiClient.get('/products')
           const allProducts = allProductsRes.data.data || allProductsRes.data || []
           const related = allProducts
             .filter((p: Product) => p._id !== id)
+            .filter((p: Product) => p.price > 0) // Exclude free products
+            .filter((p: Product) => !p.isPdfOnly) // Exclude PDF-only products
+            .filter((p: Product) => p.stock > 0) // Only show in-stock products
             .filter((p: Product) => p.category === productData.category || p.isFeatured)
             .slice(0, 4)
-          setRelatedProducts(related.length > 0 ? related : allProducts.filter((p: Product) => p._id !== id).slice(0, 4))
+          
+          // Fallback: if no related products found, get any paid physical products
+          const fallbackProducts = allProducts
+            .filter((p: Product) => p._id !== id)
+            .filter((p: Product) => p.price > 0 && !p.isPdfOnly && p.stock > 0)
+            .slice(0, 4)
+          
+          setRelatedProducts(related.length > 0 ? related : fallbackProducts)
         } catch (e) {
           console.log('Could not fetch related products')
         }
