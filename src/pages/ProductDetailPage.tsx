@@ -60,18 +60,15 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch ALL products for related section
+        // Fetch ALL products for related section - NO FILTERS
         const allProductsRes = await apiClient.get('/products')
-        const allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
+        let allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
         
-        // Filter: exclude current product + exclude free items (price <= 0)
-        const filtered = allProducts.filter((p) => {
-          if (p._id === id) return false // exclude current
-          if (!p.price || p.price <= 0) return false // exclude free
-          return true
-        })
+        // Only exclude current product - NO OTHER FILTERS
+        allProducts = allProducts.filter((p) => p._id !== id)
         
-        setRelatedProducts(filtered.slice(0, 10))
+        console.log('✅ Related Products:', allProducts.length, allProducts)
+        setRelatedProducts(allProducts.slice(0, 10))
         
       } catch (error: any) {
         console.error('Failed to fetch product:', error)
