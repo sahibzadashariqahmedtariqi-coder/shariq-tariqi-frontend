@@ -144,6 +144,13 @@ export default function AdminDashboardPage() {
       path: '/admin/donations',
       color: 'bg-pink-600',
     },
+    {
+      title: 'Donation Pages',
+      description: 'Manage donation campaign pages',
+      icon: Heart,
+      path: '/admin/donation-pages',
+      color: 'bg-rose-500',
+    },
   ]
 
   return (

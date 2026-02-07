@@ -31,6 +31,7 @@ import lmsRoutes from './routes/lmsRoutes.js';
 import lmsFeeRoutes from './routes/lmsFeeRoutes.js';
 import mureedRoutes from './routes/mureedRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
+import donationPageRoutes from './routes/donationPageRoutes.js';
 import auditLogRoutes from './routes/auditLogRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 
@@ -127,6 +128,7 @@ app.use('/api/lms', lmsRoutes);
 app.use('/api/lms/fees', lmsFeeRoutes);
 app.use('/api/mureeds', mureedRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/donation-pages', donationPageRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/sessions', sessionRoutes);
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { 
@@ -133,22 +134,26 @@ const donationImages = [
   {
     url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=300&fit=crop',
     title: 'Helping Communities',
-    description: 'Supporting families in need'
+    description: 'Supporting families in need',
+    slug: 'helping-communities'
   },
   {
     url: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=400&h=300&fit=crop',
     title: 'Education for All',
-    description: 'Providing quality education'
+    description: 'Providing quality education',
+    slug: 'education-for-all'
   },
   {
     url: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400&h=300&fit=crop',
     title: 'Food Distribution',
-    description: 'Feeding the hungry'
+    description: 'Feeding the hungry',
+    slug: 'food-distribution'
   },
   {
     url: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=400&h=300&fit=crop',
     title: 'Building Hope',
-    description: 'Creating better futures'
+    description: 'Creating better futures',
+    slug: 'building-hope'
   },
 ]
 
@@ -474,27 +479,34 @@ export default function DonatePage() {
             className="grid grid-cols-2 md:grid-cols-4 gap-4"
           >
             {donationImages.map((image, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="relative group overflow-hidden rounded-2xl shadow-lg"
-              >
-                <img 
-                  src={image.url} 
-                  alt={image.title}
-                  className="w-full h-32 sm:h-40 md:h-48 object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
-                  <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 text-white">
-                    <h4 className="font-bold text-sm sm:text-lg">{image.title}</h4>
-                    <p className="text-xs sm:text-sm text-gray-200">{image.description}</p>
+              <Link key={index} to={`/donate/${image.slug}`}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="relative group overflow-hidden rounded-2xl shadow-lg cursor-pointer"
+                >
+                  <img 
+                    src={image.url} 
+                    alt={image.title}
+                    className="w-full h-32 sm:h-40 md:h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+                    <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 text-white">
+                      <h4 className="font-bold text-sm sm:text-lg">{image.title}</h4>
+                      <p className="text-xs sm:text-sm text-gray-200">{image.description}</p>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                  {/* Click indicator */}
+                  <div className="absolute top-2 right-2 bg-white/20 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </div>
+                </motion.div>
+              </Link>
             ))}
           </motion.div>
         </div>

@@ -46,7 +46,9 @@ const MureedRegistrationPage = lazy(() => import('./pages/MureedRegistrationPage
 const MureedCardPage = lazy(() => import('./pages/MureedCardPage'))
 const AdminMureedsPage = lazy(() => import('./pages/AdminMureedsPage'))
 const DonatePage = lazy(() => import('./pages/DonatePage'))
+const DonationDetailPage = lazy(() => import('./pages/DonationDetailPage'))
 const AdminDonationsPage = lazy(() => import('./pages/AdminDonationsPage'))
+const AdminDonationPagesPage = lazy(() => import('./pages/AdminDonationPagesPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function App() {
@@ -90,7 +92,9 @@ function App() {
           <Route path="admin/lms" element={<AdminLMSPage />} />
           <Route path="admin/mureeds" element={<AdminMureedsPage />} />
           <Route path="admin/donations" element={<AdminDonationsPage />} />
+          <Route path="admin/donation-pages" element={<AdminDonationPagesPage />} />
           <Route path="donate" element={<DonatePage />} />
+          <Route path="donate/:slug" element={<DonationDetailPage />} />
           <Route path="mureed" element={<MureedRegistrationPage />} />
           <Route path="mureed/card/:id" element={<MureedCardPage />} />
           <Route path="*" element={<NotFoundPage />} />
