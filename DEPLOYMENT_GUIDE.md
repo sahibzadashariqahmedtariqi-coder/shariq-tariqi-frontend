@@ -83,16 +83,18 @@ Go to "Environment" tab and add:
 | `NODE_ENV` | `production` |
 | `JWT_SECRET` | (Generate: use online generator for 64 char random string) |
 | `JWT_EXPIRE` | `7d` |
-| `MONGODB_URI` | `mongodb+srv://sahibzadashariqahmedtariqi_db_user:oBe3QN0bggz2GSvV@shariq-website.woxghxd.mongodb.net/shariq-tariqi` |
-| `MUREED_MONGODB_URI` | `mongodb+srv://mureedAdmin_db_user:tSrPuTiCC9Om0lir@mureed-cluster.eqvbgem.mongodb.net/mureedDB?appName=mureed-cluster` |
-| `CLOUDINARY_CLOUD_NAME` | `du7qzhimu` |
-| `CLOUDINARY_API_KEY` | `877851616879918` |
-| `CLOUDINARY_API_SECRET` | `CuunMNB-xvsfm7Y5cFliLkObSDA` |
-| `MUREED_CLOUDINARY_CLOUD_NAME` | `dm8jpzxw9` |
-| `MUREED_CLOUDINARY_API_KEY` | `667723144981925` |
-| `MUREED_CLOUDINARY_API_SECRET` | `KpGoScmvARm9lUUvQ91U8agybFQ` |
+| `MONGODB_URI` | `mongodb+srv://YOUR_DB_USER:YOUR_PASSWORD@your-cluster.mongodb.net/your-database` |
+| `MUREED_MONGODB_URI` | `mongodb+srv://YOUR_DB_USER:YOUR_PASSWORD@your-cluster.mongodb.net/mureedDB` |
+| `CLOUDINARY_CLOUD_NAME` | `YOUR_CLOUD_NAME` |
+| `CLOUDINARY_API_KEY` | `YOUR_API_KEY` |
+| `CLOUDINARY_API_SECRET` | `YOUR_API_SECRET` |
+| `MUREED_CLOUDINARY_CLOUD_NAME` | `YOUR_MUREED_CLOUD_NAME` |
+| `MUREED_CLOUDINARY_API_KEY` | `YOUR_MUREED_API_KEY` |
+| `MUREED_CLOUDINARY_API_SECRET` | `YOUR_MUREED_API_SECRET` |
 | `FRONTEND_URL` | `http://localhost:3000` |
-| `FRONTEND_PRODUCTION_URL` | `https://shariqahmedtariqi.vercel.app` (will update after Vercel deploy) |
+| `FRONTEND_PRODUCTION_URL` | `https://your-domain.vercel.app` |
+
+> ⚠️ **SECURITY WARNING**: Never commit actual credentials to Git! Use environment variables only.
 
 ### 2.4 Deploy
 Click "Create Web Service" and wait for deployment.
