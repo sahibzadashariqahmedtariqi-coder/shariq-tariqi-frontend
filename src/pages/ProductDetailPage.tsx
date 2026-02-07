@@ -81,7 +81,7 @@ export default function ProductDetailPage() {
         allProducts = allProducts.sort(() => Math.random() - 0.5)
         
         console.log('✅ Related (excluding pdf):', allProducts.length)
-        setRelatedProducts(allProducts.slice(0, 10))
+        setRelatedProducts(allProducts) // Show ALL products, not just 10
         
       } catch (error: any) {
         console.error('Failed to fetch product:', error)
