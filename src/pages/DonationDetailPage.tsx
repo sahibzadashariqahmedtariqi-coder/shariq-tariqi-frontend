@@ -240,14 +240,17 @@ export default function DonationDetailPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">Impact Video</h3>
               </div>
-              <div className="aspect-video rounded-2xl overflow-hidden shadow-lg">
-                <iframe
-                  src={`https://www.youtube.com/embed/${youtubeId}`}
-                  title="YouTube video player"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
+              {/* Centered container for shorts-style video */}
+              <div className="flex justify-center">
+                <div className="w-full max-w-[320px] sm:max-w-[360px] aspect-[9/16] rounded-2xl overflow-hidden shadow-lg">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                </div>
               </div>
             </div>
           )}
