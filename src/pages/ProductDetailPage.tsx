@@ -61,19 +61,17 @@ export default function ProductDetailPage() {
         setSelectedImage(productData.image)
         
         // Fetch ALL products for related section
-        const allProductsRes = await apiClient.get('/products')
+        const allProductsRes = await apiClient.get('/products?limit=100')
         let allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
         
-        // DEBUG: Log all products with their categories
-        console.log('🔍 ALL PRODUCTS IN DATABASE:')
-        allProducts.forEach((p, i) => {
-          console.log(`${i+1}. ${p.name} | Category: ${p.category} | Price: ${p.price}`)
+        console.log('🔍 Total products from API:', allProducts.length)
+        
+        // Exclude current product AND pdf category (Free PDFs) - same as ProductsPage "All Products"
+        allProducts = allProducts.filter((p) => {
+          return p._id !== id && p.category !== 'pdf'
         })
         
-        // Only exclude current product - NO OTHER FILTERS for now
-        allProducts = allProducts.filter((p) => p._id !== id)
-        
-        console.log('✅ Total Related Products:', allProducts.length)
+        console.log('✅ Related Products (herbal/spiritual/books):', allProducts.length)
         setRelatedProducts(allProducts.slice(0, 10))
         
       } catch (error: any) {
