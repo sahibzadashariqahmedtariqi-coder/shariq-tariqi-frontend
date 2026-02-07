@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
-import { Plus, Edit2, Trash2, Upload, ArrowLeft, Eye } from 'lucide-react'
+import { Edit2, Trash2, Upload, ArrowLeft, Eye, Image, X } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import apiClient from '@/services/api'
@@ -19,6 +19,38 @@ interface DonationPage {
   isPublished: boolean
   order?: number
 }
+
+// Default pages that should always appear in dropdown
+const defaultPages = [
+  {
+    title: 'Helping Communities',
+    slug: 'helping-communities',
+    shortDescription: 'Supporting families in need',
+    description: 'Your support helps provide food, clothing, and essential care to families who need it most. Together, we can uplift communities and restore hope.',
+    coverImage: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&h=800&fit=crop',
+  },
+  {
+    title: 'Education for All',
+    slug: 'education-for-all',
+    shortDescription: 'Providing quality education',
+    description: 'Education transforms lives. Your donation supports learning materials, teachers, and access to schools for children who deserve a brighter future.',
+    coverImage: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=1200&h=800&fit=crop',
+  },
+  {
+    title: 'Food Distribution',
+    slug: 'food-distribution',
+    shortDescription: 'Feeding the hungry',
+    description: 'We deliver meals to families and individuals facing hunger. Your generosity ensures that no one sleeps hungry.',
+    coverImage: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=1200&h=800&fit=crop',
+  },
+  {
+    title: 'Building Hope',
+    slug: 'building-hope',
+    shortDescription: 'Creating better futures',
+    description: 'Support initiatives that create long-term impact — from shelters to healthcare and community support programs.',
+    coverImage: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1200&h=800&fit=crop',
+  },
+]
 
 const toSlug = (value = '') => value
   .toString()
@@ -40,6 +72,7 @@ export default function AdminDonationPagesPage() {
   const [currentPage, setCurrentPage] = useState<DonationPage | null>(null)
   const [uploadingCover, setUploadingCover] = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
+  const [selectedDropdown, setSelectedDropdown] = useState('')
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -186,33 +219,71 @@ export default function AdminDonationPagesPage() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Donation Pages</h1>
               <p className="text-gray-600 dark:text-gray-400">Create beautiful pages for donation campaigns</p>
             </div>
-            <div className="flex items-center gap-3">
-              {/* Dropdown to select existing page */}
-              <select
-                value={currentPage?._id || ''}
-                onChange={(e) => {
-                  const selectedId = e.target.value
-                  if (selectedId === '') {
-                    resetForm()
-                  } else {
-                    const selectedPage = pages.find(p => p._id === selectedId)
-                    if (selectedPage) handleEdit(selectedPage)
+          </div>
+
+          {/* Page Selection Dropdown */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-6 border border-gray-100 dark:border-gray-700">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              <Image className="w-4 h-4 inline mr-2" />
+              Select Page to Edit
+            </label>
+            <select
+              value={selectedDropdown}
+              onChange={(e) => {
+                const selectedSlug = e.target.value
+                setSelectedDropdown(selectedSlug)
+                
+                if (selectedSlug === '') {
+                  resetForm()
+                  return
+                }
+                
+                // Check if page exists in database
+                const existingPage = pages.find(p => p.slug === selectedSlug)
+                if (existingPage) {
+                  handleEdit(existingPage)
+                } else {
+                  // Load from default pages
+                  const defaultPage = defaultPages.find(p => p.slug === selectedSlug)
+                  if (defaultPage) {
+                    setIsEditing(false)
+                    setCurrentPage(null)
+                    setFormData({
+                      title: defaultPage.title,
+                      slug: defaultPage.slug,
+                      shortDescription: defaultPage.shortDescription,
+                      description: defaultPage.description,
+                      coverImage: defaultPage.coverImage,
+                      galleryImages: [],
+                      youtubeShortsUrl: '',
+                      isPublished: true,
+                      order: 0
+                    })
                   }
-                }}
-                className="px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white bg-white text-gray-900 min-w-[200px]"
-              >
-                <option value="">+ Add New Page</option>
-                {pages.map((page) => (
-                  <option key={page._id} value={page._id}>{page.title}</option>
-                ))}
-              </select>
-              <button
-                onClick={resetForm}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700"
-              >
-                <Plus className="w-4 h-4" /> Add New Page
-              </button>
-            </div>
+                }
+              }}
+              className="w-full px-4 py-3 border-2 border-primary-200 rounded-xl dark:bg-gray-700 dark:border-gray-600 dark:text-white bg-white text-gray-900 text-lg font-medium focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
+            >
+              <option value="">-- Select a Page --</option>
+              <optgroup label="📋 Default Pages">
+                {defaultPages.map((page) => {
+                  const existsInDb = pages.some(p => p.slug === page.slug)
+                  return (
+                    <option key={page.slug} value={page.slug}>
+                      {page.title} {existsInDb ? '✅' : '(Not Created)'}
+                    </option>
+                  )
+                })}
+              </optgroup>
+              {pages.filter(p => !defaultPages.some(d => d.slug === p.slug)).length > 0 && (
+                <optgroup label="📁 Custom Pages">
+                  {pages.filter(p => !defaultPages.some(d => d.slug === p.slug)).map((page) => (
+                    <option key={page._id} value={page.slug}>{page.title} ✅</option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+            <p className="text-xs text-gray-500 mt-2">✅ = Already created in database</p>
           </div>
 
           {/* Form */}
@@ -324,59 +395,98 @@ export default function AdminDonationPagesPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Gallery Images (optional)</label>
-                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-3">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleGalleryUpload(file)
-                    }}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value=""
-                    onChange={() => undefined}
-                    className="hidden"
-                  />
-                </div>
-                {uploadingGallery && <p className="text-xs text-emerald-600">Uploading...</p>}
-                <div className="space-y-2">
-                  {formData.galleryImages.map((img, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl p-6 border border-emerald-200 dark:border-emerald-800">
+                  <label className="block text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    🖼️ Hero Slides / Gallery Images
+                  </label>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    Upload multiple images that will auto-slide in the hero section. Cover image is the first slide.
+                  </p>
+                  
+                  {/* Upload Button */}
+                  <div className="mb-4">
+                    <label className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold cursor-pointer hover:bg-emerald-700 transition-colors">
+                      <Upload className="w-5 h-5" />
+                      Upload Hero Slide Image
                       <input
-                        type="text"
-                        value={img}
+                        type="file"
+                        accept="image/*"
                         onChange={(e) => {
-                          const updated = [...formData.galleryImages]
-                          updated[idx] = e.target.value
-                          setFormData({ ...formData, galleryImages: updated })
+                          const file = e.target.files?.[0]
+                          if (file) handleGalleryUpload(file)
                         }}
-                        className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                        placeholder="https://res.cloudinary.com/..."
+                        className="hidden"
                       />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updated = formData.galleryImages.filter((_, i) => i !== idx)
-                          setFormData({ ...formData, galleryImages: updated })
-                        }}
-                        className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
-                      >
-                        Remove
-                      </button>
+                    </label>
+                    {uploadingGallery && (
+                      <span className="ml-3 text-emerald-600 animate-pulse">Uploading...</span>
+                    )}
+                  </div>
+
+                  {/* Image Previews Grid */}
+                  {formData.galleryImages.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
+                      {formData.galleryImages.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img 
+                            src={img} 
+                            alt={`Slide ${idx + 1}`} 
+                            className="w-full h-28 object-cover rounded-xl border-2 border-white shadow-lg"
+                          />
+                          <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                            Slide {idx + 2}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = formData.galleryImages.filter((_, i) => i !== idx)
+                              setFormData({ ...formData, galleryImages: updated })
+                            }}
+                            className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+
+                  {/* Manual URL Input */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Or paste image URL here..."
+                      className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          const input = e.target as HTMLInputElement
+                          if (input.value.trim()) {
+                            setFormData({ ...formData, galleryImages: [...formData.galleryImages, input.value.trim()] })
+                            input.value = ''
+                          }
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement
+                        if (input?.value.trim()) {
+                          setFormData({ ...formData, galleryImages: [...formData.galleryImages, input.value.trim()] })
+                          input.value = ''
+                        }
+                      }}
+                      className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 font-semibold"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 mt-3">
+                    Total slides: {formData.galleryImages.length + 1} (Cover + {formData.galleryImages.length} gallery images)
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, galleryImages: [...formData.galleryImages, ''] })}
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-                >
-                  <Upload className="w-4 h-4" /> Add Image URL
-                </button>
               </div>
 
               <div className="md:col-span-2 flex items-center gap-3">
