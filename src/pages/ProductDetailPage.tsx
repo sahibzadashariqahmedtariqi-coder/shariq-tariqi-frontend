@@ -88,45 +88,17 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch related products (same category, exclude current, exclude free PDFs)
+        // Fetch related products - exclude only free PDFs
         try {
           const allProductsRes = await apiClient.get('/products')
           const allProducts = allProductsRes.data.data || allProductsRes.data || []
-          console.log('All products for related:', allProducts.length)
           
-          // First try: paid, physical, in-stock products from same category
-          let related = allProducts
+          // Show all products except current one and free PDFs (price = 0)
+          const related = allProducts
             .filter((p: Product) => p._id !== id)
-            .filter((p: Product) => p.price > 0)
-            .filter((p: Product) => !p.isPdfOnly)
-            .filter((p: Product) => p.stock > 0)
-            .filter((p: Product) => p.category === productData.category || p.isFeatured)
+            .filter((p: Product) => p.price > 0) // Only exclude free products
             .slice(0, 6)
           
-          // Second try: any paid physical products (in-stock)
-          if (related.length === 0) {
-            related = allProducts
-              .filter((p: Product) => p._id !== id)
-              .filter((p: Product) => p.price > 0 && !p.isPdfOnly && p.stock > 0)
-              .slice(0, 6)
-          }
-          
-          // Third try: any paid products (including PDFs but not free)
-          if (related.length === 0) {
-            related = allProducts
-              .filter((p: Product) => p._id !== id)
-              .filter((p: Product) => p.price > 0)
-              .slice(0, 6)
-          }
-          
-          // Last resort: show any products except current one
-          if (related.length === 0) {
-            related = allProducts
-              .filter((p: Product) => p._id !== id)
-              .slice(0, 6)
-          }
-          
-          console.log('Related products found:', related.length)
           setRelatedProducts(related)
         } catch (e) {
           console.log('Could not fetch related products')
