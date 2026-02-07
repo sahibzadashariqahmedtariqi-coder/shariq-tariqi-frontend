@@ -96,12 +96,13 @@ export default function ProductDetailPage() {
           // Same filter as All Products page - hide PDFs category
           const related = allProducts
             .filter((p: Product) => p._id !== id) // Exclude current product
-            .filter((p: Product) => p.category !== 'pdf') // Same filter as All Products page
+            .filter((p: Product) => p.category?.toLowerCase() !== 'pdf') // Same filter as All Products page
             .slice(0, 8)
           
+          console.log('🔍 Products Debug:', { total: allProducts.length, related: related.length, current: id })
           setRelatedProducts(related)
         } catch (e) {
-          console.log('Could not fetch related products')
+          console.error('❌ Could not fetch related products:', e)
         }
       } catch (error: any) {
         console.error('Failed to fetch product:', error)
