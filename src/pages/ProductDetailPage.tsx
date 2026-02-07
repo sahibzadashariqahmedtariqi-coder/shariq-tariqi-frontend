@@ -33,6 +33,30 @@ interface Product {
   isPdfOnly?: boolean
 }
 
+// Related products animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.3
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut"
+    }
+  }
+}
+
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [quantity, setQuantity] = useState(1)
@@ -40,6 +64,7 @@ export default function ProductDetailPage() {
   const [showFullImage, setShowFullImage] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [purchaseType, setPurchaseType] = useState<'hardcopy' | 'pdf'>('hardcopy')
   
@@ -54,6 +79,19 @@ export default function ProductDetailPage() {
         const productData = response.data.data || response.data
         setProduct(productData)
         setSelectedImage(productData.image)
+        
+        // Fetch related products (same category, exclude current)
+        try {
+          const allProductsRes = await apiClient.get('/products')
+          const allProducts = allProductsRes.data.data || allProductsRes.data || []
+          const related = allProducts
+            .filter((p: Product) => p._id !== id)
+            .filter((p: Product) => p.category === productData.category || p.isFeatured)
+            .slice(0, 4)
+          setRelatedProducts(related.length > 0 ? related : allProducts.filter((p: Product) => p._id !== id).slice(0, 4))
+        } catch (e) {
+          console.log('Could not fetch related products')
+        }
       } catch (error: any) {
         console.error('Failed to fetch product:', error)
         toast.error('Product not found')
@@ -529,6 +567,133 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Products You May Like Section */}
+      {relatedProducts.length > 0 && (
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Heading */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <span className="inline-block px-4 py-2 bg-gradient-to-r from-primary-100 to-emerald-100 dark:from-primary-900/30 dark:to-emerald-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-semibold mb-4">
+                ✨ Discover More
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Products You May <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-emerald-600">Love</span>
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Handpicked recommendations based on your interest
+              </p>
+            </motion.div>
+
+            {/* Products Grid with Stagger Animation */}
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
+              {relatedProducts.map((relatedProduct, index) => (
+                <motion.div
+                  key={relatedProduct._id}
+                  variants={itemVariants}
+                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                  className="group"
+                >
+                  <Link to={`/products/${relatedProduct._id}`}>
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-700">
+                      {/* Image */}
+                      <div className="relative h-56 overflow-hidden">
+                        <img
+                          src={relatedProduct.image}
+                          alt={relatedProduct.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                        {/* Overlay Gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        
+                        {/* Featured Badge */}
+                        {relatedProduct.isFeatured && (
+                          <span className="absolute top-3 right-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
+                            Featured
+                          </span>
+                        )}
+                        
+                        {/* Category Badge */}
+                        <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 dark:bg-gray-900/90 text-primary-700 dark:text-primary-300 text-xs font-semibold rounded-full backdrop-blur-sm">
+                          {relatedProduct.category}
+                        </span>
+
+                        {/* Quick View Button */}
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                          <span className="px-4 py-2 bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2">
+                            <ShoppingCart className="w-4 h-4" /> View Product
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-5">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                          {relatedProduct.name}
+                        </h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-3 line-clamp-2">
+                          {relatedProduct.description}
+                        </p>
+                        
+                        {/* Price */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
+                              Rs.{relatedProduct.price.toLocaleString()}
+                            </span>
+                            {relatedProduct.originalPrice && relatedProduct.originalPrice > relatedProduct.price && (
+                              <span className="ml-2 text-sm text-gray-400 line-through">
+                                Rs.{relatedProduct.originalPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                          {relatedProduct.stock > 0 ? (
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">In Stock</span>
+                          ) : (
+                            <span className="text-xs text-red-500 font-medium">Out of Stock</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* View All Products Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              viewport={{ once: true }}
+              className="text-center mt-10"
+            >
+              <Link to="/products">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="group px-8 py-3 border-2 border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-500 hover:text-white transition-all duration-300"
+                >
+                  View All Products
+                  <ArrowLeft className="w-4 h-4 ml-2 rotate-180 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      )}
 
       {/* Checkout Modal */}
       {product && (
