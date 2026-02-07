@@ -64,12 +64,16 @@ export default function ProductDetailPage() {
         const allProductsRes = await apiClient.get('/products')
         let allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
         
-        console.log('🔍 All Products:', allProducts.map(p => ({ name: p.name, price: p.price, category: p.category })))
+        // DEBUG: Log all products with their categories
+        console.log('🔍 ALL PRODUCTS IN DATABASE:')
+        allProducts.forEach((p, i) => {
+          console.log(`${i+1}. ${p.name} | Category: ${p.category} | Price: ${p.price}`)
+        })
         
-        // Exclude current product AND PDF category products (Free PDFs)
-        allProducts = allProducts.filter((p) => p._id !== id && p.category !== 'pdf')
+        // Only exclude current product - NO OTHER FILTERS for now
+        allProducts = allProducts.filter((p) => p._id !== id)
         
-        console.log('✅ Related Products (excluding pdf category):', allProducts.length)
+        console.log('✅ Total Related Products:', allProducts.length)
         setRelatedProducts(allProducts.slice(0, 10))
         
       } catch (error: any) {
