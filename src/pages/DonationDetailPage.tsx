@@ -240,16 +240,46 @@ export default function DonationDetailPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">Impact Video</h3>
               </div>
-              {/* Centered container for shorts-style video */}
-              <div className="flex justify-center">
-                <div className="w-full max-w-[320px] sm:max-w-[360px] aspect-[9/16] rounded-2xl overflow-hidden shadow-lg">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${youtubeId}`}
-                    title="YouTube video player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
+              
+              {/* Two column layout - Description left, Video right */}
+              <div className="flex flex-col lg:flex-row gap-8 items-start">
+                {/* Left side - Description */}
+                <div className="flex-1 order-2 lg:order-1">
+                  <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{page.title}</h4>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line text-base mb-6">
+                    {page.description}
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                      <Heart className="w-5 h-5 text-pink-500" />
+                      <span>Your donation makes a real difference</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                      <Heart className="w-5 h-5 text-pink-500" />
+                      <span>100% of donations go to those in need</span>
+                    </div>
+                  </div>
+                  <div className="mt-8">
+                    <Link
+                      to="/donate"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold shadow-lg hover:from-primary-700 hover:to-primary-800"
+                    >
+                      <Heart className="w-5 h-5" /> Donate Now
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Right side - Video */}
+                <div className="w-full lg:w-auto order-1 lg:order-2 flex justify-center lg:justify-end">
+                  <div className="w-full max-w-[280px] sm:max-w-[300px] aspect-[9/16] rounded-2xl overflow-hidden shadow-lg">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${youtubeId}`}
+                      title="YouTube video player"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
