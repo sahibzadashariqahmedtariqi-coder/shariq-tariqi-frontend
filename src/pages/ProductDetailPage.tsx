@@ -1,9 +1,9 @@
 import { Helmet } from 'react-helmet-async'
 import { useParams, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ShoppingCart, ArrowLeft, Package, Shield, Truck, CheckCircle, X, Clock } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ShoppingCart, ArrowLeft, Package, Shield, Truck, CheckCircle, X, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { apiClient } from '@/services/api'
 import toast from 'react-hot-toast'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
@@ -67,6 +67,38 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [purchaseType, setPurchaseType] = useState<'hardcopy' | 'pdf'>('hardcopy')
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
+
+  // Auto-slide effect for related products
+  useEffect(() => {
+    if (relatedProducts.length <= 1) return
+    
+    const interval = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % relatedProducts.length)
+    }, 2500) // 2.5 seconds
+    
+    return () => clearInterval(interval)
+  }, [relatedProducts.length])
+
+  // Scroll to current index
+  useEffect(() => {
+    if (carouselRef.current && relatedProducts.length > 0) {
+      const cardWidth = carouselRef.current.scrollWidth / relatedProducts.length
+      carouselRef.current.scrollTo({
+        left: carouselIndex * cardWidth,
+        behavior: 'smooth'
+      })
+    }
+  }, [carouselIndex, relatedProducts.length])
+
+  const nextSlide = () => {
+    setCarouselIndex((prev) => (prev + 1) % relatedProducts.length)
+  }
+
+  const prevSlide = () => {
+    setCarouselIndex((prev) => (prev - 1 + relatedProducts.length) % relatedProducts.length)
+  }
   
   useEffect(() => {
     const fetchProduct = async () => {
@@ -578,9 +610,9 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Products You May Like Section */}
+      {/* Products You May Like Section - Carousel */}
       {relatedProducts.length > 0 && (
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-16">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-16 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Heading */}
             <motion.div
@@ -601,86 +633,120 @@ export default function ProductDetailPage() {
               </p>
             </motion.div>
 
-            {/* Products Grid with Stagger Animation */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            >
-              {relatedProducts.map((relatedProduct) => (
-                <motion.div
-                  key={relatedProduct._id}
-                  variants={itemVariants}
-                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                  className="group"
-                >
-                  <Link to={`/products/${relatedProduct._id}`}>
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-700">
-                      {/* Image */}
-                      <div className="relative h-56 overflow-hidden">
-                        <img
-                          src={relatedProduct.image}
-                          alt={relatedProduct.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        
-                        {/* Featured Badge */}
-                        {relatedProduct.isFeatured && (
-                          <span className="absolute top-3 right-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
-                            Featured
-                          </span>
-                        )}
-                        
-                        {/* Category Badge */}
-                        <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 dark:bg-gray-900/90 text-primary-700 dark:text-primary-300 text-xs font-semibold rounded-full backdrop-blur-sm">
-                          {relatedProduct.category}
-                        </span>
+            {/* Carousel Container */}
+            <div className="relative">
+              {/* Left Arrow */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center text-gray-700 dark:text-white hover:bg-primary-500 hover:text-white transition-all duration-300 -ml-4 lg:-ml-6"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
 
-                        {/* Quick View Button */}
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                          <span className="px-4 py-2 bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2">
-                            <ShoppingCart className="w-4 h-4" /> View Product
-                          </span>
-                        </div>
-                      </div>
+              {/* Right Arrow */}
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center text-gray-700 dark:text-white hover:bg-primary-500 hover:text-white transition-all duration-300 -mr-4 lg:-mr-6"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
 
-                      {/* Content */}
-                      <div className="p-5">
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                          {relatedProduct.name}
-                        </h3>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-3 line-clamp-2">
-                          {relatedProduct.description}
-                        </p>
-                        
-                        {/* Price */}
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
-                              Rs.{relatedProduct.price.toLocaleString()}
+              {/* Products Carousel */}
+              <div 
+                ref={carouselRef}
+                className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2 pb-4"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {relatedProducts.map((relatedProduct, idx) => (
+                  <motion.div
+                    key={relatedProduct._id}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                    className="group flex-shrink-0 w-[280px] sm:w-[300px]"
+                  >
+                    <Link to={`/products/${relatedProduct._id}`}>
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-700">
+                        {/* Image */}
+                        <div className="relative h-56 overflow-hidden">
+                          <img
+                            src={relatedProduct.image}
+                            alt={relatedProduct.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          />
+                          {/* Overlay Gradient */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          
+                          {/* Featured Badge */}
+                          {relatedProduct.isFeatured && (
+                            <span className="absolute top-3 right-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
+                              Featured
                             </span>
-                            {relatedProduct.originalPrice && relatedProduct.originalPrice > relatedProduct.price && (
-                              <span className="ml-2 text-sm text-gray-400 line-through">
-                                Rs.{relatedProduct.originalPrice.toLocaleString()}
+                          )}
+                          
+                          {/* Category Badge */}
+                          <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 dark:bg-gray-900/90 text-primary-700 dark:text-primary-300 text-xs font-semibold rounded-full backdrop-blur-sm">
+                            {relatedProduct.category}
+                          </span>
+
+                          {/* Quick View Button */}
+                          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                            <span className="px-4 py-2 bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2">
+                              <ShoppingCart className="w-4 h-4" /> View Product
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-5">
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                            {relatedProduct.name}
+                          </h3>
+                          <p className="text-gray-500 dark:text-gray-400 text-sm mb-3 line-clamp-2">
+                            {relatedProduct.description}
+                          </p>
+                          
+                          {/* Price */}
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
+                                Rs.{relatedProduct.price.toLocaleString()}
                               </span>
+                              {relatedProduct.originalPrice && relatedProduct.originalPrice > relatedProduct.price && (
+                                <span className="ml-2 text-sm text-gray-400 line-through">
+                                  Rs.{relatedProduct.originalPrice.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                            {relatedProduct.stock > 0 ? (
+                              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">In Stock</span>
+                            ) : (
+                              <span className="text-xs text-red-500 font-medium">Out of Stock</span>
                             )}
                           </div>
-                          {relatedProduct.stock > 0 ? (
-                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">In Stock</span>
-                          ) : (
-                            <span className="text-xs text-red-500 font-medium">Out of Stock</span>
-                          )}
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Carousel Indicators */}
+              <div className="flex justify-center gap-2 mt-6">
+                {relatedProducts.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCarouselIndex(idx)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      idx === carouselIndex 
+                        ? 'bg-primary-500 w-8' 
+                        : 'bg-gray-300 dark:bg-gray-600 hover:bg-primary-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
 
             {/* View All Products Button */}
             <motion.div
