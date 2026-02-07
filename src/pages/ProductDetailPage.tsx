@@ -60,14 +60,16 @@ export default function ProductDetailPage() {
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch ALL products for related section - Exclude Free PDFs
+        // Fetch ALL products for related section
         const allProductsRes = await apiClient.get('/products')
         let allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
         
-        // Exclude current product AND Free PDFs (price = 0 or no price)
-        allProducts = allProducts.filter((p) => p._id !== id && p.price && p.price > 0)
+        console.log('🔍 All Products from API:', allProducts.map(p => ({ name: p.name, price: p.price, isPdfOnly: p.isPdfOnly })))
         
-        console.log('✅ Related Products (Paid Only):', allProducts.length)
+        // Exclude current product AND isPdfOnly products (Free PDFs)
+        allProducts = allProducts.filter((p) => p._id !== id && !p.isPdfOnly)
+        
+        console.log('✅ Related Products (excluding isPdfOnly):', allProducts.length)
         setRelatedProducts(allProducts.slice(0, 10))
         
       } catch (error: any) {
