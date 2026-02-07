@@ -43,66 +43,36 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [purchaseType, setPurchaseType] = useState<'hardcopy' | 'pdf'>('hardcopy')
-  const [carouselIndex, setCarouselIndex] = useState(0)
-  const carouselRef = useRef<HTMLDivElement>(null)
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Auto-slide effect for related products
+  // Fetch product and related products
   useEffect(() => {
-    if (relatedProducts.length <= 1) return
-    
-    const interval = setInterval(() => {
-      setCarouselIndex((prev) => (prev + 1) % relatedProducts.length)
-    }, 2500) // 2.5 seconds
-    
-    return () => clearInterval(interval)
-  }, [relatedProducts.length])
-
-  // Scroll to current index
-  useEffect(() => {
-    if (carouselRef.current && relatedProducts.length > 0) {
-      const cardWidth = carouselRef.current.scrollWidth / relatedProducts.length
-      carouselRef.current.scrollTo({
-        left: carouselIndex * cardWidth,
-        behavior: 'smooth'
-      })
-    }
-  }, [carouselIndex, relatedProducts.length])
-
-  const nextSlide = () => {
-    setCarouselIndex((prev) => (prev + 1) % relatedProducts.length)
-  }
-
-  const prevSlide = () => {
-    setCarouselIndex((prev) => (prev - 1 + relatedProducts.length) % relatedProducts.length)
-  }
-  
-  useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       if (!id) return
       
       try {
         setLoading(true)
+        
+        // Fetch current product
         const response = await apiClient.get(`/products/${id}`)
-        // Backend returns { success, data: product }
         const productData = response.data.data || response.data
         setProduct(productData)
         setSelectedImage(productData.image)
         
-        // Fetch related products - show all except current and free PDFs (price = 0)
-        try {
-          const allProductsRes = await apiClient.get('/products')
-          const allProducts = allProductsRes.data.data || allProductsRes.data || []
-          
-          // Exclude current product and free PDFs (price = 0 or no price)
-          const related = allProducts
-            .filter((p: Product) => p._id !== id)
-            .filter((p: Product) => p.price && p.price > 0) // Exclude free PDFs
-            .slice(0, 8)
-          
-          setRelatedProducts(related)
-        } catch (e) {
-          console.error('❌ Could not fetch related products:', e)
-        }
+        // Fetch ALL products for related section
+        const allProductsRes = await apiClient.get('/products')
+        const allProducts: Product[] = allProductsRes.data.data || allProductsRes.data || []
+        
+        // Filter: exclude current product + exclude free items (price <= 0)
+        const filtered = allProducts.filter((p) => {
+          if (p._id === id) return false // exclude current
+          if (!p.price || p.price <= 0) return false // exclude free
+          return true
+        })
+        
+        setRelatedProducts(filtered.slice(0, 10))
+        
       } catch (error: any) {
         console.error('Failed to fetch product:', error)
         toast.error('Product not found')
@@ -111,8 +81,39 @@ export default function ProductDetailPage() {
       }
     }
 
-    fetchProduct()
+    fetchData()
   }, [id])
+
+  // Auto-scroll carousel every 3 seconds
+  useEffect(() => {
+    if (relatedProducts.length === 0) return
+    
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % relatedProducts.length)
+    }, 3000)
+    
+    return () => clearInterval(timer)
+  }, [relatedProducts.length])
+
+  // Scroll to current slide
+  useEffect(() => {
+    if (scrollContainerRef.current && relatedProducts.length > 0) {
+      const container = scrollContainerRef.current
+      const cardWidth = 320 // approximate card width
+      container.scrollTo({
+        left: currentSlide * cardWidth,
+        behavior: 'smooth'
+      })
+    }
+  }, [currentSlide, relatedProducts.length])
+
+  const scrollLeft = () => {
+    setCurrentSlide((prev) => (prev - 1 + relatedProducts.length) % relatedProducts.length)
+  }
+
+  const scrollRight = () => {
+    setCurrentSlide((prev) => (prev + 1) % relatedProducts.length)
+  }
 
   if (loading) {
     return (
@@ -606,7 +607,7 @@ export default function ProductDetailPage() {
             <div className="relative">
               {/* Left Arrow */}
               <button
-                onClick={prevSlide}
+                onClick={scrollLeft}
                 className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center text-gray-700 dark:text-white hover:bg-primary-500 hover:text-white transition-all duration-300 -ml-4 lg:-ml-6"
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -614,7 +615,7 @@ export default function ProductDetailPage() {
 
               {/* Right Arrow */}
               <button
-                onClick={nextSlide}
+                onClick={scrollRight}
                 className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center text-gray-700 dark:text-white hover:bg-primary-500 hover:text-white transition-all duration-300 -mr-4 lg:-mr-6"
               >
                 <ChevronRight className="w-6 h-6" />
@@ -622,7 +623,7 @@ export default function ProductDetailPage() {
 
               {/* Products Carousel */}
               <div 
-                ref={carouselRef}
+                ref={scrollContainerRef}
                 className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2 pb-4"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
@@ -706,9 +707,9 @@ export default function ProductDetailPage() {
                 {relatedProducts.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setCarouselIndex(idx)}
+                    onClick={() => setCurrentSlide(idx)}
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      idx === carouselIndex 
+                      idx === currentSlide 
                         ? 'bg-primary-500 w-8' 
                         : 'bg-gray-300 dark:bg-gray-600 hover:bg-primary-300'
                     }`}
