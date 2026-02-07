@@ -415,9 +415,23 @@ export default function AdminDonationPagesPage() {
                   <label className="block text-lg font-bold text-gray-900 dark:text-white mb-2">
                     🖼️ Hero Slides / Gallery Images
                   </label>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                     Upload multiple images that will auto-slide in the hero section. Cover image is the first slide.
                   </p>
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">
+                      📐 Recommended: 1200 × 800 px
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full">
+                      📏 Aspect Ratio: 3:2 (Landscape)
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium rounded-full">
+                      📦 Max Size: 5 MB
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full">
+                      🖼️ Formats: JPG, PNG, WebP
+                    </span>
+                  </div>
                   
                   {/* Upload Button */}
                   <div className="mb-4">
