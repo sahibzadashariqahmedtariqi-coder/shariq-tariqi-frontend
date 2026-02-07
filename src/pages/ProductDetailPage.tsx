@@ -599,7 +599,7 @@ export default function ProductDetailPage() {
               viewport={{ once: true, margin: "-100px" }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {relatedProducts.map((relatedProduct, index) => (
+              {relatedProducts.map((relatedProduct) => (
                 <motion.div
                   key={relatedProduct._id}
                   variants={itemVariants}
