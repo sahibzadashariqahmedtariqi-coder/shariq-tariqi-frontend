@@ -186,12 +186,33 @@ export default function AdminDonationPagesPage() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Donation Pages</h1>
               <p className="text-gray-600 dark:text-gray-400">Create beautiful pages for donation campaigns</p>
             </div>
-            <button
-              onClick={resetForm}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700"
-            >
-              <Plus className="w-4 h-4" /> Add New Page
-            </button>
+            <div className="flex items-center gap-3">
+              {/* Dropdown to select existing page */}
+              <select
+                value={currentPage?._id || ''}
+                onChange={(e) => {
+                  const selectedId = e.target.value
+                  if (selectedId === '') {
+                    resetForm()
+                  } else {
+                    const selectedPage = pages.find(p => p._id === selectedId)
+                    if (selectedPage) handleEdit(selectedPage)
+                  }
+                }}
+                className="px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white bg-white text-gray-900 min-w-[200px]"
+              >
+                <option value="">+ Add New Page</option>
+                {pages.map((page) => (
+                  <option key={page._id} value={page._id}>{page.title}</option>
+                ))}
+              </select>
+              <button
+                onClick={resetForm}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700"
+              >
+                <Plus className="w-4 h-4" /> Add New Page
+              </button>
+            </div>
           </div>
 
           {/* Form */}

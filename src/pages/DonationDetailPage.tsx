@@ -1,7 +1,8 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
-import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Heart, Play } from 'lucide-react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
+import { ArrowLeft, Heart, Play, ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import apiClient from '@/services/api'
 
 interface DonationPage {
@@ -66,6 +67,34 @@ export default function DonationDetailPage() {
   const { slug } = useParams()
   const [page, setPage] = useState<DonationPage | null>(null)
   const [loading, setLoading] = useState(true)
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  // Build hero slides array - cover image + gallery images
+  const heroSlides = useMemo(() => {
+    if (!page) return []
+    const slides = [page.coverImage]
+    if (page.galleryImages && page.galleryImages.length > 0) {
+      slides.push(...page.galleryImages.filter(Boolean))
+    }
+    return slides
+  }, [page])
+
+  // Auto-slide every 5 seconds
+  useEffect(() => {
+    if (heroSlides.length <= 1) return
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [heroSlides.length])
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
+  }, [heroSlides.length])
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
+  }, [heroSlides.length])
 
   useEffect(() => {
     const fetchPage = async () => {
@@ -115,16 +144,61 @@ export default function DonationDetailPage() {
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* Hero */}
+        {/* Hero Slider */}
         <section className="relative h-[55vh] min-h-[420px] overflow-hidden">
-          <img
-            src={page.coverImage}
-            alt={page.title}
-            className="w-full h-full object-cover"
-          />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentSlide}
+              src={heroSlides[currentSlide] || page.coverImage}
+              alt={page.title}
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.7 }}
+              className="w-full h-full object-cover absolute inset-0"
+            />
+          </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-          <div className="absolute inset-0 flex flex-col justify-end container mx-auto px-4 pb-10">
+          {/* Slider Controls */}
+          {heroSlides.length > 1 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/40 transition-all"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/40 transition-all"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              {/* Slide Indicators */}
+              <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                {heroSlides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      idx === currentSlide
+                        ? 'bg-white w-8'
+                        : 'bg-white/50 hover:bg-white/70'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Slide Counter */}
+              <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm text-white text-sm">
+                {currentSlide + 1} / {heroSlides.length}
+              </div>
+            </>
+          )}
+
+          <div className="absolute inset-0 flex flex-col justify-end container mx-auto px-4 pb-10 z-10">
             <Link to="/donate" className="inline-flex items-center gap-2 text-white/90 mb-4">
               <ArrowLeft className="w-4 h-4" /> Back to Donate
             </Link>
@@ -178,20 +252,41 @@ export default function DonationDetailPage() {
             </div>
           )}
 
-          {/* Gallery */}
-          {page.galleryImages && page.galleryImages.length > 0 && (
+          {/* Thumbnail Gallery - for quick navigation */}
+          {heroSlides.length > 1 && (
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-6 sm:p-10 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
-                  <Play className="w-5 h-5 text-white" />
+                  <Heart className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Gallery</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Gallery ({heroSlides.length} Images)</h3>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {page.galleryImages.map((img, idx) => (
-                  <div key={idx} className="relative overflow-hidden rounded-2xl group shadow-md">
-                    <img src={img} alt={`${page.title} ${idx + 1}`} className="w-full h-48 object-cover group-hover:scale-105 transition-transform" />
-                  </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {heroSlides.map((img, idx) => (
+                  <motion.button
+                    key={idx}
+                    onClick={() => {
+                      setCurrentSlide(idx)
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`relative overflow-hidden rounded-xl group shadow-md ${
+                      idx === currentSlide ? 'ring-4 ring-primary-500' : ''
+                    }`}
+                  >
+                    <img 
+                      src={img} 
+                      alt={`${page.title} ${idx + 1}`} 
+                      className="w-full h-24 sm:h-32 object-cover group-hover:scale-105 transition-transform" 
+                    />
+                    <div className={`absolute inset-0 ${idx === currentSlide ? 'bg-primary-500/20' : 'bg-black/0 group-hover:bg-black/20'} transition-colors`} />
+                    {idx === currentSlide && (
+                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">{idx + 1}</span>
+                      </div>
+                    )}
+                  </motion.button>
                 ))}
               </div>
             </div>
