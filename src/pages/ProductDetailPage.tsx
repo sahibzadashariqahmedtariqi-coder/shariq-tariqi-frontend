@@ -77,6 +77,9 @@ export default function ProductDetailPage() {
           return p._id !== id && p.category !== 'pdf'
         })
         
+        // Shuffle products to show variety from all categories
+        allProducts = allProducts.sort(() => Math.random() - 0.5)
+        
         console.log('✅ Related (excluding pdf):', allProducts.length)
         setRelatedProducts(allProducts.slice(0, 10))
         
