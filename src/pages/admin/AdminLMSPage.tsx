@@ -3864,6 +3864,11 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
   const [previewCert, setPreviewCert] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'issued' | 'revoked'>('all');
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    certId: string | null;
+    certNumber: string;
+  }>({ isOpen: false, certId: null, certNumber: '' });
 
   const { data: certificatesData, isLoading } = useQuery({
     queryKey: ['lms-certificates'],
@@ -4151,11 +4156,11 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
                           </button>
                         )}
                         <button
-                          onClick={() => {
-                            if (window.confirm('Are you sure you want to permanently delete this certificate?')) {
-                              deleteMutation.mutate(cert._id);
-                            }
-                          }}
+                          onClick={() => setConfirmModal({
+                            isOpen: true,
+                            certId: cert._id,
+                            certNumber: cert.certificateNumber
+                          })}
                           className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition"
                           title="Delete Certificate Permanently"
                         >
@@ -4170,6 +4175,22 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
           </div>
         </div>
       )}
+
+      {/* Delete Certificate Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, certId: null, certNumber: '' })}
+        onConfirm={() => {
+          if (confirmModal.certId) {
+            deleteMutation.mutate(confirmModal.certId);
+          }
+          setConfirmModal({ isOpen: false, certId: null, certNumber: '' });
+        }}
+        title="Delete Certificate"
+        message={`Are you sure you want to permanently delete certificate "${confirmModal.certNumber}"? This action cannot be undone.`}
+        confirmText="Delete Certificate"
+        type="danger"
+      />
 
       {/* Issue Certificate Modal */}
       {showIssueModal && (
@@ -4235,6 +4256,14 @@ const FeeManagementSection = ({
     maxAmount: number;
     newAmount: string;
   }>({ isOpen: false, feeId: null, currentAmount: 0, maxAmount: 0, newAmount: '' });
+
+  // Mark as paid confirmation modal
+  const [markPaidModal, setMarkPaidModal] = useState<{
+    isOpen: boolean;
+    feeId: string | null;
+    feeAmount: number;
+    studentName: string;
+  }>({ isOpen: false, feeId: null, feeAmount: 0, studentName: '' });
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -4453,15 +4482,12 @@ const FeeManagementSection = ({
                     <div className="flex items-center justify-center gap-1">
                       {fee.status !== 'paid' && (
                         <button
-                          onClick={() => {
-                            if (window.confirm('Mark this fee as paid?')) {
-                              onUpdateFeeStatus(fee._id, { 
-                                status: 'paid', 
-                                paidAmount: fee.amount,
-                                paidDate: new Date().toISOString()
-                              });
-                            }
-                          }}
+                          onClick={() => setMarkPaidModal({
+                            isOpen: true,
+                            feeId: fee._id,
+                            feeAmount: fee.amount,
+                            studentName: fee.student?.name || 'Unknown'
+                          })}
                           className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg"
                           title="Mark as Paid"
                         >
@@ -4665,6 +4691,26 @@ const FeeManagementSection = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Mark as Paid Confirmation Modal */}
+      <ConfirmModal
+        isOpen={markPaidModal.isOpen}
+        onClose={() => setMarkPaidModal({ isOpen: false, feeId: null, feeAmount: 0, studentName: '' })}
+        onConfirm={() => {
+          if (markPaidModal.feeId) {
+            onUpdateFeeStatus(markPaidModal.feeId, { 
+              status: 'paid', 
+              paidAmount: markPaidModal.feeAmount,
+              paidDate: new Date().toISOString()
+            });
+          }
+          setMarkPaidModal({ isOpen: false, feeId: null, feeAmount: 0, studentName: '' });
+        }}
+        title="Mark Fee as Paid"
+        message={`Mark the fee of Rs. ${markPaidModal.feeAmount.toLocaleString()} for "${markPaidModal.studentName}" as fully paid?`}
+        confirmText="Mark as Paid"
+        type="success"
+      />
     </div>
   );
 };
