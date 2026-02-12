@@ -4,8 +4,9 @@ import { Navigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Heart, Search, Eye, CheckCircle, XCircle, Clock,
-  ArrowLeft, DollarSign, TrendingUp, RefreshCw, Trash2
+  ArrowLeft, DollarSign, TrendingUp, RefreshCw, Trash2, AlertTriangle, X
 } from 'lucide-react'
+import { AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/authStore'
 import { apiClient } from '@/services/api'
@@ -64,6 +65,7 @@ export default function AdminDonationsPage() {
   const [showModal, setShowModal] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; id: string; donationNumber: string }>({ show: false, id: '', donationNumber: '' })
 
   useEffect(() => {
     fetchDonations()
@@ -141,18 +143,22 @@ export default function AdminDonationsPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this donation record?')) return
+  const handleDeleteClick = (id: string, donationNumber: string) => {
+    setDeleteConfirm({ show: true, id, donationNumber })
+  }
 
+  const handleDeleteConfirm = async () => {
     try {
-      const response = await apiClient.delete(`/donations/${id}`)
+      const response = await apiClient.delete(`/donations/${deleteConfirm.id}`)
       if (response.data.success) {
-        toast.success('Donation deleted')
+        toast.success('Donation deleted successfully')
         fetchDonations()
         fetchStats()
       }
     } catch (error) {
       toast.error('Failed to delete donation')
+    } finally {
+      setDeleteConfirm({ show: false, id: '', donationNumber: '' })
     }
   }
 
@@ -448,7 +454,7 @@ export default function AdminDonationsPage() {
                               </>
                             )}
                             <button
-                              onClick={() => handleDelete(donation._id)}
+                              onClick={() => handleDeleteClick(donation._id, donation.donationNumber)}
                               className="p-2 text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
                               title="Delete"
                             >
@@ -647,6 +653,70 @@ export default function AdminDonationsPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Beautiful Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirm.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setDeleteConfirm({ show: false, id: '', donationNumber: '' })}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+            >
+              {/* Header with icon */}
+              <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <AlertTriangle className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Delete Donation?</h3>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <p className="text-gray-600 dark:text-gray-300 text-center mb-2">
+                  Are you sure you want to delete this donation record?
+                </p>
+                <p className="text-center">
+                  <span className="inline-block bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-1 rounded-full font-semibold text-sm">
+                    {deleteConfirm.donationNumber}
+                  </span>
+                </p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm text-center mt-4">
+                  This action cannot be undone. All data associated with this donation will be permanently removed.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 p-6 pt-0">
+                <Button
+                  onClick={() => setDeleteConfirm({ show: false, id: '', donationNumber: '' })}
+                  variant="outline"
+                  className="flex-1 border-gray-300 dark:border-gray-600"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteConfirm}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
