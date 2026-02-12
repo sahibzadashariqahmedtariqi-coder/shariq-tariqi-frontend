@@ -143,10 +143,10 @@ export default function LoginPage() {
         <Helmet>
           <title>Login | Sahibzada Shariq Ahmed Tariqi</title>
         </Helmet>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-primary-950 dark:via-primary-900 dark:to-emerald-950 py-12 px-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-950 via-primary-900 to-emerald-950 py-12 px-4 relative overflow-hidden">
           {/* Animated Background Pattern */}
           <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50 dark:opacity-50 opacity-10" />
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
           </div>
           
           {/* Decorative Glow Effects */}
@@ -216,7 +216,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary-900 via-primary-700 to-primary-900 dark:from-white dark:via-gold-100 dark:to-white bg-clip-text text-transparent"
+                className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-gold-100 to-white bg-clip-text text-transparent"
               >
                 Welcome Back
               </motion.h1>
@@ -224,7 +224,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-lg text-gray-600 dark:text-gray-300/80"
+                className="text-lg text-gray-300/80"
               >
                 Choose your login type to continue
               </motion.p>
@@ -239,7 +239,7 @@ export default function LoginPage() {
                 whileHover={{ y: -8, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleLoginTypeSelect('admin')}
-                className="relative bg-white shadow-lg dark:bg-white/5 backdrop-blur-xl rounded-3xl dark:shadow-2xl p-8 border border-gray-200 dark:border-white/10 group overflow-hidden"
+                className="relative bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10 group overflow-hidden"
               >
                 {/* Card Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gold-500/0 via-gold-500/0 to-gold-500/0 group-hover:from-gold-500/10 group-hover:via-amber-500/5 group-hover:to-orange-500/10 transition-all duration-500 rounded-3xl" />
@@ -252,11 +252,11 @@ export default function LoginPage() {
                     <Shield className="w-12 h-12 text-white" />
                     <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-gold-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-gold-600 dark:group-hover:text-gold-100 transition-colors">Admin Login</h2>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                  <h2 className="text-2xl font-bold text-white group-hover:text-gold-100 transition-colors">Admin Login</h2>
+                  <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors">
                     Access admin dashboard, manage courses, products & appointments
                   </p>
-                  <span className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-gold-500/20 to-amber-500/20 border border-gold-400/40 dark:border-gold-400/30 text-gold-600 dark:text-gold-300 rounded-full text-sm font-semibold group-hover:border-gold-400/60 dark:group-hover:border-gold-400/50 transition-colors">
+                  <span className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-gold-500/20 to-amber-500/20 border border-gold-400/30 text-gold-300 rounded-full text-sm font-semibold group-hover:border-gold-400/50 transition-colors">
                     <Shield className="w-4 h-4" />
                     Administrator Access
                   </span>
@@ -271,7 +271,7 @@ export default function LoginPage() {
                 whileHover={{ y: -8, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleLoginTypeSelect('lms_student')}
-                className="relative bg-white shadow-lg dark:bg-white/5 backdrop-blur-xl rounded-3xl dark:shadow-2xl p-8 border border-gray-200 dark:border-white/10 group overflow-hidden"
+                className="relative bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10 group overflow-hidden"
               >
                 {/* Card Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/10 group-hover:via-teal-500/5 group-hover:to-cyan-500/10 transition-all duration-500 rounded-3xl" />
@@ -284,11 +284,11 @@ export default function LoginPage() {
                     <GraduationCap className="w-12 h-12 text-white" />
                     <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-emerald-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-100 transition-colors">LMS Login</h2>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                  <h2 className="text-2xl font-bold text-white group-hover:text-emerald-100 transition-colors">LMS Login</h2>
+                  <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors">
                     Access your courses, watch lectures & track progress
                   </p>
-                  <span className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/40 dark:border-emerald-400/30 text-emerald-600 dark:text-emerald-300 rounded-full text-sm font-semibold group-hover:border-emerald-400/60 dark:group-hover:border-emerald-400/50 transition-colors">
+                  <span className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 rounded-full text-sm font-semibold group-hover:border-emerald-400/50 transition-colors">
                     <GraduationCap className="w-4 h-4" />
                     Student Access
                   </span>
@@ -305,7 +305,7 @@ export default function LoginPage() {
             >
               <Link 
                 to="/" 
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all text-sm backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm backdrop-blur-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -361,12 +361,12 @@ export default function LoginPage() {
       <Helmet>
         <title>{getLoginTitle()} | Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-primary-950 dark:via-primary-900 dark:to-emerald-950 py-12 px-4 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-950 via-primary-900 to-emerald-950 py-12 px-4 relative overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] dark:opacity-50 opacity-10" />
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gold-500/10 dark:from-gold-500/20 to-amber-500/5 dark:to-amber-500/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-500/10 dark:from-emerald-500/20 to-teal-500/5 dark:to-teal-500/10 rounded-full blur-3xl" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gold-500/20 to-amber-500/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 rounded-full blur-3xl" />
         </div>
 
         <motion.div 
@@ -376,13 +376,13 @@ export default function LoginPage() {
           className="max-w-md w-full relative z-10"
         >
           {/* Glass Card */}
-          <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-3xl shadow-xl dark:shadow-2xl p-8 border border-gray-200 dark:border-white/10">
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10">
             {/* Back Button */}
             <motion.button 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               onClick={() => setLoginType('select')}
-              className="flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors group"
+              className="flex items-center text-gray-400 hover:text-white mb-6 transition-colors group"
             >
               <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -404,7 +404,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="text-3xl font-bold text-gray-900 dark:text-white"
+                className="text-3xl font-bold text-white"
               >
                 {getLoginTitle()}
               </motion.h1>
@@ -412,7 +412,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-gray-500 dark:text-gray-400 mt-2"
+                className="text-gray-400 mt-2"
               >
                 {getLoginDescription()}
               </motion.p>
@@ -426,22 +426,22 @@ export default function LoginPage() {
               className="space-y-6"
             >
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Email</label>
+                <label className="block text-sm font-medium mb-2 text-gray-300">Email</label>
                 <input
                   {...register('email')}
                   type="email"
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-white placeholder-gray-500 transition-all"
                   placeholder={loginType === 'admin' ? 'admin@shariqahmedtariqi.com' : 'your@email.com'}
                 />
                 {errors.email && <p className="text-red-400 text-sm mt-2">{errors.email.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Password</label>
+                <label className="block text-sm font-medium mb-2 text-gray-300">Password</label>
                 <input
                   {...register('password')}
                   type="password"
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-white placeholder-gray-500 transition-all"
                   placeholder="••••••••"
                 />
                 {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password.message}</p>}
@@ -460,11 +460,11 @@ export default function LoginPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-center mt-6 text-sm text-gray-500 bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/5"
+                className="text-center mt-6 text-sm text-gray-500 bg-white/5 rounded-xl p-4 border border-white/5"
               >
                 LMS student accounts are created by admin only.
                 <br />
-                <span className="text-gray-600 dark:text-gray-400">Contact admin if you need access.</span>
+                <span className="text-gray-400">Contact admin if you need access.</span>
               </motion.p>
             )}
           </div>
