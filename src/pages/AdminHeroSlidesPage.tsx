@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import apiClient from '@/services/api'
 import { uploadApi } from '@/services/apiService'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface HeroSlide {
   _id: string
@@ -84,15 +85,21 @@ export default function AdminHeroSlidesPage() {
     setIsAdding(false)
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this slide?')) {
-      try {
-        await apiClient.delete(`/hero-slides/${id}`)
-        toast.success('Slide deleted successfully!')
-        fetchSlides()
-      } catch (error) {
-        toast.error('Failed to delete slide')
-      }
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; title: string }>({ isOpen: false, id: '', title: '' })
+
+  const handleDeleteClick = (id: string, title: string) => {
+    setDeleteConfirm({ isOpen: true, id, title })
+  }
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await apiClient.delete(`/hero-slides/${deleteConfirm.id}`)
+      toast.success('Slide deleted successfully!')
+      fetchSlides()
+    } catch (error) {
+      toast.error('Failed to delete slide')
+    } finally {
+      setDeleteConfirm({ isOpen: false, id: '', title: '' })
     }
   }
 
@@ -392,7 +399,7 @@ export default function AdminHeroSlidesPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleDelete(slide._id)}
+                      onClick={() => handleDeleteClick(slide._id, slide.title)}
                       className="text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -411,6 +418,18 @@ export default function AdminHeroSlidesPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', title: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Hero Slide?"
+        message="Are you sure you want to delete this hero slide?"
+        itemName={deleteConfirm.title}
+        type="danger"
+        confirmText="Delete"
+      />
     </>
   )
 }

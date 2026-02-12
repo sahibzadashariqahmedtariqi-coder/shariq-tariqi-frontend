@@ -6,6 +6,7 @@ import { ArrowLeft, Save, Plus, Trash2, Edit, X, Heart, Stethoscope, BookOpen, M
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import api from '@/services/api'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface Service {
   id: string
@@ -233,12 +234,17 @@ export default function AdminServicesPage() {
     setIsAdding(false)
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this service?')) {
-      const updatedServices = services.filter(s => s.id !== id)
-      saveServices(updatedServices)
-      toast.success('Service deleted!')
-    }
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; title: string }>({ isOpen: false, id: '', title: '' })
+
+  const handleDeleteClick = (id: string, title: string) => {
+    setDeleteConfirm({ isOpen: true, id, title })
+  }
+
+  const handleDeleteConfirm = () => {
+    const updatedServices = services.filter(s => s.id !== deleteConfirm.id)
+    saveServices(updatedServices)
+    toast.success('Service deleted!')
+    setDeleteConfirm({ isOpen: false, id: '', title: '' })
   }
 
   const handleToggleActive = (id: string) => {
@@ -661,7 +667,7 @@ export default function AdminServicesPage() {
                     {service.isActive ? 'Hide' : 'Show'}
                   </Button>
                   <Button 
-                    onClick={() => handleDelete(service.id)} 
+                    onClick={() => handleDeleteClick(service.id, service.title)} 
                     variant="outline" 
                     size="sm"
                     className="text-red-600 hover:bg-red-50"
@@ -681,6 +687,18 @@ export default function AdminServicesPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', title: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Service?"
+        message="Are you sure you want to delete this service?"
+        itemName={deleteConfirm.title}
+        type="danger"
+        confirmText="Delete"
+      />
     </>
   )
 }

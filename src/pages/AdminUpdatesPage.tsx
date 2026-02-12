@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import { uploadApi } from '@/services/apiService'
 import apiClient from '@/services/api'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface Update {
   _id: string
@@ -211,11 +212,15 @@ export default function AdminUpdatesPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this update?')) return
-    
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; title: string }>({ isOpen: false, id: '', title: '' })
+
+  const handleDeleteClick = (id: string, title: string) => {
+    setDeleteConfirm({ isOpen: true, id, title })
+  }
+
+  const handleDeleteConfirm = async () => {
     try {
-      const response = await apiClient.delete(`/updates/${id}`)
+      const response = await apiClient.delete(`/updates/${deleteConfirm.id}`)
       if (response.data.success) {
         toast.success('Update deleted successfully!')
         fetchUpdates()
@@ -223,6 +228,8 @@ export default function AdminUpdatesPage() {
     } catch (error: any) {
       console.error('Failed to delete update:', error)
       toast.error(error.response?.data?.message || 'Failed to delete update')
+    } finally {
+      setDeleteConfirm({ isOpen: false, id: '', title: '' })
     }
   }
 
@@ -758,7 +765,7 @@ export default function AdminUpdatesPage() {
                       </button>
                     
                       <button
-                        onClick={() => handleDelete(update._id)}
+                        onClick={() => handleDeleteClick(update._id, update.title)}
                         className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg transition-colors duration-200"
                         title="Delete"
                       >
@@ -772,6 +779,18 @@ export default function AdminUpdatesPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', title: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Update?"
+        message="Are you sure you want to delete this update?"
+        itemName={deleteConfirm.title}
+        type="danger"
+        confirmText="Delete"
+      />
     </>
   )
 }

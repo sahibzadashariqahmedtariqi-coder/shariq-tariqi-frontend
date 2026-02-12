@@ -4,6 +4,7 @@ import { Navigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Trash2, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface Appointment {
   id: string
@@ -69,10 +70,15 @@ export default function AdminAppointmentsPage() {
     setAppointments(appointments.map((apt) => (apt.id === id ? { ...apt, status } : apt)))
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this appointment?')) {
-      setAppointments(appointments.filter((apt) => apt.id !== id))
-    }
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; name: string }>({ isOpen: false, id: '', name: '' })
+
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteConfirm({ isOpen: true, id, name })
+  }
+
+  const handleDeleteConfirm = () => {
+    setAppointments(appointments.filter((apt) => apt.id !== deleteConfirm.id))
+    setDeleteConfirm({ isOpen: false, id: '', name: '' })
   }
 
   const filteredAppointments = filterStatus === 'all' 
@@ -243,7 +249,7 @@ export default function AdminAppointmentsPage() {
                       Cancel
                     </Button>
                     <Button
-                      onClick={() => handleDelete(appointment.id)}
+                      onClick={() => handleDeleteClick(appointment.id, appointment.name)}
                       variant="outline"
                       size="sm"
                       className="flex-1 lg:flex-none text-red-600 hover:text-red-700"
@@ -270,6 +276,18 @@ export default function AdminAppointmentsPage() {
           </ul>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', name: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Appointment?"
+        message="Are you sure you want to delete this appointment?"
+        itemName={deleteConfirm.name}
+        type="danger"
+        confirmText="Delete"
+      />
     </>
   )
 }

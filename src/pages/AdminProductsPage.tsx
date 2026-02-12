@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import apiClient from '@/services/api'
 import { uploadApi } from '@/services/apiService'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface Product {
   _id: string
@@ -153,15 +154,21 @@ export default function AdminProductsPage() {
     setIsAdding(false)
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      try {
-        await apiClient.delete(`/products/${id}`)
-        toast.success('Product deleted successfully!')
-        fetchProducts()
-      } catch (error) {
-        toast.error('Failed to delete product')
-      }
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; name: string }>({ isOpen: false, id: '', name: '' })
+
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteConfirm({ isOpen: true, id, name })
+  }
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await apiClient.delete(`/products/${deleteConfirm.id}`)
+      toast.success('Product deleted successfully!')
+      fetchProducts()
+    } catch (error) {
+      toast.error('Failed to delete product')
+    } finally {
+      setDeleteConfirm({ isOpen: false, id: '', name: '' })
     }
   }
 
@@ -920,7 +927,7 @@ export default function AdminProductsPage() {
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
-                  onClick={() => handleDelete(product._id)}
+                  onClick={() => handleDeleteClick(product._id, product.name)}
                   variant="outline"
                   size="icon"
                   className="gap-2 text-red-600 hover:text-red-700"
@@ -947,5 +954,17 @@ export default function AdminProductsPage() {
         </div>
       </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', name: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Product?"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        itemName={deleteConfirm.name}
+        type="danger"
+        confirmText="Delete"
+      />
     </>
   )}

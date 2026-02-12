@@ -14,6 +14,7 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface LMSCourse {
   _id: string;
@@ -155,6 +156,14 @@ const AdminLMSPage = () => {
     requestId: string | null;
     type: 'payment-request' | null;
   }>({ isOpen: false, requestId: null, type: null });
+
+  // Generic delete confirmation state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: 'student' | 'fee' | 'class' | 'certificate' | null;
+    id: string;
+    name: string;
+  }>({ isOpen: false, type: null, id: '', name: '' });
 
   // Redirect to login if not authenticated or not admin/super_admin
   if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'super_admin')) {
@@ -1070,9 +1079,7 @@ const AdminLMSPage = () => {
                                     </button>
                                     <button
                                       onClick={() => {
-                                        if (confirm('Delete this class?')) {
-                                          deleteClassMutation.mutate(classItem._id);
-                                        }
+                                        setConfirmModal({ isOpen: true, type: 'class', id: classItem._id, name: classItem.title });
                                       }}
                                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                                     >
@@ -1107,10 +1114,8 @@ const AdminLMSPage = () => {
               setEditingStudent(student);
               setShowStudentModal(true);
             }}
-            onDeleteStudent={(id) => {
-              if (window.confirm('Are you sure? This will delete all enrollments for this student.')) {
-                deleteStudentMutation.mutate(id);
-              }
+            onDeleteStudent={(id, name) => {
+              setConfirmModal({ isOpen: true, type: 'student', id, name: name || 'this student' });
             }}
             onToggleAccess={(id) => toggleStudentAccessMutation.mutate(id)}
             onResetPassword={(id, newPassword) => resetPasswordMutation.mutate({ id, newPassword })}
@@ -1134,10 +1139,8 @@ const AdminLMSPage = () => {
             setFeeFilterMonth={setFeeFilterMonth}
             setFeeFilterYear={setFeeFilterYear}
             setFeeFilterStatus={setFeeFilterStatus}
-            onDeleteFee={(feeId) => {
-              if (window.confirm('Are you sure you want to delete this fee record?')) {
-                deleteFeeMutation.mutate(feeId);
-              }
+            onDeleteFee={(feeId, studentName) => {
+              setConfirmModal({ isOpen: true, type: 'fee', id: feeId, name: studentName || 'this fee record' });
             }}
             onGenerateFees={(data) => generateFeesMutation.mutate(data)}
             onUpdateFeeStatus={(feeId, data) => updateFeeMutation.mutate({ feeId, data })}
@@ -1464,6 +1467,41 @@ const AdminLMSPage = () => {
             </div>
           )}
         </AnimatePresence>
+
+        {/* Generic Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          onClose={() => setConfirmModal({ isOpen: false, type: null, id: '', name: '' })}
+          onConfirm={() => {
+            if (confirmModal.type === 'student') {
+              deleteStudentMutation.mutate(confirmModal.id);
+            } else if (confirmModal.type === 'fee') {
+              deleteFeeMutation.mutate(confirmModal.id);
+            } else if (confirmModal.type === 'class') {
+              deleteClassMutation.mutate(confirmModal.id);
+            } else if (confirmModal.type === 'certificate') {
+              // Certificate delete mutation from CertificatesSection
+            }
+            setConfirmModal({ isOpen: false, type: null, id: '', name: '' });
+          }}
+          title={
+            confirmModal.type === 'student' ? 'Delete Student?' :
+            confirmModal.type === 'fee' ? 'Delete Fee Record?' :
+            confirmModal.type === 'class' ? 'Delete Class?' :
+            confirmModal.type === 'certificate' ? 'Delete Certificate?' :
+            'Delete?'
+          }
+          message={
+            confirmModal.type === 'student' ? 'This will delete all enrollments for this student.' :
+            confirmModal.type === 'fee' ? 'Are you sure you want to delete this fee record?' :
+            confirmModal.type === 'class' ? 'Are you sure you want to delete this class?' :
+            confirmModal.type === 'certificate' ? 'This certificate will be permanently deleted.' :
+            'Are you sure you want to delete this item?'
+          }
+          itemName={confirmModal.name}
+          type="danger"
+          confirmText="Delete"
+        />
 
         {/* Student Modal */}
         <StudentModal
@@ -4118,9 +4156,7 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
                         )}
                         <button
                           onClick={() => {
-                            if (window.confirm('Are you sure you want to permanently delete this certificate? This action cannot be undone.')) {
-                              deleteMutation.mutate(cert._id);
-                            }
+                            setConfirmModal({ isOpen: true, type: 'certificate', id: cert._id, name: cert.studentName || 'this certificate' });
                           }}
                           className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition"
                           title="Delete Certificate Permanently"

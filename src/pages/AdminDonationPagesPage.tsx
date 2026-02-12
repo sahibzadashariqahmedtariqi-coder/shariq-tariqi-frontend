@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import apiClient from '@/services/api'
 import { uploadApi } from '@/services/apiService'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface DonationPage {
   _id: string
@@ -84,6 +85,7 @@ export default function AdminDonationPagesPage() {
     isPublished: true,
     order: 0
   })
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; title: string }>({ isOpen: false, id: '', title: '' })
 
   useEffect(() => {
     fetchPages()
@@ -206,15 +208,19 @@ export default function AdminDonationPagesPage() {
     }
   }
 
-  const handleDelete = async (pageId: string) => {
-    if (!window.confirm('Are you sure you want to delete this donation page?')) return
+  const handleDeleteClick = (pageId: string, title: string) => {
+    setDeleteConfirm({ isOpen: true, id: pageId, title })
+  }
 
+  const handleDeleteConfirm = async () => {
     try {
-      await apiClient.delete(`/donation-pages/${pageId}`)
+      await apiClient.delete(`/donation-pages/${deleteConfirm.id}`)
       toast.success('Donation page deleted')
       fetchPages()
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to delete donation page')
+    } finally {
+      setDeleteConfirm({ isOpen: false, id: '', title: '' })
     }
   }
 
@@ -600,7 +606,7 @@ export default function AdminDonationPagesPage() {
                         <Edit2 className="w-4 h-4" /> Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(page._id)}
+                        onClick={() => handleDeleteClick(page._id, page.title)}
                         className="inline-flex items-center gap-1 px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
                       >
                         <Trash2 className="w-4 h-4" /> Delete
@@ -613,6 +619,18 @@ export default function AdminDonationPagesPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', title: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Donation Page?"
+        message="Are you sure you want to delete this donation page? All associated data will be removed."
+        itemName={deleteConfirm.title}
+        type="danger"
+        confirmText="Delete"
+      />
     </>
   )
 }

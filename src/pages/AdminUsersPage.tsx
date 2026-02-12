@@ -6,6 +6,7 @@ import { Plus, Trash2, UserCheck, UserX, Search, Mail, Phone, User as UserIcon, 
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/services/api'
 import toast from 'react-hot-toast'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface GrantedCourse {
   courseId: {
@@ -175,20 +176,25 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleRevokeAccess = async (courseId: string) => {
+  const [revokeConfirm, setRevokeConfirm] = useState<{ isOpen: boolean; courseId: string; courseName: string }>({ isOpen: false, courseId: '', courseName: '' })
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; name: string }>({ isOpen: false, id: '', name: '' })
+
+  const handleRevokeClick = (courseId: string, courseName: string) => {
+    setRevokeConfirm({ isOpen: true, courseId, courseName })
+  }
+
+  const handleRevokeConfirm = async () => {
     if (!selectedUser) return
-    
-    if (!window.confirm('Are you sure you want to revoke access to this course?')) {
-      return
-    }
 
     try {
-      await apiClient.delete(`/auth/users/${selectedUser._id}/revoke-course/${courseId}`)
+      await apiClient.delete(`/auth/users/${selectedUser._id}/revoke-course/${revokeConfirm.courseId}`)
       toast.success('Course access revoked!')
       await fetchUserCourseAccess(selectedUser._id)
     } catch (error: any) {
       console.error('Error revoking access:', error)
       toast.error(error.response?.data?.message || 'Failed to revoke access')
+    } finally {
+      setRevokeConfirm({ isOpen: false, courseId: '', courseName: '' })
     }
   }
 
@@ -218,18 +224,20 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) {
-      return
-    }
+  const handleDeleteClick = (userId: string, name: string) => {
+    setDeleteConfirm({ isOpen: true, id: userId, name })
+  }
 
+  const handleDeleteConfirm = async () => {
     try {
-      await apiClient.delete(`/auth/users/${userId}`)
+      await apiClient.delete(`/auth/users/${deleteConfirm.id}`)
       toast.success('User deleted successfully!')
       fetchUsers()
     } catch (error: any) {
       console.error('Error deleting user:', error)
       toast.error(error.response?.data?.message || 'Failed to delete user')
+    } finally {
+      setDeleteConfirm({ isOpen: false, id: '', name: '' })
     }
   }
 
@@ -473,7 +481,7 @@ export default function AdminUsersPage() {
                                 {userData.role === 'admin' ? <UserX className="h-5 w-5" /> : <UserCheck className="h-5 w-5" />}
                               </button>
                               <button
-                                onClick={() => handleDeleteUser(userData._id)}
+                                onClick={() => handleDeleteClick(userData._id, userData.name)}
                                 className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                 title="Delete User"
                               >
@@ -717,7 +725,7 @@ export default function AdminUsersPage() {
                           </div>
                         </div>
                         <button
-                          onClick={() => handleRevokeAccess(grant.courseId?._id)}
+                          onClick={() => handleRevokeClick(grant.courseId?._id, grant.courseId?.title || 'this course')}
                           className="text-red-600 hover:text-red-800 p-2"
                           title="Revoke Access"
                         >
@@ -826,6 +834,30 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Delete User Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', name: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete User?"
+        message="Are you sure you want to delete this user? All their data will be removed."
+        itemName={deleteConfirm.name}
+        type="danger"
+        confirmText="Delete"
+      />
+
+      {/* Revoke Course Access Confirmation Modal */}
+      <ConfirmModal
+        isOpen={revokeConfirm.isOpen}
+        onClose={() => setRevokeConfirm({ isOpen: false, courseId: '', courseName: '' })}
+        onConfirm={handleRevokeConfirm}
+        title="Revoke Access?"
+        message="Are you sure you want to revoke access to this course?"
+        itemName={revokeConfirm.courseName}
+        type="warning"
+        confirmText="Revoke"
+      />
     </>
   )
 }
