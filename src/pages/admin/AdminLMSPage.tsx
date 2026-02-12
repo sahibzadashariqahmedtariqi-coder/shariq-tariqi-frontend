@@ -160,7 +160,7 @@ const AdminLMSPage = () => {
   // Generic delete confirmation state
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
-    type: 'student' | 'fee' | 'class' | 'certificate' | null;
+    type: 'student' | 'fee' | 'class' | null;
     id: string;
     name: string;
   }>({ isOpen: false, type: null, id: '', name: '' });
@@ -1479,8 +1479,6 @@ const AdminLMSPage = () => {
               deleteFeeMutation.mutate(confirmModal.id);
             } else if (confirmModal.type === 'class') {
               deleteClassMutation.mutate(confirmModal.id);
-            } else if (confirmModal.type === 'certificate') {
-              // Certificate delete mutation from CertificatesSection
             }
             setConfirmModal({ isOpen: false, type: null, id: '', name: '' });
           }}
@@ -1488,14 +1486,12 @@ const AdminLMSPage = () => {
             confirmModal.type === 'student' ? 'Delete Student?' :
             confirmModal.type === 'fee' ? 'Delete Fee Record?' :
             confirmModal.type === 'class' ? 'Delete Class?' :
-            confirmModal.type === 'certificate' ? 'Delete Certificate?' :
             'Delete?'
           }
           message={
             confirmModal.type === 'student' ? 'This will delete all enrollments for this student.' :
             confirmModal.type === 'fee' ? 'Are you sure you want to delete this fee record?' :
             confirmModal.type === 'class' ? 'Are you sure you want to delete this class?' :
-            confirmModal.type === 'certificate' ? 'This certificate will be permanently deleted.' :
             'Are you sure you want to delete this item?'
           }
           itemName={confirmModal.name}
@@ -2294,7 +2290,7 @@ const StudentsSection = ({
   loading: boolean;
   onCreateStudent: () => void;
   onEditStudent: (student: LMSStudent) => void;
-  onDeleteStudent: (id: string) => void;
+  onDeleteStudent: (id: string, name?: string) => void;
   onToggleAccess: (id: string) => void;
   onResetPassword: (id: string, newPassword: string) => void;
   onEnrollInCourses: (student: LMSStudent) => void;
@@ -4156,12 +4152,15 @@ const CertificatesSection = ({ courses }: { courses: LMSCourse[] }) => {
                         )}
                         <button
                           onClick={() => {
-                            setConfirmModal({ isOpen: true, type: 'certificate', id: cert._id, name: cert.studentName || 'this certificate' });
+                            if (window.confirm('Are you sure you want to permanently delete this certificate?')) {
+                              deleteMutation.mutate(cert._id);
+                            }
                           }}
                           className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition"
                           title="Delete Certificate Permanently"
                         >
                           <Trash2 className="w-4 h-4" />
+                        </button>
                         </button>
                       </div>
                     </td>
@@ -4217,7 +4216,7 @@ const FeeManagementSection = ({
   setFeeFilterMonth: (month: string) => void;
   setFeeFilterYear: (year: number) => void;
   setFeeFilterStatus: (status: string) => void;
-  onDeleteFee: (feeId: string) => void;
+  onDeleteFee: (feeId: string, studentName?: string) => void;
   onGenerateFees: (data: any) => void;
   onUpdateFeeStatus: (feeId: string, data: any) => void;
 }) => {

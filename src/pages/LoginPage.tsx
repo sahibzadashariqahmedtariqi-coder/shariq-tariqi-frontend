@@ -141,26 +141,41 @@ export default function LoginPage() {
         <Helmet>
           <title>Login | Sahibzada Shariq Ahmed Tariqi</title>
         </Helmet>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900 py-12 px-4">
-          <div className="max-w-3xl w-full">
-            <h1 className="text-4xl font-bold text-center mb-4 text-primary-800 dark:text-white">Welcome Back</h1>
-            <p className="text-center text-gray-600 dark:text-gray-300 mb-8">Choose your login type to continue</p>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-900 via-primary-800 to-emerald-900 py-12 px-4 relative overflow-hidden">
+          {/* Decorative Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gold-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl" />
+          </div>
+          
+          <div className="max-w-3xl w-full relative z-10">
+            {/* Header Section */}
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl shadow-2xl mb-6 transform rotate-3 hover:rotate-0 transition-transform">
+                <Shield className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+                Welcome Back
+              </h1>
+              <p className="text-lg text-gray-300">Choose your login type to continue</p>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
               {/* Admin Login Card */}
               <button
                 onClick={() => handleLoginTypeSelect('admin')}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-gold-400 group"
+                className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-3 border border-white/20 hover:border-gold-400/50 group"
               >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-gold-400 to-gold-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Shield className="w-10 h-10 text-white" />
+                <div className="flex flex-col items-center text-center space-y-5">
+                  <div className="w-24 h-24 bg-gradient-to-br from-gold-400 to-amber-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl rotate-3 group-hover:rotate-0">
+                    <Shield className="w-12 h-12 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Admin Login</h2>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  <h2 className="text-2xl font-bold text-white">Admin Login</h2>
+                  <p className="text-gray-300 text-sm leading-relaxed">
                     Access admin dashboard, manage courses, products & appointments
                   </p>
-                  <span className="inline-block px-4 py-2 bg-gold-100 dark:bg-gold-900/30 text-gold-700 dark:text-gold-400 rounded-full text-sm font-medium">
+                  <span className="inline-block px-6 py-2.5 bg-gold-500/20 border border-gold-400/30 text-gold-300 rounded-full text-sm font-semibold">
                     Administrator Access
                   </span>
                 </div>
@@ -169,29 +184,32 @@ export default function LoginPage() {
               {/* LMS Student Login Card */}
               <button
                 onClick={() => handleLoginTypeSelect('lms_student')}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-emerald-400 group"
+                className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-3 border border-white/20 hover:border-emerald-400/50 group"
               >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <GraduationCap className="w-10 h-10 text-white" />
+                <div className="flex flex-col items-center text-center space-y-5">
+                  <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl -rotate-3 group-hover:rotate-0">
+                    <GraduationCap className="w-12 h-12 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">LMS Login</h2>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  <h2 className="text-2xl font-bold text-white">LMS Login</h2>
+                  <p className="text-gray-300 text-sm leading-relaxed">
                     Access your courses, watch lectures & track progress
                   </p>
-                  <span className="inline-block px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-sm font-medium">
+                  <span className="inline-block px-6 py-2.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 rounded-full text-sm font-semibold">
                     Student Access
                   </span>
                 </div>
               </button>
             </div>
 
-            <p className="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-primary-600 hover:underline font-semibold">
-                Register here
+            {/* Footer */}
+            <div className="text-center mt-10">
+              <Link 
+                to="/" 
+                className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
+              >
+                ← Back to Home
               </Link>
-            </p>
+            </div>
           </div>
         </div>
       </>
