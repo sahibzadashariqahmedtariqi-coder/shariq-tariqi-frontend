@@ -1,3 +1,4 @@
+// Beautiful Login Page with Dark Theme - Updated Feb 2026
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,8 +9,9 @@ import { useAuthStore } from '@/stores/authStore'
 import { authApi } from '@/services/apiService'
 import toast from 'react-hot-toast'
 import { useState } from 'react'
-import { Shield, User, GraduationCap } from 'lucide-react'
+import { Shield, User, GraduationCap, Sparkles } from 'lucide-react'
 import api from '@/services/api'
+import { motion } from 'framer-motion'
 
 const schema = z.object({
   email: z.string().email('Invalid email address'),
@@ -141,76 +143,177 @@ export default function LoginPage() {
         <Helmet>
           <title>Login | Sahibzada Shariq Ahmed Tariqi</title>
         </Helmet>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-900 via-primary-800 to-emerald-900 py-12 px-4 relative overflow-hidden">
-          {/* Decorative Background Elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gold-500/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl" />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-950 via-primary-900 to-emerald-950 py-12 px-4 relative overflow-hidden">
+          {/* Animated Background Pattern */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
           </div>
           
-          <div className="max-w-3xl w-full relative z-10">
+          {/* Decorative Glow Effects */}
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div 
+              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+              transition={{ duration: 8, repeat: Infinity }}
+              className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-gold-500/30 to-amber-500/20 rounded-full blur-3xl" 
+            />
+            <motion.div 
+              animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.5, 0.3] }}
+              transition={{ duration: 10, repeat: Infinity }}
+              className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-emerald-500/30 to-teal-500/20 rounded-full blur-3xl" 
+            />
+            <motion.div 
+              animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.3, 0.2] }}
+              transition={{ duration: 12, repeat: Infinity }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-primary-500/20 to-purple-500/10 rounded-full blur-3xl" 
+            />
+          </div>
+
+          {/* Floating Particles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[...Array(20)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-gold-400/40 rounded-full"
+                initial={{ 
+                  x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000), 
+                  y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800) 
+                }}
+                animate={{ 
+                  y: [null, -100],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{ 
+                  duration: 3 + Math.random() * 4,
+                  repeat: Infinity,
+                  delay: Math.random() * 5
+                }}
+              />
+            ))}
+          </div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl w-full relative z-10"
+          >
             {/* Header Section */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl shadow-2xl mb-6 transform rotate-3 hover:rotate-0 transition-transform">
-                <Shield className="w-10 h-10 text-white" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+            <div className="text-center mb-12">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2 }}
+                className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-gold-400 via-gold-500 to-amber-600 rounded-3xl shadow-2xl shadow-gold-500/30 mb-6 relative"
+              >
+                <Shield className="w-12 h-12 text-white" />
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 rounded-3xl border-2 border-dashed border-gold-300/30"
+                />
+              </motion.div>
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-gold-100 to-white bg-clip-text text-transparent"
+              >
                 Welcome Back
-              </h1>
-              <p className="text-lg text-gray-300">Choose your login type to continue</p>
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-lg text-gray-300/80"
+              >
+                Choose your login type to continue
+              </motion.p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
               {/* Admin Login Card */}
-              <button
+              <motion.button
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleLoginTypeSelect('admin')}
-                className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-3 border border-white/20 hover:border-gold-400/50 group"
+                className="relative bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10 group overflow-hidden"
               >
-                <div className="flex flex-col items-center text-center space-y-5">
-                  <div className="w-24 h-24 bg-gradient-to-br from-gold-400 to-amber-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl rotate-3 group-hover:rotate-0">
+                {/* Card Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gold-500/0 via-gold-500/0 to-gold-500/0 group-hover:from-gold-500/10 group-hover:via-amber-500/5 group-hover:to-orange-500/10 transition-all duration-500 rounded-3xl" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-gold-400 to-transparent" />
+                </div>
+                
+                <div className="flex flex-col items-center text-center space-y-5 relative z-10">
+                  <div className="w-24 h-24 bg-gradient-to-br from-gold-400 via-amber-500 to-orange-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-xl shadow-gold-500/20 relative">
                     <Shield className="w-12 h-12 text-white" />
+                    <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-gold-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">Admin Login</h2>
-                  <p className="text-gray-300 text-sm leading-relaxed">
+                  <h2 className="text-2xl font-bold text-white group-hover:text-gold-100 transition-colors">Admin Login</h2>
+                  <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors">
                     Access admin dashboard, manage courses, products & appointments
                   </p>
-                  <span className="inline-block px-6 py-2.5 bg-gold-500/20 border border-gold-400/30 text-gold-300 rounded-full text-sm font-semibold">
+                  <span className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-gold-500/20 to-amber-500/20 border border-gold-400/30 text-gold-300 rounded-full text-sm font-semibold group-hover:border-gold-400/50 transition-colors">
+                    <Shield className="w-4 h-4" />
                     Administrator Access
                   </span>
                 </div>
-              </button>
+              </motion.button>
 
               {/* LMS Student Login Card */}
-              <button
+              <motion.button
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleLoginTypeSelect('lms_student')}
-                className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-3 border border-white/20 hover:border-emerald-400/50 group"
+                className="relative bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10 group overflow-hidden"
               >
-                <div className="flex flex-col items-center text-center space-y-5">
-                  <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl -rotate-3 group-hover:rotate-0">
+                {/* Card Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/10 group-hover:via-teal-500/5 group-hover:to-cyan-500/10 transition-all duration-500 rounded-3xl" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
+                </div>
+                
+                <div className="flex flex-col items-center text-center space-y-5 relative z-10">
+                  <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-xl shadow-emerald-500/20 relative">
                     <GraduationCap className="w-12 h-12 text-white" />
+                    <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-emerald-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">LMS Login</h2>
-                  <p className="text-gray-300 text-sm leading-relaxed">
+                  <h2 className="text-2xl font-bold text-white group-hover:text-emerald-100 transition-colors">LMS Login</h2>
+                  <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors">
                     Access your courses, watch lectures & track progress
                   </p>
-                  <span className="inline-block px-6 py-2.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 rounded-full text-sm font-semibold">
+                  <span className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 rounded-full text-sm font-semibold group-hover:border-emerald-400/50 transition-colors">
+                    <GraduationCap className="w-4 h-4" />
                     Student Access
                   </span>
                 </div>
-              </button>
+              </motion.button>
             </div>
 
             {/* Footer */}
-            <div className="text-center mt-10">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="text-center mt-12"
+            >
               <Link 
                 to="/" 
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm backdrop-blur-sm"
               >
-                ← Back to Home
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Home
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </>
     )
@@ -258,77 +361,114 @@ export default function LoginPage() {
       <Helmet>
         <title>{getLoginTitle()} | Sahibzada Shariq Ahmed Tariqi</title>
       </Helmet>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-gold-50 dark:from-gray-900 dark:via-gray-800 dark:to-primary-900 py-12 px-4">
-        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-          {/* Back Button */}
-          <button 
-            onClick={() => setLoginType('select')}
-            className="flex items-center text-gray-500 hover:text-primary-600 mb-4 transition-colors"
-          >
-            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to options
-          </button>
-
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${getGradientClass()}`}>
-              {getLoginIcon()}
-            </div>
-            <h1 className="text-3xl font-bold">{getLoginTitle()}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">
-              {getLoginDescription()}
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <input
-                {...register('email')}
-                type="email"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600"
-                placeholder={loginType === 'admin' ? 'admin@shariqahmedtariqi.com' : 'your@email.com'}
-              />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
-              <input
-                {...register('password')}
-                type="password"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600"
-                placeholder="••••••••"
-              />
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
-            </div>
-
-            <Button 
-              type="submit" 
-              className={`w-full ${getButtonClass()}`}
-            >
-              {getButtonText()}
-            </Button>
-          </form>
-
-          {loginType === 'lms_student' && (
-            <p className="text-center mt-6 text-sm text-gray-500">
-              LMS student accounts are created by admin only.
-              <br />Contact admin if you need access.
-            </p>
-          )}
-
-          {loginType === 'user' && (
-            <p className="text-center mt-6 text-sm">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-primary-600 hover:underline font-semibold">
-                Register here
-              </Link>
-            </p>
-          )}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-950 via-primary-900 to-emerald-950 py-12 px-4 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gold-500/20 to-amber-500/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 rounded-full blur-3xl" />
         </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full relative z-10"
+        >
+          {/* Glass Card */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10">
+            {/* Back Button */}
+            <motion.button 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              onClick={() => setLoginType('select')}
+              className="flex items-center text-gray-400 hover:text-white mb-6 transition-colors group"
+            >
+              <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to options
+            </motion.button>
+
+            {/* Header */}
+            <div className="text-center mb-8">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring" }}
+                className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-5 shadow-xl ${getGradientClass()}`}
+              >
+                {getLoginIcon()}
+              </motion.div>
+              <motion.h1 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-3xl font-bold text-white"
+              >
+                {getLoginTitle()}
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-gray-400 mt-2"
+              >
+                {getLoginDescription()}
+              </motion.p>
+            </div>
+
+            <motion.form 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              onSubmit={handleSubmit(onSubmit)} 
+              className="space-y-6"
+            >
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">Email</label>
+                <input
+                  {...register('email')}
+                  type="email"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-white placeholder-gray-500 transition-all"
+                  placeholder={loginType === 'admin' ? 'admin@shariqahmedtariqi.com' : 'your@email.com'}
+                />
+                {errors.email && <p className="text-red-400 text-sm mt-2">{errors.email.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">Password</label>
+                <input
+                  {...register('password')}
+                  type="password"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-white placeholder-gray-500 transition-all"
+                  placeholder="••••••••"
+                />
+                {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password.message}</p>}
+              </div>
+
+              <Button 
+                type="submit" 
+                className={`w-full py-3 rounded-xl font-semibold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] ${getButtonClass()}`}
+              >
+                {getButtonText()}
+              </Button>
+            </motion.form>
+
+            {loginType === 'lms_student' && (
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-center mt-6 text-sm text-gray-500 bg-white/5 rounded-xl p-4 border border-white/5"
+              >
+                LMS student accounts are created by admin only.
+                <br />
+                <span className="text-gray-400">Contact admin if you need access.</span>
+              </motion.p>
+            )}
+          </div>
+        </motion.div>
       </div>
     </>
   )
