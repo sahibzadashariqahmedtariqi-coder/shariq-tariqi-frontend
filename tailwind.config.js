@@ -35,6 +35,7 @@ export default {
           700: "#133528",
           800: "#0F2A20",
           900: "#0B1F18",
+          950: "#071510",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
