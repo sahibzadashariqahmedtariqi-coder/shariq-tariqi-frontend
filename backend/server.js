@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
+import mongoose from 'mongoose';
 import connectDB from './config/database.js';
 import connectMureedDB from './config/mureedDatabase.js';
 import cloudinary from './config/cloudinary.js';
@@ -100,11 +101,70 @@ app.options('*', cors());
 
 // Health Check Route
 app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStates = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+  
   res.status(200).json({
     success: true,
     message: 'Server is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    database: {
+      status: dbStates[dbState] || 'unknown',
+      readyState: dbState,
+      host: mongoose.connection.host || 'not connected',
+      name: mongoose.connection.name || 'not connected',
+    },
+    environment: process.env.NODE_ENV,
+    mongoUriSet: !!process.env.MONGODB_URI,
+    mureedUriSet: !!process.env.MUREED_MONGODB_URI,
   });
+});
+
+// DB Debug Route - check database connectivity
+app.get('/api/db-status', async (req, res) => {
+  try {
+    const dbState = mongoose.connection.readyState;
+    const dbStates = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting',
+    };
+
+    let pingResult = null;
+    if (dbState === 1) {
+      try {
+        pingResult = await mongoose.connection.db.admin().ping();
+      } catch (pingErr) {
+        pingResult = { error: pingErr.message };
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      database: {
+        status: dbStates[dbState] || 'unknown',
+        readyState: dbState,
+        host: mongoose.connection.host || 'not connected',
+        name: mongoose.connection.name || 'not connected',
+        ping: pingResult,
+      },
+      mongoUriSet: !!process.env.MONGODB_URI,
+      mureedUriSet: !!process.env.MUREED_MONGODB_URI,
+      env: process.env.NODE_ENV,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Database status check failed',
+      error: error.message,
+    });
+  }
 });
 
 // API Routes
