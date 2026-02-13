@@ -143,12 +143,13 @@ export default function LoginPage() {
         <Helmet>
           <title>Login | Sahibzada Shariq Ahmed Tariqi</title>
         </Helmet>
-        <div className="min-h-screen flex items-center justify-center py-12 px-4 relative overflow-hidden" style={{ background: 'linear-gradient(to bottom, #0a1f16 0%, #0f2a1e 30%, #1a3a2a 50%, #3d5c4a 65%, #8a9e90 78%, #c5cfc8 88%, #e8eceb 95%, #f0f2f1 100%)' }}>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1f16] via-[#0f2a1e] to-[#0a2520] py-12 px-4 relative overflow-hidden">
           {/* Animated Background Pattern */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
-            {/* Left side whitish glow */}
-            <div className="absolute -left-20 top-0 w-[60%] h-full bg-gradient-to-r from-white/[0.07] via-white/[0.03] to-transparent" />
+            {/* Left side vertical grayish-white glow */}
+            <div className="absolute -left-10 top-0 w-[45%] h-full" style={{ background: 'linear-gradient(to right, rgba(200,210,205,0.15) 0%, rgba(180,195,188,0.10) 25%, rgba(160,180,170,0.06) 50%, transparent 100%)' }} />
+            <div className="absolute -left-10 top-0 w-[30%] h-full" style={{ background: 'linear-gradient(to right, rgba(220,225,222,0.12) 0%, rgba(200,210,205,0.06) 50%, transparent 100%)' }} />
           </div>
           
           {/* Decorative Glow Effects */}
