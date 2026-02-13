@@ -241,7 +241,7 @@ export default function LoginPage() {
                 whileHover={{ y: -8, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleLoginTypeSelect('admin')}
-                className="relative bg-white shadow-lg dark:bg-white/5 backdrop-blur-xl rounded-3xl dark:shadow-2xl p-8 border border-gray-200 dark:border-white/10 group overflow-hidden"
+                className="relative bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10 group overflow-hidden"
               >
                 {/* Card Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gold-500/0 via-gold-500/0 to-gold-500/0 group-hover:from-gold-500/10 group-hover:via-amber-500/5 group-hover:to-orange-500/10 transition-all duration-500 rounded-3xl" />
