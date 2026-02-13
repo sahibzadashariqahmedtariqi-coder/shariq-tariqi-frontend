@@ -230,17 +230,11 @@ export default function DonationDetailPage() {
                 
                 {/* Right side - Description */}
                 <div className="flex-1 flex flex-col justify-center">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center">
-                      <Play className="w-5 h-5 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Impact Video</h3>
-                  </div>
                   <h4 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">{page.title}</h4>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line text-base mb-6">
                     {page.description}
                   </p>
-                  <div className="space-y-4 mb-8">
+                  <div className="space-y-4">
                     <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
                       <Heart className="w-5 h-5 text-pink-500" />
                       <span>Your donation makes a real difference</span>
@@ -249,14 +243,6 @@ export default function DonationDetailPage() {
                       <Heart className="w-5 h-5 text-pink-500" />
                       <span>100% of donations go to those in need</span>
                     </div>
-                  </div>
-                  <div>
-                    <Link
-                      to="/donate"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold shadow-lg hover:from-primary-700 hover:to-primary-800"
-                    >
-                      <Heart className="w-5 h-5" /> Donate Now
-                    </Link>
                   </div>
                 </div>
               </div>
