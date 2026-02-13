@@ -147,6 +147,8 @@ export default function LoginPage() {
           {/* Animated Background Pattern */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50 dark:opacity-50 opacity-10" />
+            {/* Left side whitish glow */}
+            <div className="absolute -left-20 top-0 w-[60%] h-full bg-gradient-to-r from-white/[0.12] via-white/[0.06] to-transparent" />
           </div>
           
           {/* Decorative Glow Effects */}
@@ -365,6 +367,8 @@ export default function LoginPage() {
         {/* Background Effects */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] dark:opacity-50 opacity-10" />
+          {/* Left side whitish glow */}
+          <div className="absolute -left-20 top-0 w-[60%] h-full bg-gradient-to-r from-white/[0.12] via-white/[0.06] to-transparent" />
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gold-500/10 dark:from-gold-500/20 to-amber-500/5 dark:to-amber-500/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-500/10 dark:from-emerald-500/20 to-teal-500/5 dark:to-teal-500/10 rounded-full blur-3xl" />
         </div>
