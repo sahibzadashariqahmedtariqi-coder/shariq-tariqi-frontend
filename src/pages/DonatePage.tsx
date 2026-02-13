@@ -211,6 +211,7 @@ export default function DonatePage() {
 
   // Donation pages from API (for gallery images)
   const [donationPages, setDonationPages] = useState<DonationPageData[]>([])
+  const [galleryLoading, setGalleryLoading] = useState(true)
 
   const donationImages = donationPages.length > 0
     ? donationPages.map(p => ({
@@ -254,6 +255,8 @@ export default function DonatePage() {
       }
     } catch (error) {
       console.error('Failed to fetch donation pages:', error)
+    } finally {
+      setGalleryLoading(false)
     }
   }
 
@@ -511,7 +514,19 @@ export default function DonatePage() {
             viewport={{ once: true }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4"
           >
-            {donationImages.map((image, index) => (
+            {galleryLoading ? (
+              // Skeleton loading placeholders
+              [...Array(4)].map((_, index) => (
+                <div key={index} className="relative overflow-hidden rounded-2xl shadow-lg">
+                  <div className="w-full h-32 sm:h-40 md:h-48 bg-gray-300 dark:bg-gray-700 animate-pulse" />
+                  <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4">
+                    <div className="h-4 bg-gray-400/50 rounded w-3/4 mb-2 animate-pulse" />
+                    <div className="h-3 bg-gray-400/30 rounded w-1/2 animate-pulse" />
+                  </div>
+                </div>
+              ))
+            ) : (
+            donationImages.map((image, index) => (
               <Link key={index} to={`/donate/${image.slug}`}>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -540,7 +555,8 @@ export default function DonatePage() {
                   </div>
                 </motion.div>
               </Link>
-            ))}
+            ))
+            )}
           </motion.div>
         </div>
 
