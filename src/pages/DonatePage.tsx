@@ -21,6 +21,15 @@ interface BankDetails {
   paymentInstructions: string
 }
 
+interface DonationPageData {
+  _id: string
+  title: string
+  slug: string
+  shortDescription: string
+  coverImage: string
+  isPublished: boolean
+}
+
 // Animated Number Component (matching Mureed page)
 interface AnimatedCounterProps {
   end: number
@@ -129,8 +138,8 @@ const donationPurposes = [
   { id: 'education', label: 'Education Fund', icon: GraduationCap, color: 'from-cyan-500 to-sky-500', description: 'Scholarships and learning materials' },
 ]
 
-// Donation images for gallery
-const donationImages = [
+// Fallback donation images (used only when API fails)
+const fallbackDonationImages = [
   {
     url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=300&fit=crop',
     title: 'Helping Communities',
@@ -200,8 +209,21 @@ export default function DonatePage() {
   const [senderAccount, setSenderAccount] = useState('')
   const [uploadLoading, setUploadLoading] = useState(false)
 
+  // Donation pages from API (for gallery images)
+  const [donationPages, setDonationPages] = useState<DonationPageData[]>([])
+
+  const donationImages = donationPages.length > 0
+    ? donationPages.map(p => ({
+        url: p.coverImage,
+        title: p.title,
+        description: p.shortDescription,
+        slug: p.slug
+      }))
+    : fallbackDonationImages
+
   useEffect(() => {
     fetchBankDetails()
+    fetchDonationPages()
   }, [])
 
   useEffect(() => {
@@ -221,6 +243,17 @@ export default function DonatePage() {
       }
     } catch (error) {
       console.error('Failed to fetch bank details:', error)
+    }
+  }
+
+  const fetchDonationPages = async () => {
+    try {
+      const response = await apiClient.get('/donation-pages')
+      if (response.data.success && response.data.data?.length > 0) {
+        setDonationPages(response.data.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch donation pages:', error)
     }
   }
 
