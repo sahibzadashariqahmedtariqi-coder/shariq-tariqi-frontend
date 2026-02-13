@@ -219,7 +219,7 @@ export default function DonationDetailPage() {
                 <div className="w-full lg:w-1/2 flex justify-center">
                   <div className="w-full aspect-[9/16] max-h-[75vh] rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700">
                     <iframe
-                      src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}`}
+                      src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&loop=1&playlist=${youtubeId}`}
                       title="YouTube video player"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
