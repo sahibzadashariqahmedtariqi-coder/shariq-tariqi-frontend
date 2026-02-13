@@ -172,73 +172,22 @@ export default function LoginPage() {
 
           {/* Floating Particles */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* Twinkling Stars */}
-            {[...Array(35)].map((_, i) => (
+            {[...Array(20)].map((_, i) => (
               <motion.div
-                key={`star-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: Math.random() > 0.7 ? '3px' : Math.random() > 0.4 ? '2px' : '1px',
-                  height: Math.random() > 0.7 ? '3px' : Math.random() > 0.4 ? '2px' : '1px',
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  backgroundColor: i % 3 === 0 ? '#D4AF37' : i % 3 === 1 ? '#ffffff' : '#34d399',
+                key={i}
+                className="absolute w-1 h-1 bg-gold-400/40 rounded-full"
+                initial={{ 
+                  x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000), 
+                  y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800) 
                 }}
-                animate={{
-                  opacity: [0, 0.8, 0],
-                  scale: [0.5, 1.2, 0.5],
+                animate={{ 
+                  y: [null, -100],
+                  opacity: [0, 1, 0]
                 }}
-                transition={{
-                  duration: 2 + Math.random() * 3,
+                transition={{ 
+                  duration: 3 + Math.random() * 4,
                   repeat: Infinity,
-                  delay: Math.random() * 5,
-                  ease: 'easeInOut',
-                }}
-              />
-            ))}
-            {/* Floating Dots moving upward */}
-            {[...Array(15)].map((_, i) => (
-              <motion.div
-                key={`dot-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: Math.random() > 0.5 ? '4px' : '2px',
-                  height: Math.random() > 0.5 ? '4px' : '2px',
-                  left: `${Math.random() * 100}%`,
-                  backgroundColor: i % 2 === 0 ? 'rgba(212, 175, 55, 0.3)' : 'rgba(52, 211, 153, 0.25)',
-                }}
-                initial={{ y: '100vh', opacity: 0 }}
-                animate={{
-                  y: '-10vh',
-                  opacity: [0, 0.6, 0.6, 0],
-                }}
-                transition={{
-                  duration: 8 + Math.random() * 7,
-                  repeat: Infinity,
-                  delay: Math.random() * 10,
-                  ease: 'linear',
-                }}
-              />
-            ))}
-            {/* Shooting stars */}
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={`shoot-${i}`}
-                className="absolute h-px bg-gradient-to-r from-transparent via-gold-400/60 to-transparent"
-                style={{
-                  width: '80px',
-                  top: `${15 + i * 25}%`,
-                }}
-                initial={{ x: '-100px', opacity: 0 }}
-                animate={{
-                  x: ['calc(-100px)', 'calc(100vw + 100px)'],
-                  opacity: [0, 1, 1, 0],
-                }}
-                transition={{
-                  duration: 2 + i * 0.5,
-                  repeat: Infinity,
-                  delay: 3 + i * 7,
-                  ease: 'easeIn',
+                  delay: Math.random() * 5
                 }}
               />
             ))}
