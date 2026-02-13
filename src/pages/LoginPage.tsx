@@ -147,9 +147,10 @@ export default function LoginPage() {
           {/* Animated Background Pattern */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
-            {/* Left side vertical grayish-white glow */}
-            <div className="absolute -left-10 top-0 w-[45%] h-full" style={{ background: 'linear-gradient(to right, rgba(200,210,205,0.15) 0%, rgba(180,195,188,0.10) 25%, rgba(160,180,170,0.06) 50%, transparent 100%)' }} />
-            <div className="absolute -left-10 top-0 w-[30%] h-full" style={{ background: 'linear-gradient(to right, rgba(220,225,222,0.12) 0%, rgba(200,210,205,0.06) 50%, transparent 100%)' }} />
+            {/* Top-left diagonal grayish-white glow - matching reference */}
+            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(ellipse 70% 65% at 5% 15%, rgba(180,200,190,0.18) 0%, rgba(160,185,172,0.10) 30%, rgba(140,170,155,0.05) 55%, transparent 80%)' }} />
+            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(ellipse 50% 50% at 0% 0%, rgba(210,220,215,0.12) 0%, rgba(190,205,198,0.06) 40%, transparent 70%)' }} />
+            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'linear-gradient(135deg, rgba(195,210,202,0.10) 0%, rgba(170,190,180,0.05) 25%, transparent 50%)' }} />
           </div>
           
           {/* Decorative Glow Effects */}
