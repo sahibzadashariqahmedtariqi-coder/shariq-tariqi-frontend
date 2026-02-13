@@ -143,7 +143,7 @@ export default function LoginPage() {
         <Helmet>
           <title>Login | Sahibzada Shariq Ahmed Tariqi</title>
         </Helmet>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1f16] via-[#0f2a1e] to-[#0a2520] py-12 px-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center py-12 px-4 relative overflow-hidden" style={{ background: 'linear-gradient(to bottom, #0a1f16 0%, #0f2a1e 30%, #1a3a2a 50%, #3d5c4a 65%, #8a9e90 78%, #c5cfc8 88%, #e8eceb 95%, #f0f2f1 100%)' }}>
           {/* Animated Background Pattern */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
