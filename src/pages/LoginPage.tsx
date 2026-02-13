@@ -148,9 +148,9 @@ export default function LoginPage() {
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDF6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
             {/* Top-left diagonal grayish-white glow - matching reference */}
-            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(ellipse 80% 70% at 5% 15%, rgba(200,215,208,0.35) 0%, rgba(175,195,185,0.22) 30%, rgba(150,175,162,0.12) 55%, transparent 80%)' }} />
-            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(ellipse 55% 55% at 0% 0%, rgba(220,230,225,0.28) 0%, rgba(200,215,208,0.14) 40%, transparent 70%)' }} />
-            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'linear-gradient(135deg, rgba(210,222,216,0.25) 0%, rgba(185,200,192,0.12) 25%, transparent 50%)' }} />
+            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(ellipse 85% 75% at 5% 15%, rgba(215,230,222,0.45) 0%, rgba(190,210,200,0.30) 30%, rgba(165,190,178,0.16) 55%, transparent 80%)' }} />
+            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(ellipse 60% 60% at 0% 0%, rgba(230,240,235,0.38) 0%, rgba(210,225,218,0.20) 40%, transparent 70%)' }} />
+            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'linear-gradient(135deg, rgba(225,235,230,0.40) 0%, rgba(200,215,208,0.22) 20%, rgba(170,190,180,0.10) 40%, transparent 55%)' }} />
           </div>
           
           {/* Decorative Glow Effects */}
