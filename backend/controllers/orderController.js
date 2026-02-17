@@ -129,15 +129,14 @@ export const createOrder = async (req, res, next) => {
       customerMessage,
       isPdfPurchase: isPdfPurchase || false,
       pdfUrl: isPdfPurchase ? (pdfUrl || item?.pdfUrl) : undefined,
-      // If 100% discount, auto-verify
-      paymentStatus: isFreeOrder ? 'verified' : 'pending',
-      verifiedAt: isFreeOrder ? new Date() : undefined,
+      // Always pending - admin will manually verify (even for free coupon orders)
+      paymentStatus: 'pending',
     });
 
     res.status(201).json({
       success: true,
       message: isFreeOrder
-        ? 'Order confirmed! 100% discount applied - no payment needed.'
+        ? 'Order placed with 100% discount! Awaiting admin confirmation.'
         : 'Order created successfully. Please complete payment.',
       data: order,
       isFreeOrder,

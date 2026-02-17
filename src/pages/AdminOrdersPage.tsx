@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, X, Eye, Trash2 } from 'lucide-react';
+import { Check, X, Eye, Trash2, Tag } from 'lucide-react';
 import api from '../services/api';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -25,6 +25,9 @@ interface Order {
   customerMessage?: string;
   appointmentDate?: string;
   appointmentTime?: string;
+  couponCode?: string;
+  originalAmount?: number;
+  couponDiscount?: number;
 }
 
 const AdminOrdersPage = () => {
@@ -300,7 +303,17 @@ const AdminOrdersPage = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order.itemTitle}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        Rs. {order.amount.toLocaleString()}
+                        {order.couponCode ? (
+                          <div>
+                            <span className="line-through text-gray-400 text-xs block">Rs. {(order.originalAmount || (order.amount + (order.couponDiscount || 0))).toLocaleString()}</span>
+                            <span className={order.amount === 0 ? 'text-violet-600 font-bold' : ''}>
+                              {order.amount === 0 ? 'FREE' : `Rs. ${order.amount.toLocaleString()}`}
+                            </span>
+                            <Tag className="w-3 h-3 inline ml-1 text-violet-500" />
+                          </div>
+                        ) : (
+                          <>Rs. {order.amount.toLocaleString()}</>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs rounded-full ${
@@ -393,7 +406,18 @@ const AdminOrdersPage = () => {
                 )}
                 <div>
                   <p className="text-sm text-gray-500">Amount</p>
-                  <p className="font-medium text-lg">Rs. {selectedOrder.amount.toLocaleString()}</p>
+                  {selectedOrder.couponCode ? (
+                    <div>
+                      <span className="line-through text-gray-400 text-sm mr-2">
+                        Rs. {(selectedOrder.originalAmount || (selectedOrder.amount + (selectedOrder.couponDiscount || 0))).toLocaleString()}
+                      </span>
+                      <span className="font-bold text-lg text-emerald-600">
+                        {selectedOrder.amount === 0 ? 'FREE 🎉' : `Rs. ${selectedOrder.amount.toLocaleString()}`}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="font-medium text-lg">Rs. {selectedOrder.amount.toLocaleString()}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Item</p>
@@ -404,6 +428,34 @@ const AdminOrdersPage = () => {
                   <p className="font-medium">{format(new Date(selectedOrder.createdAt), 'MMM dd, yyyy HH:mm')}</p>
                 </div>
               </div>
+
+              {/* Coupon / Discount Details */}
+              {selectedOrder.couponCode && (
+                <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Tag className="h-5 w-5 text-violet-600" />
+                    <p className="text-sm font-bold text-violet-800">Coupon Applied</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-violet-500">Coupon Code</p>
+                      <p className="font-mono font-bold text-violet-900 bg-violet-100 inline-block px-2 py-0.5 rounded mt-0.5">{selectedOrder.couponCode}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-violet-500">Discount Amount</p>
+                      <p className="font-bold text-violet-900">Rs. {(selectedOrder.couponDiscount || 0).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-violet-500">Original Price</p>
+                      <p className="font-medium text-gray-700">Rs. {(selectedOrder.originalAmount || (selectedOrder.amount + (selectedOrder.couponDiscount || 0))).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-violet-500">Final Price</p>
+                      <p className="font-bold text-emerald-700">{selectedOrder.amount === 0 ? 'FREE (100% Discount) 🎉' : `Rs. ${selectedOrder.amount.toLocaleString()}`}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {selectedOrder.customerMessage && (
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
