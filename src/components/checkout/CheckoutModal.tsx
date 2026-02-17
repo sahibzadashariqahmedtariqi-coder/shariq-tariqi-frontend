@@ -819,7 +819,7 @@ const CheckoutModal = ({
                     </div>
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">Sahibzada Shariq Ahmed Tariqi</h2>
-                  <p className="text-sm text-gray-500">Spiritual Healing & Guidance</p>
+                  <p className="text-sm text-gray-500">Spiritual Healing, Herbal & Guidance</p>
                 </div>
 
                 {/* Order Confirmed Badge */}
@@ -894,7 +894,7 @@ const CheckoutModal = ({
                 {/* Footer */}
                 <div className="border-t border-gray-200 pt-3">
                   <p className="text-xs text-gray-400">Thank you for your trust in us</p>
-                  <p className="text-xs text-emerald-600 font-medium">www.shariqahmedtariqi.com</p>
+                  <p className="text-xs text-emerald-600 font-medium">www.sahibzadashariqahmedtariqi.com</p>
                 </div>
               </div>
 
