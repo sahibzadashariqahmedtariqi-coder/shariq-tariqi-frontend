@@ -1,7 +1,9 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, Navigate } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck, Heart, Tag } from 'lucide-react';
+import { BookOpen, Calendar, ShoppingBag, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck, Heart, Tag, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore'
+import { useState, useEffect } from 'react'
+import api from '@/services/api'
 
 export default function AdminDashboardPage() {
   const { isAuthenticated, user } = useAuthStore()
@@ -10,6 +12,35 @@ export default function AdminDashboardPage() {
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/login" replace />
   }
+
+  const [stats, setStats] = useState({ courses: 0, appointments: 0, products: 0, orders: 0, users: 0 })
+  const [statsLoading, setStatsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [coursesRes, appointmentsRes, productsRes, ordersRes, usersRes] = await Promise.all([
+          api.get('/courses?limit=1').catch(() => ({ data: { total: 0, count: 0 } })),
+          api.get('/appointments?limit=1').catch(() => ({ data: { total: 0, count: 0 } })),
+          api.get('/products?limit=1').catch(() => ({ data: { total: 0, count: 0 } })),
+          api.get('/orders').catch(() => ({ data: { count: 0, data: [] } })),
+          api.get('/auth/users').catch(() => ({ data: { count: 0, data: [] } })),
+        ])
+        setStats({
+          courses: coursesRes.data.total || coursesRes.data.count || coursesRes.data.data?.length || 0,
+          appointments: appointmentsRes.data.total || appointmentsRes.data.count || appointmentsRes.data.data?.length || 0,
+          products: productsRes.data.total || productsRes.data.count || productsRes.data.data?.length || 0,
+          orders: ordersRes.data.count || ordersRes.data.data?.length || 0,
+          users: usersRes.data.count || usersRes.data.data?.length || 0,
+        })
+      } catch (error) {
+        console.error('Failed to fetch stats:', error)
+      } finally {
+        setStatsLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
   const adminSections = [
     {
       title: 'Hero Slides',
@@ -190,22 +221,46 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="mt-12 grid grid-cols-2 md:grid-cols-5 gap-6">
           <div className="bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-xl p-6 shadow-lg border-2 border-blue-300 dark:border-blue-700">
-            <div className="text-4xl font-bold text-blue-700 dark:text-blue-300">25+</div>
+            {statsLoading ? (
+              <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+            ) : (
+              <div className="text-4xl font-bold text-blue-700 dark:text-blue-300">{stats.courses}</div>
+            )}
             <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Total Courses</div>
           </div>
           <div className="bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 rounded-xl p-6 shadow-lg border-2 border-green-300 dark:border-green-700">
-            <div className="text-4xl font-bold text-green-700 dark:text-green-300">150+</div>
+            {statsLoading ? (
+              <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+            ) : (
+              <div className="text-4xl font-bold text-green-700 dark:text-green-300">{stats.appointments}</div>
+            )}
             <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Appointments</div>
           </div>
           <div className="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-xl p-6 shadow-lg border-2 border-purple-300 dark:border-purple-700">
-            <div className="text-4xl font-bold text-purple-700 dark:text-purple-300">45+</div>
+            {statsLoading ? (
+              <Loader2 className="h-8 w-8 text-purple-500 animate-spin" />
+            ) : (
+              <div className="text-4xl font-bold text-purple-700 dark:text-purple-300">{stats.products}</div>
+            )}
             <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Products</div>
           </div>
           <div className="bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-xl p-6 shadow-lg border-2 border-orange-300 dark:border-orange-700">
-            <div className="text-4xl font-bold text-orange-700 dark:text-orange-300">4K+</div>
-            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Students</div>
+            {statsLoading ? (
+              <Loader2 className="h-8 w-8 text-orange-500 animate-spin" />
+            ) : (
+              <div className="text-4xl font-bold text-orange-700 dark:text-orange-300">{stats.orders}</div>
+            )}
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Total Orders</div>
+          </div>
+          <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900 dark:to-indigo-800 rounded-xl p-6 shadow-lg border-2 border-indigo-300 dark:border-indigo-700">
+            {statsLoading ? (
+              <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+            ) : (
+              <div className="text-4xl font-bold text-indigo-700 dark:text-indigo-300">{stats.users}</div>
+            )}
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">Registered Users</div>
           </div>
         </div>
         </div>
