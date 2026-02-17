@@ -483,7 +483,7 @@ export default function DonatePage() {
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 text-gold-400">
                     <Building2 className="h-5 w-5" />
-                    <AnimatedCounter end={50} suffix="+" />
+                    <AnimatedCounter end={10} suffix="+" />
                   </div>
                   <p className="text-gray-300 text-sm mt-1">Mosques Built</p>
                 </div>
