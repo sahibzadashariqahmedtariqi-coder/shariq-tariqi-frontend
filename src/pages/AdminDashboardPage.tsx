@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, Navigate } from 'react-router-dom'
-import { BookOpen, Calendar, ShoppingBag, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck, Heart } from 'lucide-react';
+import { BookOpen, Calendar, ShoppingBag, FileText, Users, Settings, Bell, Image, Info, TrendingUp, Mail, ShoppingCart, Trash2, DollarSign, UserCheck, Heart, Tag } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore'
 
 export default function AdminDashboardPage() {
@@ -143,6 +143,13 @@ export default function AdminDashboardPage() {
       icon: Heart,
       path: '/admin/donation-pages',
       color: 'bg-rose-500',
+    },
+    {
+      title: 'Manage Coupons',
+      description: 'Create & manage discount coupons',
+      icon: Tag,
+      path: '/admin/coupons',
+      color: 'bg-violet-500',
     },
   ]
 

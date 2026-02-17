@@ -35,6 +35,7 @@ import donationRoutes from './routes/donationRoutes.js';
 import donationPageRoutes from './routes/donationPageRoutes.js';
 import auditLogRoutes from './routes/auditLogRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -191,6 +192,7 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/donation-pages', donationPageRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Error Handler Middleware (must be last)
 app.use(errorHandler);

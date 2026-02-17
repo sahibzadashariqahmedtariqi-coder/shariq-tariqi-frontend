@@ -109,6 +109,20 @@ const orderSchema = new mongoose.Schema(
       type: String, // URL to the PDF file for digital purchases
     },
     
+    // Coupon / Discount
+    couponCode: {
+      type: String,
+      default: null,
+    },
+    originalAmount: {
+      type: Number,
+      default: null,
+    },
+    couponDiscount: {
+      type: Number,
+      default: 0,
+    },
+    
     // Soft Delete (Trash)
     isDeleted: {
       type: Boolean,

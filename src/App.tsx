@@ -49,6 +49,7 @@ const DonatePage = lazy(() => import('./pages/DonatePage'))
 const DonationDetailPage = lazy(() => import('./pages/DonationDetailPage'))
 const AdminDonationsPage = lazy(() => import('./pages/AdminDonationsPage'))
 const AdminDonationPagesPage = lazy(() => import('./pages/AdminDonationPagesPage'))
+const AdminCouponsPage = lazy(() => import('./pages/AdminCouponsPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function App() {
@@ -93,6 +94,7 @@ function App() {
           <Route path="admin/mureeds" element={<AdminMureedsPage />} />
           <Route path="admin/donations" element={<AdminDonationsPage />} />
           <Route path="admin/donation-pages" element={<AdminDonationPagesPage />} />
+          <Route path="admin/coupons" element={<AdminCouponsPage />} />
           <Route path="donate" element={<DonatePage />} />
           <Route path="donate/:slug" element={<DonationDetailPage />} />
           <Route path="mureed" element={<MureedRegistrationPage />} />

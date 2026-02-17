@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Upload, CreditCard, AlertCircle, CheckCircle2, Clock, Download } from 'lucide-react';
+import { X, Upload, CreditCard, AlertCircle, CheckCircle2, Clock, Download, Tag } from 'lucide-react';
 import { apiClient } from '@/services/api';
 import html2canvas from 'html2canvas';
 
@@ -68,6 +68,20 @@ const CheckoutModal = ({
   const [senderAccount, setSenderAccount] = useState('');
   const [uploadLoading, setUploadLoading] = useState(false);
 
+  // Coupon
+  const [couponCode, setCouponCode] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponApplied, setCouponApplied] = useState<{
+    code: string;
+    discount: number;
+    originalAmount: number;
+    finalAmount: number;
+    discountType: string;
+    discountValue: number;
+    isFreeOrder: boolean;
+  } | null>(null);
+  const [couponError, setCouponError] = useState('');
+
   // Calculate total based on region
   const totalAmountPKR = itemPrice * quantity;
   const totalAmountINR = itemPriceINR ? itemPriceINR * quantity : null;
@@ -100,6 +114,9 @@ const CheckoutModal = ({
       setTransactionId('');
       setSenderAccount('');
       setPaymentRegion(null);
+      setCouponCode('');
+      setCouponApplied(null);
+      setCouponError('');
     }
   }, [isOpen]);
 
@@ -112,6 +129,37 @@ const CheckoutModal = ({
     } catch (error) {
       console.error('Failed to fetch bank details:', error);
     }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+    try {
+      setCouponLoading(true);
+      setCouponError('');
+      const response = await apiClient.post('/coupons/validate', {
+        code: couponCode.trim(),
+        orderType,
+        amount: totalAmountPKR,
+      });
+      if (response.data.success) {
+        setCouponApplied(response.data.data);
+        setCouponError('');
+      }
+    } catch (error: any) {
+      setCouponError(error.response?.data?.message || 'Invalid coupon code');
+      setCouponApplied(null);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponApplied(null);
+    setCouponCode('');
+    setCouponError('');
   };
 
   const validatePhone = (phone: string, code: string): boolean => {
@@ -169,11 +217,18 @@ const CheckoutModal = ({
         customerMessage,
         isPdfPurchase,
         pdfUrl: isPdfPurchase ? pdfUrl : undefined,
+        couponCode: couponApplied ? couponApplied.code : undefined,
       });
 
       if (response.data.success) {
         setOrderId(response.data.data._id);
-        setStep('payment');
+        setOrderNumber(response.data.data.orderNumber || '');
+        // If free order (100% discount), skip payment step
+        if (response.data.isFreeOrder) {
+          setStep('success');
+        } else {
+          setStep('payment');
+        }
       }
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to create order');
@@ -308,12 +363,28 @@ const CheckoutModal = ({
                   <span className="font-medium">Appointment:</span> {appointmentDate} at {appointmentTime}
                 </p>
               )}
-              <p className="text-lg font-bold text-emerald-900 mt-2">
-                Total Amount: {displayPrice.currency} {displayPrice.amount.toLocaleString()}
-                {paymentRegion === 'india' && totalAmountINR && (
-                  <span className="text-xs font-normal text-gray-500 ml-2">(₹ INR)</span>
-                )}
-              </p>
+              {couponApplied ? (
+                <>
+                  <p className="text-gray-500 line-through">
+                    Original: {displayPrice.currency} {couponApplied.originalAmount.toLocaleString()}
+                  </p>
+                  <p className="text-green-600 font-medium flex items-center gap-1">
+                    <Tag className="w-3 h-3" />
+                    Discount ({couponApplied.code}): -{displayPrice.currency} {couponApplied.discount.toLocaleString()}
+                    {couponApplied.discountType === 'percentage' && ` (${couponApplied.discountValue}%)`}
+                  </p>
+                  <p className="text-lg font-bold text-emerald-900 mt-2">
+                    {couponApplied.isFreeOrder ? 'FREE! 🎉' : `Total: ${displayPrice.currency} ${couponApplied.finalAmount.toLocaleString()}`}
+                  </p>
+                </>
+              ) : (
+                <p className="text-lg font-bold text-emerald-900 mt-2">
+                  Total Amount: {displayPrice.currency} {displayPrice.amount.toLocaleString()}
+                  {paymentRegion === 'india' && totalAmountINR && (
+                    <span className="text-xs font-normal text-gray-500 ml-2">(₹ INR)</span>
+                  )}
+                </p>
+              )}
             </div>
           </div>
 
@@ -424,6 +495,65 @@ const CheckoutModal = ({
                   </p>
                 </div>
               )}
+
+              {/* Coupon Code */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Tag className="w-4 h-4 inline mr-1" />
+                  Discount Coupon (Optional)
+                </label>
+                {couponApplied ? (
+                  <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-300 rounded-lg">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-green-800">
+                        Coupon "{couponApplied.code}" applied!
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {couponApplied.discountType === 'percentage'
+                          ? `${couponApplied.discountValue}% off`
+                          : `Rs. ${couponApplied.discountValue} off`}
+                        {couponApplied.isFreeOrder && ' — 100% FREE!'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-red-500 hover:text-red-700 text-xs font-medium"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        setCouponError('');
+                      }}
+                      className={`flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase ${
+                        couponError ? 'border-red-400' : 'border-gray-300'
+                      }`}
+                      placeholder="Enter coupon code"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={couponLoading}
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-400 text-sm font-medium whitespace-nowrap"
+                    >
+                      {couponLoading ? 'Checking...' : 'Apply'}
+                    </button>
+                  </div>
+                )}
+                {couponError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {couponError}
+                  </p>
+                )}
+              </div>
 
               <button
                 type="submit"
@@ -723,8 +853,20 @@ const CheckoutModal = ({
                     )}
                     <div className="flex justify-between pt-2 border-t border-gray-200 mt-2">
                       <span className="text-gray-700 font-semibold">Total Amount:</span>
-                      <span className="font-bold text-emerald-600 text-lg">{displayPrice.currency} {displayPrice.amount.toLocaleString()}</span>
+                      <span className="font-bold text-emerald-600 text-lg">{displayPrice.currency} {(couponApplied ? couponApplied.finalAmount : displayPrice.amount).toLocaleString()}</span>
                     </div>
+                    {couponApplied && couponApplied.discount > 0 && (
+                      <>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Original Price:</span>
+                          <span className="line-through">{displayPrice.currency} {couponApplied.originalAmount.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-xs text-green-600 font-medium">
+                          <span>Coupon ({couponApplied.code}):</span>
+                          <span>-{displayPrice.currency} {couponApplied.discount.toLocaleString()}</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -805,6 +947,9 @@ const CheckoutModal = ({
                     setTransactionId('');
                     setSenderAccount('');
                     setPaymentRegion(null);
+                    setCouponCode('');
+                    setCouponApplied(null);
+                    setCouponError('');
                   }}
                   className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
                 >

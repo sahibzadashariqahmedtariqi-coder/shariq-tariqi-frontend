@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import Course from '../models/Course.js';
 import Product from '../models/Product.js';
+import Coupon from '../models/Coupon.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -20,6 +21,7 @@ export const createOrder = async (req, res, next) => {
       customerMessage,
       isPdfPurchase,
       pdfUrl,
+      couponCode,
     } = req.body;
 
     // Validate item exists and get details
@@ -63,6 +65,50 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
+    // Apply coupon if provided
+    let originalAmount = amount;
+    let couponDiscount = 0;
+    let appliedCouponCode = null;
+    let isFreeOrder = false;
+
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase().trim() });
+      if (coupon && coupon.isActive) {
+        // Validate expiry
+        if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+          return res.status(400).json({ success: false, message: 'Coupon has expired' });
+        }
+        // Validate max uses
+        if (coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) {
+          return res.status(400).json({ success: false, message: 'Coupon usage limit reached' });
+        }
+        // Validate applicability
+        const typeMap = { product: 'products', course: 'courses', appointment: 'appointments' };
+        if (coupon.applicableTo !== 'all' && typeMap[orderType] !== coupon.applicableTo) {
+          return res.status(400).json({ success: false, message: `Coupon not valid for ${orderType}s` });
+        }
+        // Validate min amount
+        if (coupon.minOrderAmount > 0 && amount < coupon.minOrderAmount) {
+          return res.status(400).json({ success: false, message: `Minimum order amount is Rs. ${coupon.minOrderAmount}` });
+        }
+
+        // Calculate discount
+        if (coupon.discountType === 'percentage') {
+          couponDiscount = Math.round((amount * coupon.discountValue) / 100);
+        } else {
+          couponDiscount = Math.min(coupon.discountValue, amount);
+        }
+
+        amount = Math.max(0, amount - couponDiscount);
+        appliedCouponCode = coupon.code;
+        isFreeOrder = amount <= 0;
+
+        // Increment coupon usage
+        coupon.usedCount += 1;
+        await coupon.save();
+      }
+    }
+
     // Create order
     const order = await Order.create({
       orderType,
@@ -73,6 +119,9 @@ export const createOrder = async (req, res, next) => {
       customerEmail,
       customerPhone,
       amount,
+      originalAmount: couponDiscount > 0 ? originalAmount : null,
+      couponCode: appliedCouponCode,
+      couponDiscount,
       appointmentDate,
       appointmentTime,
       shippingAddress: isPdfPurchase ? null : shippingAddress, // No shipping for PDF
@@ -80,12 +129,18 @@ export const createOrder = async (req, res, next) => {
       customerMessage,
       isPdfPurchase: isPdfPurchase || false,
       pdfUrl: isPdfPurchase ? (pdfUrl || item?.pdfUrl) : undefined,
+      // If 100% discount, auto-verify
+      paymentStatus: isFreeOrder ? 'verified' : 'pending',
+      verifiedAt: isFreeOrder ? new Date() : undefined,
     });
 
     res.status(201).json({
       success: true,
-      message: 'Order created successfully. Please complete payment.',
+      message: isFreeOrder
+        ? 'Order confirmed! 100% discount applied - no payment needed.'
+        : 'Order created successfully. Please complete payment.',
       data: order,
+      isFreeOrder,
     });
   } catch (error) {
     next(error);
