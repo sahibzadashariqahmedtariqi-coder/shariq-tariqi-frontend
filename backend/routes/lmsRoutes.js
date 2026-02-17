@@ -15,7 +15,8 @@ import {
   toggleClassPublish,
   unlockAllClasses,
   lockAllClasses,
-  toggleCoursePublish
+  toggleCoursePublish,
+  cleanupLMSData
 } from '../controllers/lmsCourseController.js';
 import {
   enrollStudent,
@@ -132,6 +133,9 @@ router.post('/certificates/issue', protect, admin, issueCertificateManually);
 router.put('/certificates/:id/revoke', protect, admin, revokeCertificate);
 router.put('/certificates/:id/restore', protect, admin, restoreCertificate);
 router.delete('/certificates/:id', protect, admin, deleteCertificate);
+
+// ==================== CLEANUP ====================
+router.post('/cleanup', protect, admin, cleanupLMSData);
 
 // ==================== LMS STUDENT MANAGEMENT (Admin) ====================
 router.get('/students/stats/detailed', protect, admin, getLMSDetailedStats);

@@ -617,3 +617,97 @@ export const lockAllClasses = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+// @desc    Cleanup orphaned LMS data & recalculate stats
+// @route   POST /api/lms/cleanup
+// @access  Admin
+export const cleanupLMSData = async (req, res) => {
+  try {
+    let removedEnrollments = 0;
+    let removedClasses = 0;
+    let removedProgress = 0;
+
+    // 1. Remove enrollments where user no longer exists
+    const allEnrollments = await LMSEnrollment.find();
+    for (const enrollment of allEnrollments) {
+      const userExists = await User.findById(enrollment.user);
+      if (!userExists) {
+        await LMSProgress.deleteMany({ enrollment: enrollment._id });
+        await enrollment.deleteOne();
+        removedEnrollments++;
+      }
+    }
+
+    // 2. Remove enrollments where course no longer exists
+    const remainingEnrollments = await LMSEnrollment.find();
+    for (const enrollment of remainingEnrollments) {
+      const courseExists = await Course.findById(enrollment.course);
+      if (!courseExists) {
+        await LMSProgress.deleteMany({ enrollment: enrollment._id });
+        await enrollment.deleteOne();
+        removedEnrollments++;
+      }
+    }
+
+    // 3. Remove duplicate enrollments (same user + same course)
+    const enrollments2 = await LMSEnrollment.find().sort({ enrolledAt: 1 });
+    const seen = new Set();
+    for (const enrollment of enrollments2) {
+      const key = `${enrollment.user}_${enrollment.course}`;
+      if (seen.has(key)) {
+        await LMSProgress.deleteMany({ enrollment: enrollment._id });
+        await enrollment.deleteOne();
+        removedEnrollments++;
+      } else {
+        seen.add(key);
+      }
+    }
+
+    // 4. Remove classes where course no longer exists
+    const allClasses = await LMSClass.find();
+    for (const cls of allClasses) {
+      const courseExists = await Course.findById(cls.course);
+      if (!courseExists) {
+        await cls.deleteOne();
+        removedClasses++;
+      }
+    }
+
+    // 5. Remove orphaned progress records
+    const allProgress = await LMSProgress.find();
+    for (const prog of allProgress) {
+      const enrollmentExists = await LMSEnrollment.findById(prog.enrollment);
+      if (!enrollmentExists) {
+        await prog.deleteOne();
+        removedProgress++;
+      }
+    }
+
+    // 6. Recalculate enrollmentCount on all courses
+    const courses = await Course.find();
+    for (const course of courses) {
+      const realCount = await LMSEnrollment.countDocuments({ course: course._id });
+      const realClassCount = await LMSClass.countDocuments({ course: course._id });
+      course.enrollmentCount = realCount;
+      course.totalClasses = realClassCount;
+      await course.save();
+    }
+
+    // Get updated stats
+    const totalEnrollments = await LMSEnrollment.countDocuments();
+    const totalClasses = await LMSClass.countDocuments();
+    const totalCertificates = await LMSCertificate.countDocuments();
+
+    res.json({
+      success: true,
+      message: `Cleanup complete! Removed: ${removedEnrollments} enrollments, ${removedClasses} classes, ${removedProgress} progress records`,
+      data: {
+        removed: { enrollments: removedEnrollments, classes: removedClasses, progress: removedProgress },
+        current: { totalEnrollments, totalClasses, totalCertificates }
+      }
+    });
+  } catch (error) {
+    console.error('Error cleaning up LMS data:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
