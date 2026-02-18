@@ -813,14 +813,18 @@ const CheckoutModal = ({
               >
                 {/* Receipt Header with Logo */}
                 <div className="border-b-2 border-emerald-500 pb-4 mb-4">
-                  <div className="flex items-center justify-center gap-3 mb-2">
-                    <img src="/images/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-7 h-7 text-white" />
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center">
+                        <CheckCircle2 className="w-7 h-7 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Sahibzada Shariq Ahmed Tariqi</h2>
+                        <p className="text-xs text-gray-500">Spiritual Healing, Herbal & Guidance</p>
+                      </div>
                     </div>
+                    <img src="/images/logo.png" alt="Logo" className="w-16 h-16 object-contain" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">Sahibzada Shariq Ahmed Tariqi</h2>
-                  <p className="text-sm text-gray-500">Spiritual Healing, Herbal & Guidance</p>
                 </div>
 
                 {/* Order Confirmed Badge */}
