@@ -92,7 +92,7 @@ const TrackOrderPage = () => {
       {/* Background Logo Watermark */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.12] pointer-events-none">
         <img 
-          src="/images/logo.png" 
+          src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
           alt="Background Logo" 
           className="w-[500px] h-[500px] md:w-[600px] md:h-[600px] object-contain"
         />

@@ -175,7 +175,7 @@ export default function HeroSection() {
         {/* Background Logo - Transparent and Fixed */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-15 dark:opacity-15 pointer-events-none">
           <img 
-            src="/images/logo.png" 
+            src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
             alt="Background Logo" 
             className="w-[400px] h-[400px] md:w-[500px] md:h-[500px] object-contain"
             style={{ display: 'block' }}
