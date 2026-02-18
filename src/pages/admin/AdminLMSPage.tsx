@@ -214,6 +214,20 @@ const AdminLMSPage = () => {
     staleTime: 0
   });
 
+  // Auto-cleanup & recalculate LMS stats on page load
+  useEffect(() => {
+    const runCleanup = async () => {
+      try {
+        await api.post('/lms/cleanup');
+        queryClient.invalidateQueries({ queryKey: ['lms-courses'] });
+        queryClient.invalidateQueries({ queryKey: ['lms-detailed-stats'] });
+      } catch (err) {
+        // silently ignore
+      }
+    };
+    runCleanup();
+  }, []);
+
   // Refetch enrollments when modal opens with a course selected
   useEffect(() => {
     if (showEnrollModal && selectedCourse) {
@@ -638,26 +652,7 @@ const AdminLMSPage = () => {
                   Courses are synced from <Link to="/admin/courses" className="underline hover:text-emerald-700">Course Management</Link>
                 </p>
               </div>
-              <button
-                onClick={async () => {
-                  try {
-                    toast.loading('Cleaning up & recalculating...', { id: 'cleanup' });
-                    const res = await api.post('/lms/cleanup');
-                    if (res.data.success) {
-                      toast.success(res.data.message, { id: 'cleanup', duration: 5000 });
-                      queryClient.invalidateQueries({ queryKey: ['lms-courses'] });
-                      queryClient.invalidateQueries({ queryKey: ['lms-detailed-stats'] });
-                    }
-                  } catch (err) {
-                    toast.error('Cleanup failed', { id: 'cleanup' });
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium"
-                title="Remove orphaned data & recalculate all stats"
-              >
-                <AlertTriangle className="w-4 h-4" />
-                Fix Stats
-              </button>
+
             </div>
 
             {/* Stats */}
