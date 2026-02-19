@@ -67,7 +67,7 @@ export default function MureedCardPage() {
           
           <!-- Watermark -->
           <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.18;">
-            <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Watermark" style="width: 400px; height: 400px; object-fit: contain;" crossorigin="anonymous" />
+            <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" alt="Watermark" style="width: 400px; height: 400px; object-fit: contain;" crossorigin="anonymous" />
           </div>
           
           <!-- Corner Decorations -->
@@ -81,7 +81,7 @@ export default function MureedCardPage() {
             <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #1B4332;">
               <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px;">
                 <div style="padding: 8px; background: linear-gradient(to bottom right, #dcfce7, #fef3c7); border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                  <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Logo" style="width: 64px; height: 64px; object-fit: contain;" crossorigin="anonymous" />
+                  <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" alt="Logo" style="width: 64px; height: 64px; object-fit: contain;" crossorigin="anonymous" />
                 </div>
                 <h1 style="font-size: 32px; color: #1B4332; margin: 0; font-family: 'Noto Nastaliq Urdu', serif;">طارقی روحانی درسگاہ</h1>
               </div>
@@ -311,7 +311,7 @@ export default function MureedCardPage() {
                 }}
               >
                 <img 
-                  src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
+                  src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" 
                   alt="Background Watermark" 
                   className="w-[200px] h-[200px] md:w-[400px] md:h-[400px] object-contain"
                   style={{ display: 'block', filter: 'none' }}
@@ -331,7 +331,7 @@ export default function MureedCardPage() {
                   <div className="flex items-center justify-center gap-2 md:gap-4 mb-2 md:mb-4">
                     <div className="p-1 md:p-2 bg-gradient-to-br from-primary-100 to-gold-100 rounded-xl md:rounded-2xl shadow-lg">
                       <img 
-                        src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
+                        src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" 
                         alt="Tariqi Logo" 
                         className="w-10 h-10 md:w-16 md:h-16 object-contain"
                       />

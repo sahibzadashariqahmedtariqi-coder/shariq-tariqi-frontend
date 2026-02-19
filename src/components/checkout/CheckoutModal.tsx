@@ -814,7 +814,7 @@ const CheckoutModal = ({
                 {/* Receipt Header with Logo */}
                 <div className="border-b-2 border-emerald-500 pb-4 mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Logo" className="w-16 h-16 object-contain" />
+                    <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" alt="Logo" className="w-16 h-16 object-contain" />
                     <div className="flex flex-col items-center text-center flex-1">
                       <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mb-2">
                         <CheckCircle2 className="w-7 h-7 text-white" />

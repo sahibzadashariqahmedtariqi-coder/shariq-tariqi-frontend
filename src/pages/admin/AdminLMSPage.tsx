@@ -3152,7 +3152,7 @@ const CertificatePreview = ({ certificate, onClose }: { certificate: any; onClos
               transition={{ duration: 0.5 }}
             >
               <img 
-                src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
+                src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" 
                 alt="Background Seal" 
                 className="w-[350px] h-[350px] object-contain"
               />
@@ -3287,7 +3287,7 @@ const CertificatePreview = ({ certificate, onClose }: { certificate: any; onClos
                     }}
                   >
                     <img 
-                      src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
+                      src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" 
                       alt="Logo" 
                       className="w-8 h-8 object-contain"
                       onError={(e) => {

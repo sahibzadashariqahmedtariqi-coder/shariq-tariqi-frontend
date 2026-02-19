@@ -264,7 +264,7 @@ const LMSCertificatePage = () => {
                     {/* Background Logo Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
                       <img 
-                        src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
+                        src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" 
                         alt="Background Seal" 
                         className="w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] object-contain"
                       />
@@ -297,7 +297,7 @@ const LMSCertificatePage = () => {
                         <div className="flex items-center justify-center gap-2">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-emerald-600 shadow-lg bg-emerald-800 flex items-center justify-center">
                             <img 
-                              src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
+                              src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" 
                               alt="Logo" 
                               className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                             />
@@ -493,7 +493,7 @@ const LMSCertificatePage = () => {
               pointerEvents: 'none'
             }}>
               <img 
-                src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
+                src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" 
                 alt="Background Seal" 
                 style={{ width: '350px', height: '350px', objectFit: 'contain' }}
               />
@@ -517,7 +517,7 @@ const LMSCertificatePage = () => {
                 {/* Logo and Name */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '8px' }}>
                   <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #059669', backgroundColor: '#065f46', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+                    <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771502643/shariq-website/products/tarv5nl0paqk3nehw7ou.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
                   </div>
                   <div style={{ textAlign: 'left' }}>
                     <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#047857', fontStyle: 'italic', margin: 0 }}>
