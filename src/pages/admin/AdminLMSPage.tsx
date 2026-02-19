@@ -3310,7 +3310,7 @@ const CertificatePreview = ({ certificate, onClose }: { certificate: any; onClos
                       className="text-xs text-emerald-600 tracking-wider"
                       animate={{ opacity: isHovered ? 1 : 0.8 }}
                     >
-                      Spiritual Healing & Guidance
+                      Spiritual Healing, Herbal & Guidance
                     </motion.p>
                   </div>
                 </motion.div>

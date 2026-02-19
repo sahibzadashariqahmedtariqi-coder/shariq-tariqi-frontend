@@ -307,7 +307,7 @@ const LMSCertificatePage = () => {
                               Sahibzada Shariq Ahmed Tariqi
                             </h2>
                             <p className="text-[8px] sm:text-[10px] text-emerald-600 tracking-wider">
-                              Spiritual Healing & Guidance
+                              Spiritual Healing, Herbal & Guidance
                             </p>
                           </div>
                         </div>
@@ -524,7 +524,7 @@ const LMSCertificatePage = () => {
                       Sahibzada Shariq Ahmed Tariqi
                     </h2>
                     <p style={{ fontSize: '11px', color: '#059669', letterSpacing: '1px', margin: 0 }}>
-                      Spiritual Healing & Guidance
+                      Spiritual Healing, Herbal & Guidance
                     </p>
                   </div>
                 </div>
