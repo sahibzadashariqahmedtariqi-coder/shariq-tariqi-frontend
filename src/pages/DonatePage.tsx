@@ -1240,7 +1240,7 @@ export default function DonatePage() {
                 {/* Footer */}
                 <div className="bg-gradient-to-r from-primary-800 via-primary-700 to-primary-800 px-8 py-5 text-center">
                   <p className="text-gold-300 text-sm font-medium">
-                    Sahibzada Shariq Ahmed Tariqi - Spiritual Healing & Guidance
+                    Sahibzada Shariq Ahmed Tariqi - Spiritual Healing, Herbal & Guidance
                   </p>
                 </div>
               </div>

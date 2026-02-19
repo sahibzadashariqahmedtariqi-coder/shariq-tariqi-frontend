@@ -36,7 +36,7 @@ export default function Header() {
             <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Logo" className="h-8 w-8 sm:h-10 sm:w-10 lg:h-14 lg:w-14 flex-shrink-0" />
             <div className="flex flex-col min-w-0">
               <span className="text-[10px] sm:text-sm lg:text-lg font-bold text-gold-400 truncate">Sahibzada Shariq Ahmed Tariqi</span>
-              <span className="text-[8px] sm:text-[9px] lg:text-[11px] text-gray-300 truncate">Spiritual Healing & Guidance</span>
+              <span className="text-[8px] sm:text-[9px] lg:text-[11px] text-gray-300 truncate">Spiritual Healing, Herbal & Guidance</span>
             </div>
           </Link>
 
