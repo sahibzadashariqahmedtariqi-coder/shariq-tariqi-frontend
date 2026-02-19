@@ -67,7 +67,7 @@ export default function MureedCardPage() {
           
           <!-- Watermark -->
           <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.18;">
-            <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Watermark" style="width: 550px; height: 550px; object-fit: contain;" crossorigin="anonymous" />
+            <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Watermark" style="width: 400px; height: 400px; object-fit: contain;" crossorigin="anonymous" />
           </div>
           
           <!-- Corner Decorations -->
@@ -313,7 +313,7 @@ export default function MureedCardPage() {
                 <img 
                   src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" 
                   alt="Background Watermark" 
-                  className="w-[280px] h-[280px] md:w-[550px] md:h-[550px] object-contain"
+                  className="w-[200px] h-[200px] md:w-[400px] md:h-[400px] object-contain"
                   style={{ display: 'block', filter: 'none' }}
                 />
               </div>
