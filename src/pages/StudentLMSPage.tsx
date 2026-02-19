@@ -593,7 +593,7 @@ const StudentLMSPage = () => {
                           className="absolute inset-6 rounded-full border-2 border-dashed border-white/30"
                         />
                         <div className="absolute inset-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                          <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Logo" className="w-20 h-20 object-contain" />
+                          <img src="https://res.cloudinary.com/du7qzhimu/image/upload/v1771404338/shariq-website/products/dhbdk9cfvnyllkuttz4g.png" alt="Logo" className="w-28 h-28 object-contain" />
                         </div>
                       </div>
                     </motion.div>
