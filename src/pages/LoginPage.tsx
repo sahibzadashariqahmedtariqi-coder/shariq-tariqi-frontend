@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { authApi } from '@/services/apiService'
 import toast from 'react-hot-toast'
 import { useState } from 'react'
-import { Shield, User, GraduationCap, Sparkles } from 'lucide-react'
+import { Shield, User, GraduationCap, Sparkles, Eye, EyeOff } from 'lucide-react'
 import api from '@/services/api'
 import { motion } from 'framer-motion'
 
@@ -25,6 +25,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { setUser, setToken } = useAuthStore()
   const [loginType, setLoginType] = useState<LoginType>('select')
+  const [showPassword, setShowPassword] = useState(false)
   
   const {
     register,
@@ -444,12 +445,21 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-300">Password</label>
-                <input
-                  {...register('password')}
-                  type="password"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-white placeholder-gray-500 transition-all"
-                  placeholder="••••••••"
-                />
+                <div className="relative">
+                  <input
+                    {...register('password')}
+                    type={showPassword ? 'text' : 'password'}
+                    className="w-full px-4 py-3 pr-12 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500/50 text-white placeholder-gray-500 transition-all"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password.message}</p>}
               </div>
 
