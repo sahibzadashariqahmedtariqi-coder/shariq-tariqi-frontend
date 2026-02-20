@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Package, Clock, CheckCircle, XCircle, Sparkles, Heart } from 'lucide-react';
+import { Search, Package, Clock, CheckCircle, XCircle, Sparkles, Heart, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import { format } from 'date-fns';
@@ -12,6 +12,9 @@ interface Order {
   customerName: string;
   customerEmail: string;
   amount: number;
+  originalAmount?: number | null;
+  couponCode?: string | null;
+  couponDiscount?: number;
   currency?: string;
   paymentStatus: string;
   createdAt: string;
@@ -252,9 +255,27 @@ const TrackOrderPage = () => {
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-sm text-gray-600 mb-1">Amount</p>
-                    <p className="font-bold text-xl text-emerald-600">
-                      {order.currency === 'INR' ? '₹' : 'Rs.'} {order.amount.toLocaleString()}
-                    </p>
+                    {order.couponCode && order.originalAmount ? (
+                      <div>
+                        <p className="text-sm text-gray-400 line-through">
+                          {order.currency === 'INR' ? '₹' : 'Rs.'} {order.originalAmount.toLocaleString()}
+                        </p>
+                        <p className="font-bold text-xl text-emerald-600">
+                          {order.amount <= 0 ? 'FREE 🎉' : `${order.currency === 'INR' ? '₹' : 'Rs.'} ${order.amount.toLocaleString()}`}
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Tag className="w-3 h-3 text-green-600" />
+                          <span className="text-xs font-medium text-green-600">
+                            Coupon: {order.couponCode} (-{order.currency === 'INR' ? '₹' : 'Rs.'} {(order.couponDiscount || 0).toLocaleString()}
+                            {order.originalAmount > 0 && ` / ${Math.round(((order.couponDiscount || 0) / order.originalAmount) * 100)}% off`})
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="font-bold text-xl text-emerald-600">
+                        {order.currency === 'INR' ? '₹' : 'Rs.'} {order.amount.toLocaleString()}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
