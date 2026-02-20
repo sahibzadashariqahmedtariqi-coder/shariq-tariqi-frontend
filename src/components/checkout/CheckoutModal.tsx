@@ -46,7 +46,6 @@ const CheckoutModal = ({
   const [step, setStep] = useState<'details' | 'payment' | 'success'>('details');
   const [loading, setLoading] = useState(false);
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
-  const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [downloadingReceipt, setDownloadingReceipt] = useState(false);
   const receiptRef = useRef<HTMLDivElement>(null);
@@ -102,7 +101,6 @@ const CheckoutModal = ({
     } else {
       // Reset state when modal closes
       setStep('details');
-      setOrderId(null);
       setOrderNumber('');
       setCustomerName('');
       setCustomerEmail('');
@@ -200,40 +198,40 @@ const CheckoutModal = ({
       return;
     }
 
-    try {
-      setLoading(true);
-      const fullPhone = `${countryCode}${customerPhone.replace(/\D/g, '')}`;
-      
-      const response = await apiClient.post('/orders', {
-        orderType,
-        itemId,
-        customerName,
-        customerEmail,
-        customerPhone: fullPhone,
-        shippingAddress: orderType === 'product' && !isPdfPurchase ? shippingAddress : undefined,
-        appointmentDate,
-        appointmentTime,
-        quantity,
-        customerMessage,
-        isPdfPurchase,
-        pdfUrl: isPdfPurchase ? pdfUrl : undefined,
-        couponCode: couponApplied ? couponApplied.code : undefined,
-      });
+    // If FREE order (100% coupon discount), create order immediately and skip payment
+    if (couponApplied?.isFreeOrder) {
+      try {
+        setLoading(true);
+        const fullPhone = `${countryCode}${customerPhone.replace(/\D/g, '')}`;
+        
+        const response = await apiClient.post('/orders', {
+          orderType,
+          itemId,
+          customerName,
+          customerEmail,
+          customerPhone: fullPhone,
+          shippingAddress: orderType === 'product' && !isPdfPurchase ? shippingAddress : undefined,
+          appointmentDate,
+          appointmentTime,
+          quantity,
+          customerMessage,
+          isPdfPurchase,
+          pdfUrl: isPdfPurchase ? pdfUrl : undefined,
+          couponCode: couponApplied.code,
+        });
 
-      if (response.data.success) {
-        setOrderId(response.data.data._id);
-        setOrderNumber(response.data.data.orderNumber || '');
-        // If free order (100% discount), skip payment step
-        if (response.data.isFreeOrder) {
+        if (response.data.success) {
+          setOrderNumber(response.data.data.orderNumber || '');
           setStep('success');
-        } else {
-          setStep('payment');
         }
+      } catch (error: any) {
+        alert(error.response?.data?.message || 'Failed to create order');
+      } finally {
+        setLoading(false);
       }
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to create order');
-    } finally {
-      setLoading(false);
+    } else {
+      // For PAID orders, just move to payment step (order will be created AFTER payment proof is uploaded)
+      setStep('payment');
     }
   };
 
@@ -271,20 +269,34 @@ const CheckoutModal = ({
 
       const imageUrl = uploadResponse.data.data.url;
 
-      // Submit payment proof
-      const response = await apiClient.put(`/orders/${orderId}/payment`, {
+      // Create order WITH payment proof in one call (order is not created until proof is uploaded)
+      const fullPhone = `${countryCode}${customerPhone.replace(/\D/g, '')}`;
+      
+      const response = await apiClient.post('/orders', {
+        orderType,
+        itemId,
+        customerName,
+        customerEmail,
+        customerPhone: fullPhone,
+        shippingAddress: orderType === 'product' && !isPdfPurchase ? shippingAddress : undefined,
+        appointmentDate,
+        appointmentTime,
+        quantity,
+        customerMessage,
+        isPdfPurchase,
+        pdfUrl: isPdfPurchase ? pdfUrl : undefined,
+        couponCode: couponApplied ? couponApplied.code : undefined,
         paymentProof: imageUrl,
         transactionId,
         senderAccountNumber: senderAccount,
       });
 
       if (response.data.success) {
-        // Show order number in success screen
-        setOrderNumber(response.data.data.orderNumber);
+        setOrderNumber(response.data.data.orderNumber || '');
         setStep('success');
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to upload payment proof');
+      alert(error.response?.data?.message || 'Failed to submit order');
     } finally {
       setUploadLoading(false);
     }
@@ -939,7 +951,6 @@ const CheckoutModal = ({
                     onClose();
                     // Reset form
                     setStep('details');
-                    setOrderId(null);
                     setOrderNumber('');
                     setCustomerName('');
                     setCustomerEmail('');
