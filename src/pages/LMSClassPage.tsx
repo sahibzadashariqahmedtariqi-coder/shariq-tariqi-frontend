@@ -475,7 +475,7 @@ const LMSClassPage = () => {
                   </div>
                   <div className="flex gap-2">
                     <a
-                      href={data.class.pdfAttachment.url}
+                      href={`https://docs.google.com/viewer?url=${encodeURIComponent(data.class.pdfAttachment.url)}&embedded=true`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -484,8 +484,9 @@ const LMSClassPage = () => {
                       View
                     </a>
                     <a
-                      href={data.class.pdfAttachment.url}
-                      download={data.class.pdfAttachment.filename}
+                      href={data.class.pdfAttachment.url.replace('/upload/', '/upload/fl_attachment/')}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
                     >
                       <Download className="w-4 h-4" />
