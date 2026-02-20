@@ -207,6 +207,7 @@ const CheckoutModal = ({
         const response = await apiClient.post('/orders', {
           orderType,
           itemId,
+          itemTitle,
           customerName,
           customerEmail,
           customerPhone: fullPhone,
@@ -275,6 +276,7 @@ const CheckoutModal = ({
       const response = await apiClient.post('/orders', {
         orderType,
         itemId,
+        itemTitle,
         customerName,
         customerEmail,
         customerPhone: fullPhone,
