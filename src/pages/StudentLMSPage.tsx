@@ -221,7 +221,7 @@ const StudentLMSPage = () => {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         if (uploadRes.data.success) {
-          setPaymentForm({ ...paymentForm, paymentProof: uploadRes.data.url });
+          setPaymentForm(prev => ({ ...prev, paymentProof: uploadRes.data.url }));
         }
       } catch (error) {
         console.error('Failed to upload payment proof');
@@ -1750,13 +1750,12 @@ const StudentLMSPage = () => {
                 {/* Transaction ID */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Transaction ID / Reference Number *
+                    Transaction ID / Reference Number <span className="text-gray-500 text-xs">(Optional)</span>
                   </label>
                   <input
                     type="text"
                     value={paymentForm.transactionId}
-                    onChange={(e) => setPaymentForm({ ...paymentForm, transactionId: e.target.value })}
-                    required
+                    onChange={(e) => setPaymentForm(prev => ({ ...prev, transactionId: e.target.value }))}
                     placeholder="Enter transaction ID from your receipt"
                     className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
@@ -1765,12 +1764,12 @@ const StudentLMSPage = () => {
                 {/* Sender Account Details */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Your Account Number (Last 4 digits)
+                    Your Account Number (Last 4 digits) <span className="text-gray-500 text-xs">(Optional)</span>
                   </label>
                   <input
                     type="text"
                     value={paymentForm.accountNumber}
-                    onChange={(e) => setPaymentForm({ ...paymentForm, accountNumber: e.target.value })}
+                    onChange={(e) => setPaymentForm(prev => ({ ...prev, accountNumber: e.target.value }))}
                     placeholder="XXXX"
                     maxLength={4}
                     className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
