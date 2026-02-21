@@ -109,15 +109,23 @@ const LMSClassPage = () => {
   useEffect(() => {
     if (!data?.class.videoId) return;
 
-    const createPlayer = () => {
-      // Destroy existing player if any
-      if (playerRef.current?.destroy) {
-        try { playerRef.current.destroy(); } catch (e) { /* ignore */ }
-        playerRef.current = null;
+    // If player already exists, just load the new video (no destroy/recreate)
+    if (playerRef.current?.loadVideoById) {
+      try {
+        playerRef.current.cueVideoById({
+          videoId: data.class.videoId,
+          startSeconds: Math.floor(data.progress?.lastPosition || 0)
+        });
+        return;
+      } catch (e) {
+        // Player might be in a bad state, fall through to recreate
+        console.warn('Failed to cue video, will recreate player:', e);
       }
+    }
+
+    const createPlayer = () => {
       setIsPlayerReady(false);
 
-      // Ensure the target div exists (React re-creates it via key={classId})
       const targetEl = document.getElementById('youtube-player');
       if (!targetEl) return;
 
@@ -155,13 +163,18 @@ const LMSClassPage = () => {
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
-      // Destroy player on cleanup so a fresh one is created for the next class
+    };
+  }, [data?.class.videoId, classId]);
+
+  // Cleanup player only when component fully unmounts (leaving the page)
+  useEffect(() => {
+    return () => {
       if (playerRef.current?.destroy) {
         try { playerRef.current.destroy(); } catch (e) { /* ignore */ }
         playerRef.current = null;
       }
     };
-  }, [data?.class.videoId, classId]);
+  }, []);
 
   const handlePlayerStateChange = (event: any) => {
     // Playing
@@ -409,7 +422,7 @@ const LMSClassPage = () => {
         <div className="flex-1 min-h-screen">
           {/* Video Player */}
           <div className="aspect-video bg-black">
-            <div id="youtube-player" key={classId} className="w-full h-full" />
+            <div id="youtube-player" className="w-full h-full" />
           </div>
 
           {/* Class Info */}
