@@ -57,6 +57,9 @@ interface FeeRecord {
   paymentMethod?: string;
   transactionId?: string;
   remarks?: string;
+  discount?: number;
+  discountReason?: string;
+  currency?: 'PKR' | 'INR';
 }
 
 interface PaymentRequest {
@@ -1155,7 +1158,7 @@ const StudentLMSPage = () => {
                     {[
                       { 
                         label: 'Total Fee', 
-                        value: `Rs ${(feeData?.summary?.totalAmount || 0).toLocaleString()}`, 
+                        value: `Rs ${(feeData?.summary?.effectiveAmount || feeData?.summary?.totalAmount || 0).toLocaleString()}`, 
                         icon: DollarSign, 
                         gradient: 'from-blue-500 to-cyan-500',
                         bgColor: 'bg-blue-500/20'
@@ -1224,8 +1227,8 @@ const StudentLMSPage = () => {
                         <div className="flex items-center justify-between text-sm mb-2">
                           <span className="text-gray-400">Overall Payment</span>
                           <span className="text-emerald-400 font-semibold">
-                            {feeData?.summary?.totalAmount > 0 
-                              ? Math.round((feeData?.summary?.paidAmount / feeData?.summary?.totalAmount) * 100) 
+                            {(feeData?.summary?.effectiveAmount || feeData?.summary?.totalAmount) > 0 
+                              ? Math.round((feeData?.summary?.paidAmount / (feeData?.summary?.effectiveAmount || feeData?.summary?.totalAmount)) * 100) 
                               : 0}%
                           </span>
                         </div>
@@ -1233,8 +1236,8 @@ const StudentLMSPage = () => {
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ 
-                              width: `${feeData?.summary?.totalAmount > 0 
-                                ? (feeData?.summary?.paidAmount / feeData?.summary?.totalAmount) * 100 
+                              width: `${(feeData?.summary?.effectiveAmount || feeData?.summary?.totalAmount) > 0 
+                                ? (feeData?.summary?.paidAmount / (feeData?.summary?.effectiveAmount || feeData?.summary?.totalAmount)) * 100 
                                 : 0}%` 
                             }}
                             transition={{ duration: 1.5, ease: 'easeOut' }}
@@ -1337,7 +1340,15 @@ const StudentLMSPage = () => {
                               <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                                 <div className="text-left md:text-right">
                                   <p className="text-gray-400 text-sm">Amount</p>
-                                  <p className="text-white font-bold text-lg">Rs {fee.amount.toLocaleString()}</p>
+                                  {fee.discount && fee.discount > 0 ? (
+                                    <div>
+                                      <p className="text-gray-500 text-xs line-through">Rs {fee.amount.toLocaleString()}</p>
+                                      <p className="text-white font-bold text-lg">Rs {(fee.amount - fee.discount).toLocaleString()}</p>
+                                      <p className="text-orange-400 text-xs">-Rs {fee.discount.toLocaleString()} discount</p>
+                                    </div>
+                                  ) : (
+                                    <p className="text-white font-bold text-lg">Rs {fee.amount.toLocaleString()}</p>
+                                  )}
                                 </div>
                                 
                                 {fee.status !== 'paid' && fee.paidAmount > 0 && (
@@ -1349,11 +1360,15 @@ const StudentLMSPage = () => {
                                 
                                 <div className="text-left md:text-right">
                                   <p className="text-gray-400 text-sm">Remaining</p>
-                                  <p className={`font-bold ${
-                                    fee.amount - fee.paidAmount === 0 ? 'text-emerald-400' : 'text-amber-400'
-                                  }`}>
-                                    Rs {(fee.amount - fee.paidAmount).toLocaleString()}
-                                  </p>
+                                  {(() => {
+                                    const effectiveAmount = fee.amount - (fee.discount || 0);
+                                    const remaining = effectiveAmount - fee.paidAmount;
+                                    return (
+                                      <p className={`font-bold ${remaining <= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                        Rs {Math.max(0, remaining).toLocaleString()}
+                                      </p>
+                                    );
+                                  })()}
                                 </div>
                                 
                                 <span className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase ${
