@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import apiClient from '@/services/api'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import toast from 'react-hot-toast'
 
 interface Update {
   _id: string
@@ -70,7 +71,7 @@ export default function BlogDetailPage() {
       })
     } else {
       navigator.clipboard.writeText(window.location.href)
-      alert('Link copied to clipboard!')
+      toast.success('Link copied to clipboard!')
     }
   }
 

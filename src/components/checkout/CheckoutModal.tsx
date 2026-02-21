@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Upload, CreditCard, AlertCircle, CheckCircle2, Clock, Download, Tag } from 'lucide-react';
 import { apiClient } from '@/services/api';
 import html2canvas from 'html2canvas';
+import toast from 'react-hot-toast';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -190,7 +191,7 @@ const CheckoutModal = ({
     e.preventDefault();
     
     if (!customerName || !customerEmail || !customerPhone) {
-      alert('Please fill all required fields');
+      toast.error('Please fill all required fields');
       return;
     }
 
@@ -226,7 +227,7 @@ const CheckoutModal = ({
           setStep('success');
         }
       } catch (error: any) {
-        alert(error.response?.data?.message || 'Failed to create order');
+        toast.error(error.response?.data?.message || 'Failed to create order');
       } finally {
         setLoading(false);
       }
@@ -246,7 +247,7 @@ const CheckoutModal = ({
     e.preventDefault();
 
     if (!paymentProof) {
-      alert('Please upload payment proof');
+      toast.error('Please upload payment proof');
       return;
     }
 
@@ -298,7 +299,7 @@ const CheckoutModal = ({
         setStep('success');
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to submit order');
+      toast.error(error.response?.data?.message || 'Failed to submit order');
     } finally {
       setUploadLoading(false);
     }
@@ -325,7 +326,7 @@ const CheckoutModal = ({
       link.click();
     } catch (error) {
       console.error('Failed to download receipt:', error);
-      alert('Failed to download receipt. Please take a screenshot instead.');
+      toast.error('Failed to download receipt. Please take a screenshot instead.');
     } finally {
       setDownloadingReceipt(false);
     }

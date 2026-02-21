@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import toast from 'react-hot-toast';
 
 interface Course {
   _id: string;
@@ -252,10 +253,10 @@ const StudentLMSPage = () => {
         paymentProof: '',
         remarks: ''
       });
-      alert('Payment request submitted successfully! Admin will review and approve it.');
+      toast.success('Payment request submitted successfully! Admin will review and approve it.');
     },
     onError: (error: any) => {
-      alert(error.response?.data?.message || 'Failed to submit payment request');
+      toast.error(error.response?.data?.message || 'Failed to submit payment request');
     }
   });
 
@@ -279,7 +280,7 @@ const StudentLMSPage = () => {
     e.preventDefault();
     if (!selectedFee) return;
     if (!paymentProof) {
-      alert('Please upload payment screenshot');
+      toast.error('Please upload payment screenshot');
       return;
     }
     
