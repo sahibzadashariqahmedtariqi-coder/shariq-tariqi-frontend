@@ -2226,45 +2226,46 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
                                   )}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 {/* Lock Status Badges */}
-                                {cls.globalLocked && !cls.isUnlockedForStudent && (
+                                {cls.globalLocked && (
                                   <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-600 rounded">
-                                    Global Lock
-                                  </span>
-                                )}
-                                {cls.isUnlockedForStudent && (
-                                  <span className="px-2 py-0.5 text-xs bg-green-200 text-green-700 rounded">
-                                    Unlocked for student
+                                    🔒 Global Lock
                                   </span>
                                 )}
                                 {cls.isManuallyLocked && (
                                   <span className="px-2 py-0.5 text-xs bg-red-200 text-red-700 rounded">
-                                    Locked for student
+                                    🔴 Per-student: Locked
                                   </span>
                                 )}
-                                {/* Toggle Button */}
+                                {cls.isUnlockedForStudent && !cls.isManuallyLocked && (
+                                  <span className="px-2 py-0.5 text-xs bg-blue-200 text-blue-700 rounded">
+                                    🔵 Per-student: Unlocked
+                                  </span>
+                                )}
+                                {/* Per-Student Toggle Button — uses isManuallyLocked so it always works, even when globally locked */}
                                 <button
                                   onClick={() => toggleClassLock(
                                     enrollment._id,
                                     cls._id,
-                                    cls.isLockedForStudent ? 'unlock' : 'lock'
+                                    cls.isManuallyLocked ? 'unlock' : 'lock'
                                   )}
                                   className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 ${
-                                    cls.isLockedForStudent
+                                    cls.isManuallyLocked
                                       ? 'bg-green-600 text-white hover:bg-green-700'
                                       : 'bg-red-600 text-white hover:bg-red-700'
                                   }`}
+                                  title={cls.globalLocked ? 'Per-student setting — will apply when class is globally unlocked' : ''}
                                 >
-                                  {cls.isLockedForStudent ? (
+                                  {cls.isManuallyLocked ? (
                                     <>
                                       <Unlock className="w-4 h-4" />
-                                      Unlock
+                                      Unlock for Student
                                     </>
                                   ) : (
                                     <>
                                       <Lock className="w-4 h-4" />
-                                      Lock
+                                      Lock for Student
                                     </>
                                   )}
                                 </button>
