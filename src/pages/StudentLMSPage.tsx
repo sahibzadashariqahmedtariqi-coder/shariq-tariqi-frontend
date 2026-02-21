@@ -264,8 +264,9 @@ const StudentLMSPage = () => {
     setSelectedFee(fee);
     setPaymentProof(null);
     setImagePreview(null);
+    const effectiveAmount = fee.amount - (fee.discount || 0);
     setPaymentForm({
-      amount: fee.amount - fee.paidAmount,
+      amount: effectiveAmount - fee.paidAmount,
       paymentMethod: 'bank_transfer',
       transactionId: '',
       accountTitle: '',
@@ -1617,8 +1618,11 @@ const StudentLMSPage = () => {
                     Rs {paymentForm.amount.toLocaleString()}
                   </p>
                   <p className="text-gray-500 text-xs mt-2">
-                    Total Fee: Rs {selectedFee.amount.toLocaleString()} | 
-                    Already Paid: Rs {selectedFee.paidAmount.toLocaleString()}
+                    Total Fee: Rs {(selectedFee.amount - (selectedFee.discount || 0)).toLocaleString()}
+                    {(selectedFee.discount || 0) > 0 && (
+                      <span className="text-emerald-400"> (Rs {selectedFee.discount?.toLocaleString()} discount)</span>
+                    )}
+                    {' '}| Already Paid: Rs {selectedFee.paidAmount.toLocaleString()}
                   </p>
                 </div>
 
