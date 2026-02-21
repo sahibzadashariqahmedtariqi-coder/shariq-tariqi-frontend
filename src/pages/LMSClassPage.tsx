@@ -109,14 +109,18 @@ const LMSClassPage = () => {
   useEffect(() => {
     if (!data?.class.videoId) return;
 
-    // Load YouTube IFrame API
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    const createPlayer = () => {
+      // Destroy existing player if any
+      if (playerRef.current?.destroy) {
+        try { playerRef.current.destroy(); } catch (e) { /* ignore */ }
+        playerRef.current = null;
+      }
+      setIsPlayerReady(false);
 
-    // Create player when API is ready
-    (window as any).onYouTubeIframeAPIReady = () => {
+      // Ensure the target div exists (React re-creates it via key={classId})
+      const targetEl = document.getElementById('youtube-player');
+      if (!targetEl) return;
+
       playerRef.current = new (window as any).YT.Player('youtube-player', {
         videoId: data.class.videoId,
         playerVars: {
@@ -133,17 +137,31 @@ const LMSClassPage = () => {
       });
     };
 
-    // If API already loaded
-    if ((window as any).YT && (window as any).YT.Player) {
-      (window as any).onYouTubeIframeAPIReady();
+    // Load YouTube IFrame API if not already loaded
+    if (!(window as any).YT || !(window as any).YT.Player) {
+      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      }
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
+    } else {
+      // API already loaded, create player directly
+      createPlayer();
     }
 
     return () => {
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
+      // Destroy player on cleanup so a fresh one is created for the next class
+      if (playerRef.current?.destroy) {
+        try { playerRef.current.destroy(); } catch (e) { /* ignore */ }
+        playerRef.current = null;
+      }
     };
-  }, [data?.class.videoId]);
+  }, [data?.class.videoId, classId]);
 
   const handlePlayerStateChange = (event: any) => {
     // Playing
@@ -391,7 +409,7 @@ const LMSClassPage = () => {
         <div className="flex-1 min-h-screen">
           {/* Video Player */}
           <div className="aspect-video bg-black">
-            <div id="youtube-player" className="w-full h-full" />
+            <div id="youtube-player" key={classId} className="w-full h-full" />
           </div>
 
           {/* Class Info */}
