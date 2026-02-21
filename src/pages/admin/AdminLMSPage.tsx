@@ -122,6 +122,7 @@ interface LMSFee {
   remarks?: string;
   discount?: number;
   discountReason?: string;
+  currency?: 'PKR' | 'INR';
   createdAt: string;
 }
 
@@ -4285,6 +4286,15 @@ const FeeManagementSection = ({
     discountReason: string;
   }>({ isOpen: false, feeId: null, studentName: '', feeAmount: 0, currentDiscount: 0, newDiscount: '', discountReason: '' });
 
+  // Edit fee modal state (amount + currency)
+  const [editFeeModal, setEditFeeModal] = useState<{
+    isOpen: boolean;
+    feeId: string | null;
+    studentName: string;
+    amount: string;
+    currency: 'PKR' | 'INR';
+  }>({ isOpen: false, feeId: null, studentName: '', amount: '', currency: 'PKR' });
+
   // Mark as paid confirmation modal
   const [markPaidModal, setMarkPaidModal] = useState<{
     isOpen: boolean;
@@ -4304,6 +4314,8 @@ const FeeManagementSection = ({
   };
 
   const fees = feesData?.data || [];
+
+  const getCurrencyLabel = (currency?: string) => currency === 'INR' ? '₹' : 'Rs.';
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { bg: string; text: string; icon: any }> = {
@@ -4499,17 +4511,20 @@ const FeeManagementSection = ({
                   <td className="px-4 py-3 text-center">
                     {fee.discount && fee.discount > 0 ? (
                       <div>
-                        <span className="text-xs text-gray-400 line-through">Rs. {fee.amount.toLocaleString()}</span>
-                        <p className="font-semibold text-gray-900">Rs. {(fee.amount - fee.discount).toLocaleString()}</p>
-                        <span className="text-xs text-orange-600 font-medium">-Rs. {fee.discount.toLocaleString()} off</span>
+                        <span className="text-xs text-gray-400 line-through">{getCurrencyLabel(fee.currency)} {fee.amount.toLocaleString()}</span>
+                        <p className="font-semibold text-gray-900">{getCurrencyLabel(fee.currency)} {(fee.amount - fee.discount).toLocaleString()}</p>
+                        <span className="text-xs text-orange-600 font-medium">-{getCurrencyLabel(fee.currency)} {fee.discount.toLocaleString()} off</span>
                       </div>
                     ) : (
-                      <span className="font-semibold text-gray-900">Rs. {fee.amount.toLocaleString()}</span>
+                      <div>
+                        <span className="font-semibold text-gray-900">{getCurrencyLabel(fee.currency)} {fee.amount.toLocaleString()}</span>
+                        {fee.currency === 'INR' && <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">INR</span>}
+                      </div>
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className={`font-semibold ${fee.paidAmount >= (fee.amount - (fee.discount || 0)) ? 'text-green-600' : fee.paidAmount > 0 ? 'text-blue-600' : 'text-gray-500'}`}>
-                      Rs. {fee.paidAmount.toLocaleString()}
+                      {getCurrencyLabel(fee.currency)} {fee.paidAmount.toLocaleString()}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">{getStatusBadge(fee.status)}</td>
@@ -4546,6 +4561,21 @@ const FeeManagementSection = ({
                         title="Update Payment"
                       >
                         <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditFeeModal({
+                            isOpen: true,
+                            feeId: fee._id,
+                            studentName: fee.student?.name || 'Unknown',
+                            amount: fee.amount.toString(),
+                            currency: fee.currency || 'PKR'
+                          });
+                        }}
+                        className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg"
+                        title="Edit Fee Amount"
+                      >
+                        <Wallet className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => {
@@ -4700,12 +4730,12 @@ const FeeManagementSection = ({
               
               {/* Description */}
               <p className="text-gray-500 text-center mb-6">
-                Enter the paid amount (Max: Rs. {paidAmountModal.maxAmount.toLocaleString()})
+                Enter the paid amount (Max: {paidAmountModal.maxAmount.toLocaleString()})
               </p>
               
               {/* Input */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Paid Amount (Rs.)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Paid Amount</label>
                 <input
                   type="number"
                   value={paidAmountModal.newAmount}
@@ -4747,6 +4777,98 @@ const FeeManagementSection = ({
         )}
       </AnimatePresence>
 
+      {/* Edit Fee Modal (Amount + Currency) */}
+      <AnimatePresence>
+        {editFeeModal.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setEditFeeModal({ isOpen: false, feeId: null, studentName: '', amount: '', currency: 'PKR' })}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
+            >
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <Wallet className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Edit Fee</h3>
+              <p className="text-gray-500 text-center mb-6">
+                Student: <span className="font-semibold text-gray-700">{editFeeModal.studentName}</span>
+              </p>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setEditFeeModal({ ...editFeeModal, currency: 'PKR' })}
+                    className={`flex-1 px-4 py-3 rounded-xl font-semibold text-sm border-2 transition ${
+                      editFeeModal.currency === 'PKR'
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    🇵🇰 PKR (Rs.)
+                  </button>
+                  <button
+                    onClick={() => setEditFeeModal({ ...editFeeModal, currency: 'INR' })}
+                    className={`flex-1 px-4 py-3 rounded-xl font-semibold text-sm border-2 transition ${
+                      editFeeModal.currency === 'INR'
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    🇮🇳 INR (₹)
+                  </button>
+                </div>
+              </div>
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fee Amount ({editFeeModal.currency === 'INR' ? '₹' : 'Rs.'})
+                </label>
+                <input
+                  type="number"
+                  value={editFeeModal.amount}
+                  onChange={(e) => setEditFeeModal({ ...editFeeModal, amount: e.target.value })}
+                  placeholder="Enter fee amount..."
+                  min="0"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-lg font-medium focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition"
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setEditFeeModal({ isOpen: false, feeId: null, studentName: '', amount: '', currency: 'PKR' })}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const newAmount = parseFloat(editFeeModal.amount);
+                    if (!isNaN(newAmount) && newAmount > 0 && editFeeModal.feeId) {
+                      onUpdateFeeStatus(editFeeModal.feeId, {
+                        amount: newAmount,
+                        currency: editFeeModal.currency
+                      });
+                      setEditFeeModal({ isOpen: false, feeId: null, studentName: '', amount: '', currency: 'PKR' });
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-purple-700 transition shadow-lg"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Discount Modal */}
       <AnimatePresence>
         {discountModal.isOpen && (
@@ -4773,10 +4895,10 @@ const FeeManagementSection = ({
                 Student: <span className="font-semibold text-gray-700">{discountModal.studentName}</span>
               </p>
               <p className="text-gray-500 text-center mb-6">
-                Original Fee: <span className="font-semibold text-gray-700">Rs. {discountModal.feeAmount.toLocaleString()}</span>
+                Original Fee: <span className="font-semibold text-gray-700">{discountModal.feeAmount.toLocaleString()}</span>
               </p>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Discount Amount (Rs.)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Discount Amount</label>
                 <input
                   type="number"
                   value={discountModal.newDiscount}
@@ -4789,7 +4911,7 @@ const FeeManagementSection = ({
                 />
                 {discountModal.newDiscount && parseFloat(discountModal.newDiscount) > 0 && (
                   <p className="text-sm text-orange-600 mt-2">
-                    After discount: <span className="font-bold">Rs. {(discountModal.feeAmount - parseFloat(discountModal.newDiscount)).toLocaleString()}</span>
+                    After discount: <span className="font-bold">{(discountModal.feeAmount - parseFloat(discountModal.newDiscount)).toLocaleString()}</span>
                     <span className="ml-2">({((parseFloat(discountModal.newDiscount) / discountModal.feeAmount) * 100).toFixed(1)}% off)</span>
                   </p>
                 )}
@@ -4847,7 +4969,7 @@ const FeeManagementSection = ({
           setMarkPaidModal({ isOpen: false, feeId: null, feeAmount: 0, studentName: '' });
         }}
         title="Mark Fee as Paid"
-        message={`Mark the fee of Rs. ${markPaidModal.feeAmount.toLocaleString()} for "${markPaidModal.studentName}" as fully paid?`}
+        message={`Mark the fee of ${markPaidModal.feeAmount.toLocaleString()} for "${markPaidModal.studentName}" as fully paid?`}
         confirmText="Mark as Paid"
         type="success"
       />
