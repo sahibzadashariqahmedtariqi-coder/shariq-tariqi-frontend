@@ -9,7 +9,7 @@ import {
   Users, Play, FileText, Video, Award, Search,
   ChevronDown, ChevronRight, X, Save, GripVertical,
   AlertTriangle, ArrowLeft, UserPlus, Key, ToggleLeft, ToggleRight, GraduationCap, Trash2, BookPlus, Check, Clock,
-  Wallet, Calendar, CreditCard, CheckCircle2, AlertCircle, Receipt, Eye, EyeOff, Sparkles, Download
+  Wallet, Calendar, CreditCard, CheckCircle2, AlertCircle, Receipt, Eye, EyeOff, Sparkles, Download, BadgePercent
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import api from '@/services/api';
@@ -120,6 +120,8 @@ interface LMSFee {
   paymentMethod?: string;
   transactionId?: string;
   remarks?: string;
+  discount?: number;
+  discountReason?: string;
   createdAt: string;
 }
 
@@ -4272,6 +4274,17 @@ const FeeManagementSection = ({
     newAmount: string;
   }>({ isOpen: false, feeId: null, currentAmount: 0, maxAmount: 0, newAmount: '' });
 
+  // Discount modal state
+  const [discountModal, setDiscountModal] = useState<{
+    isOpen: boolean;
+    feeId: string | null;
+    studentName: string;
+    feeAmount: number;
+    currentDiscount: number;
+    newDiscount: string;
+    discountReason: string;
+  }>({ isOpen: false, feeId: null, studentName: '', feeAmount: 0, currentDiscount: 0, newDiscount: '', discountReason: '' });
+
   // Mark as paid confirmation modal
   const [markPaidModal, setMarkPaidModal] = useState<{
     isOpen: boolean;
@@ -4483,9 +4496,19 @@ const FeeManagementSection = ({
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">{fee.month} {fee.year}</td>
-                  <td className="px-4 py-3 text-center font-semibold text-gray-900">Rs. {fee.amount.toLocaleString()}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`font-semibold ${fee.paidAmount >= fee.amount ? 'text-green-600' : fee.paidAmount > 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                    {fee.discount && fee.discount > 0 ? (
+                      <div>
+                        <span className="text-xs text-gray-400 line-through">Rs. {fee.amount.toLocaleString()}</span>
+                        <p className="font-semibold text-gray-900">Rs. {(fee.amount - fee.discount).toLocaleString()}</p>
+                        <span className="text-xs text-orange-600 font-medium">-Rs. {fee.discount.toLocaleString()} off</span>
+                      </div>
+                    ) : (
+                      <span className="font-semibold text-gray-900">Rs. {fee.amount.toLocaleString()}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`font-semibold ${fee.paidAmount >= (fee.amount - (fee.discount || 0)) ? 'text-green-600' : fee.paidAmount > 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                       Rs. {fee.paidAmount.toLocaleString()}
                     </span>
                   </td>
@@ -4500,7 +4523,7 @@ const FeeManagementSection = ({
                           onClick={() => setMarkPaidModal({
                             isOpen: true,
                             feeId: fee._id,
-                            feeAmount: fee.amount,
+                            feeAmount: fee.amount - (fee.discount || 0),
                             studentName: fee.student?.name || 'Unknown'
                           })}
                           className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg"
@@ -4515,7 +4538,7 @@ const FeeManagementSection = ({
                             isOpen: true,
                             feeId: fee._id,
                             currentAmount: fee.paidAmount,
-                            maxAmount: fee.amount,
+                            maxAmount: fee.amount - (fee.discount || 0),
                             newAmount: fee.paidAmount.toString()
                           });
                         }}
@@ -4523,6 +4546,23 @@ const FeeManagementSection = ({
                         title="Update Payment"
                       >
                         <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDiscountModal({
+                            isOpen: true,
+                            feeId: fee._id,
+                            studentName: fee.student?.name || 'Unknown',
+                            feeAmount: fee.amount,
+                            currentDiscount: fee.discount || 0,
+                            newDiscount: (fee.discount || 0).toString(),
+                            discountReason: fee.discountReason || ''
+                          });
+                        }}
+                        className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg"
+                        title="Apply Discount"
+                      >
+                        <BadgePercent className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDeleteFee(fee._id)}
@@ -4700,6 +4740,91 @@ const FeeManagementSection = ({
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition shadow-lg"
                 >
                   Update
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Discount Modal */}
+      <AnimatePresence>
+        {discountModal.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDiscountModal({ isOpen: false, feeId: null, studentName: '', feeAmount: 0, currentDiscount: 0, newDiscount: '', discountReason: '' })}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
+            >
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                <BadgePercent className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Apply Discount</h3>
+              <p className="text-gray-500 text-center mb-1">
+                Student: <span className="font-semibold text-gray-700">{discountModal.studentName}</span>
+              </p>
+              <p className="text-gray-500 text-center mb-6">
+                Original Fee: <span className="font-semibold text-gray-700">Rs. {discountModal.feeAmount.toLocaleString()}</span>
+              </p>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Discount Amount (Rs.)</label>
+                <input
+                  type="number"
+                  value={discountModal.newDiscount}
+                  onChange={(e) => setDiscountModal({ ...discountModal, newDiscount: e.target.value })}
+                  placeholder="Enter discount amount..."
+                  min="0"
+                  max={discountModal.feeAmount}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-lg font-medium focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition"
+                  autoFocus
+                />
+                {discountModal.newDiscount && parseFloat(discountModal.newDiscount) > 0 && (
+                  <p className="text-sm text-orange-600 mt-2">
+                    After discount: <span className="font-bold">Rs. {(discountModal.feeAmount - parseFloat(discountModal.newDiscount)).toLocaleString()}</span>
+                    <span className="ml-2">({((parseFloat(discountModal.newDiscount) / discountModal.feeAmount) * 100).toFixed(1)}% off)</span>
+                  </p>
+                )}
+              </div>
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Reason (Optional)</label>
+                <input
+                  type="text"
+                  value={discountModal.discountReason}
+                  onChange={(e) => setDiscountModal({ ...discountModal, discountReason: e.target.value })}
+                  placeholder="e.g., Financial hardship, Merit scholarship..."
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDiscountModal({ isOpen: false, feeId: null, studentName: '', feeAmount: 0, currentDiscount: 0, newDiscount: '', discountReason: '' })}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const discountAmount = parseFloat(discountModal.newDiscount) || 0;
+                    if (discountAmount >= 0 && discountAmount <= discountModal.feeAmount && discountModal.feeId) {
+                      onUpdateFeeStatus(discountModal.feeId, {
+                        discount: discountAmount,
+                        discountReason: discountModal.discountReason
+                      });
+                      setDiscountModal({ isOpen: false, feeId: null, studentName: '', feeAmount: 0, currentDiscount: 0, newDiscount: '', discountReason: '' });
+                    }
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-medium hover:from-orange-600 hover:to-orange-700 transition shadow-lg"
+                >
+                  Apply Discount
                 </button>
               </div>
             </motion.div>
