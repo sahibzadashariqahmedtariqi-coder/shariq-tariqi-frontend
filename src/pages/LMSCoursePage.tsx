@@ -216,23 +216,28 @@ const LMSCoursePage = () => {
                       )
                     )}
                   </div>
-                ) : enrollment.progress.lastAccessedClass ? (
-                  <Link
-                    to={`/lms/watch/${enrollment.progress.lastAccessedClass}`}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
-                  >
-                    <Play className="w-5 h-5" />
-                    Continue Learning
-                  </Link>
-                ) : (
-                  <Link
-                    to={`/lms/watch/${classes[0]?._id}`}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
-                  >
-                    <Play className="w-5 h-5" />
-                    Start Learning
-                  </Link>
-                )}
+                ) : (() => {
+                  // Find the first unlocked class to navigate to
+                  const firstUnlockedClass = classes.find((c: any) => !c.isLocked);
+                  const targetClass = enrollment.progress.lastAccessedClass 
+                    ? classes.find((c: any) => c._id === enrollment.progress.lastAccessedClass && !c.isLocked) || firstUnlockedClass
+                    : firstUnlockedClass;
+                  
+                  return targetClass ? (
+                    <Link
+                      to={`/lms/watch/${targetClass._id}`}
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+                    >
+                      <Play className="w-5 h-5" />
+                      {enrollment.progress.lastAccessedClass ? 'Continue Learning' : 'Start Learning'}
+                    </Link>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2 w-full py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed">
+                      <Lock className="w-5 h-5" />
+                      All Classes Locked
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
