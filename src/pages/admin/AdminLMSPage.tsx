@@ -4488,6 +4488,7 @@ const FeeManagementSection = ({
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Month</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Amount</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Paid</th>
+                <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Pending Dues</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Status</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Due Date</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Actions</th>
@@ -4526,6 +4527,19 @@ const FeeManagementSection = ({
                     <span className={`font-semibold ${fee.paidAmount >= (fee.amount - (fee.discount || 0)) ? 'text-green-600' : fee.paidAmount > 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                       {getCurrencyLabel(fee.currency)} {fee.paidAmount.toLocaleString()}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {(() => {
+                      const effectiveAmount = fee.amount - (fee.discount || 0);
+                      const pendingDues = effectiveAmount - fee.paidAmount;
+                      return pendingDues > 0 ? (
+                        <span className="font-semibold text-red-600">
+                          {getCurrencyLabel(fee.currency)} {pendingDues.toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="font-semibold text-green-600">0</span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-center">{getStatusBadge(fee.status)}</td>
                   <td className="px-4 py-3 text-center text-sm text-gray-600">
