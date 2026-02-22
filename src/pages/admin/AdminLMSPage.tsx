@@ -2032,6 +2032,8 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
   const [enrollmentClasses, setEnrollmentClasses] = useState<any>(null);
   const [loadingClasses, setLoadingClasses] = useState(false);
 
+  const [enrollSearchTerm, setEnrollSearchTerm] = useState('');
+
   const enrolledUserIds = enrollments.filter(e => e.user).map(e => e.user._id);
   const availableUsers = users.filter((u: any) =>
     !enrolledUserIds.includes(u._id) &&
@@ -2040,6 +2042,26 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
      (u.email?.toLowerCase() || '').includes(searchUser.toLowerCase()) ||
      (u.lmsStudentId?.toLowerCase() || '').includes(searchUser.toLowerCase()))
   );
+
+  // Check if searched student is already enrolled
+  const isAlreadyEnrolled = searchUser && availableUsers.length === 0 && enrollments.filter(e => e.user).some(e =>
+    (e.user.name?.toLowerCase() || '').includes(searchUser.toLowerCase()) ||
+    (e.user.email?.toLowerCase() || '').includes(searchUser.toLowerCase()) ||
+    (e.user.lmsStudentId?.toLowerCase() || '').includes(searchUser.toLowerCase())
+  );
+
+  // Filter enrolled students
+  const filteredEnrollments = enrollments.filter(e => {
+    if (!e.user) return false;
+    if (!enrollSearchTerm) return true;
+    const term = enrollSearchTerm.toLowerCase();
+    return (
+      (e.user.name?.toLowerCase() || '').includes(term) ||
+      (e.user.email?.toLowerCase() || '').includes(term) ||
+      (e.user.lmsStudentId?.toLowerCase() || '').includes(term) ||
+      (e.user.phone?.toLowerCase() || '').includes(term)
+    );
+  });
 
   // Fetch classes for an enrollment
   const fetchEnrollmentClasses = async (enrollmentId: string) => {
@@ -2137,7 +2159,11 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
                 </button>
               </div>
               {searchUser && availableUsers.length === 0 && (
-                <p className="text-sm text-amber-600">No students found matching "{searchUser}"</p>
+                isAlreadyEnrolled ? (
+                  <p className="text-sm text-blue-600">✅ "{searchUser}" is already enrolled in this course.</p>
+                ) : (
+                  <p className="text-sm text-amber-600">No students found matching "{searchUser}"</p>
+                )
               )}
             </div>
           </div>
@@ -2145,7 +2171,7 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
           {/* Block Defaulters */}
           <div className="flex justify-between items-center">
             <h3 className="font-medium text-gray-900 flex items-center gap-2">
-              Enrolled Students ({enrollments.length})
+              Enrolled Students ({enrollments.filter(e => e.user).length})
               {isLoadingEnrollments && (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-emerald-500 border-t-transparent" />
               )}
@@ -2159,6 +2185,20 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
             </button>
           </div>
 
+          {/* Enrolled Students Search */}
+          {enrollments.filter(e => e.user).length > 5 && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search enrolled students..."
+                value={enrollSearchTerm}
+                onChange={(e) => setEnrollSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+          )}
+
           {/* Enrollments List */}
           {isLoadingEnrollments ? (
             <div className="text-center py-8">
@@ -2170,9 +2210,13 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
               <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
               <p>No students enrolled yet</p>
             </div>
+          ) : filteredEnrollments.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No enrolled students match "{enrollSearchTerm}"</p>
+            </div>
           ) : (
             <div className="space-y-3">
-              {enrollments.filter(e => e.user).map((enrollment) => (
+              {filteredEnrollments.map((enrollment) => (
                 <div
                   key={enrollment._id}
                   className={`rounded-lg border overflow-hidden ${
