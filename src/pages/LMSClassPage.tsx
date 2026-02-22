@@ -109,18 +109,24 @@ const LMSClassPage = () => {
   useEffect(() => {
     if (!data?.class.videoId) return;
 
-    // If player already exists, just load the new video (no destroy/recreate)
-    if (playerRef.current?.loadVideoById) {
+    // If player already exists and is still attached to DOM, just cue the new video
+    if (playerRef.current) {
       try {
-        playerRef.current.cueVideoById({
-          videoId: data.class.videoId,
-          startSeconds: Math.floor(data.progress?.lastPosition || 0)
-        });
-        return;
+        const iframe = playerRef.current.getIframe?.();
+        if (iframe && document.body.contains(iframe)) {
+          playerRef.current.cueVideoById({
+            videoId: data.class.videoId,
+            startSeconds: Math.floor(data.progress?.lastPosition || 0)
+          });
+          return;
+        }
       } catch (e) {
-        // Player might be in a bad state, fall through to recreate
-        console.warn('Failed to cue video, will recreate player:', e);
+        // Player in bad state, fall through to recreate
+        console.warn('Player not usable, will recreate:', e);
       }
+      // Destroy broken player before recreating
+      try { playerRef.current.destroy(); } catch (e) { /* ignore */ }
+      playerRef.current = null;
     }
 
     const createPlayer = () => {
@@ -128,6 +134,17 @@ const LMSClassPage = () => {
 
       const targetEl = document.getElementById('youtube-player');
       if (!targetEl) return;
+
+      // If the div was already replaced by an iframe (stale player), recreate the div
+      if (targetEl.tagName === 'IFRAME') {
+        const parent = targetEl.parentNode;
+        if (parent) {
+          const newDiv = document.createElement('div');
+          newDiv.id = 'youtube-player';
+          newDiv.className = 'w-full h-full';
+          parent.replaceChild(newDiv, targetEl);
+        }
+      }
 
       playerRef.current = new (window as any).YT.Player('youtube-player', {
         videoId: data.class.videoId,
