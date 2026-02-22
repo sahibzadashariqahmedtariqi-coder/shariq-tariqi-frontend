@@ -225,7 +225,7 @@ const StudentLMSPage = () => {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         if (uploadRes.data.success) {
-          setPaymentForm(prev => ({ ...prev, paymentProof: uploadRes.data.url }));
+          setPaymentForm(prev => ({ ...prev, paymentProof: uploadRes.data.data.url }));
         }
       } catch (error) {
         console.error('Failed to upload payment proof');
@@ -250,7 +250,7 @@ const StudentLMSPage = () => {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         if (uploadRes.data.success) {
-          setPaymentForm(prev => ({ ...prev, paymentProof2: uploadRes.data.url }));
+          setPaymentForm(prev => ({ ...prev, paymentProof2: uploadRes.data.data.url }));
         }
       } catch (error) {
         console.error('Failed to upload second payment proof');
