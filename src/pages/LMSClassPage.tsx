@@ -531,15 +531,28 @@ const LMSClassPage = () => {
                       <Eye className="w-4 h-4" />
                       View
                     </a>
-                    <a
-                      href={data.class.pdfAttachment.url.replace('/upload/', '/upload/fl_attachment/')}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(data.class.pdfAttachment!.url);
+                          const blob = await response.blob();
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = data.class.pdfAttachment!.filename || 'document.pdf';
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          window.URL.revokeObjectURL(url);
+                        } catch (err) {
+                          toast.error('Download failed. Try right-clicking View and "Save As".');
+                        }
+                      }}
                       className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
                     >
                       <Download className="w-4 h-4" />
                       Download
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
