@@ -152,6 +152,7 @@ const AdminLMSPage = () => {
   // Payment request review state
   const [reviewingRequest, setReviewingRequest] = useState<string | null>(null);
   const [reviewAdminRemarks, setReviewAdminRemarks] = useState('');
+  const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
   
   // Delete confirmation modal state
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
@@ -1218,20 +1219,42 @@ const AdminLMSPage = () => {
               </div>
             )}
 
+            {/* Search Bar */}
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={paymentSearchTerm}
+                onChange={(e) => setPaymentSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
             {/* Payment Requests List */}
             {loadingPaymentRequests ? (
               <div className="flex justify-center py-12">
                 <div className="w-10 h-10 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
               </div>
-            ) : paymentRequestsData?.data?.length === 0 ? (
+            ) : (() => {
+              const filteredRequests = (paymentRequestsData?.data || []).filter((request: any) => {
+                if (!paymentSearchTerm) return true;
+                const term = paymentSearchTerm.toLowerCase();
+                return (
+                  request.student?.name?.toLowerCase().includes(term) ||
+                  request.student?.lmsStudentId?.toLowerCase().includes(term) ||
+                  request.student?.email?.toLowerCase().includes(term)
+                );
+              });
+              return filteredRequests.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
                 <Receipt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-700">No Payment Requests</h3>
-                <p className="text-gray-500 mt-1">Payment requests from students will appear here</p>
+                <h3 className="text-lg font-semibold text-gray-700">{paymentSearchTerm ? 'No matching requests' : 'No Payment Requests'}</h3>
+                <p className="text-gray-500 mt-1">{paymentSearchTerm ? 'Try a different search term' : 'Payment requests from students will appear here'}</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {paymentRequestsData?.data?.map((request: any) => (
+                {filteredRequests.map((request: any) => (
                   <div
                     key={request._id}
                     className={`bg-white p-5 rounded-xl border ${
@@ -1416,7 +1439,8 @@ const AdminLMSPage = () => {
                   </div>
                 ))}
               </div>
-            )}
+            );
+            })()}
           </div>
         )}
 
@@ -4335,8 +4359,22 @@ const FeeManagementSection = ({
     );
   };
 
+  // Student search state
+  const [feeSearchTerm, setFeeSearchTerm] = useState('');
+
   // Rename students to lmsStudents for use in component
   const lmsStudents = students;
+
+  // Filter fees by student search
+  const filteredFees = fees.filter((fee: LMSFee) => {
+    if (!feeSearchTerm) return true;
+    const term = feeSearchTerm.toLowerCase();
+    return (
+      fee.student?.name?.toLowerCase().includes(term) ||
+      fee.student?.lmsStudentId?.toLowerCase().includes(term) ||
+      fee.student?.email?.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -4418,6 +4456,18 @@ const FeeManagementSection = ({
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search students..."
+          value={feeSearchTerm}
+          onChange={(e) => setFeeSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+        />
+      </div>
+
       {/* Actions Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3">
@@ -4474,11 +4524,11 @@ const FeeManagementSection = ({
         <div className="text-center py-12">
           <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto"></div>
         </div>
-      ) : fees.length === 0 ? (
+      ) : filteredFees.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border">
           <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">No fee records found</h3>
-          <p className="text-gray-500 mt-1">Generate monthly fees or add individual fee records</p>
+          <h3 className="text-lg font-medium text-gray-900">{feeSearchTerm ? 'No matching fee records' : 'No fee records found'}</h3>
+          <p className="text-gray-500 mt-1">{feeSearchTerm ? 'Try a different search term' : 'Generate monthly fees or add individual fee records'}</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border overflow-hidden">
@@ -4496,7 +4546,7 @@ const FeeManagementSection = ({
               </tr>
             </thead>
             <tbody className="divide-y">
-              {fees.map((fee: LMSFee) => (
+              {filteredFees.map((fee: LMSFee) => (
                 <tr key={fee._id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
