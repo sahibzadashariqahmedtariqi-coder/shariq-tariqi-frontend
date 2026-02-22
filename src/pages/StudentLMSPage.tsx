@@ -325,6 +325,11 @@ const StudentLMSPage = () => {
       toast.error('Please enter a valid payment amount');
       return;
     }
+    const remainingAmount = (selectedFee.amount - (selectedFee.discount || 0)) - selectedFee.paidAmount;
+    if (paymentForm.amount > remainingAmount) {
+      toast.error(`Payment amount cannot exceed remaining amount of Rs ${remainingAmount.toLocaleString()}`);
+      return;
+    }
     
     submitPaymentMutation.mutate({
       feeId: selectedFee._id,
@@ -1680,7 +1685,6 @@ const StudentLMSPage = () => {
                         onChange={(e) => setPaymentForm(prev => ({ ...prev, amount: Number(e.target.value) }))}
                         placeholder="Enter amount you are paying"
                         min={1}
-                        max={(selectedFee.amount - (selectedFee.discount || 0)) - selectedFee.paidAmount}
                         required
                         className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-lg font-semibold"
                       />
