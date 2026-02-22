@@ -142,6 +142,31 @@ export const getMyEnrolledCourses = async (req, res) => {
       .populate('course', 'title thumbnail category level duration totalClasses status')
       .sort({ enrolledAt: -1 });
 
+    // Dynamically update totalClasses from actual published classes count
+    for (const enrollment of enrollments) {
+      if (enrollment.course) {
+        const actualTotal = await LMSClass.countDocuments({ 
+          course: enrollment.course._id, 
+          isPublished: true 
+        });
+        
+        // Count completed classes from progress records
+        const completedCount = await LMSProgress.countDocuments({
+          user: req.user._id,
+          course: enrollment.course._id,
+          status: 'completed'
+        });
+
+        // Update if stale
+        if (enrollment.progress.totalClasses !== actualTotal || enrollment.progress.completedClasses !== completedCount) {
+          enrollment.progress.totalClasses = actualTotal;
+          enrollment.progress.completedClasses = completedCount;
+          enrollment.progress.percentage = actualTotal > 0 ? Math.round((completedCount / actualTotal) * 100) : 0;
+          await enrollment.save();
+        }
+      }
+    }
+
     res.json({
       success: true,
       count: enrollments.length,
@@ -310,26 +335,25 @@ export const watchClass = async (req, res) => {
       });
     }
 
-    // Check if class is specifically locked for this student (per-student lock)
-    const isStudentLocked = enrollment.lockedClasses && 
-      enrollment.lockedClasses.some(id => id.toString() === classId);
-    
-    if (isStudentLocked) {
+    // Check global lock FIRST — global lock always takes priority
+    if (classItem.isLocked && !classItem.isPreview) {
       return res.status(403).json({
         success: false,
-        message: 'This class has been locked for you by the instructor.',
+        message: 'This class is locked. It will be unlocked by the instructor soon.',
         locked: true
       });
     }
 
-    // Check if class is globally locked (unless it's a preview or specifically unlocked for student)
+    // Check if class is specifically locked for this student (per-student lock, only applies when globally unlocked)
+    const isStudentLocked = enrollment.lockedClasses && 
+      enrollment.lockedClasses.some(id => id.toString() === classId);
     const isStudentUnlocked = enrollment.unlockedClasses && 
       enrollment.unlockedClasses.some(id => id.toString() === classId);
     
-    if (classItem.isLocked && !classItem.isPreview && !isStudentUnlocked) {
+    if (isStudentLocked && !isStudentUnlocked) {
       return res.status(403).json({
         success: false,
-        message: 'This class is locked. It will be unlocked by the instructor soon.',
+        message: 'This class has been locked for you by the instructor.',
         locked: true
       });
     }
@@ -377,8 +401,13 @@ export const watchClass = async (req, res) => {
       const isStudentUnlocked = enrollment.unlockedClasses && 
         enrollment.unlockedClasses.some(id => id.toString() === clsId);
       
-      // Final lock status: locked if (globally locked AND not student-unlocked) OR student-locked
-      const finalLocked = isStudentLocked || (cls.isLocked && !isStudentUnlocked);
+      // Priority: Global lock ALWAYS wins. Per-student controls only apply when globally unlocked.
+      let finalLocked;
+      if (cls.isLocked) {
+        finalLocked = true; // Global lock always takes priority
+      } else {
+        finalLocked = isStudentLocked && !isStudentUnlocked;
+      }
       
       return {
         ...cls.toObject(),
@@ -870,17 +899,15 @@ export const getEnrollmentClasses = async (req, res) => {
       const classId = cls._id.toString();
       
       // Determine lock status for this student
-      // Priority: lockedClasses > unlockedClasses > global isLocked
-      let isLockedForStudent = cls.isLocked; // Start with global lock status
-      
-      // Check if specifically unlocked for this student
-      if (enrollment.unlockedClasses?.some(id => id.toString() === classId)) {
-        isLockedForStudent = false;
-      }
-      
-      // Check if specifically locked for this student (overrides unlock)
-      if (enrollment.lockedClasses?.some(id => id.toString() === classId)) {
-        isLockedForStudent = true;
+      // Priority: Global lock ALWAYS wins. Per-student controls only apply when globally unlocked.
+      let isLockedForStudent;
+      if (cls.isLocked) {
+        isLockedForStudent = true; // Global lock always takes priority
+      } else {
+        // Globally unlocked — check per-student controls
+        const isManuallyLocked = enrollment.lockedClasses?.some(id => id.toString() === classId);
+        const isManuallyUnlocked = enrollment.unlockedClasses?.some(id => id.toString() === classId);
+        isLockedForStudent = isManuallyLocked && !isManuallyUnlocked;
       }
 
       return {

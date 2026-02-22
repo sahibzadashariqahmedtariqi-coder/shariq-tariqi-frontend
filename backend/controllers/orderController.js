@@ -11,6 +11,7 @@ export const createOrder = async (req, res, next) => {
     const {
       orderType,
       itemId,
+      itemTitle: requestItemTitle,
       customerName,
       customerEmail,
       customerPhone,
@@ -22,6 +23,9 @@ export const createOrder = async (req, res, next) => {
       isPdfPurchase,
       pdfUrl,
       couponCode,
+      paymentProof,
+      transactionId,
+      senderAccountNumber,
     } = req.body;
 
     // Validate item exists and get details
@@ -57,7 +61,7 @@ export const createOrder = async (req, res, next) => {
     } else if (orderType === 'appointment') {
       // Appointments don't have itemId
       amount = 1000; // Default appointment charge
-      itemTitle = 'Spiritual Consultation Appointment';
+      itemTitle = requestItemTitle || 'Spiritual Consultation Appointment';
     } else {
       return res.status(400).json({
         success: false,
@@ -109,6 +113,14 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
+    // Payment proof is MANDATORY for paid orders (non-free)
+    if (!isFreeOrder && !paymentProof) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment proof is required for paid orders',
+      });
+    }
+
     // Create order
     const order = await Order.create({
       orderType,
@@ -131,6 +143,11 @@ export const createOrder = async (req, res, next) => {
       pdfUrl: isPdfPurchase ? (pdfUrl || item?.pdfUrl) : undefined,
       // Always pending - admin will manually verify (even for free coupon orders)
       paymentStatus: 'pending',
+      // Save payment proof if provided (for paid orders)
+      paymentProof: paymentProof || undefined,
+      transactionId: transactionId || undefined,
+      senderAccountNumber: senderAccountNumber || undefined,
+      paymentDate: paymentProof ? Date.now() : undefined,
     });
 
     res.status(201).json({

@@ -16,7 +16,8 @@ import {
   unlockAllClasses,
   lockAllClasses,
   toggleCoursePublish,
-  cleanupLMSData
+  cleanupLMSData,
+  fixExistingPdfs
 } from '../controllers/lmsCourseController.js';
 import {
   enrollStudent,
@@ -136,6 +137,9 @@ router.delete('/certificates/:id', protect, admin, deleteCertificate);
 
 // ==================== CLEANUP ====================
 router.post('/cleanup', protect, admin, cleanupLMSData);
+
+// Fix existing PDFs access mode
+router.put('/fix-pdfs', protect, admin, fixExistingPdfs);
 
 // ==================== LMS STUDENT MANAGEMENT (Admin) ====================
 router.get('/students/stats/detailed', protect, admin, getLMSDetailedStats);

@@ -45,6 +45,18 @@ const lmsFeeSchema = new mongoose.Schema({
   remarks: {
     type: String
   },
+  discount: {
+    type: Number,
+    default: 0
+  },
+  discountReason: {
+    type: String
+  },
+  currency: {
+    type: String,
+    enum: ['PKR', 'INR'],
+    default: 'PKR'
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

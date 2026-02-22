@@ -163,8 +163,15 @@ export const getCourseForStudent = async (req, res) => {
       const isStudentUnlocked = enrollment.unlockedClasses && 
         enrollment.unlockedClasses.some(id => id.toString() === clsId);
       
-      // Final lock status: locked if (globally locked AND not student-unlocked) OR student-locked
-      const finalLocked = isStudentLocked || (cls.isLocked && !isStudentUnlocked);
+      // Priority: Global lock ALWAYS wins. Per-student controls only apply when globally unlocked.
+      // If globally locked → LOCKED for everyone (no override)
+      // If globally unlocked → check per-student lock/unlock
+      let finalLocked;
+      if (cls.isLocked) {
+        finalLocked = true; // Global lock always takes priority
+      } else {
+        finalLocked = isStudentLocked && !isStudentUnlocked; // Per-student controls only when globally unlocked
+      }
       
       return {
         ...cls.toObject(),
@@ -186,6 +193,17 @@ export const getCourseForStudent = async (req, res) => {
         lastPosition: p.lastPosition
       };
     });
+
+    // Dynamically update enrollment progress with actual class count
+    const actualTotalClasses = classes.length;
+    const completedCount = progress.filter(p => p.status === 'completed').length;
+    
+    if (enrollment.progress.totalClasses !== actualTotalClasses || enrollment.progress.completedClasses !== completedCount) {
+      enrollment.progress.totalClasses = actualTotalClasses;
+      enrollment.progress.completedClasses = completedCount;
+      enrollment.progress.percentage = actualTotalClasses > 0 ? Math.round((completedCount / actualTotalClasses) * 100) : 0;
+      await enrollment.save();
+    }
 
     res.json({
       success: true,
@@ -296,7 +314,15 @@ export const toggleCoursePublish = async (req, res) => {
 export const addClass = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const { title, description, section, videoUrl, duration, notes, isPreview } = req.body;
+    const { title, description, section, videoUrl, duration, notes, isPreview, isLocked, isPublished } = req.body;
+
+    // Helper to parse boolean from FormData string values
+    const parseBool = (val, defaultVal) => {
+      if (val === undefined || val === null) return defaultVal;
+      if (typeof val === 'boolean') return val;
+      if (typeof val === 'string') return val.toLowerCase() === 'true';
+      return Boolean(val);
+    };
 
     const course = await Course.findById(courseId);
     if (!course) {
@@ -318,6 +344,7 @@ export const addClass = async (req, res) => {
             {
               folder: 'lms-pdfs',
               resource_type: 'raw',
+              access_mode: 'public',
               public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '')}`
             },
             (error, result) => {
@@ -370,9 +397,9 @@ export const addClass = async (req, res) => {
       duration: duration || 0,
       notes,
       pdfAttachment,
-      isPreview: isPreview || false,
-      isLocked: false, // Unlocked by default taake student dekh sake
-      isPublished: true, // Published by default taake student ko show ho
+      isPreview: parseBool(isPreview, false),
+      isLocked: parseBool(isLocked, true), // Respect form value, default locked
+      isPublished: parseBool(isPublished, true), // Respect form value, default published
       createdBy: req.user._id
     });
 
@@ -434,6 +461,24 @@ export const updateClass = async (req, res) => {
 
     const updates = { ...req.body };
 
+    // Parse boolean fields from FormData string values (multer sends all as strings)
+    const booleanFields = ['isLocked', 'isPublished', 'isPreview'];
+    booleanFields.forEach(field => {
+      if (updates[field] !== undefined) {
+        if (typeof updates[field] === 'string') {
+          updates[field] = updates[field].toLowerCase() === 'true';
+        }
+      }
+    });
+
+    // Parse number fields from FormData string values
+    if (updates.order !== undefined) {
+      updates.order = parseInt(updates.order) || classItem.order;
+    }
+    if (updates.duration !== undefined) {
+      updates.duration = parseInt(updates.duration) || 0;
+    }
+
     // Handle PDF upload from multer (req.file with memoryStorage)
     if (req.file) {
       try {
@@ -448,6 +493,7 @@ export const updateClass = async (req, res) => {
             {
               folder: 'lms-pdfs',
               resource_type: 'raw',
+              access_mode: 'public',
               public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '')}`
             },
             (error, result) => {
@@ -468,6 +514,23 @@ export const updateClass = async (req, res) => {
       } catch (uploadError) {
         console.error('❌ PDF upload error:', uploadError);
       }
+    }
+
+    // If videoUrl is being updated, re-extract videoId
+    // (findByIdAndUpdate bypasses pre-save hooks, so we must do it manually)
+    if (updates.videoUrl && updates.videoUrl !== classItem.videoUrl) {
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+        /^([a-zA-Z0-9_-]{11})$/ // Direct video ID
+      ];
+      for (const pattern of patterns) {
+        const match = updates.videoUrl.match(pattern);
+        if (match) {
+          updates.videoId = match[1];
+          break;
+        }
+      }
+      console.log('✅ Video URL updated, new videoId:', updates.videoId);
     }
 
     updates.updatedBy = req.user._id;
@@ -708,6 +771,41 @@ export const cleanupLMSData = async (req, res) => {
     });
   } catch (error) {
     console.error('Error cleaning up LMS data:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Fix existing PDFs access mode on Cloudinary
+// @route   PUT /api/lms/fix-pdfs
+// @access  Admin
+export const fixExistingPdfs = async (req, res) => {
+  try {
+    const classes = await LMSClass.find({ 'pdfAttachment.publicId': { $exists: true, $ne: null } });
+    
+    let fixed = 0;
+    let errors = 0;
+
+    for (const cls of classes) {
+      try {
+        await cloudinary.api.update(cls.pdfAttachment.publicId, {
+          resource_type: 'raw',
+          access_mode: 'public'
+        });
+        fixed++;
+        console.log(`✅ Fixed PDF access: ${cls.pdfAttachment.filename}`);
+      } catch (err) {
+        errors++;
+        console.error(`❌ Failed to fix PDF: ${cls.pdfAttachment.filename}`, err.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Fixed ${fixed} PDFs, ${errors} errors`,
+      data: { total: classes.length, fixed, errors }
+    });
+  } catch (error) {
+    console.error('Error fixing PDFs:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

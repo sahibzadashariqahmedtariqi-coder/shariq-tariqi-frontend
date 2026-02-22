@@ -21,8 +21,7 @@ const lmsPaymentRequestSchema = new mongoose.Schema({
     required: true
   },
   transactionId: {
-    type: String,
-    required: true
+    type: String
   },
   accountTitle: {
     type: String
@@ -32,6 +31,14 @@ const lmsPaymentRequestSchema = new mongoose.Schema({
   },
   paymentProof: {
     type: String // Cloudinary URL for screenshot
+  },
+  paymentProof2: {
+    type: String // Optional second screenshot
+  },
+  currency: {
+    type: String,
+    enum: ['PKR', 'INR'],
+    default: 'PKR'
   },
   remarks: {
     type: String

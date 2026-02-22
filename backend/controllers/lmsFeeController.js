@@ -43,8 +43,10 @@ export const getAllFees = asyncHandler(async (req, res) => {
   const summary = {
     total: fees.length,
     totalAmount: fees.reduce((sum, f) => sum + f.amount, 0),
+    totalDiscount: fees.reduce((sum, f) => sum + (f.discount || 0), 0),
+    effectiveAmount: fees.reduce((sum, f) => sum + (f.amount - (f.discount || 0)), 0),
     paidAmount: fees.reduce((sum, f) => sum + f.paidAmount, 0),
-    pendingAmount: fees.reduce((sum, f) => sum + (f.amount - f.paidAmount), 0),
+    pendingAmount: fees.reduce((sum, f) => sum + ((f.amount - (f.discount || 0)) - f.paidAmount), 0),
     paidCount: fees.filter(f => f.status === 'paid').length,
     pendingCount: fees.filter(f => f.status === 'pending').length,
     overdueCount: fees.filter(f => f.status === 'overdue').length,
@@ -101,7 +103,7 @@ export const createFee = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 export const updateFee = asyncHandler(async (req, res) => {
   const { feeId } = req.params;
-  const { status, paidAmount, paidDate, paymentMethod, transactionId, remarks, amount } = req.body;
+  const { status, paidAmount, paidDate, paymentMethod, transactionId, remarks, amount, discount, discountReason, currency } = req.body;
   
   const fee = await LMSFee.findById(feeId);
   if (!fee) {
@@ -117,11 +119,15 @@ export const updateFee = asyncHandler(async (req, res) => {
   if (paymentMethod) fee.paymentMethod = paymentMethod;
   if (transactionId) fee.transactionId = transactionId;
   if (remarks !== undefined) fee.remarks = remarks;
+  if (discount !== undefined) fee.discount = discount;
+  if (discountReason !== undefined) fee.discountReason = discountReason;
+  if (currency) fee.currency = currency;
   fee.updatedBy = req.user._id;
   
-  // Auto-update status based on payment
+  // Auto-update status based on payment (using effective amount after discount)
   if (paidAmount !== undefined) {
-    if (paidAmount >= fee.amount) {
+    const effectiveAmount = fee.amount - (fee.discount || 0);
+    if (paidAmount >= effectiveAmount) {
       fee.status = 'paid';
       fee.paidDate = fee.paidDate || new Date();
     } else if (paidAmount > 0) {
@@ -222,8 +228,10 @@ export const getStudentFeeSummary = asyncHandler(async (req, res) => {
   const summary = {
     totalFees: fees.length,
     totalAmount: fees.reduce((sum, f) => sum + f.amount, 0),
+    totalDiscount: fees.reduce((sum, f) => sum + (f.discount || 0), 0),
+    effectiveAmount: fees.reduce((sum, f) => sum + (f.amount - (f.discount || 0)), 0),
     paidAmount: fees.reduce((sum, f) => sum + f.paidAmount, 0),
-    pendingAmount: fees.reduce((sum, f) => sum + (f.amount - f.paidAmount), 0),
+    pendingAmount: fees.reduce((sum, f) => sum + ((f.amount - (f.discount || 0)) - f.paidAmount), 0),
     paidCount: fees.filter(f => f.status === 'paid').length,
     pendingCount: fees.filter(f => f.status === 'pending').length,
     overdueCount: fees.filter(f => f.status === 'overdue').length,
@@ -249,8 +257,10 @@ export const getMyFees = asyncHandler(async (req, res) => {
   const summary = {
     totalFees: fees.length,
     totalAmount: fees.reduce((sum, f) => sum + f.amount, 0),
+    totalDiscount: fees.reduce((sum, f) => sum + (f.discount || 0), 0),
+    effectiveAmount: fees.reduce((sum, f) => sum + (f.amount - (f.discount || 0)), 0),
     paidAmount: fees.reduce((sum, f) => sum + f.paidAmount, 0),
-    pendingAmount: fees.reduce((sum, f) => sum + (f.amount - f.paidAmount), 0),
+    pendingAmount: fees.reduce((sum, f) => sum + ((f.amount - (f.discount || 0)) - f.paidAmount), 0),
     paidCount: fees.filter(f => f.status === 'paid').length,
     pendingCount: fees.filter(f => f.status === 'pending').length,
     overdueCount: fees.filter(f => f.status === 'overdue').length,
@@ -271,7 +281,7 @@ export const getMyFees = asyncHandler(async (req, res) => {
 // @access  Private (LMS Student)
 export const submitPaymentRequest = asyncHandler(async (req, res) => {
   const studentId = req.user._id;
-  const { feeId, amount, paymentMethod, transactionId, accountTitle, accountNumber, paymentProof, remarks } = req.body;
+  const { feeId, amount, paymentMethod, transactionId, accountTitle, accountNumber, paymentProof, paymentProof2, currency, remarks } = req.body;
   
   // Validate fee exists and belongs to this student
   const fee = await LMSFee.findOne({ _id: feeId, student: studentId });
@@ -281,10 +291,11 @@ export const submitPaymentRequest = asyncHandler(async (req, res) => {
   }
   
   // Check remaining amount
-  const remainingAmount = fee.amount - fee.paidAmount;
+  const effectiveAmount = fee.amount - (fee.discount || 0);
+  const remainingAmount = effectiveAmount - fee.paidAmount;
   if (amount > remainingAmount) {
     res.status(400);
-    throw new Error(`Payment amount cannot exceed remaining amount of Rs ${remainingAmount}`);
+    throw new Error(`Payment amount cannot exceed remaining amount of ${remainingAmount}`);
   }
   
   if (amount <= 0) {
@@ -314,6 +325,8 @@ export const submitPaymentRequest = asyncHandler(async (req, res) => {
     accountTitle,
     accountNumber,
     paymentProof,
+    paymentProof2,
+    currency: currency || 'PKR',
     remarks,
     status: 'pending'
   });
