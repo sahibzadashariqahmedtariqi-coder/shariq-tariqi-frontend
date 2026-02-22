@@ -80,24 +80,28 @@ interface AppointmentSettings {
   hikmatFee: number
   ruqyahFee: number
   taveezFee: number
+  otherFee: number
   // Video Call Fees (PKR)
   consultationFeeVideoCall: number
   healingFeeVideoCall: number
   hikmatFeeVideoCall: number
   ruqyahFeeVideoCall: number
   taveezFeeVideoCall: number
+  otherFeeVideoCall: number
   // INR Fees
   consultationFeeINR: number
   healingFeeINR: number
   hikmatFeeINR: number
   ruqyahFeeINR: number
   taveezFeeINR: number
+  otherFeeINR: number
   // Video Call INR
   consultationFeeVideoCallINR: number
   healingFeeVideoCallINR: number
   hikmatFeeVideoCallINR: number
   ruqyahFeeVideoCallINR: number
   taveezFeeVideoCallINR: number
+  otherFeeVideoCallINR: number
   workingHoursStart: string
   workingHoursEnd: string
   workingDays: string[]
@@ -152,24 +156,28 @@ export default function AppointmentsPage() {
     hikmatFee: 2000,
     ruqyahFee: 2000,
     taveezFee: 2000,
+    otherFee: 1000,
     // Video Call PKR
     consultationFeeVideoCall: 3000,
     healingFeeVideoCall: 3000,
     hikmatFeeVideoCall: 3000,
     ruqyahFeeVideoCall: 3000,
     taveezFeeVideoCall: 3000,
+    otherFeeVideoCall: 2000,
     // INR Voice Call
     consultationFeeINR: 700,
     healingFeeINR: 700,
     hikmatFeeINR: 700,
     ruqyahFeeINR: 700,
     taveezFeeINR: 700,
+    otherFeeINR: 1000,
     // Video Call INR
     consultationFeeVideoCallINR: 1000,
     healingFeeVideoCallINR: 1000,
     hikmatFeeVideoCallINR: 1000,
     ruqyahFeeVideoCallINR: 1000,
     taveezFeeVideoCallINR: 1000,
+    otherFeeVideoCallINR: 1500,
     workingHoursStart: '09:00',
     workingHoursEnd: '18:00',
     workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -233,7 +241,13 @@ export default function AppointmentsPage() {
       feeINR: settings.taveezFeeINR,
       videoFeeINR: settings.taveezFeeVideoCallINR 
     },
-    { name: 'Other', fee: 0, videoFee: 0, feeINR: 0, videoFeeINR: 0 },
+    { 
+      name: 'Other', 
+      fee: settings.otherFee, 
+      videoFee: settings.otherFeeVideoCall,
+      feeINR: settings.otherFeeINR,
+      videoFeeINR: settings.otherFeeVideoCallINR 
+    },
   ]
 
   // Get current service fee based on consultation type

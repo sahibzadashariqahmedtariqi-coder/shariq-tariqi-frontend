@@ -14,24 +14,28 @@ interface AppointmentSettings {
   hikmatFee: number
   ruqyahFee: number
   taveezFee: number
+  otherFee: number
   // PKR Video Call Fees
   consultationFeeVideoCall: number
   healingFeeVideoCall: number
   hikmatFeeVideoCall: number
   ruqyahFeeVideoCall: number
   taveezFeeVideoCall: number
+  otherFeeVideoCall: number
   // INR Voice Call Fees
   consultationFeeINR: number
   healingFeeINR: number
   hikmatFeeINR: number
   ruqyahFeeINR: number
   taveezFeeINR: number
+  otherFeeINR: number
   // INR Video Call Fees
   consultationFeeVideoCallINR: number
   healingFeeVideoCallINR: number
   hikmatFeeVideoCallINR: number
   ruqyahFeeVideoCallINR: number
   taveezFeeVideoCallINR: number
+  otherFeeVideoCallINR: number
   // Other settings
   workingHoursStart: string
   workingHoursEnd: string
@@ -57,24 +61,28 @@ export default function AdminAppointmentSettingsPage() {
     hikmatFee: 2000,
     ruqyahFee: 2000,
     taveezFee: 2000,
+    otherFee: 1000,
     // PKR Video Call Fees
     consultationFeeVideoCall: 3000,
     healingFeeVideoCall: 3000,
     hikmatFeeVideoCall: 3000,
     ruqyahFeeVideoCall: 3000,
     taveezFeeVideoCall: 3000,
+    otherFeeVideoCall: 2000,
     // INR Voice Call Fees
     consultationFeeINR: 700,
     healingFeeINR: 700,
     hikmatFeeINR: 700,
     ruqyahFeeINR: 700,
     taveezFeeINR: 700,
+    otherFeeINR: 1000,
     // INR Video Call Fees
     consultationFeeVideoCallINR: 1000,
     healingFeeVideoCallINR: 1000,
     hikmatFeeVideoCallINR: 1000,
     ruqyahFeeVideoCallINR: 1000,
     taveezFeeVideoCallINR: 1000,
+    otherFeeVideoCallINR: 1500,
     // Other settings
     workingHoursStart: '09:00',
     workingHoursEnd: '18:00',
@@ -311,6 +319,29 @@ export default function AdminAppointmentSettingsPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Other Service */}
+              <div className="border dark:border-gray-700 rounded-lg p-4">
+                <h3 className="font-semibold text-lg mb-4 text-primary-700 dark:text-primary-400">Other Service</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">Voice Call (PKR)</label>
+                    <input type="number" value={settings.otherFee} onChange={(e) => handleChange('otherFee', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">Video Call (PKR)</label>
+                    <input type="number" value={settings.otherFeeVideoCall} onChange={(e) => handleChange('otherFeeVideoCall', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">Voice Call (₹ INR)</label>
+                    <input type="number" value={settings.otherFeeINR} onChange={(e) => handleChange('otherFeeINR', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-emerald-600 dark:text-emerald-400">Video Call (₹ INR)</label>
+                    <input type="number" value={settings.otherFeeVideoCallINR} onChange={(e) => handleChange('otherFeeVideoCallINR', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -506,6 +537,18 @@ export default function AdminAppointmentSettingsPage() {
                       <td className="text-center">{settings.taveezFeeVideoCall}</td>
                       <td className="text-center text-emerald-600">₹{settings.taveezFeeINR}</td>
                       <td className="text-center text-emerald-600">₹{settings.taveezFeeVideoCallINR}</td>
+                    </tr>                    <tr>
+                      <td className="py-2">Other</td>
+                      <td className="text-center">{settings.otherFee}</td>
+                      <td className="text-center">{settings.otherFeeVideoCall}</td>
+                      <td className="text-center text-emerald-600">₹{settings.otherFeeINR}</td>
+                      <td className="text-center text-emerald-600">₹{settings.otherFeeVideoCallINR}</td>
+                    </tr>                    <tr>
+                      <td className="py-2">Other</td>
+                      <td className="text-center">{settings.otherFee}</td>
+                      <td className="text-center">{settings.otherFeeVideoCall}</td>
+                      <td className="text-center text-emerald-600">₹{settings.otherFeeINR}</td>
+                      <td className="text-center text-emerald-600">₹{settings.otherFeeVideoCallINR}</td>
                     </tr>
                   </tbody>
                 </table>
