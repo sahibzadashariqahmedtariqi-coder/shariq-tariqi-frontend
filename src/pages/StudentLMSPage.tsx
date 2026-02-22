@@ -142,7 +142,10 @@ const StudentLMSPage = () => {
   const [selectedFee, setSelectedFee] = useState<FeeRecord | null>(null);
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [paymentProof2, setPaymentProof2] = useState<File | null>(null);
+  const [imagePreview2, setImagePreview2] = useState<string | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
+  const [uploadingProof2, setUploadingProof2] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     amount: 0,
     paymentMethod: 'bank_transfer',
@@ -150,6 +153,8 @@ const StudentLMSPage = () => {
     accountTitle: '',
     accountNumber: '',
     paymentProof: '',
+    paymentProof2: '',
+    currency: 'PKR' as 'PKR' | 'INR',
     remarks: ''
   });
   const queryClient = useQueryClient();
@@ -212,7 +217,6 @@ const StudentLMSPage = () => {
       setPaymentProof(file);
       setImagePreview(URL.createObjectURL(file));
       
-      // Upload to cloudinary
       try {
         setUploadingProof(true);
         const formData = new FormData();
@@ -231,6 +235,31 @@ const StudentLMSPage = () => {
     }
   };
 
+  // Handle file upload for second (optional) payment proof
+  const handleFileChange2 = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPaymentProof2(file);
+      setImagePreview2(URL.createObjectURL(file));
+      
+      try {
+        setUploadingProof2(true);
+        const formData = new FormData();
+        formData.append('image', file);
+        const uploadRes = await api.post('/upload/payment-proof?folder=fee-payments', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (uploadRes.data.success) {
+          setPaymentForm(prev => ({ ...prev, paymentProof2: uploadRes.data.url }));
+        }
+      } catch (error) {
+        console.error('Failed to upload second payment proof');
+      } finally {
+        setUploadingProof2(false);
+      }
+    }
+  };
+
   // Payment submission mutation
   const submitPaymentMutation = useMutation({
     mutationFn: async (data: typeof paymentForm & { feeId: string }) => {
@@ -244,6 +273,8 @@ const StudentLMSPage = () => {
       setSelectedFee(null);
       setPaymentProof(null);
       setImagePreview(null);
+      setPaymentProof2(null);
+      setImagePreview2(null);
       setPaymentForm({
         amount: 0,
         paymentMethod: 'bank_transfer',
@@ -251,6 +282,8 @@ const StudentLMSPage = () => {
         accountTitle: '',
         accountNumber: '',
         paymentProof: '',
+        paymentProof2: '',
+        currency: 'PKR',
         remarks: ''
       });
       toast.success('Payment request submitted successfully! Admin will review and approve it.');
@@ -264,6 +297,8 @@ const StudentLMSPage = () => {
     setSelectedFee(fee);
     setPaymentProof(null);
     setImagePreview(null);
+    setPaymentProof2(null);
+    setImagePreview2(null);
     const effectiveAmount = fee.amount - (fee.discount || 0);
     setPaymentForm({
       amount: effectiveAmount - fee.paidAmount,
@@ -272,6 +307,8 @@ const StudentLMSPage = () => {
       accountTitle: '',
       accountNumber: '',
       paymentProof: '',
+      paymentProof2: '',
+      currency: fee.currency || 'PKR',
       remarks: ''
     });
     setShowPaymentModal(true);
@@ -281,7 +318,11 @@ const StudentLMSPage = () => {
     e.preventDefault();
     if (!selectedFee) return;
     if (!paymentProof) {
-      toast.error('Please upload payment screenshot');
+      toast.error('Please upload at least one payment screenshot');
+      return;
+    }
+    if (paymentForm.amount <= 0) {
+      toast.error('Please enter a valid payment amount');
       return;
     }
     
@@ -1613,9 +1654,9 @@ const StudentLMSPage = () => {
               <form onSubmit={handleSubmitPayment} className="p-6 space-y-5">
                 {/* Amount Summary */}
                 <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5 text-center">
-                  <p className="text-gray-400 text-sm">Amount to Transfer</p>
+                  <p className="text-gray-400 text-sm">Remaining Balance</p>
                   <p className="text-3xl font-bold text-emerald-400 mt-1">
-                    Rs {paymentForm.amount.toLocaleString()}
+                    Rs {((selectedFee.amount - (selectedFee.discount || 0)) - selectedFee.paidAmount).toLocaleString()}
                   </p>
                   <p className="text-gray-500 text-xs mt-2">
                     Total Fee: Rs {(selectedFee.amount - (selectedFee.discount || 0)).toLocaleString()}
@@ -1624,6 +1665,35 @@ const StudentLMSPage = () => {
                     )}
                     {' '}| Already Paid: Rs {selectedFee.paidAmount.toLocaleString()}
                   </p>
+                </div>
+
+                {/* Payment Amount & Currency */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Payment Amount *
+                  </label>
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        value={paymentForm.amount || ''}
+                        onChange={(e) => setPaymentForm(prev => ({ ...prev, amount: Number(e.target.value) }))}
+                        placeholder="Enter amount you are paying"
+                        min={1}
+                        max={(selectedFee.amount - (selectedFee.discount || 0)) - selectedFee.paidAmount}
+                        required
+                        className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-lg font-semibold"
+                      />
+                    </div>
+                    <select
+                      value={paymentForm.currency}
+                      onChange={(e) => setPaymentForm(prev => ({ ...prev, currency: e.target.value as 'PKR' | 'INR' }))}
+                      className="px-4 py-3 bg-slate-800 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-medium"
+                    >
+                      <option value="PKR">🇵🇰 PKR</option>
+                      <option value="INR">🇮🇳 INR</option>
+                    </select>
+                  </div>
                 </div>
 
                 {/* Bank Details from Settings */}
@@ -1747,6 +1817,48 @@ const StudentLMSPage = () => {
                   </div>
                 </div>
 
+                {/* Second Payment Screenshot (Optional) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Second Screenshot <span className="text-gray-500 text-xs">(Optional)</span>
+                  </label>
+                  <div className="border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-emerald-500/50 transition cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange2}
+                      className="hidden"
+                      id="payment-proof-upload-2"
+                    />
+                    <label htmlFor="payment-proof-upload-2" className="cursor-pointer block">
+                      {paymentProof2 && imagePreview2 ? (
+                        <div className="space-y-2">
+                          <img 
+                            src={imagePreview2} 
+                            alt="Second Screenshot" 
+                            className="max-h-32 mx-auto rounded-lg border border-white/20"
+                          />
+                          <div className="flex items-center justify-center gap-2 text-emerald-400">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="text-xs font-medium">{paymentProof2.name}</span>
+                          </div>
+                          {uploadingProof2 && (
+                            <div className="flex items-center justify-center gap-2 text-amber-400">
+                              <div className="w-4 h-4 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+                              <span className="text-xs">Uploading...</span>
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-500">Click to change</p>
+                        </div>
+                      ) : (
+                        <div className="text-gray-500 py-1">
+                          <p className="text-sm">+ Add another screenshot (if needed)</p>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
                 {/* Transaction ID */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -1787,7 +1899,7 @@ const StudentLMSPage = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={submitPaymentMutation.isPending || uploadingProof || !paymentProof}
+                    disabled={submitPaymentMutation.isPending || uploadingProof || uploadingProof2 || !paymentProof}
                     className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:from-emerald-400 hover:to-teal-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitPaymentMutation.isPending ? (
