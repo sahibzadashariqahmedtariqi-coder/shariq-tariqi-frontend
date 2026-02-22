@@ -2456,7 +2456,7 @@ const StudentsSection = ({
         </div>
       ) : (
         <div className="bg-white rounded-xl border overflow-hidden overflow-x-auto">
-          <table className="w-full min-w-[1200px]">
+          <table className="w-full min-w-[1400px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Student ID</th>
@@ -2479,6 +2479,12 @@ const StudentsSection = ({
                 </th>
                 <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
                   <span className="text-amber-600">Certs</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
+                  <span className="text-red-600">Locked</span>
+                </th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">
+                  <span className="text-teal-600">Unlocked</span>
                 </th>
                 <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Status</th>
                 <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Access</th>
@@ -2551,6 +2557,16 @@ const StudentsSection = ({
                   <td className="px-3 py-3 text-center">
                     <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
                       {student.certificates || 0}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-center">
+                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">
+                      {student.lockedClasses || 0}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-center">
+                    <span className="px-2 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-bold">
+                      {student.unlockedClasses || 0}
                     </span>
                   </td>
                   <td className="px-3 py-3 text-center">
