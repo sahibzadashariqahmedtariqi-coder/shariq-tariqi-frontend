@@ -153,6 +153,7 @@ const AdminLMSPage = () => {
   const [reviewingRequest, setReviewingRequest] = useState<string | null>(null);
   const [reviewAdminRemarks, setReviewAdminRemarks] = useState('');
   const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
+  const [viewingRequest, setViewingRequest] = useState<string | null>(null);
   
   // Delete confirmation modal state
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
@@ -1326,6 +1327,19 @@ const AdminLMSPage = () => {
                           {request.status}
                         </span>
 
+                        {/* View Button */}
+                        <button
+                          onClick={() => setViewingRequest(viewingRequest === request._id ? null : request._id)}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                            viewingRequest === request._id
+                              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                              : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                          }`}
+                        >
+                          <Eye className="w-4 h-4" />
+                          {viewingRequest === request._id ? 'Hide' : 'View'}
+                        </button>
+
                         {/* Delete Button - always visible */}
                         <button
                           onClick={() => setDeleteConfirmModal({ 
@@ -1342,57 +1356,67 @@ const AdminLMSPage = () => {
                       </div>
                     </div>
 
-                    {/* Account Details */}
-                    {(request.accountTitle || request.accountNumber) && (
-                      <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
-                        {request.accountTitle && <span>Account: {request.accountTitle}</span>}
-                        {request.accountNumber && <span className="ml-4">Number: {request.accountNumber}</span>}
-                      </div>
-                    )}
+                    {/* Expanded Details - shown on View click */}
+                    {viewingRequest === request._id && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        {/* Account Details */}
+                        {(request.accountTitle || request.accountNumber) && (
+                          <div className="text-sm text-gray-600 mb-2">
+                            {request.accountTitle && <span>Account: <strong>{request.accountTitle}</strong></span>}
+                            {request.accountNumber && <span className="ml-4">Number: <strong>{request.accountNumber}</strong></span>}
+                          </div>
+                        )}
 
-                    {/* Student Remarks */}
-                    {request.remarks && (
-                      <div className="mt-2 text-sm text-gray-500">
-                        <span className="text-gray-400">Student Note:</span> {request.remarks}
-                      </div>
-                    )}
+                        {/* Transaction ID */}
+                        {request.transactionId && (
+                          <div className="text-sm text-gray-600 mb-2">
+                            Transaction ID: <strong className="font-mono">{request.transactionId}</strong>
+                          </div>
+                        )}
 
-                    {/* Admin Remarks (if reviewed) */}
-                    {request.adminRemarks && (
-                      <div className={`mt-2 text-sm ${request.status === 'rejected' ? 'text-red-600' : 'text-emerald-600'}`}>
-                        <span className="font-medium">Admin:</span> {request.adminRemarks}
-                      </div>
-                    )}
+                        {/* Student Remarks */}
+                        {request.remarks && (
+                          <div className="text-sm text-gray-500 mb-2">
+                            <span className="text-gray-400">Student Note:</span> {request.remarks}
+                          </div>
+                        )}
 
-                    {/* Payment Proof Screenshots */}
-                    {(request.paymentProof || request.paymentProof2) && (
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Payment Screenshots:</p>
-                        <div className="flex flex-wrap gap-3">
-                          {request.paymentProof && (
-                            <a href={request.paymentProof} target="_blank" rel="noopener noreferrer" className="block">
-                              <img
-                                src={request.paymentProof}
-                                alt="Payment Proof"
-                                className="w-48 h-48 object-cover rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-lg transition cursor-pointer"
-                              />
-                            </a>
-                          )}
-                          {request.paymentProof2 && (
-                            <a href={request.paymentProof2} target="_blank" rel="noopener noreferrer" className="block">
-                              <img
-                                src={request.paymentProof2}
-                                alt="Payment Proof 2"
-                                className="w-48 h-48 object-cover rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-lg transition cursor-pointer"
-                              />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                        {/* Admin Remarks (if reviewed) */}
+                        {request.adminRemarks && (
+                          <div className={`text-sm mb-2 ${request.status === 'rejected' ? 'text-red-600' : 'text-emerald-600'}`}>
+                            <span className="font-medium">Admin:</span> {request.adminRemarks}
+                          </div>
+                        )}
 
-                    {/* Action Buttons (only for pending) */}
-                    {request.status === 'pending' && (
+                        {/* Payment Proof Screenshots */}
+                        {(request.paymentProof || request.paymentProof2) && (
+                          <div className="mt-3">
+                            <p className="text-sm font-medium text-gray-700 mb-2">Payment Screenshots:</p>
+                            <div className="flex flex-wrap gap-3">
+                              {request.paymentProof && (
+                                <a href={request.paymentProof} target="_blank" rel="noopener noreferrer" className="block">
+                                  <img
+                                    src={request.paymentProof}
+                                    alt="Payment Proof"
+                                    className="w-48 h-48 object-cover rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-lg transition cursor-pointer"
+                                  />
+                                </a>
+                              )}
+                              {request.paymentProof2 && (
+                                <a href={request.paymentProof2} target="_blank" rel="noopener noreferrer" className="block">
+                                  <img
+                                    src={request.paymentProof2}
+                                    alt="Payment Proof 2"
+                                    className="w-48 h-48 object-cover rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-lg transition cursor-pointer"
+                                  />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Buttons (only for pending) */}
+                        {request.status === 'pending' && (
                       <div className="mt-4 pt-4 border-t border-gray-100">
                         {reviewingRequest === request._id ? (
                           <div className="space-y-3">
@@ -1459,6 +1483,8 @@ const AdminLMSPage = () => {
                             month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
                           })}
                         </p>
+                      </div>
+                    )}
                       </div>
                     )}
                   </div>
