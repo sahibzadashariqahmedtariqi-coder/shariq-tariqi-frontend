@@ -1326,21 +1326,19 @@ const AdminLMSPage = () => {
                           {request.status}
                         </span>
 
-                        {/* Delete Button - always visible for reviewed requests */}
-                        {request.status !== 'pending' && (
-                          <button
-                            onClick={() => setDeleteConfirmModal({ 
-                              isOpen: true, 
-                              requestId: request._id, 
-                              type: 'payment-request' 
-                            })}
-                            disabled={deletePaymentRequestMutation.isPending}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition disabled:opacity-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Delete
-                          </button>
-                        )}
+                        {/* Delete Button - always visible */}
+                        <button
+                          onClick={() => setDeleteConfirmModal({ 
+                            isOpen: true, 
+                            requestId: request._id, 
+                            type: 'payment-request' 
+                          })}
+                          disabled={deletePaymentRequestMutation.isPending}
+                          className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition disabled:opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </button>
                       </div>
                     </div>
 
@@ -1363,6 +1361,33 @@ const AdminLMSPage = () => {
                     {request.adminRemarks && (
                       <div className={`mt-2 text-sm ${request.status === 'rejected' ? 'text-red-600' : 'text-emerald-600'}`}>
                         <span className="font-medium">Admin:</span> {request.adminRemarks}
+                      </div>
+                    )}
+
+                    {/* Payment Proof Screenshots */}
+                    {(request.paymentProof || request.paymentProof2) && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Payment Screenshots:</p>
+                        <div className="flex flex-wrap gap-3">
+                          {request.paymentProof && (
+                            <a href={request.paymentProof} target="_blank" rel="noopener noreferrer" className="block">
+                              <img
+                                src={request.paymentProof}
+                                alt="Payment Proof"
+                                className="w-48 h-48 object-cover rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-lg transition cursor-pointer"
+                              />
+                            </a>
+                          )}
+                          {request.paymentProof2 && (
+                            <a href={request.paymentProof2} target="_blank" rel="noopener noreferrer" className="block">
+                              <img
+                                src={request.paymentProof2}
+                                alt="Payment Proof 2"
+                                className="w-48 h-48 object-cover rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-lg transition cursor-pointer"
+                              />
+                            </a>
+                          )}
+                        </div>
                       </div>
                     )}
 
