@@ -460,6 +460,38 @@ export const getLMSDetailedStats = asyncHandler(async (req, res) => {
       const totalAvailableClasses = enrollments.reduce((acc, e) => {
         return acc + (e.course?.totalClasses || 0);
       }, 0);
+
+      // Calculate locked/unlocked classes per student across all enrollments
+      let lockedClassCount = 0;
+      let unlockedClassCount = 0;
+      
+      for (const enrollment of enrollments) {
+        if (!enrollment.course) continue;
+        
+        // Get all published classes for this course
+        const courseClasses = await LMSClass.find({ 
+          course: enrollment.course._id, 
+          isPublished: true 
+        }).select('_id isLocked');
+        
+        for (const cls of courseClasses) {
+          const classId = cls._id.toString();
+          
+          // Priority: Global lock ALWAYS wins. Per-student controls only apply when globally unlocked.
+          if (cls.isLocked) {
+            lockedClassCount++; // Global lock always takes priority
+          } else {
+            // Globally unlocked — check per-student controls
+            const isManuallyLocked = enrollment.lockedClasses?.some(id => id.toString() === classId);
+            const isManuallyUnlocked = enrollment.unlockedClasses?.some(id => id.toString() === classId);
+            if (isManuallyLocked && !isManuallyUnlocked) {
+              lockedClassCount++;
+            } else {
+              unlockedClassCount++;
+            }
+          }
+        }
+      }
       
       // Last activity
       const lastProgress = await LMSProgress.findOne({ user: student._id })
@@ -485,6 +517,8 @@ export const getLMSDetailedStats = asyncHandler(async (req, res) => {
         inProgressVideos,
         totalAvailableClasses,
         remainingVideos: totalAvailableClasses - completedVideos,
+        lockedClasses: lockedClassCount,
+        unlockedClasses: unlockedClassCount,
         certificates,
         lastActivity: lastProgress?.lastAccessedAt || student.lastLogin,
         watchProgress: totalAvailableClasses > 0 
