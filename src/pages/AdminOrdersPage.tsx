@@ -209,6 +209,8 @@ const AdminOrdersPage = () => {
   const pendingCount = orders.filter(o => o.paymentStatus === 'pending').length;
   const verifiedCount = orders.filter(o => o.paymentStatus === 'verified').length;
   const rejectedCount = orders.filter(o => o.paymentStatus === 'rejected').length;
+  const paidCount = orders.filter(o => o.amount > 0).length;
+  const freeCount = orders.filter(o => o.amount === 0).length;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -217,10 +219,18 @@ const AdminOrdersPage = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-6">Payment Orders Management</h1>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-600 font-medium">Total Orders</p>
               <p className="text-2xl font-bold text-blue-900">{orders.length}</p>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+              <p className="text-sm text-emerald-600 font-medium">💰 Paid</p>
+              <p className="text-2xl font-bold text-emerald-900">{paidCount}</p>
+            </div>
+            <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
+              <p className="text-sm text-violet-600 font-medium">🏷️ Free (Coupon)</p>
+              <p className="text-2xl font-bold text-violet-900">{freeCount}</p>
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <p className="text-sm text-yellow-600 font-medium">Pending</p>
