@@ -2505,7 +2505,7 @@ const StudentsSection = ({
         </div>
       ) : (
         <div className="bg-white rounded-xl border overflow-hidden overflow-x-auto">
-          <table className="w-full min-w-[1400px]">
+          <table className="w-full min-w-[1500px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-600">Student ID</th>
@@ -2537,7 +2537,7 @@ const StudentsSection = ({
                 </th>
                 <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Status</th>
                 <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Access</th>
-                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600">Actions</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-gray-600 min-w-[160px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
