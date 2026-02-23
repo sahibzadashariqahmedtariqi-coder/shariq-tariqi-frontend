@@ -344,7 +344,7 @@ export default function AdminUsersPage() {
           </div>
           <div className="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-xl p-6 shadow-lg">
             <div className="text-3xl font-bold text-purple-700 dark:text-purple-300">
-              {users.filter(u => u.role === 'user').length}
+              {users.filter(u => u.role !== 'admin' && !u.isSuperAdmin).length}
             </div>
             <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-1">
               Students
