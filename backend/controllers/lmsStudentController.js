@@ -1,5 +1,9 @@
 import User from '../models/User.js';
 import LMSEnrollment from '../models/LMSEnrollment.js';
+import LMSProgress from '../models/LMSProgress.js';
+import LMSFee from '../models/LMSFee.js';
+import LMSPaymentRequest from '../models/LMSPaymentRequest.js';
+import LMSCertificate from '../models/LMSCertificate.js';
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
 import AuditLog from '../models/AuditLog.js';
@@ -213,15 +217,31 @@ export const deleteLMSStudent = asyncHandler(async (req, res) => {
     throw new Error('Student not found');
   }
 
-  // Delete all enrollments
-  await LMSEnrollment.deleteMany({ user: student._id });
+  const studentName = student.name;
+  const studentId = student.lmsStudentId;
+
+  // Delete all related data
+  const [enrollmentResult, progressResult, feeResult, paymentResult, certResult] = await Promise.all([
+    LMSEnrollment.deleteMany({ user: student._id }),
+    LMSProgress.deleteMany({ user: student._id }),
+    LMSFee.deleteMany({ student: student._id }),
+    LMSPaymentRequest.deleteMany({ student: student._id }),
+    LMSCertificate.deleteMany({ user: student._id })
+  ]);
 
   // Delete student
   await student.deleteOne();
 
+  // Audit log
+  await AuditLog.create({
+    user: req.user._id,
+    action: 'DELETE_LMS_STUDENT',
+    details: `Deleted LMS student: ${studentName} (${studentId}). Removed ${enrollmentResult.deletedCount} enrollments, ${progressResult.deletedCount} progress records, ${feeResult.deletedCount} fee records, ${paymentResult.deletedCount} payment requests, ${certResult.deletedCount} certificates.`
+  });
+
   res.status(200).json({
     success: true,
-    message: 'Student and all enrollments deleted successfully'
+    message: `Student "${studentName}" and all related data deleted successfully`
   });
 });
 

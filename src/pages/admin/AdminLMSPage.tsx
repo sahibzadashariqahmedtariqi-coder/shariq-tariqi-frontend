@@ -352,11 +352,16 @@ const AdminLMSPage = () => {
 
   const deleteStudentMutation = useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/lms/students/${id}`);
+      const res = await api.delete(`/lms/students/${id}`);
+      return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['lms-students'] });
-      toast.success('Student deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['lms-detailed-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-fees'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-payment-requests'] });
+      toast.success(data?.message || 'Student deleted successfully');
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to delete student');
@@ -1582,7 +1587,7 @@ const AdminLMSPage = () => {
             'Delete?'
           }
           message={
-            confirmModal.type === 'student' ? 'This will delete all enrollments for this student.' :
+            confirmModal.type === 'student' ? 'This will permanently delete this student and all their enrollments, progress, fees, payment requests, and certificates.' :
             confirmModal.type === 'fee' ? 'Are you sure you want to delete this fee record?' :
             confirmModal.type === 'class' ? 'Are you sure you want to delete this class?' :
             'Are you sure you want to delete this item?'
@@ -2681,9 +2686,9 @@ const StudentsSection = ({
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => onDeleteStudent(student._id)}
+                        onClick={() => onDeleteStudent(student._id, student.name)}
                         className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
-                        title="Delete"
+                        title="Delete Student"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
