@@ -24,7 +24,7 @@ const initializeSettings = async () => {
         clinicName: 'Al Anum Dawakhana',
         clinicSubtitle: 'Sahibzada Shariq Huzoor',
         timings: '11 AM To 3 PM',
-        address: 'Karachi, Pakistan',
+        address: 'Shop No. LS 13-14, Madeeha Road, Sector 5A1, North Karachi, Karachi 78850',
         facebookUrl: 'https://www.facebook.com/share/181bF2SNbH/',
         youtubeUrl: 'https://www.youtube.com/@Sahibzadashariqahmedtariqi',
         instagramUrl: 'https://www.instagram.com/sahibzadashariqahmedtariqi?igsh=NDhwc3d2M3Z1cGM1',

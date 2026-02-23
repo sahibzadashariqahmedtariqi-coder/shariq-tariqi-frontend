@@ -177,7 +177,7 @@ export default function Footer() {
                   {settings?.clinicName && <p>{settings.clinicName}</p>}
                   {settings?.clinicSubtitle && <p>{settings.clinicSubtitle}</p>}
                   {settings?.timings && <p>Timings: {settings.timings}</p>}
-                  <p className="mt-1">{settings?.address || 'Karachi, Pakistan'}</p>
+                  <p className="mt-1">{settings?.address || 'Shop No. LS 13-14, Madeeha Road, Sector 5A1, North Karachi, Karachi 78850'}</p>
                 </div>
               </li>
             </ul>

@@ -34,7 +34,7 @@ const settingsSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      default: 'Karachi, Pakistan',
+      default: 'Shop No. LS 13-14, Madeeha Road, Sector 5A1, North Karachi, Karachi 78850',
     },
     
     // Social Media Links
