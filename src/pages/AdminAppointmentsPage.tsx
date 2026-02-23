@@ -156,13 +156,15 @@ export default function AdminAppointmentsPage() {
       if (filterStatus === 'pending') return o.paymentStatus === 'pending'
       if (filterStatus === 'confirmed' || filterStatus === 'verified') return o.paymentStatus === 'verified'
       if (filterStatus === 'rejected') return o.paymentStatus === 'rejected'
-      return true
+      if (filterStatus === 'cancelled') return false // orders don't have cancelled status
+      return false
     }
   })
 
   // Stats
   const totalBookings = bookingAppointments.length
   const totalOrders = orderAppointments.length
+  const paidOrders = orderAppointments.filter((o) => o.amount > 0).length
   const pendingBookings = bookingAppointments.filter((a) => a.status === 'pending').length
   const pendingOrders = orderAppointments.filter((o) => o.paymentStatus === 'pending').length
   const freeOrders = orderAppointments.filter((o) => o.amount === 0).length
@@ -472,7 +474,7 @@ export default function AdminAppointmentsPage() {
                 <ShoppingBag className="h-4 w-4 text-emerald-600" />
                 <p className="text-sm text-emerald-600 font-medium">Paid Orders</p>
               </div>
-              <p className="text-2xl font-bold text-emerald-900">{totalOrders}</p>
+              <p className="text-2xl font-bold text-emerald-900">{paidOrders}</p>
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-1">
