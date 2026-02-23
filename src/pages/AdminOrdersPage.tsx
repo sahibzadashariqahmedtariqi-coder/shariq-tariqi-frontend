@@ -209,7 +209,7 @@ const AdminOrdersPage = () => {
   const pendingCount = orders.filter(o => o.paymentStatus === 'pending').length;
   const verifiedCount = orders.filter(o => o.paymentStatus === 'verified').length;
   const rejectedCount = orders.filter(o => o.paymentStatus === 'rejected').length;
-  const paidCount = orders.filter(o => o.amount > 0).length;
+  const paidCount = orders.filter(o => o.amount > 0 && o.paymentStatus !== 'rejected').length;
   const freeCount = orders.filter(o => o.amount === 0).length;
 
   return (
