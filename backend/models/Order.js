@@ -49,7 +49,7 @@ const orderSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'verified', 'rejected'],
+      enum: ['pending', 'verified', 'rejected', 'completed'],
       default: 'pending',
     },
     paymentProof: {
@@ -78,6 +78,15 @@ const orderSchema = new mongoose.Schema(
     },
     adminNotes: {
       type: String,
+    },
+    
+    // Order Completion
+    completedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    completedAt: {
+      type: Date,
     },
     
     // Customer Message (for appointments/special requests)

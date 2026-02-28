@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, X, Eye, Trash2, Tag } from 'lucide-react';
+import { Check, X, Eye, Trash2, Tag, CheckCheck } from 'lucide-react';
 import api from '../services/api';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -42,6 +42,8 @@ const AdminOrdersPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [orderToComplete, setOrderToComplete] = useState<{id: string, number: string} | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -162,6 +164,48 @@ const AdminOrdersPage = () => {
     setShowDeleteModal(true);
   };
 
+  const handleCompleteOrder = async (orderId: string, orderNumber: string) => {
+    setOrderToComplete({ id: orderId, number: orderNumber });
+    setShowCompleteModal(true);
+  };
+
+  const confirmComplete = async () => {
+    if (!orderToComplete) return;
+
+    try {
+      setActionLoading(true);
+      const response = await api.put(`/orders/${orderToComplete.id}/complete`);
+      
+      if (response.data.success) {
+        await fetchOrders();
+        setShowCompleteModal(false);
+        setOrderToComplete(null);
+        toast.success('Order marked as completed! ✅', {
+          duration: 4000,
+          style: {
+            background: '#10B981',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '10px',
+          },
+          icon: '✅',
+        });
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to complete order', {
+        duration: 4000,
+        style: {
+          background: '#EF4444',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '10px',
+        },
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!orderToDelete) return;
 
@@ -209,6 +253,7 @@ const AdminOrdersPage = () => {
   const pendingCount = orders.filter(o => o.paymentStatus === 'pending').length;
   const verifiedCount = orders.filter(o => o.paymentStatus === 'verified').length;
   const rejectedCount = orders.filter(o => o.paymentStatus === 'rejected').length;
+  const completedCount = orders.filter(o => o.paymentStatus === 'completed').length;
   const paidCount = orders.filter(o => o.amount > 0 && o.paymentStatus !== 'rejected').length;
   const freeCount = orders.filter(o => o.amount === 0).length;
 
@@ -219,7 +264,7 @@ const AdminOrdersPage = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-6">Payment Orders Management</h1>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-4 mb-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-600 font-medium">Total Orders</p>
               <p className="text-2xl font-bold text-blue-900">{orders.length}</p>
@@ -240,6 +285,10 @@ const AdminOrdersPage = () => {
               <p className="text-sm text-green-600 font-medium">Verified</p>
               <p className="text-2xl font-bold text-green-900">{verifiedCount}</p>
             </div>
+            <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+              <p className="text-sm text-cyan-600 font-medium">✅ Completed</p>
+              <p className="text-2xl font-bold text-cyan-900">{completedCount}</p>
+            </div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-sm text-red-600 font-medium">Rejected</p>
               <p className="text-2xl font-bold text-red-900">{rejectedCount}</p>
@@ -256,6 +305,7 @@ const AdminOrdersPage = () => {
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
               <option value="verified">Verified</option>
+              <option value="completed">Completed</option>
               <option value="rejected">Rejected</option>
             </select>
 
@@ -329,6 +379,7 @@ const AdminOrdersPage = () => {
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           order.paymentStatus === 'verified' ? 'bg-green-100 text-green-800' :
                           order.paymentStatus === 'rejected' ? 'bg-red-100 text-red-800' :
+                          order.paymentStatus === 'completed' ? 'bg-cyan-100 text-cyan-800' :
                           'bg-yellow-100 text-yellow-800'
                         }`}>
                           {order.paymentStatus}
@@ -346,6 +397,16 @@ const AdminOrdersPage = () => {
                             <Eye className="w-4 h-4" />
                             View
                           </button>
+                          {order.paymentStatus === 'verified' && (
+                            <button
+                              onClick={() => handleCompleteOrder(order._id, order.orderNumber)}
+                              className="text-cyan-600 hover:text-cyan-900 flex items-center gap-1"
+                              title="Mark as Completed"
+                            >
+                              <CheckCheck className="w-4 h-4" />
+                              Complete
+                            </button>
+                          )}
                           <button
                             onClick={() => handleDeleteOrder(order._id, order.orderNumber)}
                             className="text-red-600 hover:text-red-900 flex items-center gap-1"
@@ -549,10 +610,17 @@ const AdminOrdersPage = () => {
                 </>
               )}
 
-              {selectedOrder.paymentStatus === 'verified' && selectedOrder.adminNotes && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-sm text-green-600 font-medium mb-1">Admin Notes</p>
+              {(selectedOrder.paymentStatus === 'verified' || selectedOrder.paymentStatus === 'completed') && selectedOrder.adminNotes && (
+                <div className={`${selectedOrder.paymentStatus === 'completed' ? 'bg-cyan-50 border-cyan-200' : 'bg-green-50 border-green-200'} border rounded-lg p-4`}>
+                  <p className={`text-sm ${selectedOrder.paymentStatus === 'completed' ? 'text-cyan-600' : 'text-green-600'} font-medium mb-1`}>Admin Notes</p>
                   <p className="text-sm text-gray-700">{selectedOrder.adminNotes}</p>
+                </div>
+              )}
+
+              {selectedOrder.paymentStatus === 'completed' && (
+                <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+                  <p className="text-sm text-cyan-600 font-medium mb-1">✅ Order Completed</p>
+                  <p className="text-sm text-gray-700">This order has been successfully completed.</p>
                 </div>
               )}
 
@@ -629,6 +697,65 @@ const AdminOrdersPage = () => {
                     <>
                       <Trash2 className="w-4 h-4" />
                       Delete Order
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complete Order Confirmation Modal */}
+      {showCompleteModal && orderToComplete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <div className="text-center">
+              {/* Success Icon */}
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-cyan-100 mb-4">
+                <CheckCheck className="h-8 w-8 text-cyan-600" />
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Complete Order</h3>
+              
+              {/* Message */}
+              <p className="text-gray-600 mb-2">
+                Mark this order as completed?
+              </p>
+              <p className="text-lg font-bold text-cyan-600 mb-4 font-mono">
+                {orderToComplete.number}
+              </p>
+              <p className="text-sm text-gray-500 mb-6">
+                This means the order has been fully fulfilled and delivered.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowCompleteModal(false);
+                    setOrderToComplete(null);
+                  }}
+                  disabled={actionLoading}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmComplete}
+                  disabled={actionLoading}
+                  className="flex-1 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {actionLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Completing...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCheck className="w-4 h-4" />
+                      Mark Complete
                     </>
                   )}
                 </button>

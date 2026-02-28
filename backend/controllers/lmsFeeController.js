@@ -39,14 +39,21 @@ export const getAllFees = asyncHandler(async (req, res) => {
     .populate('createdBy', 'name')
     .populate('updatedBy', 'name');
   
-  // Calculate summary
+  // Calculate summary (cap paidAmount at effectiveAmount so discounts don't inflate paid total)
   const summary = {
     total: fees.length,
     totalAmount: fees.reduce((sum, f) => sum + f.amount, 0),
     totalDiscount: fees.reduce((sum, f) => sum + (f.discount || 0), 0),
     effectiveAmount: fees.reduce((sum, f) => sum + (f.amount - (f.discount || 0)), 0),
-    paidAmount: fees.reduce((sum, f) => sum + f.paidAmount, 0),
-    pendingAmount: fees.reduce((sum, f) => sum + ((f.amount - (f.discount || 0)) - f.paidAmount), 0),
+    paidAmount: fees.reduce((sum, f) => {
+      const effective = f.amount - (f.discount || 0);
+      return sum + Math.min(f.paidAmount, effective);
+    }, 0),
+    pendingAmount: fees.reduce((sum, f) => {
+      const effective = f.amount - (f.discount || 0);
+      const actualPaid = Math.min(f.paidAmount, effective);
+      return sum + Math.max(effective - actualPaid, 0);
+    }, 0),
     paidCount: fees.filter(f => f.status === 'paid').length,
     pendingCount: fees.filter(f => f.status === 'pending').length,
     overdueCount: fees.filter(f => f.status === 'overdue').length,
@@ -124,6 +131,27 @@ export const updateFee = asyncHandler(async (req, res) => {
   if (currency) fee.currency = currency;
   fee.updatedBy = req.user._id;
   
+  // Auto-adjust paidAmount when discount makes effective amount less than paid
+  if (discount !== undefined) {
+    const newEffective = fee.amount - (fee.discount || 0);
+    if (fee.paidAmount > newEffective) {
+      fee.paidAmount = newEffective;
+    }
+    // Auto-update status after discount adjustment
+    if (newEffective <= 0) {
+      fee.paidAmount = 0;
+      fee.status = 'paid';
+      fee.paidDate = fee.paidDate || new Date();
+    } else if (fee.paidAmount >= newEffective) {
+      fee.status = 'paid';
+      fee.paidDate = fee.paidDate || new Date();
+    } else if (fee.paidAmount > 0) {
+      fee.status = 'partial';
+    } else {
+      fee.status = 'pending';
+    }
+  }
+
   // Auto-update status based on payment (using effective amount after discount)
   if (paidAmount !== undefined) {
     const effectiveAmount = fee.amount - (fee.discount || 0);
@@ -230,8 +258,15 @@ export const getStudentFeeSummary = asyncHandler(async (req, res) => {
     totalAmount: fees.reduce((sum, f) => sum + f.amount, 0),
     totalDiscount: fees.reduce((sum, f) => sum + (f.discount || 0), 0),
     effectiveAmount: fees.reduce((sum, f) => sum + (f.amount - (f.discount || 0)), 0),
-    paidAmount: fees.reduce((sum, f) => sum + f.paidAmount, 0),
-    pendingAmount: fees.reduce((sum, f) => sum + ((f.amount - (f.discount || 0)) - f.paidAmount), 0),
+    paidAmount: fees.reduce((sum, f) => {
+      const effective = f.amount - (f.discount || 0);
+      return sum + Math.min(f.paidAmount, effective);
+    }, 0),
+    pendingAmount: fees.reduce((sum, f) => {
+      const effective = f.amount - (f.discount || 0);
+      const actualPaid = Math.min(f.paidAmount, effective);
+      return sum + Math.max(effective - actualPaid, 0);
+    }, 0),
     paidCount: fees.filter(f => f.status === 'paid').length,
     pendingCount: fees.filter(f => f.status === 'pending').length,
     overdueCount: fees.filter(f => f.status === 'overdue').length,
@@ -259,8 +294,15 @@ export const getMyFees = asyncHandler(async (req, res) => {
     totalAmount: fees.reduce((sum, f) => sum + f.amount, 0),
     totalDiscount: fees.reduce((sum, f) => sum + (f.discount || 0), 0),
     effectiveAmount: fees.reduce((sum, f) => sum + (f.amount - (f.discount || 0)), 0),
-    paidAmount: fees.reduce((sum, f) => sum + f.paidAmount, 0),
-    pendingAmount: fees.reduce((sum, f) => sum + ((f.amount - (f.discount || 0)) - f.paidAmount), 0),
+    paidAmount: fees.reduce((sum, f) => {
+      const effective = f.amount - (f.discount || 0);
+      return sum + Math.min(f.paidAmount, effective);
+    }, 0),
+    pendingAmount: fees.reduce((sum, f) => {
+      const effective = f.amount - (f.discount || 0);
+      const actualPaid = Math.min(f.paidAmount, effective);
+      return sum + Math.max(effective - actualPaid, 0);
+    }, 0),
     paidCount: fees.filter(f => f.status === 'paid').length,
     pendingCount: fees.filter(f => f.status === 'pending').length,
     overdueCount: fees.filter(f => f.status === 'overdue').length,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Package, Clock, CheckCircle, XCircle, Sparkles, Heart, Tag } from 'lucide-react';
+import { Search, Package, Clock, CheckCircle, XCircle, Sparkles, Heart, Tag, CheckCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import { format } from 'date-fns';
@@ -23,6 +23,7 @@ interface Order {
   rejectionReason?: string;
   adminNotes?: string;
   verifiedAt?: string;
+  completedAt?: string;
   purpose?: string;
   donorMessage?: string;
 }
@@ -60,6 +61,15 @@ const TrackOrderPage = () => {
 
   const getStatusInfo = (status: string) => {
     switch (status) {
+      case 'completed':
+        return {
+          color: 'text-cyan-600',
+          bgColor: 'bg-cyan-50',
+          borderColor: 'border-cyan-200',
+          icon: <CheckCheck className="w-8 h-8" />,
+          title: 'Order Completed',
+          message: 'Your order has been completed successfully! Thank you for your trust.',
+        };
       case 'verified':
         return {
           color: 'text-green-600',
@@ -369,11 +379,11 @@ const TrackOrderPage = () => {
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.3, type: "spring" }}
                       className={`flex-shrink-0 w-8 h-8 ${
-                      order.paymentStatus === 'verified' ? 'bg-green-600' : 
+                      order.paymentStatus === 'verified' || order.paymentStatus === 'completed' ? 'bg-green-600' : 
                       order.paymentStatus === 'rejected' ? 'bg-red-600' : 
                       'bg-yellow-500'
                     } rounded-full flex items-center justify-center shadow-lg`}>
-                      {order.paymentStatus === 'verified' ? (
+                      {order.paymentStatus === 'verified' || order.paymentStatus === 'completed' ? (
                         <CheckCircle className="w-5 h-5 text-white" />
                       ) : order.paymentStatus === 'rejected' ? (
                         <XCircle className="w-5 h-5 text-white" />
@@ -382,9 +392,30 @@ const TrackOrderPage = () => {
                       )}
                     </motion.div>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100 capitalize">{order.paymentStatus}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100 capitalize">{order.paymentStatus === 'completed' ? 'verified' : order.paymentStatus}</p>
                       {order.verifiedAt && (
                         <p className="text-sm text-gray-600 dark:text-gray-400">{format(new Date(order.verifiedAt), 'MMM dd, yyyy HH:mm')}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Order Completed Step */}
+                  <div className="flex items-start gap-4">
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.4, type: "spring" }}
+                      className={`flex-shrink-0 w-8 h-8 ${
+                      order.paymentStatus === 'completed' ? 'bg-cyan-600' : 'bg-gray-300'
+                    } rounded-full flex items-center justify-center shadow-lg`}>
+                      <CheckCheck className="w-5 h-5 text-white" />
+                    </motion.div>
+                    <div>
+                      <p className={`font-medium ${order.paymentStatus === 'completed' ? 'text-cyan-700 dark:text-cyan-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                        Order Completed
+                      </p>
+                      {order.paymentStatus === 'completed' && order.completedAt && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{format(new Date(order.completedAt), 'MMM dd, yyyy HH:mm')}</p>
                       )}
                     </div>
                   </div>

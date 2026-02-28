@@ -6,6 +6,7 @@ import {
   getAllOrders,
   verifyPayment,
   rejectPayment,
+  completeOrder,
   getOrder,
   trackOrder,
   deleteOrder,
@@ -29,6 +30,7 @@ router.get('/:id', protect, getOrder);
 router.get('/', protect, admin, getAllOrders);
 router.put('/:id/verify', protect, admin, verifyPayment);
 router.put('/:id/reject', protect, admin, rejectPayment);
+router.put('/:id/complete', protect, admin, completeOrder);
 router.delete('/:id', protect, admin, deleteOrder);
 router.put('/:id/restore', protect, admin, restoreOrder);
 router.delete('/:id/permanent', protect, admin, permanentDeleteOrder);

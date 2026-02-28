@@ -329,6 +329,47 @@ export const rejectPayment = async (req, res, next) => {
   }
 };
 
+// @desc    Mark order as completed (Admin)
+// @route   PUT /api/orders/:id/complete
+// @access  Private/Admin
+export const completeOrder = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { adminNotes } = req.body;
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    if (order.paymentStatus !== 'verified') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only verified orders can be marked as completed',
+      });
+    }
+
+    order.paymentStatus = 'completed';
+    order.completedBy = req.user._id;
+    order.completedAt = Date.now();
+    if (adminNotes) order.adminNotes = adminNotes;
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Order marked as completed successfully',
+      data: order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get single order
 // @route   GET /api/orders/:id
 // @access  Private
