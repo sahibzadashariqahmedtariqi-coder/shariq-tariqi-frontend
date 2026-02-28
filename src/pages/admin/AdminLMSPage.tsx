@@ -325,6 +325,10 @@ const AdminLMSPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lms-students'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-fees'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-fees-current-month'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-detailed-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-stats'] });
       setShowStudentModal(false);
       setEditingStudent(null);
       toast.success('Student created successfully');
@@ -360,6 +364,7 @@ const AdminLMSPage = () => {
       queryClient.invalidateQueries({ queryKey: ['lms-detailed-stats'] });
       queryClient.invalidateQueries({ queryKey: ['lms-stats'] });
       queryClient.invalidateQueries({ queryKey: ['lms-fees'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-fees-current-month'] });
       queryClient.invalidateQueries({ queryKey: ['lms-payment-requests'] });
       toast.success(data?.message || 'Student deleted successfully');
     },
@@ -417,6 +422,7 @@ const AdminLMSPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lms-fees'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-fees-current-month'] });
       queryClient.invalidateQueries({ queryKey: ['student-fees'] });
       toast.success('Fee record deleted');
     },
@@ -432,6 +438,7 @@ const AdminLMSPage = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['lms-fees'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-fees-current-month'] });
       toast.success(data.message);
     },
     onError: (error: any) => {
@@ -4399,6 +4406,26 @@ const FeeManagementSection = ({
   onGenerateFees: (data: any) => void;
   onUpdateFeeStatus: (feeId: string, data: any) => void;
 }) => {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  // Dedicated query for current month fees to always show accurate notification
+  const currentMonthName = months[new Date().getMonth()];
+  const currentYearValue = new Date().getFullYear();
+  const { data: currentMonthFeesData } = useQuery({
+    queryKey: ['lms-fees-current-month', currentMonthName, currentYearValue],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.append('month', currentMonthName);
+      params.append('year', currentYearValue.toString());
+      const res = await api.get(`/lms/fees?${params.toString()}`);
+      return res.data;
+    },
+    staleTime: 0,
+  });
+
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generateData, setGenerateData] = useState({
     month: new Date().toLocaleString('default', { month: 'long' }),
@@ -4443,11 +4470,6 @@ const FeeManagementSection = ({
     feeAmount: number;
     studentName: string;
   }>({ isOpen: false, feeId: null, feeAmount: 0, studentName: '' });
-
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
 
   const summary = feesData?.summary || {
     total: 0, totalAmount: 0, paidAmount: 0, pendingAmount: 0,
@@ -4495,11 +4517,9 @@ const FeeManagementSection = ({
   return (
     <div className="space-y-6">
       {/* Alert Banner for missing fee records */}
-      {lmsStudents && fees && (() => {
-        const currentMonth = months[new Date().getMonth()];
-        const currentYear = new Date().getFullYear();
-        const currentMonthFees = fees.filter((f: any) => f.month === currentMonth && f.year === currentYear);
-        const studentsWithoutFees = lmsStudents.length - currentMonthFees.length;
+      {lmsStudents && currentMonthFeesData && (() => {
+        const currentMonthFeesCount = currentMonthFeesData?.data?.length || 0;
+        const studentsWithoutFees = lmsStudents.length - currentMonthFeesCount;
         if (studentsWithoutFees > 0) {
           return (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
@@ -4507,7 +4527,7 @@ const FeeManagementSection = ({
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
                 <div>
                   <p className="font-medium text-amber-800">
-                    {studentsWithoutFees} student(s) don't have fee records for {currentMonth} {currentYear}
+                    {studentsWithoutFees} student(s) don't have fee records for {currentMonthName} {currentYearValue}
                   </p>
                   <p className="text-sm text-amber-600">Click "Generate Monthly Fees" to create fee records for all students</p>
                 </div>
