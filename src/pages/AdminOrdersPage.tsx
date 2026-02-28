@@ -397,7 +397,7 @@ const AdminOrdersPage = () => {
                             <Eye className="w-4 h-4" />
                             View
                           </button>
-                          {order.paymentStatus === 'verified' && (
+                          {order.paymentStatus !== 'completed' && order.paymentStatus !== 'rejected' && (
                             <button
                               onClick={() => handleCompleteOrder(order._id, order.orderNumber)}
                               className="text-cyan-600 hover:text-cyan-900 flex items-center gap-1"

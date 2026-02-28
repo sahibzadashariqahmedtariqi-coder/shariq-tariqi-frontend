@@ -346,10 +346,17 @@ export const completeOrder = async (req, res, next) => {
       });
     }
 
-    if (order.paymentStatus !== 'verified') {
+    if (order.paymentStatus === 'completed') {
       return res.status(400).json({
         success: false,
-        message: 'Only verified orders can be marked as completed',
+        message: 'Order is already completed',
+      });
+    }
+
+    if (order.paymentStatus === 'rejected') {
+      return res.status(400).json({
+        success: false,
+        message: 'Rejected orders cannot be marked as completed',
       });
     }
 
