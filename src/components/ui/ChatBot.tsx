@@ -61,6 +61,7 @@ const QUICK_REPLIES: QuickReply[] = [
   { label: '📦 Track Order', value: 'track my order' },
   { label: '❤️ Donate', value: 'donate sadqa zakat' },
   { label: '🎓 LMS Login', value: 'student login lms' },
+  { label: '📄 Free PDFs', value: 'free pdf books download' },
   { label: '📍 Address & Timings', value: 'address timing location' },
   { label: '📞 Contact', value: 'contact information rabta' },
 ];

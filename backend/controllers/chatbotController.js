@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+﻿import fetch from 'node-fetch';
 import Product from '../models/Product.js';
 import Service from '../models/Service.js';
 import Course from '../models/Course.js';
@@ -265,6 +265,14 @@ const CATEGORY_RULES = {
     ],
     type: 'donate',
   },
+  free_pdfs: {
+    keywords: ['pdf', 'pdfs', 'free pdf', 'free book', 'free books', 'free kitab', 'kitab', 'kitabein', 'books', 'book', 'ebook', 'e-book', 'download', 'downloadable', 'muft', 'muft kitab', 'muft pdf', 'free material', 'free resource', 'reading material', 'parhne ke liye', 'mufta', 'free download', 'digital book', 'risala', 'risalay', 'wazaif book', 'wazaif ki kitab', 'dua ki kitab', 'rohani kitab', 'spiritual book', 'herbal book', 'nuskha', 'nuskhay', 'free content'],
+    responses: [
+      'ہمارے پاس مفت PDF کتابیں دستیاب ہیں جو آپ ڈاؤن لوڈ کر سکتے ہیں۔ وظائف، روحانی علاج اور حکمت کے موضوعات پر مفت مواد دیکھیں:',
+      'مفت پی ڈی ایف کتابیں اور رسائل - ابھی ڈاؤن لوڈ کریں:',
+    ],
+    type: 'free_pdfs',
+  },
 };
 
 // Quick reply options for initial interaction
@@ -278,6 +286,7 @@ const QUICK_REPLIES = [
   { label: '📦 Track Order', value: 'track my order' },
   { label: '❤️ Donate', value: 'donate sadqa zakat' },
   { label: '🎓 LMS Login', value: 'student login lms' },
+  { label: '📄 Free PDFs', value: 'free pdf books download' },
   { label: '📍 Address & Timings', value: 'address timing location' },
   { label: '📞 Contact', value: 'contact information rabta' },
 ];
@@ -436,6 +445,10 @@ const ROMAN_URDU_RESPONSES = {
     'Aap hamari website par sadqa, zakat aur khairaat ke liye donate kar sakte hain. Aap ka har atiya Allah ki raah mein hai. 🤲',
     'JazakAllah aap ke atiye ki niyat par! Sadqa, Zakat, Lillah - sab options dastiyaab hain:',
   ],
+  free_pdfs: [
+    'Hamare paas muft PDF kitabein dastiyaab hain jo aap download kar sakte hain. Wazaif, rohani ilaaj aur hikmat ke mauzuaat par muft mawaad dekhein:',
+    'Muft PDF kitabein aur rasail - abhi download karein:',
+  ],
 };
 
 const ENGLISH_RESPONSES = {
@@ -530,6 +543,10 @@ const ENGLISH_RESPONSES = {
     'You can donate for Sadqa, Zakat and charity on our website. Every contribution counts in the path of Allah. 🤲',
     'JazakAllah for your generous intention! Sadqa, Zakat, Lillah - all options are available:',
   ],
+  free_pdfs: [
+    'We have free PDF books available for download. Find free resources on Wazaif, spiritual healing and herbal medicine topics:',
+    'Free PDF books and booklets - download them right away:',
+  ],
 };
 
 // Get response based on detected language
@@ -551,7 +568,7 @@ function detectCategory(message) {
   let bestScore = 0;
 
   // Priority categories get a bonus - these should be matched first if keywords hit
-  const priorityCategories = ['mureed', 'order_tracking', 'address_location', 'lms_student', 'donate'];
+  const priorityCategories = ['mureed', 'order_tracking', 'address_location', 'lms_student', 'donate', 'free_pdfs'];
 
   for (const [key, rule] of Object.entries(CATEGORY_RULES)) {
     let score = 0;
@@ -1085,12 +1102,50 @@ export const chatbotMessage = async (req, res, next) => {
             quickReplies: [
               { label: '🎓 LMS Login', value: 'LINK:/lms/login' },
               { label: '📚 View Courses', value: 'LINK:/courses' },
-              { label: '�📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
+              { label: '📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
             ],
           },
         });
       }
 
+
+      // === FREE PDFs ===
+      if (rule.type === 'free_pdfs') {
+        try {
+          const pdfProducts = await Product.find({ isActive: true, category: 'pdf' })
+            .select('name shortDescription price image category tags priceINR')
+            .sort({ createdAt: -1 })
+            .limit(6)
+            .lean();
+
+          return res.json({
+            success: true,
+            data: {
+              reply: getResponseForLanguage(category, language),
+              type: 'products',
+              products: pdfProducts,
+              quickReplies: [
+                { label: '📄 View All Free PDFs', value: 'LINK:/products?category=pdf' },
+                { label: '🌿 All Products', value: 'LINK:/products' },
+                { label: '📅 Book Appointment', value: 'appointment book' },
+              ],
+            },
+          });
+        } catch (err) {
+          console.error('Error fetching PDF products:', err);
+          return res.json({
+            success: true,
+            data: {
+              reply: getResponseForLanguage(category, language),
+              type: 'free_pdfs',
+              quickReplies: [
+                { label: '📄 View Free PDFs', value: 'LINK:/products?category=pdf' },
+                { label: '🌿 All Products', value: 'LINK:/products' },
+              ],
+            },
+          });
+        }
+      }
       // === APPOINTMENT ===
       if (rule.type === 'appointment') {
         return res.json({
