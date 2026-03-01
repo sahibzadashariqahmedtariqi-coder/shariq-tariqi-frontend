@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Bot, User, ExternalLink, Loader2 } from 'lucide-react';
+import { X, Send, Bot, User, ExternalLink, Loader2, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 
@@ -31,12 +31,41 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+type Language = 'urdu' | 'roman_urdu' | 'english';
+
+const WELCOME_MESSAGES: Record<Language, string> = {
+  urdu: 'السلام علیکم! 👋\nخوش آمدید! میں طارقی AI اسسٹنٹ ہوں۔\nآپ اپنا مسئلہ لکھیں یا نیچے موجود آپشنز میں سے کوئی ایک منتخب کریں۔',
+  roman_urdu: 'Assalam o Alaikum! 👋\nKhush aamdeed! Mein Tariqi AI Assistant hoon.\nAap apna masla likhein ya neeche mojood options mein se koi aik select karein.',
+  english: 'Assalam o Alaikum! 👋\nWelcome! I am Tariqi AI Assistant.\nPlease describe your issue or select an option below.',
+};
+
+const PLACEHOLDER_TEXT: Record<Language, string> = {
+  urdu: 'اپنا مسئلہ لکھیں...',
+  roman_urdu: 'Apna masla likhein...',
+  english: 'Type your message...',
+};
+
+const LOADING_TEXT: Record<Language, string> = {
+  urdu: 'سوچ رہا ہوں...',
+  roman_urdu: 'Soch raha hoon...',
+  english: 'Thinking...',
+};
+
+const QUICK_REPLIES: QuickReply[] = [
+  { label: '🌿 Herbal Products', value: 'show me herbal products' },
+  { label: '🔮 Spiritual Healing', value: 'spiritual healing services' },
+  { label: '📚 Courses', value: 'courses available' },
+  { label: '📅 Book Appointment', value: 'appointment book' },
+  { label: '💊 Health Issues', value: 'health problem tabiyat kharab' },
+  { label: '📞 Contact', value: 'contact information rabta' },
+];
+
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -48,46 +77,25 @@ export default function ChatBot() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Initialize chatbot on first open
-  const initChatbot = useCallback(async () => {
-    if (initialized) return;
-    try {
-      const response = await api.get('/chatbot/init');
-      if (response.data.success) {
-        const { welcome, quickReplies } = response.data.data;
-        setMessages([
-          {
-            id: 'welcome',
-            role: 'bot',
-            text: welcome,
-            quickReplies,
-            timestamp: new Date(),
-          },
-        ]);
-        setInitialized(true);
-      }
-    } catch {
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'bot',
-          text: 'السلام علیکم! 👋\nمیں آپ کی کیا مدد کر سکتا ہوں؟',
-          quickReplies: [
-            { label: '🌿 Herbal Products', value: 'show me herbal products' },
-            { label: '🔮 Spiritual Healing', value: 'spiritual healing' },
-            { label: '📅 Book Appointment', value: 'appointment' },
-          ],
-          timestamp: new Date(),
-        },
-      ]);
-      setInitialized(true);
-    }
-  }, [initialized]);
+  const handleSelectLanguage = (lang: Language) => {
+    setSelectedLanguage(lang);
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'bot',
+        text: WELCOME_MESSAGES[lang],
+        quickReplies: QUICK_REPLIES,
+        timestamp: new Date(),
+      },
+    ]);
+    setTimeout(() => inputRef.current?.focus(), 200);
+  };
 
   const handleOpen = () => {
     setIsOpen(true);
-    if (!initialized) initChatbot();
-    setTimeout(() => inputRef.current?.focus(), 300);
+    if (selectedLanguage) {
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
   };
 
   const handleSend = async (text?: string) => {
@@ -117,7 +125,10 @@ export default function ChatBot() {
     setLoading(true);
 
     try {
-      const response = await api.post('/chatbot/message', { message: messageText });
+      const response = await api.post('/chatbot/message', { 
+        message: messageText,
+        language: selectedLanguage || 'roman_urdu',
+      });
       if (response.data.success) {
         const data = response.data.data;
         const botMsg: ChatMessage = {
@@ -135,7 +146,12 @@ export default function ChatBot() {
         setMessages((prev) => [...prev, botMsg]);
       }
     } catch (error: any) {
-      const errorMsg = error.response?.data?.message || 'معذرت، کچھ غلطی ہو گئی۔ براہ کرم دوبارہ کوشش کریں۔';
+      const fallbackErrors: Record<Language, string> = {
+        urdu: 'معذرت، کچھ غلطی ہو گئی۔ براہ کرم دوبارہ کوشش کریں۔',
+        roman_urdu: 'Mazrat, kuch ghalti ho gayi. Dobara koshish karein.',
+        english: 'Sorry, something went wrong. Please try again.',
+      };
+      const errorMsg = error.response?.data?.message || fallbackErrors[selectedLanguage || 'roman_urdu'];
       setMessages((prev) => [
         ...prev,
         {
@@ -269,9 +285,41 @@ export default function ChatBot() {
               </button>
             </div>
 
-            {/* Messages */}
+            {/* Language Selector or Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
-              {messages.map((msg) => (
+              {/* Language Selection Screen */}
+              {!selectedLanguage && (
+                <div className="flex flex-col items-center justify-center h-full space-y-6 py-8">
+                  <div className="w-16 h-16 bg-primary-100 dark:bg-primary-800 rounded-full flex items-center justify-center">
+                    <Globe className="w-8 h-8 text-primary-600 dark:text-primary-300" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h4 className="text-lg font-bold text-gray-800 dark:text-white">Select Your Language</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">اپنی زبان منتخب کریں</p>
+                  </div>
+                  <div className="flex flex-col gap-3 w-full max-w-[240px]">
+                    <button
+                      onClick={() => handleSelectLanguage('urdu')}
+                      className="w-full px-5 py-3 bg-white dark:bg-gray-700 border-2 border-primary-200 dark:border-primary-700 rounded-xl text-base font-bold text-gray-800 dark:text-white hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-all shadow-sm"
+                    >
+                      🇵🇰 اردو
+                    </button>
+                    <button
+                      onClick={() => handleSelectLanguage('roman_urdu')}
+                      className="w-full px-5 py-3 bg-white dark:bg-gray-700 border-2 border-primary-200 dark:border-primary-700 rounded-xl text-base font-bold text-gray-800 dark:text-white hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-all shadow-sm"
+                    >
+                      🗣️ Roman Urdu
+                    </button>
+                    <button
+                      onClick={() => handleSelectLanguage('english')}
+                      className="w-full px-5 py-3 bg-white dark:bg-gray-700 border-2 border-primary-200 dark:border-primary-700 rounded-xl text-base font-bold text-gray-800 dark:text-white hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-all shadow-sm"
+                    >
+                      🌐 English
+                    </button>
+                  </div>
+                </div>
+              )}
+              {selectedLanguage && messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'bot' && (
                     <div className="w-7 h-7 bg-primary-100 dark:bg-primary-800 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
@@ -335,7 +383,7 @@ export default function ChatBot() {
               ))}
 
               {/* Loading indicator */}
-              {loading && (
+              {loading && selectedLanguage && (
                 <div className="flex gap-2 justify-start">
                   <div className="w-7 h-7 bg-primary-100 dark:bg-primary-800 rounded-full flex items-center justify-center flex-shrink-0">
                     <Bot className="w-4 h-4 text-primary-600 dark:text-primary-300" />
@@ -343,7 +391,7 @@ export default function ChatBot() {
                   <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 text-primary-600 animate-spin" />
-                      <span className="text-sm text-gray-500">سوچ رہا ہوں...</span>
+                      <span className="text-sm text-gray-500">{LOADING_TEXT[selectedLanguage]}</span>
                     </div>
                   </div>
                 </div>
@@ -361,9 +409,9 @@ export default function ChatBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="اپنا مسئلہ لکھیں..."
+                  placeholder={selectedLanguage ? PLACEHOLDER_TEXT[selectedLanguage] : 'Select language first...'}
                   className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 border-0 rounded-full text-sm text-gray-800 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all"
-                  disabled={loading}
+                  disabled={loading || !selectedLanguage}
                   maxLength={500}
                   dir="auto"
                 />
