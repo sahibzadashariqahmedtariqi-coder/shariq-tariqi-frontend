@@ -56,7 +56,12 @@ const QUICK_REPLIES: QuickReply[] = [
   { label: '🔮 Spiritual Healing', value: 'spiritual healing services' },
   { label: '📚 Courses', value: 'courses available' },
   { label: '📅 Book Appointment', value: 'appointment book' },
+  { label: '🤲 Mureed Registration', value: 'mureed bnna chahta hn' },
   { label: '💊 Health Issues', value: 'health problem tabiyat kharab' },
+  { label: '📦 Track Order', value: 'track my order' },
+  { label: '❤️ Donate', value: 'donate sadqa zakat' },
+  { label: '🎓 LMS Login', value: 'student login lms' },
+  { label: '📍 Address & Timings', value: 'address timing location' },
   { label: '📞 Contact', value: 'contact information rabta' },
 ];
 

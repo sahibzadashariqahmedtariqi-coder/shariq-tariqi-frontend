@@ -7,12 +7,70 @@ import Course from '../models/Course.js';
 // SMART CHATBOT - Rule-Based + AI Fallback
 // ============================================
 
+// Business Information Constants
+const BUSINESS_INFO = {
+  address: 'Shop No, 2334+43, LS 13-14 Madiha Road, Sector 5 A 1, New Karachi Town, Karachi, 78850',
+  phone: '0318 2392985',
+  whatsapp: '+92 318 2392985',
+  website: 'sahibzadashariqahmedtariqi.com',
+  hours: {
+    sunday: '2:00 PM - 5:00 PM',
+    monday: '2:00 PM - 5:00 PM',
+    tuesday: '2:00 PM - 5:00 PM',
+    wednesday: '2:00 PM - 5:00 PM',
+    thursday: '2:00 PM - 5:00 PM',
+    friday: 'Closed (بند)',
+    saturday: '2:00 PM - 5:00 PM',
+  },
+};
+
 // Category keywords with multiple contextual responses
 const CATEGORY_RULES = {
+  // === MUREED REGISTRATION (HIGH PRIORITY) ===
+  mureed: {
+    keywords: ['mureed', 'murid', 'mureeed', 'murrid', 'bay\'at', 'bayat', 'bait', 'bayt', 'silsila', 'silsilah', 'tariqa', 'tareeqa', 'tariqah', 'peer', 'pir', 'murshid', 'murshad', 'bnna chahta', 'banna chahta', 'banna chahti', 'bnna chahti', 'mureed bnna', 'mureed banna', 'murid banna', 'murid bnna', 'mureed ban', 'murid ban', 'mureedi', 'irada', 'nisbat', 'intisab', 'halqa', 'khandaan', 'roohani talluq', 'rohani taluq', 'rohani rishta', 'register mureed', 'mureed card', 'mureed registration', 'mureed form'],
+    responses: [
+      'مریدی کے لیے آپ کا شکریہ! 🤲\nآپ ہماری ویب سائٹ پر مرید رجسٹریشن فارم بھر سکتے ہیں۔ نیچے "مرید رجسٹریشن" پر کلک کریں:\n\nصاحبزادہ شارق احمد طارقی صاحب آپ کی درخواست دیکھ کر جواب دیں گے۔',
+      'ماشاءاللہ! مریدی کا ارادہ بہت اچھا ہے۔ 🤲\nآپ ہماری ویب سائٹ پر مرید رجسٹریشن کا فارم بھریں - صاحبزادہ شارق احمد طارقی صاحب خود آپ سے رابطہ کریں گے:',
+    ],
+    type: 'mureed',
+  },
+
+  // === ORDER TRACKING ===
+  order_tracking: {
+    keywords: ['track order', 'order track', 'mera order', 'order status', 'order kahan', 'delivery', 'shipping', 'dispatch', 'parcel', 'courier', 'order number', 'order id', 'track karo', 'track krna', 'track karna', 'order aya', 'order aaya', 'order nahi aya', 'order nhi aaya', 'kab ayega', 'kab milega', 'order kab', 'shipment', 'delivered', 'pending order', 'mera parcel', 'order milna', 'order dhoondo', 'order find'],
+    responses: [
+      'آپ اپنے آرڈر کی حالت نیچے "Track Order" بٹن سے چیک کر سکتے ہیں۔ آپ کو اپنا آرڈر نمبر درکار ہوگا:',
+      'آرڈر ٹریک کرنے کے لیے نیچے بٹن دبائیں اور اپنا آرڈر نمبر درج کریں:',
+    ],
+    type: 'order_tracking',
+  },
+
+  // === ADDRESS / LOCATION / TIMINGS ===
+  address_location: {
+    keywords: ['address', 'pata', 'location', 'timing', 'timings', 'waqt', 'hours', 'kab khulta', 'kab band', 'open', 'close', 'closed', 'band', 'khula', 'dawakhana', 'dawakhany', 'dawa khana', 'maktab', 'dukan', 'shop', 'clinic', 'office', 'jagah', 'jaga', 'kahan hai', 'kahan hain', 'kidhar', 'directions', 'map', 'google map', 'karachi', 'new karachi', 'madiha road', 'sector 5', 'kahin aaun', 'kahan aaun', 'ana chahta', 'aana chahta', 'visit karna', 'visit krna', 'pohanchna', 'pohanchun', 'come', 'where is', 'where are', 'working hours', 'opening hours', 'schedule', 'time', 'friday', 'juma', 'jumma', 'hafta', 'week', 'daily', 'roz'],
+    responses: [
+      `📍 پتہ:\n${BUSINESS_INFO.address}\n\n🕐 اوقات کار:\n• اتوار تا جمعرات: 2:00 بجے سے 5:00 بجے تک\n• ہفتہ: 2:00 بجے سے 5:00 بجے تک\n• جمعہ: بند\n\n📞 فون: ${BUSINESS_INFO.phone}`,
+    ],
+    type: 'address_location',
+  },
+
+  // === LMS STUDENT LOGIN ===
+  lms_student: {
+    keywords: ['lms', 'student', 'student login', 'login karna', 'login krna', 'log in', 'signin', 'sign in', 'mera account', 'dashboard', 'portal', 'mera course', 'enrolled', 'enrollment', 'lms login', 'student portal', 'student panel', 'my courses', 'my classes', 'meri class', 'mera enrollment', 'certificate', 'progress', 'assignment', 'lecture', 'video lecture', 'online class', 'online course', 'lms student', 'student hn', 'student hon', 'student hoon'],
+    responses: [
+      'آپ LMS سٹوڈنٹ پورٹل سے اپنے کورسز، لیکچرز اور پروگریس دیکھ سکتے ہیں۔ نیچے لنک سے لاگ ان کریں:',
+      'اپنے LMS اکاؤنٹ میں لاگ ان کر کے اپنے کورسز اور لیکچرز تک رسائی حاصل کریں:',
+    ],
+    type: 'lms_student',
+  },
+
+  // === HEALTH CATEGORIES ===
   skin: {
     keywords: ['skin', 'acne', 'pimple', 'rash', 'eczema', 'psoriasis', 'daad', 'khujli', 'jild', 'chamra', 'face', 'chehra', 'glow', 'rang gora', 'whitening', 'cream', 'dhabbe', 'spots', 'dark circles', 'wrinkles', 'jhaiyan', 'daane', 'keel', 'muhase', 'chehre', 'noor', 'rang nikharna', 'safai', 'pimples', 'dagh'],
     productCategory: 'herbal',
     productTags: ['skin', 'face', 'cream', 'beauty', 'glow'],
+    productKeywords: ['skin', 'face', 'cream', 'beauty', 'glow', 'chehra', 'rang', 'complexion', 'whitening', 'fair'],
     responses: [
       'جلدی مسائل کے لیے ہمارے پاس خاص جڑی بوٹیوں سے تیار کردہ مصنوعات ہیں جو قدرتی طور پر آپ کی جلد کی دیکھ بھال کریں گی۔ یہ رہیں مناسب مصنوعات:',
       'آپ کی جلد کے مسئلے کے لیے صاحبزادہ صاحب نے خاص فارمولے تیار کیے ہیں۔ ان مصنوعات کو آزمائیں:',
@@ -24,6 +82,7 @@ const CATEGORY_RULES = {
     keywords: ['stomach', 'digestion', 'qabz', 'constipation', 'diarrhea', 'ulcer', 'acidity', 'gas', 'pait', 'pet dard', 'hazma', 'appetite', 'bhook', 'liver', 'jigar', 'intestine', 'tez aab', 'badhazmi', 'pait kharab', 'ulti', 'vomit', 'matli', 'nausea'],
     productCategory: 'herbal',
     productTags: ['stomach', 'digestive', 'liver', 'herbal'],
+    productKeywords: ['stomach', 'digestive', 'liver', 'pet', 'hazma', 'qabz', 'acidity', 'gastric'],
     responses: [
       'نظامِ ہاضمہ کے مسائل جڑی بوٹیوں سے بہتر ہو سکتے ہیں۔ ہماری جانچ شدہ مصنوعات دیکھیں:',
       'ہاضمے کی خرابی عام مسئلہ ہے۔ صاحبزادہ صاحب کے تیار کردہ فارمولے آزمائیں:',
@@ -35,6 +94,7 @@ const CATEGORY_RULES = {
     keywords: ['nazar', 'evil eye', 'jinn', 'jadu', 'magic', 'black magic', 'kala jadu', 'taweez', 'wazifa', 'ruqyah', 'bandish', 'asaib', 'hamzad', 'spiritual', 'roohani', 'rohani', 'protection', 'hifazat', 'dua', 'istikhara', 'nazar lagna', 'jinnat', 'saya', 'sehr', 'sahar', 'jadoo', 'buri nazar', 'bhoot', 'asar', 'waswasay', 'wahm', 'khwab', 'dream', 'darr', 'darr lagna', 'pareshani', 'stress', 'tension', 'depression', 'anxiety', 'bezaar', 'tang', 'udaas', 'udas', 'zindagi', 'life', 'mushkil', 'mushkilat', 'dil', 'ghabra', 'ghabrahat', 'rona', 'rone', 'akela', 'lonely', 'hopeless', 'umeed', 'naummeed', 'na ummeed', 'himmat', 'haar', 'thak', 'thak gaya', 'haar gaya', 'haar gayi', 'smjh nhi', 'samajh nahi', 'pata nahi', 'confuse', 'confused', 'sad', 'upset', 'frustrated', 'frustation', 'mayoos', 'mayoosi', 'dukh', 'dukhi', 'takleef', 'aziyat', 'fikr', 'fikar', 'preshan', 'worried', 'worry', 'sukoon', 'chain', 'neend nahi', 'raat', 'disturb', 'mentally', 'mental', 'dimagh', 'pagal', 'satana', 'ajeeb'],
     productCategory: 'spiritual',
     productTags: ['spiritual', 'taweez', 'protection', 'ruqyah'],
+    productKeywords: ['spiritual', 'rohani', 'taweez', 'protection', 'nazar', 'dua', 'hizbul', 'manzil'],
     responses: [
       'روحانی مسائل کے لیے صاحبزادہ شارق احمد طارقی صاحب خصوصی خدمات فراہم کرتے ہیں۔ اپائنٹمنٹ بک کر کے ان سے بات کریں:',
       'اللہ تعالیٰ ہر مسئلے کا حل رکھتا ہے۔ صاحبزادہ شارق احمد طارقی صاحب سے اپائنٹمنٹ لے کر بات کریں:',
@@ -46,6 +106,7 @@ const CATEGORY_RULES = {
     keywords: ['pain', 'dard', 'headache', 'sir dard', 'backache', 'kamar dard', 'joint', 'joron', 'arthritis', 'muscle', 'body pain', 'knee', 'shoulder', 'sar dard', 'ghutna', 'hath dard', 'paon dard', 'sar ma dard', 'gathiya', 'sujan', 'swelling', 'injury', 'chot', 'toot', 'haddi', 'bone', 'gardan', 'neck'],
     productCategory: 'herbal',
     productTags: ['pain', 'oil', 'relief', 'body'],
+    productKeywords: ['pain', 'dard', 'oil', 'joint', 'relief', 'muscle', 'body'],
     responses: [
       'درد کے لیے ہمارے خاص تیل اور جڑی بوٹیوں کی مصنوعات بہت مؤثر ہیں:',
       'جوڑوں اور جسم کے درد کے لیے قدرتی علاج بہترین ہے۔ یہ مصنوعات آزمائیں:',
@@ -57,6 +118,7 @@ const CATEGORY_RULES = {
     keywords: ['hair', 'baal', 'hair fall', 'baldness', 'ganjapan', 'dandruff', 'khushki', 'hair growth', 'hair oil', 'baal girna', 'baal jharna', 'safed baal', 'white hair', 'baalon', 'hair loss', 'thinning', 'split ends'],
     productCategory: 'herbal',
     productTags: ['hair', 'oil', 'growth'],
+    productKeywords: ['hair', 'baal', 'oil', 'growth', 'dandruff', 'scalp'],
     responses: [
       'بالوں کے مسائل کے لیے ہمارے خاص ہربل تیل اور مصنوعات دیکھیں:',
       'بالوں کا گرنا، خشکی یا سفید ہونا - سب کا علاج ہمارے پاس ہے:',
@@ -67,6 +129,7 @@ const CATEGORY_RULES = {
     keywords: ['weight', 'wazan', 'motapa', 'obesity', 'fat', 'slim', 'diet', 'sugar', 'diabetes', 'blood pressure', 'bp', 'cholesterol', 'patla hona', 'mota', 'wazan kam', 'wazan barhna', 'sugar ki bimari', 'thyroid', 'hormones'],
     productCategory: 'herbal',
     productTags: ['weight', 'sugar', 'diabetes', 'health'],
+    productKeywords: ['weight', 'wazan', 'sugar', 'diabetes', 'slim', 'fat', 'cholesterol'],
     responses: [
       'وزن اور شوگر کے مسائل کے لیے ہمارے قدرتی فارمولے بہت مؤثر ہیں:',
       'موٹاپا اور ذیابیطس کے لیے جڑی بوٹیوں کا علاج آزمائیں:',
@@ -78,6 +141,7 @@ const CATEGORY_RULES = {
     keywords: ['tabiyat', 'bimar', 'bimaari', 'health', 'sehat', 'kamzor', 'kamzori', 'bukhar', 'fever', 'flu', 'khansi', 'cough', 'cold', 'nazla', 'zukam', 'weakness', 'thakan', 'neend', 'sleep', 'tired', 'immunity', 'infection', 'allergy', 'saans', 'breathing', 'chest', 'seena', 'gala', 'throat', 'thand', 'khoon', 'blood', 'anemia', 'vitamin', 'energy', 'weak', 'bimaar', 'theek nahi', 'nahi theek', 'pareshan', 'problem', 'masla', 'masail', 'takleef', 'issue', 'taklif', 'bemari', 'achy nahi', 'achi nahi', 'kharab', 'feel nahi', 'unwell', 'sick', 'ill'],
     productCategory: 'herbal',
     productTags: ['health', 'herbal', 'immunity', 'energy'],
+    productKeywords: ['health', 'herbal', 'immunity', 'energy', 'tonic', 'sehat', 'vitamin'],
     responses: [
       'آپ کی صحت ہمارے لیے اہم ہے۔ قدرتی جڑی بوٹیوں سے بنی مصنوعات آپ کی مدد کر سکتی ہیں:',
       'بیماری میں فکر نہ کریں - صاحبزادہ صاحب کے تیار کردہ فارمولے دیکھیں:',
@@ -89,6 +153,7 @@ const CATEGORY_RULES = {
     keywords: ['mardana', 'mardangi', 'timing', 'power', 'taqat', 'strength', 'shadi', 'marriage', 'wedding', 'suhaag raat', 'fertility', 'infertility', 'baanjhpan', 'male', 'virility', 'performance', 'stamina'],
     productCategory: 'herbal',
     productTags: ['men', 'power', 'health', 'herbal'],
+    productKeywords: ['men', 'mardana', 'power', 'taqat', 'stamina', 'strength', 'shadi'],
     responses: [
       'مردانہ صحت کے لیے ہمارے خاص قدرتی فارمولے موجود ہیں۔ شادی کی تیاری یا عمومی صحت - سب کا حل ہے:',
       'مردانہ مسائل کے لیے فکر نہ کریں - صاحبزادہ صاحب سے اپائنٹمنٹ لے کر بات کریں:',
@@ -96,9 +161,10 @@ const CATEGORY_RULES = {
     suggestAppointment: true,
   },
   womens_health: {
-    keywords: ['hamal', 'pregnancy', 'period', 'periods', 'mahwari', 'masik', 'pcod', 'pcos', 'uterus', 'bacha', 'aulad', 'female', 'khawateen', 'aurat', 'bachcha dani', 'hormonal', 'breast', 'lactation', 'doodh'],
+    keywords: ['hamal', 'pregnancy', 'period', 'periods', 'mahwari', 'masik', 'pcod', 'pcos', 'uterus', 'bacha', 'aulad', 'female', 'khawateen', 'aurat', 'bachcha dani', 'hormonal', 'breast', 'lactation', 'doodh', 'fertility', 'miscarriage'],
     productCategory: 'herbal',
-    productTags: ['women', 'health', 'herbal', 'female'],
+    productTags: ['women', 'health', 'herbal', 'female', 'fertility'],
+    productKeywords: ['women', 'female', 'fertility', 'pregnancy', 'period', 'hormonal', 'miscarriage'],
     responses: [
       'خواتین کی صحت کے لیے ہمارے خاص جڑی بوٹیوں کے فارمولے موجود ہیں:',
       'خواتین کے مسائل کا قدرتی حل - ہماری مصنوعات دیکھیں:',
@@ -109,6 +175,7 @@ const CATEGORY_RULES = {
     keywords: ['eye', 'eyes', 'nazar kamzor', 'aankhein', 'aankh', 'eyesight', 'vision', 'glasses', 'chasma', 'motia', 'cataract'],
     productCategory: 'herbal',
     productTags: ['eye', 'health', 'herbal'],
+    productKeywords: ['eye', 'nazar', 'vision', 'aankhein'],
     responses: [
       'آنکھوں کے مسائل کے لیے ہمارے قدرتی علاج موجود ہیں:',
       'نظر کی کمزوری کا قدرتی حل - ہماری مصنوعات دیکھیں:',
@@ -119,19 +186,25 @@ const CATEGORY_RULES = {
     keywords: ['kidney', 'gurda', 'pathri', 'stone', 'peshab', 'urine', 'bladder', 'uti', 'renal'],
     productCategory: 'herbal',
     productTags: ['kidney', 'health', 'herbal'],
+    productKeywords: ['kidney', 'gurda', 'pathri', 'stone', 'urine'],
     responses: [
       'گردے اور پیشاب کے مسائل کے لیے ہمارے قدرتی جڑی بوٹیوں کے فارمولے:',
       'گردے کی پتھری یا دیگر مسائل - صاحبزادہ صاحب سے اپائنٹمنٹ لے کر مشورہ کریں:',
     ],
     suggestAppointment: true,
   },
+
+  // === FUNCTIONAL CATEGORIES ===
   courses: {
-    keywords: ['course', 'learn', 'seekhna', 'class', 'training', 'study', 'ilm', 'knowledge', 'sikho', 'enroll', 'admission', 'taaleem', 'padhai', 'parhna', 'seekhein', 'sikhao'],
-    responses: ['ہمارے تعلیمی کورسز میں آپ روحانیت، طب اور مزید بہت کچھ سیکھ سکتے ہیں:'],
+    keywords: ['course', 'courses', 'learn', 'seekhna', 'class', 'classes', 'training', 'study', 'ilm', 'knowledge', 'sikho', 'enroll', 'admission', 'taaleem', 'padhai', 'parhna', 'seekhein', 'sikhao', 'diploma', 'certificate course', 'online course', 'fee', 'course fee', 'syllabus', 'curriculum', 'teacher', 'ustaad', 'taleem', 'education'],
+    responses: [
+      'ہمارے تعلیمی کورسز میں آپ روحانیت، طب اور مزید بہت کچھ سیکھ سکتے ہیں۔ یہ رہے دستیاب کورسز:',
+      'صاحبزادہ شارق احمد طارقی صاحب کے زیرِ نگرانی تعلیمی کورسز دستیاب ہیں۔ ابھی اندراج کریں:',
+    ],
     type: 'courses',
   },
   appointment: {
-    keywords: ['appointment', 'mulaqat', 'milna chahta', 'consult', 'mashwara', 'visit', 'checkup', 'doctor', 'hakeem', 'treatment', 'ilaj', 'book appointment', 'appointment book', 'milna', 'rabta karna', 'baat krna', 'baat karna', 'baat chahta', 'baat chahti', 'ap sy baat', 'aap se baat', 'ap se baat', 'baat kr', 'call', 'refer', 'suggest', 'consultation', 'discuss', 'meet', 'meeting', 'mil sakta', 'mil sakti', 'rabta', 'contact karna', 'mulaaqat'],
+    keywords: ['appointment', 'mulaqat', 'milna chahta', 'consult', 'mashwara', 'visit', 'checkup', 'doctor', 'hakeem', 'treatment', 'ilaj', 'book appointment', 'appointment book', 'milna', 'rabta karna', 'baat krna', 'baat karna', 'baat chahta', 'baat chahti', 'ap sy baat', 'aap se baat', 'ap se baat', 'baat kr', 'refer', 'suggest', 'consultation', 'discuss', 'meet', 'meeting', 'mil sakta', 'mil sakti', 'rabta', 'contact karna', 'mulaaqat', 'dekhna chahta', 'dikhana chahta'],
     responses: [
       'آپ صاحبزادہ شارق احمد طارقی صاحب سے اپائنٹمنٹ بک کر کے بات کر سکتے ہیں۔ ابھی بک کریں:',
       'ملاقات کا وقت مقرر کرنے کے لیے نیچے Book Now دبائیں:',
@@ -139,7 +212,7 @@ const CATEGORY_RULES = {
     type: 'appointment',
   },
   greeting: {
-    keywords: ['hello', 'salam', 'assalam', 'assalamu', 'aoa', 'good morning', 'good evening', 'how are you', 'kaise ho', 'kya haal', 'namaste', 'bohat achy'],
+    keywords: ['hello', 'hi', 'hey', 'salam', 'assalam', 'assalamu', 'aoa', 'good morning', 'good evening', 'how are you', 'kaise ho', 'kya haal', 'namaste', 'bohat achy', 'aadaab', 'g'],
     responses: [
       'وعلیکم السلام! 🌿\nمیں طارقی AI اسسٹنٹ ہوں۔ آپ مجھ سے اپنا مسئلہ بتائیں - میں آپ کو مناسب مصنوعات تجویز کروں گا۔\n\nیا نیچے سے کوئی آپشن منتخب کریں:',
       'وعلیکم السلام! خوش آمدید 🌿\nمیں آپ کی کیا مدد کر سکتا ہوں؟ اپنا مسئلہ بتائیں یا آپشنز میں سے منتخب کریں:',
@@ -147,7 +220,7 @@ const CATEGORY_RULES = {
     type: 'greeting',
   },
   products: {
-    keywords: ['product', 'products', 'shop', 'buy', 'kharidna', 'order', 'price', 'qeemat', 'dawa', 'medicine', 'dawai', 'khareed', 'dikhao', 'show', 'dekho'],
+    keywords: ['product', 'products', 'shop', 'buy', 'kharidna', 'order karna', 'order krna', 'price', 'qeemat', 'dawa', 'medicine', 'dawai', 'khareed', 'dikhao', 'show', 'dekho', 'store', 'mall'],
     responses: [
       'ہماری تمام مصنوعات قدرتی جڑی بوٹیوں سے بنی ہیں۔ یہ رہیں:',
       'ہمارے اسٹور کی مشہور مصنوعات دیکھیں:',
@@ -155,7 +228,7 @@ const CATEGORY_RULES = {
     type: 'products',
   },
   services: {
-    keywords: ['service', 'services', 'kya karte', 'what do you do', 'madad', 'kya milta', 'provide', 'offer'],
+    keywords: ['service', 'services', 'kya karte', 'what do you do', 'kya milta', 'provide', 'offer', 'khidmat', 'khidmaat'],
     responses: [
       'ہم روحانی علاج، جڑی بوٹیوں کا علاج اور مزید خدمات فراہم کرتے ہیں:',
       'ہماری خدمات میں استخارہ، روحانی مشاورت، حکمت اور مزید شامل ہیں:',
@@ -163,16 +236,16 @@ const CATEGORY_RULES = {
     type: 'services',
   },
   about: {
-    keywords: ['about', 'barein', 'kaun', 'who', 'website', 'kis ki', 'kahan', 'where', 'location', 'address', 'pata', 'ye kya', 'yeh kya', 'batao', 'bataen', 'introduction', 'taaruf'],
+    keywords: ['about', 'barein', 'kaun', 'who', 'website', 'kis ki', 'ye kya', 'yeh kya', 'batao', 'bataen', 'introduction', 'taaruf', 'kon hain', 'kya kaam'],
     responses: [
-      'یہ صاحبزادہ شارق احمد طارقی صاحب کی آفیشل ویب سائٹ ہے۔ آپ روحانی علاج، جڑی بوٹیوں کی ادویات، تعلیمی کورسز اور مزید بہت کچھ یہاں پا سکتے ہیں۔\n\n🏢 کراچی، پاکستان\n📞 واٹس ایپ: +92 318 2392985',
+      `یہ صاحبزادہ شارق احمد طارقی صاحب کی آفیشل ویب سائٹ ہے۔ آپ روحانی علاج، جڑی بوٹیوں کی ادویات، تعلیمی کورسز اور مزید بہت کچھ یہاں پا سکتے ہیں۔\n\n📍 ${BUSINESS_INFO.address}\n📞 فون: ${BUSINESS_INFO.phone}`,
     ],
     type: 'about',
   },
   contact: {
-    keywords: ['contact', 'phone', 'number', 'whatsapp', 'call', 'email', 'rabta', 'fone', 'mobile', 'social media', 'facebook', 'instagram'],
+    keywords: ['contact', 'phone', 'number', 'whatsapp', 'email', 'rabta', 'fone', 'mobile', 'social media', 'facebook', 'instagram', 'call karna', 'call krna'],
     responses: [
-      'رابطے کی تفصیلات:\n\n📞 واٹس ایپ: +92 318 2392985\n🌐 ویب سائٹ: sahibzadashariqahmedtariqi.com\n\nنیچے "واٹس ایپ" بٹن دبا کر براہ راست بات کریں:',
+      `رابطے کی تفصیلات:\n\n📞 فون/واٹس ایپ: ${BUSINESS_INFO.phone}\n📍 پتہ: ${BUSINESS_INFO.address}\n🌐 ویب سائٹ: ${BUSINESS_INFO.website}\n\nنیچے "واٹس ایپ" بٹن دبا کر براہ راست بات کریں:`,
     ],
     type: 'contact',
   },
@@ -185,9 +258,10 @@ const CATEGORY_RULES = {
     type: 'thanks',
   },
   donate: {
-    keywords: ['donate', 'donation', 'sadqa', 'sadqah', 'zakat', 'khairat', 'chanda', 'paisa dena', 'madad karna'],
+    keywords: ['donate', 'donation', 'sadqa', 'sadqah', 'zakat', 'khairat', 'chanda', 'paisa dena', 'madad karna', 'atiya', 'lillah', 'infaq', 'charity', 'give', 'dena chahta', 'donate karna', 'donate krna', 'fund', 'help financially'],
     responses: [
-      'آپ ہماری ویب سائٹ پر صدقہ، زکوٰۃ اور خیرات کے لیے عطیہ دے سکتے ہیں:',
+      'آپ ہماری ویب سائٹ پر صدقہ، زکوٰۃ اور خیرات کے لیے عطیہ دے سکتے ہیں۔ آپ کا ہر عطیہ اللہ کی راہ میں ہے۔ 🤲',
+      'جزاک اللہ آپ کے عطیےکی نیت پر! صدقہ، زکوٰۃ، للّٰہ - سب آپشنز دستیاب ہیں:',
     ],
     type: 'donate',
   },
@@ -199,7 +273,12 @@ const QUICK_REPLIES = [
   { label: '🔮 Spiritual Healing', value: 'spiritual healing services' },
   { label: '📚 Courses', value: 'courses available' },
   { label: '📅 Book Appointment', value: 'appointment book' },
+  { label: '🤲 Mureed Registration', value: 'mureed bnna chahta hn' },
   { label: '💊 Health Issues', value: 'health problem tabiyat kharab' },
+  { label: '📦 Track Order', value: 'track my order' },
+  { label: '❤️ Donate', value: 'donate sadqa zakat' },
+  { label: '🎓 LMS Login', value: 'student login lms' },
+  { label: '📍 Address & Timings', value: 'address timing location' },
   { label: '📞 Contact', value: 'contact information rabta' },
 ];
 
@@ -254,6 +333,24 @@ function detectLanguage(message) {
 // MULTI-LANGUAGE RESPONSES
 // ============================================
 const ROMAN_URDU_RESPONSES = {
+  // === NEW CATEGORIES ===
+  mureed: [
+    'MashaAllah! Mureedi ka irada bohat acha hai. 🤲\nAap hamari website par Mureed Registration ka form bhar sakte hain. Neeche "Mureed Registration" button par click karein:\n\nSahibzada Shariq Ahmed Tariqi sahab khud aap se rabta karenge.',
+    'Mureedi ke liye aap ka shukriya! 🤲\nAap hamari website par mureed registration form bharein - Sahibzada Shariq Ahmed Tariqi sahab aap ki darkhwast dekh kar jawab denge:',
+  ],
+  order_tracking: [
+    'Aap apne order ki haalat neeche "Track Order" button se check kar sakte hain. Aap ko apna order number darna hoga:',
+    'Order track karne ke liye neeche button dabaein aur apna order number darj karein:',
+  ],
+  address_location: [
+    `📍 Pata:\n${BUSINESS_INFO.address}\n\n🕐 Timing:\n• Sunday se Thursday: 2:00 PM - 5:00 PM\n• Saturday: 2:00 PM - 5:00 PM\n• Friday: Band (Closed)\n\n📞 Phone: ${BUSINESS_INFO.phone}`,
+  ],
+  lms_student: [
+    'Aap LMS Student Portal se apne courses, lectures aur progress dekh sakte hain. Neeche link se login karein:',
+    'Apne LMS account mein login kar ke apne courses aur lectures tak access haasil karein:',
+  ],
+
+  // === EXISTING CATEGORIES ===
   skin: [
     'Aap ki skin ke masle ke liye hamare khaas herbal products hain jo qudrati tor par aap ki jild ki dekh bhaal karein ge. Ye dekhein:',
     'Jild ke masail aam hain lekin qudrati ilaaj se behteri aa sakti hai. Hamare products dekhein:',
@@ -306,7 +403,8 @@ const ROMAN_URDU_RESPONSES = {
     'Gurde ki pathri ya degar masail ke liye Sahibzada sahab se appointment le kar mashwara karein:',
   ],
   courses: [
-    'Hamare courses mein aap rohaniyat, tib aur bohat kuch seekh sakte hain:',
+    'Hamare courses mein aap rohaniyat, tib aur bohat kuch seekh sakte hain. Ye hain dastiyaab courses:',
+    'Sahibzada Shariq Ahmed Tariqi sahab ke zeir nigrani taleemi courses dastiyaab hain. Abhi enrollment karein:',
   ],
   appointment: [
     'Aap Sahibzada Shariq Ahmed Tariqi sahab se appointment book kar ke baat kar sakte hain. Abhi book karein:',
@@ -325,21 +423,40 @@ const ROMAN_URDU_RESPONSES = {
     'Hamari services mein istikhara, rohani mashwarat, hikmat aur mazeed shaamil hain:',
   ],
   about: [
-    'Ye Sahibzada Shariq Ahmed Tariqi sahab ki official website hai. Aap rohani ilaaj, herbal medicines, courses aur bohat kuch yahan pa sakte hain.\n\n🏢 Karachi, Pakistan\n📞 WhatsApp: +92 318 2392985',
+    `Ye Sahibzada Shariq Ahmed Tariqi sahab ki official website hai. Aap rohani ilaaj, herbal medicines, courses aur bohat kuch yahan pa sakte hain.\n\n📍 ${BUSINESS_INFO.address}\n📞 Phone: ${BUSINESS_INFO.phone}`,
   ],
   contact: [
-    'Rabte ki details:\n\n📞 WhatsApp: +92 318 2392985\n🌐 Website: sahibzadashariqahmedtariqi.com\n\nNeeche WhatsApp button daba kar seedha baat karein:',
+    `Rabte ki details:\n\n📞 Phone/WhatsApp: ${BUSINESS_INFO.phone}\n📍 Pata: ${BUSINESS_INFO.address}\n🌐 Website: ${BUSINESS_INFO.website}\n\nNeeche WhatsApp button daba kar seedha baat karein:`,
   ],
   thanks: [
     'Shukriya! 🌿 Allah aap ko sehat o aafiyat ata farmaye. Agar koi aur sawal ho to zaroor poochein!',
     'JazakAllah! Aap ki khidmat mein haazir hoon. Koi aur madad chahein to bataein 🤲',
   ],
   donate: [
-    'Aap hamari website par sadqa, zakat aur khairaat ke liye donate kar sakte hain:',
+    'Aap hamari website par sadqa, zakat aur khairaat ke liye donate kar sakte hain. Aap ka har atiya Allah ki raah mein hai. 🤲',
+    'JazakAllah aap ke atiye ki niyat par! Sadqa, Zakat, Lillah - sab options dastiyaab hain:',
   ],
 };
 
 const ENGLISH_RESPONSES = {
+  // === NEW CATEGORIES ===
+  mureed: [
+    'MashaAllah! Your intention to become a Mureed is wonderful. 🤲\nYou can fill out the Mureed Registration form on our website. Click "Mureed Registration" below:\n\nSahibzada Shariq Ahmed Tariqi will personally review your application and get in touch with you.',
+    'Thank you for your interest in becoming a Mureed! 🤲\nPlease fill out the registration form on our website - Sahibzada Shariq Ahmed Tariqi will respond to your request:',
+  ],
+  order_tracking: [
+    'You can check your order status using the "Track Order" button below. You\'ll need your order number:',
+    'To track your order, click the button below and enter your order number:',
+  ],
+  address_location: [
+    `📍 Address:\n${BUSINESS_INFO.address}\n\n🕐 Working Hours:\n• Sunday to Thursday: 2:00 PM - 5:00 PM\n• Saturday: 2:00 PM - 5:00 PM\n• Friday: Closed\n\n📞 Phone: ${BUSINESS_INFO.phone}`,
+  ],
+  lms_student: [
+    'You can access your courses, lectures and progress through the LMS Student Portal. Login using the link below:',
+    'Login to your LMS account to access your courses and lectures:',
+  ],
+
+  // === EXISTING CATEGORIES ===
   skin: [
     'We have special herbal products for skin issues that naturally care for your skin. Check them out:',
     'Skin problems are common but can improve with natural remedies. See our products:',
@@ -381,7 +498,8 @@ const ENGLISH_RESPONSES = {
     'Natural herbal formulas for kidney and urinary issues:',
   ],
   courses: [
-    'Learn about spirituality, herbal medicine and more through our courses:',
+    'Learn about spirituality, herbal medicine and more through our courses. Here are the available courses:',
+    'Educational courses under Sahibzada Shariq Ahmed Tariqi\'s supervision are available. Enroll now:',
   ],
   appointment: [
     'You can book an appointment with Sahibzada Shariq Ahmed Tariqi to discuss your concerns. Book now:',
@@ -399,17 +517,18 @@ const ENGLISH_RESPONSES = {
     'Our services include Istikhara, spiritual consultation, herbal medicine and more:',
   ],
   about: [
-    'This is the official website of Sahibzada Shariq Ahmed Tariqi. Find spiritual healing, herbal medicines, courses and more.\n\n🏢 Karachi, Pakistan\n📞 WhatsApp: +92 318 2392985',
+    `This is the official website of Sahibzada Shariq Ahmed Tariqi. Find spiritual healing, herbal medicines, courses and more.\n\n📍 ${BUSINESS_INFO.address}\n📞 Phone: ${BUSINESS_INFO.phone}`,
   ],
   contact: [
-    'Contact Details:\n\n📞 WhatsApp: +92 318 2392985\n🌐 Website: sahibzadashariqahmedtariqi.com\n\nClick the WhatsApp button below to chat directly:',
+    `Contact Details:\n\n📞 Phone/WhatsApp: ${BUSINESS_INFO.phone}\n📍 Address: ${BUSINESS_INFO.address}\n🌐 Website: ${BUSINESS_INFO.website}\n\nClick the WhatsApp button below to chat directly:`,
   ],
   thanks: [
     'Thank you! 🌿 May Allah grant you health and wellness. Feel free to ask any more questions!',
     'JazakAllah! I\'m here to help. Let me know if you need anything else 🤲',
   ],
   donate: [
-    'You can donate for Sadqa, Zakat and charity on our website:',
+    'You can donate for Sadqa, Zakat and charity on our website. Every contribution counts in the path of Allah. 🤲',
+    'JazakAllah for your generous intention! Sadqa, Zakat, Lillah - all options are available:',
   ],
 };
 
@@ -431,6 +550,9 @@ function detectCategory(message) {
   let bestMatch = null;
   let bestScore = 0;
 
+  // Priority categories get a bonus - these should be matched first if keywords hit
+  const priorityCategories = ['mureed', 'order_tracking', 'address_location', 'lms_student', 'donate'];
+
   for (const [key, rule] of Object.entries(CATEGORY_RULES)) {
     let score = 0;
     for (const keyword of rule.keywords) {
@@ -442,10 +564,16 @@ function detectCategory(message) {
         }
       } else {
         if (lowerMsg.includes(kw)) {
-          score += kw.length >= 6 ? 3 : 2; // Longer keywords = higher confidence
+          score += kw.length >= 8 ? 5 : kw.length >= 6 ? 3 : 2; // Longer keywords = higher confidence
         }
       }
     }
+
+    // Priority categories get a boost to ensure they win ties
+    if (score > 0 && priorityCategories.includes(key)) {
+      score += 2;
+    }
+
     if (score > bestScore) {
       bestScore = score;
       bestMatch = { category: key, rule, score };
@@ -460,7 +588,7 @@ function getRandomResponse(responses) {
   return responses[Math.floor(Math.random() * responses.length)];
 }
 
-// Fetch products by category/tags from DB
+// Fetch products by category/tags/keywords from DB - SMART RELEVANCE MATCHING
 async function fetchRelevantProducts(rule, limit = 4) {
   try {
     const query = { isActive: true };
@@ -470,22 +598,57 @@ async function fetchRelevantProducts(rule, limit = 4) {
     }
 
     let products = await Product.find(query)
-      .select('name shortDescription price image category tags priceINR')
+      .select('name shortDescription description price image category tags priceINR')
       .sort({ isFeatured: -1, createdAt: -1 })
-      .limit(limit)
+      .limit(20) // Fetch more to filter by relevance
       .lean();
 
-    // If tags available, try to filter further
+    // Score each product by relevance to the category
+    if (rule.productKeywords && rule.productKeywords.length > 0) {
+      const scoredProducts = products.map(p => {
+        let score = 0;
+        const name = (p.name || '').toLowerCase();
+        const desc = ((p.shortDescription || '') + ' ' + (p.description || '')).toLowerCase();
+        const tags = (p.tags || []).map(t => t.toLowerCase());
+
+        for (const kw of rule.productKeywords) {
+          const kwLower = kw.toLowerCase();
+          if (name.includes(kwLower)) score += 5; // Name match = highest relevance
+          if (tags.includes(kwLower)) score += 3; // Tag match = high relevance
+          if (desc.includes(kwLower)) score += 2; // Description match = medium relevance
+        }
+
+        // Also check productTags
+        if (rule.productTags && rule.productTags.length > 0) {
+          for (const tag of rule.productTags) {
+            if (tags.includes(tag.toLowerCase())) score += 3;
+            if (name.includes(tag.toLowerCase())) score += 4;
+          }
+        }
+
+        return { ...p, relevanceScore: score };
+      });
+
+      // Sort by relevance score (highest first), then filter those with score > 0
+      scoredProducts.sort((a, b) => b.relevanceScore - a.relevanceScore);
+      const relevant = scoredProducts.filter(p => p.relevanceScore > 0);
+
+      if (relevant.length > 0) {
+        return relevant.slice(0, limit).map(({ relevanceScore, description, ...rest }) => rest);
+      }
+    }
+
+    // Fallback: tag-based filtering
     if (rule.productTags && rule.productTags.length > 0 && products.length > 0) {
       const tagFiltered = products.filter(p =>
         p.tags && p.tags.some(t => rule.productTags.includes(t.toLowerCase()))
       );
       if (tagFiltered.length > 0) {
-        products = tagFiltered.slice(0, limit);
+        return tagFiltered.slice(0, limit).map(({ description, ...rest }) => rest);
       }
     }
 
-    return products;
+    return products.slice(0, limit).map(({ description, ...rest }) => rest);
   } catch (error) {
     console.error('Error fetching products:', error);
     return [];
@@ -548,15 +711,34 @@ function buildSystemPrompt(products, services, language) {
 
 LANGUAGE: ${langRules[language] || langRules.roman_urdu}
 
+BUSINESS INFO:
+- Address: ${BUSINESS_INFO.address}
+- Phone: ${BUSINESS_INFO.phone}
+- Hours: Sunday-Thursday & Saturday: 2-5 PM, Friday: CLOSED
+- Website: ${BUSINESS_INFO.website}
+- Appointments: sahibzadashariqahmedtariqi.com/appointments
+- Mureed Registration: sahibzadashariqahmedtariqi.com/mureed-registration
+- LMS Student Portal: sahibzadashariqahmedtariqi.com/lms
+- Donations: sahibzadashariqahmedtariqi.com/donate
+- Order Tracking: sahibzadashariqahmedtariqi.com/track-order
+- Products: sahibzadashariqahmedtariqi.com/products
+- Courses: sahibzadashariqahmedtariqi.com/courses
+
 RULES:
 - Give 2-3 SHORT, helpful sentences. Be warm and caring.
-- Suggest relevant products/services from the list below.
+- Suggest relevant products/services from the list below when appropriate.
+- For health issues, suggest relevant products AND recommend booking an appointment.
+- If someone wants to become a mureed, refer them to the Mureed Registration page.
+- If someone is a student, refer them to LMS Student Portal for login.
+- If someone asks about address/timing/location, give the full address and hours.
+- If someone wants to track their order, tell them to use Track Order page.
+- If someone wants to donate, refer them to the Donations page.
 - For serious issues, recommend booking an appointment with Sahibzada Shariq Ahmed Tariqi.
 - NEVER diagnose diseases. NEVER mix languages/scripts.
+- Always refer to the person as "Sahibzada Shariq Ahmed Tariqi sahab" (not Hakeem).
 
 Products: ${topProducts || 'Various herbal products'}
-Services: ${topServices || 'Spiritual healing, Istikhara, Consultation'}
-Appointments: sahibzadashariqahmedtariqi.com/appointments`;
+Services: ${topServices || 'Spiritual healing, Istikhara, Consultation'}`;
 }
 
 // 1. HuggingFace Inference API (FREE - works globally, no credit card)
@@ -838,7 +1020,72 @@ export const chatbotMessage = async (req, res, next) => {
             type: 'donate',
             quickReplies: [
               { label: '❤️ Donate Now', value: 'LINK:/donate' },
+              { label: '� Book Appointment', value: 'appointment book' },
               { label: '📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
+            ],
+          },
+        });
+      }
+
+      // === MUREED REGISTRATION ===
+      if (rule.type === 'mureed') {
+        return res.json({
+          success: true,
+          data: {
+            reply: getResponseForLanguage(category, language),
+            type: 'mureed',
+            quickReplies: [
+              { label: '🤲 Mureed Registration', value: 'LINK:/mureed-registration' },
+              { label: '📅 Book Appointment', value: 'appointment book' },
+              { label: '📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
+            ],
+          },
+        });
+      }
+
+      // === ORDER TRACKING ===
+      if (rule.type === 'order_tracking') {
+        return res.json({
+          success: true,
+          data: {
+            reply: getResponseForLanguage(category, language),
+            type: 'order_tracking',
+            quickReplies: [
+              { label: '📦 Track Order', value: 'LINK:/track-order' },
+              { label: '🛒 View Products', value: 'LINK:/products' },
+              { label: '📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
+            ],
+          },
+        });
+      }
+
+      // === ADDRESS / LOCATION / TIMINGS ===
+      if (rule.type === 'address_location') {
+        return res.json({
+          success: true,
+          data: {
+            reply: getResponseForLanguage(category, language),
+            type: 'address_location',
+            quickReplies: [
+              { label: '📍 Google Maps', value: 'LINK:https://maps.google.com/?q=Shop+No+2334+43+LS+13-14+Madiha+Road+Sector+5+A+1+New+Karachi+Town+Karachi' },
+              { label: '📅 Book Appointment', value: 'appointment book' },
+              { label: '📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
+            ],
+          },
+        });
+      }
+
+      // === LMS STUDENT LOGIN ===
+      if (rule.type === 'lms_student') {
+        return res.json({
+          success: true,
+          data: {
+            reply: getResponseForLanguage(category, language),
+            type: 'lms_student',
+            quickReplies: [
+              { label: '🎓 LMS Login', value: 'LINK:/lms/login' },
+              { label: '📚 View Courses', value: 'LINK:/courses' },
+              { label: '�📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
             ],
           },
         });
