@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Bot, User, ExternalLink, Loader2, BotMessageSquare } from 'lucide-react';
+import { X, Send, Bot, User, ExternalLink, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 
@@ -235,7 +235,7 @@ export default function ChatBot() {
               <div className="absolute inset-0 rounded-full animate-ping bg-primary-400/30" style={{ animationDuration: '2s' }} />
               {/* Inner circle with robot icon */}
               <div className="relative w-12 h-12 bg-gradient-to-br from-primary-600 to-emerald-600 rounded-full flex items-center justify-center border-2 border-white/30">
-                <BotMessageSquare className="w-7 h-7 text-white drop-shadow-lg" />
+                <Bot className="w-7 h-7 text-white drop-shadow-lg" />
               </div>
             </motion.button>
           </motion.div>

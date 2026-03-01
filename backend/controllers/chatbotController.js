@@ -203,6 +203,228 @@ const QUICK_REPLIES = [
   { label: '📞 Contact', value: 'contact information rabta' },
 ];
 
+// ============================================
+// LANGUAGE DETECTION
+// ============================================
+function detectLanguage(message) {
+  const text = message.trim();
+  if (!text) return 'roman_urdu';
+
+  // Count Urdu/Arabic script characters
+  const urduRegex = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/g;
+  const urduChars = (text.match(urduRegex) || []).length;
+  const nonSpaceChars = text.replace(/\s/g, '').length;
+
+  // If more than 40% Urdu script characters, it's Urdu
+  if (nonSpaceChars > 0 && urduChars / nonSpaceChars > 0.4) return 'urdu';
+
+  // Check for Roman Urdu marker words
+  const romanUrduMarkers = [
+    'hai', 'hain', 'nahi', 'nhi', 'kya', 'kaise', 'kasy', 'bhi', 'aur',
+    'mein', 'ho', 'ha', 'hoon', 'hon', 'tha', 'thi', 'karo', 'karna',
+    'krna', 'wala', 'wali', 'chahiye', 'chahte', 'sakte', 'sakta',
+    'bohat', 'bahut', 'bht', 'acha', 'achy', 'theek', 'thik',
+    'jee', 'ji', 'yeh', 'ye', 'wo', 'woh', 'kuch', 'koi',
+    'apna', 'apni', 'apne', 'mera', 'meri', 'abhi', 'phir',
+    'lekin', 'magar', 'agr', 'agar', 'jab', 'tab',
+    'kaisa', 'kaisi', 'kitna', 'kitni', 'kahan', 'yahan',
+    'sab', 'sub', 'dena', 'lena', 'batao', 'bataen', 'btao',
+    'karein', 'milti', 'milta', 'hota', 'hoti', 'raha', 'rahi',
+    'chahta', 'chahti', 'dard', 'sehat', 'tabiyat', 'masla',
+    'masail', 'ilaaj', 'dawai', 'pareshani', 'taklif', 'takleef',
+    'kharab', 'kamyabi', 'zaroorat', 'madad', 'pehle', 'baad',
+    'liye', 'wajah', 'kyun', 'kyu', 'kon', 'kaun', 'kidhar',
+    'salam', 'walaikum', 'assalam', 'mashwara', 'shifa', 'rohani',
+  ];
+
+  const words = text.toLowerCase().split(/\s+/);
+  let romanUrduCount = 0;
+  for (const word of words) {
+    const cleanWord = word.replace(/[^a-z]/g, '');
+    if (romanUrduMarkers.includes(cleanWord)) romanUrduCount++;
+  }
+
+  if (words.length <= 5 && romanUrduCount >= 1) return 'roman_urdu';
+  if (words.length > 5 && romanUrduCount / words.length > 0.15) return 'roman_urdu';
+
+  return 'english';
+}
+
+// ============================================
+// MULTI-LANGUAGE RESPONSES
+// ============================================
+const ROMAN_URDU_RESPONSES = {
+  skin: [
+    'Aap ki skin ke masle ke liye hamare khaas herbal products hain jo qudrati tor par aap ki jild ki dekh bhaal karein ge. Ye dekhein:',
+    'Jild ke masail aam hain lekin qudrati ilaaj se behteri aa sakti hai. Hamare products dekhein:',
+    'Aap ki skin ke masle ke liye Hakeem sahab ke khaas formula tayyar kiye hain. Ye products dekhein:',
+  ],
+  digestive: [
+    'Hazme ke masail jari bootiyon se behtar ho sakte hain. Hamare products dekhein:',
+    'Pet ke masail ke liye qudrati ilaaj behtareen hai. Ye products dekhein:',
+    'Hazme ki kharabi aam masla hai. Hakeem sahab ke formula azmain:',
+  ],
+  spiritual: [
+    'Rohani masail ke liye Sahibzada Shariq Ahmed Tariqi sahab khaas khidmaat faraham karte hain. Hamare products aur services dekhein:',
+    'Allah Taala har masle ka hal rakhta hai. Hamare rohani ilaaj aur products haazir hain:',
+    'Rohani pareshaniyon ka hal mojood hai. Hakeem sahab se mashwara karein aur hamare products dekhein:',
+  ],
+  pain: [
+    'Dard ke liye hamare khaas oils aur herbal products bohat moassar hain:',
+    'Joron aur jism ke dard ke liye qudrati ilaaj behtareen hai. Ye products azmain:',
+    'Dard se nijaat ke liye Hakeem sahab ke tajweez karda ilaaj dekhein:',
+  ],
+  hair: [
+    'Baalon ke masail ke liye hamare khaas herbal oils aur products dekhein:',
+    'Baal girna, khushki ya safed hona - sab ka ilaaj hamare paas hai:',
+    'Qudrati jari bootiyon se bani products baalon ke liye behtareen hain:',
+  ],
+  weight: [
+    'Wazan aur sugar ke masail ke liye hamare qudrati formula bohat moassar hain:',
+    'Motapa aur diabetes ke liye jari bootiyon ka ilaaj azmain:',
+    'Wazan control aur sehatmand zindagi ke liye hamare products dekhein:',
+  ],
+  health_general: [
+    'Aap ki sehat hamare liye ahem hai. Qudrati jari bootiyon se bani products aap ki madad kar sakti hain:',
+    'Bemari mein fikar na karein - Hakeem sahab ke tayyar karda formula dekhein:',
+    'Sehat ke masail ke liye hamare qudrati herbal ilaaj moassar hain. Products dekhein:',
+  ],
+  mens_health: [
+    'Mardana sehat ke liye hamare khaas qudrati formula mojood hain. Shadi ki tayyari ya aam sehat - sab ka hal hai:',
+    'Mardana masail ke liye fikar na karein - Hakeem sahab ke nuskhe dekhein:',
+  ],
+  womens_health: [
+    'Khawateen ki sehat ke liye hamare khaas herbal formula mojood hain:',
+    'Khawateen ke masail ka qudrati hal - hamare products dekhein:',
+  ],
+  eye: [
+    'Aankhon ke masail ke liye hamare qudrati ilaaj mojood hain:',
+    'Nazar ki kamzori ka qudrati hal - hamare products dekhein:',
+  ],
+  kidney: [
+    'Gurde aur peshab ke masail ke liye hamare qudrati jari bootiyon ke formula dekhein:',
+    'Gurde ki pathri ya degar masail ke liye Hakeem sahab se mashwara mufeed hoga:',
+  ],
+  courses: [
+    'Hamare courses mein aap rohaniyat, tib aur bohat kuch seekh sakte hain:',
+  ],
+  appointment: [
+    'Aap Hakeem Sahibzada Shariq Ahmed Tariqi sahab se appointment book kar sakte hain. Abhi book karein ya WhatsApp par rabta karein:',
+    'Mulaqat ka waqt muqarrar karne ke liye neeche Book Now dabain ya WhatsApp par paigham bhejein:',
+  ],
+  greeting: [
+    'Walaikum Assalam! 🌿\nMein Tariqi AI Assistant hoon. Aap mujhe apni sehat ka koi masla bataein - mein aap ko Hakeem sahab ki products tajweez karunga.\n\nYa neeche se koi option select karein:',
+    'Walaikum Assalam! Khush aamdeed 🌿\nMein aap ki kya madad kar sakta hoon? Apna masla bataein ya options mein se select karein:',
+  ],
+  products: [
+    'Hamari tamam products qudrati jari bootiyon se bani hain. Ye dekhein:',
+    'Hamare store ki mashhoor products dekhein:',
+  ],
+  services: [
+    'Hum rohani ilaaj, jari bootiyon ka ilaaj aur mazeed services faraham karte hain:',
+    'Hamari services mein istikhara, rohani mashwarat, hikmat aur mazeed shaamil hain:',
+  ],
+  about: [
+    'Ye Sahibzada Shariq Ahmed Tariqi sahab ki official website hai. Aap rohani ilaaj, herbal medicines, courses aur bohat kuch yahan pa sakte hain.\n\n🏢 Karachi, Pakistan\n📞 WhatsApp: +92 318 2392985',
+  ],
+  contact: [
+    'Rabte ki details:\n\n📞 WhatsApp: +92 318 2392985\n🌐 Website: sahibzadashariqahmedtariqi.com\n\nNeeche WhatsApp button daba kar seedha baat karein:',
+  ],
+  thanks: [
+    'Shukriya! 🌿 Allah aap ko sehat o aafiyat ata farmaye. Agar koi aur sawal ho to zaroor poochein!',
+    'JazakAllah! Aap ki khidmat mein haazir hoon. Koi aur madad chahein to bataein 🤲',
+  ],
+  donate: [
+    'Aap hamari website par sadqa, zakat aur khairaat ke liye donate kar sakte hain:',
+  ],
+};
+
+const ENGLISH_RESPONSES = {
+  skin: [
+    'We have special herbal products for skin issues that naturally care for your skin. Check them out:',
+    'Skin problems are common but can improve with natural remedies. See our products:',
+  ],
+  digestive: [
+    'Natural herbal remedies are best for digestive issues. Check our products:',
+    'Digestive problems are common. Try our Hakeem sahab\'s herbal formulas:',
+  ],
+  spiritual: [
+    'Sahibzada Shariq Ahmed Tariqi provides special spiritual healing services. See our products and services:',
+    'Allah has a solution for every problem. Check our spiritual remedies:',
+  ],
+  pain: [
+    'Our special oils and herbal products are very effective for pain relief:',
+    'Natural remedies are best for body and joint pain. Try these products:',
+  ],
+  hair: [
+    'Check out our special herbal oils and products for hair problems:',
+    'Hair fall, dandruff, or greying - we have solutions for all:',
+  ],
+  weight: [
+    'Our natural formulas are very effective for weight and sugar problems:',
+    'Try our herbal remedies for obesity and diabetes:',
+  ],
+  health_general: [
+    'Your health is important to us. Our natural herbal products can help:',
+    'Don\'t worry - check out our Hakeem sahab\'s effective herbal formulas:',
+  ],
+  mens_health: [
+    'We have special natural formulas for men\'s health and wellness:',
+  ],
+  womens_health: [
+    'We have special herbal formulas for women\'s health:',
+  ],
+  eye: [
+    'We have natural remedies for eye problems:',
+  ],
+  kidney: [
+    'Natural herbal formulas for kidney and urinary issues:',
+  ],
+  courses: [
+    'Learn about spirituality, herbal medicine and more through our courses:',
+  ],
+  appointment: [
+    'You can book an appointment with Hakeem Sahibzada Shariq Ahmed Tariqi. Book now or contact via WhatsApp:',
+  ],
+  greeting: [
+    'Hello! Welcome! 🌿\nI\'m Tariqi AI Assistant. Tell me about any health concern and I\'ll suggest suitable herbal products.\n\nOr select an option below:',
+    'Hi there! Welcome! 🌿\nHow can I help you? Share your concern or select from the options:',
+  ],
+  products: [
+    'All our products are made from natural herbs. Here they are:',
+    'Check out our popular herbal products:',
+  ],
+  services: [
+    'We provide spiritual healing, herbal treatments and more:',
+    'Our services include Istikhara, spiritual consultation, herbal medicine and more:',
+  ],
+  about: [
+    'This is the official website of Sahibzada Shariq Ahmed Tariqi. Find spiritual healing, herbal medicines, courses and more.\n\n🏢 Karachi, Pakistan\n📞 WhatsApp: +92 318 2392985',
+  ],
+  contact: [
+    'Contact Details:\n\n📞 WhatsApp: +92 318 2392985\n🌐 Website: sahibzadashariqahmedtariqi.com\n\nClick the WhatsApp button below to chat directly:',
+  ],
+  thanks: [
+    'Thank you! 🌿 May Allah grant you health and wellness. Feel free to ask any more questions!',
+    'JazakAllah! I\'m here to help. Let me know if you need anything else 🤲',
+  ],
+  donate: [
+    'You can donate for Sadqa, Zakat and charity on our website:',
+  ],
+};
+
+// Get response based on detected language
+function getResponseForLanguage(category, language) {
+  if (language === 'roman_urdu' && ROMAN_URDU_RESPONSES[category]) {
+    return getRandomResponse(ROMAN_URDU_RESPONSES[category]);
+  }
+  if (language === 'english' && ENGLISH_RESPONSES[category]) {
+    return getRandomResponse(ENGLISH_RESPONSES[category]);
+  }
+  // Default: Urdu responses
+  return getRandomResponse(CATEGORY_RULES[category].responses);
+}
+
 // Smart category detection with scoring (best match wins)
 function detectCategory(message) {
   const lowerMsg = message.toLowerCase().trim();
@@ -302,13 +524,63 @@ async function fetchCourses(limit = 4) {
 // AI FALLBACK CHAIN (6 FREE APIs)
 // HuggingFace → OpenRouter → Cohere → Groq → Gemini → OpenAI
 // ============================================
-function buildSystemPrompt(products, services) {
+function buildSystemPrompt(products, services, language) {
   const productList = products.map(p => `- ${p.name}: ${p.shortDescription || ''} (Rs. ${p.price})`).join('\n');
   const serviceList = services.map(s => `- ${s.title}: ${s.shortDescription || ''}`).join('\n');
+
+  let languageInstruction = '';
+  if (language === 'roman_urdu') {
+    languageInstruction = `
+
+CRITICAL LANGUAGE RULE - YOU MUST FOLLOW THIS:
+The user is writing in Roman Urdu (Urdu language written in English/Latin letters).
+You MUST reply ENTIRELY in Roman Urdu using ONLY Latin/English letters.
+DO NOT use ANY Urdu/Arabic script characters (like ا ب پ ت ث ج چ ح خ د).
+DO NOT mix scripts. Every single word must be in Latin letters.
+
+GOOD example: "Aap ki sehat ke liye ye products bohat achay hain. Hakeem sahab se appointment zaroor book karein."
+BAD example: "آپ ki sehat کے لیے ye products hain" (NEVER mix like this!)
+
+Write natural, well-structured Roman Urdu sentences. Complete each thought before starting the next.`;
+  } else if (language === 'urdu') {
+    languageInstruction = `
+
+CRITICAL LANGUAGE RULE - YOU MUST FOLLOW THIS:
+The user is writing in Urdu script (Arabic/Urdu characters).
+You MUST reply ENTIRELY in Urdu script using ONLY Arabic/Urdu characters.
+DO NOT use ANY English or Roman Urdu words. Everything must be in Urdu script.
+
+GOOD example: "آپ کی صحت کے لیے یہ مصنوعات بہت اچھی ہیں۔ حکیم صاحب سے ملاقات ضرور کریں۔"
+BAD example: "آپ ki sehat ke liye products dekhein" (NEVER mix like this!)
+
+Write natural, well-structured Urdu sentences. Complete each thought before starting the next.`;
+  } else {
+    languageInstruction = `
+
+CRITICAL LANGUAGE RULE - YOU MUST FOLLOW THIS:
+The user is writing in English.
+You MUST reply ENTIRELY in English.
+DO NOT use Urdu script or Roman Urdu words.
+
+Write clear, professional English sentences. Complete each thought before starting the next.`;
+  }
+
   return `You are "Tariqi AI Assistant" for Sahibzada Shariq Ahmed Tariqi - a spiritual healer & herbal medicine practitioner (Hakeem) in Karachi, Pakistan.
-Rules: Reply in user's language (Urdu/Roman Urdu/English). Keep responses 2-4 sentences. Never give medical diagnoses. Suggest products/services. Recommend appointment if serious.
-Products: ${productList || 'None'}
-Services: ${serviceList || 'None'}
+${languageInstruction}
+
+RESPONSE RULES:
+1. Keep responses 2-4 well-structured sentences. Each sentence must be complete and clear.
+2. Never give medical diagnoses. Suggest relevant products/services instead.
+3. If the issue seems serious, recommend booking an appointment.
+4. NEVER mix different scripts in the same response. Use ONLY one language/script throughout.
+5. Structure sentences properly with proper flow - finish one thought before starting the next.
+
+Available Products:
+${productList || 'None'}
+
+Available Services:
+${serviceList || 'None'}
+
 Website: sahibzadashariqahmedtariqi.com | Appointments: /appointments | Products: /products`;
 }
 
@@ -467,8 +739,8 @@ async function callOpenAI(userMessage, systemPrompt) {
 }
 
 // Master AI caller - tries all 6 APIs in order
-async function callAI(userMessage, products, services) {
-  const systemPrompt = buildSystemPrompt(products, services);
+async function callAI(userMessage, products, services, language) {
+  const systemPrompt = buildSystemPrompt(products, services, language);
 
   // Try each API in order: OpenRouter FIRST (confirmed working) → others as backup
   const aiResult =
@@ -498,6 +770,10 @@ export const chatbotMessage = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid message' });
     }
 
+    // Detect user's language
+    const language = detectLanguage(sanitizedMessage);
+    console.log('Detected language:', language, 'for message:', sanitizedMessage.substring(0, 50));
+
     // Step 1: Smart scoring-based category matching
     const detected = detectCategory(sanitizedMessage);
 
@@ -508,7 +784,7 @@ export const chatbotMessage = async (req, res, next) => {
       if (rule.type === 'greeting') {
         return res.json({
           success: true,
-          data: { reply: getRandomResponse(rule.responses), type: 'greeting', quickReplies: QUICK_REPLIES },
+          data: { reply: getResponseForLanguage(category, language), type: 'greeting', quickReplies: QUICK_REPLIES },
         });
       }
 
@@ -517,7 +793,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'thanks',
             quickReplies: [
               { label: '🌿 Products', value: 'LINK:/products' },
@@ -534,7 +810,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'about',
             services,
             quickReplies: [
@@ -552,7 +828,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'contact',
             quickReplies: [
               { label: '📞 WhatsApp', value: 'LINK:https://api.whatsapp.com/send/?phone=923182392985' },
@@ -568,7 +844,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'donate',
             quickReplies: [
               { label: '❤️ Donate Now', value: 'LINK:/donate' },
@@ -583,7 +859,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'appointment',
             appointmentUrl: '/appointments',
             quickReplies: [
@@ -600,7 +876,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'courses',
             courses,
             quickReplies: [
@@ -617,7 +893,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'services',
             services,
             quickReplies: [
@@ -634,7 +910,7 @@ export const chatbotMessage = async (req, res, next) => {
         return res.json({
           success: true,
           data: {
-            reply: getRandomResponse(rule.responses),
+            reply: getResponseForLanguage(category, language),
             type: 'products',
             products,
             quickReplies: [
@@ -647,7 +923,7 @@ export const chatbotMessage = async (req, res, next) => {
 
       // === HEALTH/PRODUCT CATEGORIES (skin, digestive, spiritual, pain, etc.) ===
       const products = await fetchRelevantProducts(rule);
-      const reply = getRandomResponse(rule.responses);
+      const reply = getResponseForLanguage(category, language);
       const responseData = {
         reply,
         type: 'product_suggestion',
@@ -656,7 +932,12 @@ export const chatbotMessage = async (req, res, next) => {
       };
 
       if (rule.suggestAppointment) {
-        responseData.reply += '\n\nاگر مسئلہ سنگین ہو تو حکیم صاحب سے ضرور مشورہ کریں۔';
+        const appointmentMsg = language === 'roman_urdu'
+          ? '\n\nAgar masla serious ho to Hakeem sahab se zaroor mashwara karein.'
+          : language === 'english'
+          ? '\n\nIf the issue is serious, please consult with Hakeem sahab.'
+          : '\n\nاگر مسئلہ سنگین ہو تو حکیم صاحب سے ضرور مشورہ کریں۔';
+        responseData.reply += appointmentMsg;
         responseData.quickReplies.unshift({ label: '📅 Book Appointment', value: 'appointment book' });
       } else {
         responseData.quickReplies.push({ label: '📅 Consult Hakeem', value: 'appointment book' });
@@ -671,7 +952,7 @@ export const chatbotMessage = async (req, res, next) => {
       Service.find({ isActive: true }).select('title shortDescription category').sort({ order: 1 }).limit(10).lean(),
     ]);
 
-    const aiReply = await callAI(sanitizedMessage, products, services);
+    const aiReply = await callAI(sanitizedMessage, products, services, language);
 
     if (aiReply) {
       return res.json({
@@ -693,7 +974,11 @@ export const chatbotMessage = async (req, res, next) => {
     return res.json({
       success: true,
       data: {
-        reply: 'آپ کے سوال کا شکریہ! 🌿\nمیں آپ کی بہتر مدد کے لیے نیچے دیے گئے آپشنز میں سے کوئی منتخب کریں، یا اپنا مسئلہ تفصیل سے بتائیں۔\n\nآپ حکیم صاحب سے واٹس ایپ پر بھی بات کر سکتے ہیں۔',
+        reply: language === 'roman_urdu'
+          ? 'Aap ke sawal ka shukriya! 🌿\nMein aap ki behtar madad ke liye neeche diye gaye options mein se koi select karein, ya apna masla tafseel se bataein.\n\nAap Hakeem sahab se WhatsApp par bhi baat kar sakte hain.'
+          : language === 'english'
+          ? 'Thank you for your question! 🌿\nPlease select one of the options below for better help, or describe your issue in detail.\n\nYou can also chat with Hakeem sahab on WhatsApp.'
+          : 'آپ کے سوال کا شکریہ! 🌿\nمیں آپ کی بہتر مدد کے لیے نیچے دیے گئے آپشنز میں سے کوئی منتخب کریں، یا اپنا مسئلہ تفصیل سے بتائیں۔\n\nآپ حکیم صاحب سے واٹس ایپ پر بھی بات کر سکتے ہیں۔',
         type: 'fallback',
         products: products.slice(0, 3),
         quickReplies: QUICK_REPLIES,
