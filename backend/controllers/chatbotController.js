@@ -9,54 +9,61 @@ import Course from '../models/Course.js';
 // Category keywords mapping for rule-based matching
 const CATEGORY_RULES = {
   skin: {
-    keywords: ['skin', 'acne', 'pimple', 'rash', 'eczema', 'psoriasis', 'daad', 'khujli', 'jild', 'chamra', 'face', 'chehra', 'glow', 'rang', 'whitening', 'cream', 'dhabbe', 'spots', 'dark circles', 'wrinkles'],
+    keywords: ['skin', 'acne', 'pimple', 'rash', 'eczema', 'psoriasis', 'daad', 'khujli', 'jild', 'chamra', 'face', 'chehra', 'glow', 'rang gora', 'whitening', 'cream', 'dhabbe', 'spots', 'dark circles', 'wrinkles', 'jhaiyan', 'daane', 'keel', 'muhase'],
     productCategory: 'herbal',
     productTags: ['skin', 'face', 'cream', 'beauty', 'glow'],
     message: 'جلدی مسائل کے لیے ہمارے پاس خاص جڑی بوٹیوں کی مصنوعات ہیں۔ یہ رہیں آپ کے لیے مناسب مصنوعات:',
   },
   digestive: {
-    keywords: ['stomach', 'digestion', 'qabz', 'constipation', 'diarrhea', 'ulcer', 'acidity', 'gas', 'pait', 'pet', 'hazma', 'appetite', 'bhook', 'liver', 'jigar', 'intestine'],
+    keywords: ['stomach', 'digestion', 'qabz', 'constipation', 'diarrhea', 'ulcer', 'acidity', 'gas', 'pait', 'pet dard', 'hazma', 'appetite', 'bhook', 'liver', 'jigar', 'intestine', 'tez aab', 'badhazmi'],
     productCategory: 'herbal',
     productTags: ['stomach', 'digestive', 'liver', 'herbal'],
     message: 'نظامِ ہاضمہ کے مسائل کے لیے ہماری مصنوعات دیکھیں:',
   },
   spiritual: {
-    keywords: ['nazar', 'evil eye', 'jinn', 'jadu', 'magic', 'black magic', 'kala jadu', 'taweez', 'wazifa', 'ruqyah', 'bandish', 'asaib', 'hamzad', 'spiritual', 'roohani', 'rohani', 'protection', 'hifazat', 'dua', 'istikhara'],
+    keywords: ['nazar', 'evil eye', 'jinn', 'jadu', 'magic', 'black magic', 'kala jadu', 'taweez', 'wazifa', 'ruqyah', 'bandish', 'asaib', 'hamzad', 'spiritual', 'roohani', 'rohani', 'protection', 'hifazat', 'dua', 'istikhara', 'nazar lagna', 'jinnat', 'saya'],
     productCategory: 'spiritual',
     productTags: ['spiritual', 'taweez', 'protection', 'ruqyah'],
     message: 'روحانی مسائل کے لیے ہماری خاص مصنوعات اور خدمات حاضر ہیں:',
     suggestAppointment: true,
   },
   pain: {
-    keywords: ['pain', 'dard', 'headache', 'sir dard', 'backache', 'kamar dard', 'joint', 'joron', 'arthritis', 'muscle', 'body pain', 'knee', 'shoulder'],
+    keywords: ['pain', 'dard', 'headache', 'sir dard', 'backache', 'kamar dard', 'joint', 'joron', 'arthritis', 'muscle', 'body pain', 'knee', 'shoulder', 'sar dard', 'ghutna', 'hath dard', 'paon dard', 'sar ma dard'],
     productCategory: 'herbal',
     productTags: ['pain', 'oil', 'relief', 'body'],
     message: 'درد کے علاج کے لیے ہماری جڑی بوٹیوں کی مصنوعات:',
   },
   hair: {
-    keywords: ['hair', 'baal', 'hair fall', 'baldness', 'ganjapan', 'dandruff', 'khushki', 'hair growth', 'hair oil'],
+    keywords: ['hair', 'baal', 'hair fall', 'baldness', 'ganjapan', 'dandruff', 'khushki', 'hair growth', 'hair oil', 'baal girna', 'baal jharna', 'safed baal', 'white hair'],
     productCategory: 'herbal',
     productTags: ['hair', 'oil', 'growth'],
     message: 'بالوں کے مسائل کے لیے ہماری مصنوعات:',
   },
   weight: {
-    keywords: ['weight', 'wazan', 'motapa', 'obesity', 'fat', 'slim', 'diet', 'sugar', 'diabetes', 'blood pressure', 'bp', 'cholesterol'],
+    keywords: ['weight', 'wazan', 'motapa', 'obesity', 'fat', 'slim', 'diet', 'sugar', 'diabetes', 'blood pressure', 'bp', 'cholesterol', 'patla hona', 'mota', 'wazan kam', 'wazan barhna', 'sugar ki bimari'],
     productCategory: 'herbal',
     productTags: ['weight', 'sugar', 'diabetes', 'health'],
     message: 'وزن اور صحت کے مسائل کے لیے ہماری مصنوعات:',
   },
+  health_general: {
+    keywords: ['tabiyat', 'bimar', 'bimaari', 'health', 'sehat', 'kamzor', 'kamzori', 'bukhar', 'fever', 'flu', 'khansi', 'cough', 'cold', 'nazla', 'zukam', 'weakness', 'thakan', 'neend', 'sleep', 'tired', 'immunity', 'infection', 'allergy', 'saans', 'breathing', 'chest', 'seena', 'gala', 'throat', 'thand', 'khoon', 'blood', 'anemia', 'vitamin', 'energy', 'weak'],
+    productCategory: 'herbal',
+    productTags: ['health', 'herbal', 'immunity', 'energy'],
+    message: 'آپ کی صحت کے لیے ہماری جڑی بوٹیوں کی مصنوعات دیکھیں:',
+    suggestAppointment: true,
+  },
   courses: {
-    keywords: ['course', 'learn', 'seekhna', 'class', 'training', 'study', 'ilm', 'knowledge', 'sikho', 'enroll', 'admission', 'taaleem'],
+    keywords: ['course', 'learn', 'seekhna', 'class', 'training', 'study', 'ilm', 'knowledge', 'sikho', 'enroll', 'admission', 'taaleem', 'padhai', 'parhna'],
     message: 'ہمارے تعلیمی کورسز دیکھیں:',
     type: 'courses',
   },
   appointment: {
-    keywords: ['appointment', 'mulaqat', 'milna', 'consult', 'mashwara', 'visit', 'checkup', 'doctor', 'hakeem', 'treatment', 'ilaj', 'time', 'book'],
+    keywords: ['appointment', 'mulaqat', 'milna chahta', 'consult', 'mashwara', 'visit', 'checkup', 'doctor', 'hakeem', 'treatment', 'ilaj', 'book appointment', 'appointment book'],
     message: 'آپ ہمارے ساتھ اپائنٹمنٹ بک کر سکتے ہیں۔',
     type: 'appointment',
   },
   greeting: {
-    keywords: ['hello', 'hi', 'salam', 'assalam', 'aoa', 'hey', 'good morning', 'good evening', 'how are you', 'kaise ho'],
+    keywords: ['hello', 'salam', 'assalam', 'assalamu', 'aoa', 'good morning', 'good evening', 'how are you', 'kaise ho', 'kya haal'],
     message: 'وعلیکم السلام! میں آپ کی خدمت میں حاضر ہوں۔ آپ اپنا مسئلہ بتائیں، میں آپ کو مناسب مصنوعات تجویز کروں گا۔',
     type: 'greeting',
   },
@@ -82,14 +89,24 @@ const QUICK_REPLIES = [
   { label: '📞 Contact', value: 'contact information' },
 ];
 
-// Detect category from user message
+// Detect category from user message (with word boundary matching)
 function detectCategory(message) {
   const lowerMsg = message.toLowerCase().trim();
 
   for (const [key, rule] of Object.entries(CATEGORY_RULES)) {
     for (const keyword of rule.keywords) {
-      if (lowerMsg.includes(keyword.toLowerCase())) {
-        return { category: key, rule };
+      const kw = keyword.toLowerCase();
+      // Use word boundary regex for short keywords (<=3 chars) to prevent false matches
+      // e.g., 'hi' should NOT match inside 'nhi', 'bp' should match standalone only
+      if (kw.length <= 3) {
+        const regex = new RegExp(`(^|\\s|[^a-z])${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|\\s|[^a-z])`, 'i');
+        if (regex.test(lowerMsg)) {
+          return { category: key, rule };
+        }
+      } else {
+        if (lowerMsg.includes(kw)) {
+          return { category: key, rule };
+        }
       }
     }
   }
@@ -387,8 +404,17 @@ export const chatbotMessage = async (req, res, next) => {
 
       // Handle category-specific product suggestions
       const products = await fetchRelevantProducts(rule);
+
+      // If rule matched but needs AI enhancement, try Gemini for a better response
+      let aiEnhancedReply = null;
+      if (detected.category === 'health_general' || rule.suggestAppointment) {
+        const allProducts = products.length > 0 ? products : await Product.find({ isActive: true }).select('name shortDescription price category tags').sort({ isFeatured: -1 }).limit(10).lean();
+        const allServices = await Service.find({ isActive: true }).select('title shortDescription category').sort({ order: 1 }).limit(10).lean();
+        aiEnhancedReply = await callGeminiAI(sanitizedMessage, allProducts, allServices);
+      }
+
       const response = {
-        reply: rule.message,
+        reply: aiEnhancedReply || rule.message,
         type: 'product_suggestion',
         products: products,
         quickReplies: [
@@ -396,9 +422,11 @@ export const chatbotMessage = async (req, res, next) => {
         ],
       };
 
-      // Suggest appointment for serious/spiritual issues
+      // Suggest appointment for serious/spiritual/health issues
       if (rule.suggestAppointment) {
-        response.reply += '\n\nاگر مسئلہ سنگین ہو تو حکیم صاحب سے مشورہ ضرور کریں۔';
+        if (!aiEnhancedReply) {
+          response.reply += '\n\nاگر مسئلہ سنگین ہو تو حکیم صاحب سے مشورہ ضرور کریں۔';
+        }
         response.quickReplies.unshift({ label: '📅 Book Appointment', value: 'appointment' });
       } else {
         response.quickReplies.push({ label: '📅 Consult Hakeem', value: 'appointment' });
@@ -435,6 +463,7 @@ export const chatbotMessage = async (req, res, next) => {
         data: {
           reply: aiReply,
           type: 'ai_response',
+          products: products.slice(0, 4),
           quickReplies: [
             { label: '🛒 Products', value: 'LINK:/products' },
             { label: '📅 Book Appointment', value: 'appointment' },

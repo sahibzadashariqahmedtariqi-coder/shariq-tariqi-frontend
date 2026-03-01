@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageCircle, X, Send, Bot, User, ExternalLink, Loader2 } from 'lucide-react';
+import { X, Send, Bot, User, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 
@@ -198,19 +198,47 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* Chat Toggle Button */}
+      {/* Chat Toggle Button with label */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
+          <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            onClick={handleOpen}
-            className="fixed bottom-24 right-6 z-50 bg-gradient-to-r from-primary-600 to-primary-700 text-white w-14 h-14 rounded-full shadow-2xl hover:shadow-primary-500/50 flex items-center justify-center transition-all hover:scale-110"
-            aria-label="Open Chatbot"
+            className="fixed bottom-24 right-6 z-50 flex items-center gap-2"
           >
-            <MessageCircle className="w-6 h-6" />
-          </motion.button>
+            {/* Blinking label */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="relative"
+            >
+              <div className="bg-white dark:bg-gray-800 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-full shadow-lg border border-primary-200 dark:border-primary-700 text-xs font-bold whitespace-nowrap animate-pulse">
+                ✨ Tariqi AI Assistant
+              </div>
+              {/* Arrow pointing to button */}
+              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-2.5 h-2.5 bg-white dark:bg-gray-800 border-r border-b border-primary-200 dark:border-primary-700 rotate-[-45deg]" />
+            </motion.div>
+
+            {/* Glowing AI Button */}
+            <motion.button
+              onClick={handleOpen}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative w-14 h-14 rounded-full shadow-2xl flex items-center justify-center overflow-hidden group"
+              aria-label="Open Chatbot"
+            >
+              {/* Animated gradient background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-primary-600 to-amber-500 animate-gradient-spin" />
+              {/* Glow ring */}
+              <div className="absolute inset-0 rounded-full animate-ping bg-primary-400/30" style={{ animationDuration: '2s' }} />
+              {/* Inner circle */}
+              <div className="relative w-12 h-12 bg-gradient-to-br from-primary-600 to-emerald-600 rounded-full flex items-center justify-center border-2 border-white/30">
+                <Sparkles className="w-6 h-6 text-white drop-shadow-lg" />
+              </div>
+            </motion.button>
+          </motion.div>
         )}
       </AnimatePresence>
 
