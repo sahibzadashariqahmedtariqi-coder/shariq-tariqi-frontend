@@ -213,7 +213,7 @@ export default function ServicesPage() {
   useEffect(() => {
     const loadServices = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://shariq-tariqi-backend.onrender.com/api'}/services`)
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://shariq-tariqi-backend-ufmrv.ondigitalocean.app/api'}/services`)
         const data = await response.json()
         
         if (data.success && data.data && data.data.length > 0) {
