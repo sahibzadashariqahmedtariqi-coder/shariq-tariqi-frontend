@@ -15,7 +15,7 @@ const CATEGORY_RULES = {
     productTags: ['skin', 'face', 'cream', 'beauty', 'glow'],
     responses: [
       'جلدی مسائل کے لیے ہمارے پاس خاص جڑی بوٹیوں سے تیار کردہ مصنوعات ہیں جو قدرتی طور پر آپ کی جلد کی دیکھ بھال کریں گی۔ یہ رہیں مناسب مصنوعات:',
-      'آپ کی جلد کے مسئلے کے لیے ہمارے حکیم صاحب نے خاص فارمولے تیار کیے ہیں۔ ان مصنوعات کو آزمائیں:',
+      'آپ کی جلد کے مسئلے کے لیے صاحبزادہ صاحب نے خاص فارمولے تیار کیے ہیں۔ ان مصنوعات کو آزمائیں:',
       'جلد کے مسائل عام ہیں لیکن قدرتی علاج سے بہتری آ سکتی ہے۔ ہماری مصنوعات دیکھیں:',
     ],
     suggestAppointment: true,
@@ -26,19 +26,19 @@ const CATEGORY_RULES = {
     productTags: ['stomach', 'digestive', 'liver', 'herbal'],
     responses: [
       'نظامِ ہاضمہ کے مسائل جڑی بوٹیوں سے بہتر ہو سکتے ہیں۔ ہماری جانچ شدہ مصنوعات دیکھیں:',
-      'ہاضمے کی خرابی عام مسئلہ ہے۔ ہمارے حکیم صاحب کے تیار کردہ فارمولے آزمائیں:',
+      'ہاضمے کی خرابی عام مسئلہ ہے۔ صاحبزادہ صاحب کے تیار کردہ فارمولے آزمائیں:',
       'پیٹ کے مسائل کے لیے قدرتی علاج بہترین ہے۔ یہ مصنوعات دیکھیں:',
     ],
     suggestAppointment: true,
   },
   spiritual: {
-    keywords: ['nazar', 'evil eye', 'jinn', 'jadu', 'magic', 'black magic', 'kala jadu', 'taweez', 'wazifa', 'ruqyah', 'bandish', 'asaib', 'hamzad', 'spiritual', 'roohani', 'rohani', 'protection', 'hifazat', 'dua', 'istikhara', 'nazar lagna', 'jinnat', 'saya', 'sehr', 'sahar', 'jadoo', 'buri nazar', 'bhoot', 'asar', 'waswasay', 'wahm', 'khwab', 'dream', 'darr', 'darr lagna', 'pareshani', 'stress', 'tension', 'depression', 'anxiety'],
+    keywords: ['nazar', 'evil eye', 'jinn', 'jadu', 'magic', 'black magic', 'kala jadu', 'taweez', 'wazifa', 'ruqyah', 'bandish', 'asaib', 'hamzad', 'spiritual', 'roohani', 'rohani', 'protection', 'hifazat', 'dua', 'istikhara', 'nazar lagna', 'jinnat', 'saya', 'sehr', 'sahar', 'jadoo', 'buri nazar', 'bhoot', 'asar', 'waswasay', 'wahm', 'khwab', 'dream', 'darr', 'darr lagna', 'pareshani', 'stress', 'tension', 'depression', 'anxiety', 'bezaar', 'tang', 'udaas', 'udas', 'zindagi', 'life', 'mushkil', 'mushkilat', 'dil', 'ghabra', 'ghabrahat', 'rona', 'rone', 'akela', 'lonely', 'hopeless', 'umeed', 'naummeed', 'na ummeed', 'himmat', 'haar', 'thak', 'thak gaya', 'haar gaya', 'haar gayi', 'smjh nhi', 'samajh nahi', 'pata nahi', 'confuse', 'confused', 'sad', 'upset', 'frustrated', 'frustation', 'mayoos', 'mayoosi', 'dukh', 'dukhi', 'takleef', 'aziyat', 'fikr', 'fikar', 'preshan', 'worried', 'worry', 'sukoon', 'chain', 'neend nahi', 'raat', 'disturb', 'mentally', 'mental', 'dimagh', 'pagal', 'satana', 'ajeeb'],
     productCategory: 'spiritual',
     productTags: ['spiritual', 'taweez', 'protection', 'ruqyah'],
     responses: [
-      'روحانی مسائل کے لیے صاحبزادہ شارق احمد طارقی صاحب خصوصی خدمات فراہم کرتے ہیں۔ ہماری مصنوعات اور خدمات دیکھیں:',
-      'اللہ تعالیٰ ہر مسئلے کا حل رکھتا ہے۔ ہمارے روحانی علاج اور مصنوعات حاضر ہیں:',
-      'روحانی پریشانیوں کا حل موجود ہے۔ حکیم صاحب سے مشورہ کریں اور ہماری مصنوعات دیکھیں:',
+      'روحانی مسائل کے لیے صاحبزادہ شارق احمد طارقی صاحب خصوصی خدمات فراہم کرتے ہیں۔ اپائنٹمنٹ بک کر کے ان سے بات کریں:',
+      'اللہ تعالیٰ ہر مسئلے کا حل رکھتا ہے۔ صاحبزادہ شارق احمد طارقی صاحب سے اپائنٹمنٹ لے کر بات کریں:',
+      'روحانی پریشانیوں کا حل موجود ہے۔ صاحبزادہ صاحب سے اپائنٹمنٹ بک کریں:',
     ],
     suggestAppointment: true,
   },
@@ -49,7 +49,7 @@ const CATEGORY_RULES = {
     responses: [
       'درد کے لیے ہمارے خاص تیل اور جڑی بوٹیوں کی مصنوعات بہت مؤثر ہیں:',
       'جوڑوں اور جسم کے درد کے لیے قدرتی علاج بہترین ہے۔ یہ مصنوعات آزمائیں:',
-      'درد سے نجات کے لیے ہمارے حکیم صاحب کے تجویز کردہ علاج دیکھیں:',
+      'درد سے نجات کے لیے صاحبزادہ صاحب کے تجویز کردہ علاج دیکھیں:',
     ],
     suggestAppointment: true,
   },
@@ -80,7 +80,7 @@ const CATEGORY_RULES = {
     productTags: ['health', 'herbal', 'immunity', 'energy'],
     responses: [
       'آپ کی صحت ہمارے لیے اہم ہے۔ قدرتی جڑی بوٹیوں سے بنی مصنوعات آپ کی مدد کر سکتی ہیں:',
-      'بیماری میں فکر نہ کریں - ہمارے حکیم صاحب کے تیار کردہ فارمولے دیکھیں:',
+      'بیماری میں فکر نہ کریں - صاحبزادہ صاحب کے تیار کردہ فارمولے دیکھیں:',
       'صحت کے مسائل کے لیے ہمارے قدرتی ہربل علاج مؤثر ہیں۔ مصنوعات دیکھیں:',
     ],
     suggestAppointment: true,
@@ -91,7 +91,7 @@ const CATEGORY_RULES = {
     productTags: ['men', 'power', 'health', 'herbal'],
     responses: [
       'مردانہ صحت کے لیے ہمارے خاص قدرتی فارمولے موجود ہیں۔ شادی کی تیاری یا عمومی صحت - سب کا حل ہے:',
-      'مردانہ مسائل کے لیے فکر نہ کریں - ہمارے حکیم صاحب کے تجویز کردہ نسخے دیکھیں:',
+      'مردانہ مسائل کے لیے فکر نہ کریں - صاحبزادہ صاحب سے اپائنٹمنٹ لے کر بات کریں:',
     ],
     suggestAppointment: true,
   },
@@ -121,7 +121,7 @@ const CATEGORY_RULES = {
     productTags: ['kidney', 'health', 'herbal'],
     responses: [
       'گردے اور پیشاب کے مسائل کے لیے ہمارے قدرتی جڑی بوٹیوں کے فارمولے:',
-      'گردے کی پتھری یا دیگر مسائل - ہمارے حکیم صاحب سے مشورہ مفید ہوگا:',
+      'گردے کی پتھری یا دیگر مسائل - صاحبزادہ صاحب سے اپائنٹمنٹ لے کر مشورہ کریں:',
     ],
     suggestAppointment: true,
   },
@@ -131,17 +131,17 @@ const CATEGORY_RULES = {
     type: 'courses',
   },
   appointment: {
-    keywords: ['appointment', 'mulaqat', 'milna chahta', 'consult', 'mashwara', 'visit', 'checkup', 'doctor', 'hakeem', 'treatment', 'ilaj', 'book appointment', 'appointment book', 'milna', 'rabta karna'],
+    keywords: ['appointment', 'mulaqat', 'milna chahta', 'consult', 'mashwara', 'visit', 'checkup', 'doctor', 'hakeem', 'treatment', 'ilaj', 'book appointment', 'appointment book', 'milna', 'rabta karna', 'baat krna', 'baat karna', 'baat chahta', 'baat chahti', 'ap sy baat', 'aap se baat', 'ap se baat', 'baat kr', 'call', 'refer', 'suggest', 'consultation', 'discuss', 'meet', 'meeting', 'mil sakta', 'mil sakti', 'rabta', 'contact karna', 'mulaaqat'],
     responses: [
-      'آپ حکیم صاحبزادہ شارق احمد طارقی صاحب سے اپائنٹمنٹ بک کر سکتے ہیں۔ ابھی بک کریں یا واٹس ایپ پر رابطہ کریں:',
-      'ملاقات کا وقت مقرر کرنے کے لیے نیچے Book Now دبائیں یا واٹس ایپ پر پیغام بھیجیں:',
+      'آپ صاحبزادہ شارق احمد طارقی صاحب سے اپائنٹمنٹ بک کر کے بات کر سکتے ہیں۔ ابھی بک کریں:',
+      'ملاقات کا وقت مقرر کرنے کے لیے نیچے Book Now دبائیں:',
     ],
     type: 'appointment',
   },
   greeting: {
     keywords: ['hello', 'salam', 'assalam', 'assalamu', 'aoa', 'good morning', 'good evening', 'how are you', 'kaise ho', 'kya haal', 'namaste', 'bohat achy'],
     responses: [
-      'وعلیکم السلام! 🌿\nمیں طارقی AI اسسٹنٹ ہوں۔ آپ مجھ سے اپنی صحت کا کوئی مسئلہ بتائیں - میں آپ کو حکیم صاحب کی مصنوعات تجویز کروں گا۔\n\nیا نیچے سے کوئی آپشن منتخب کریں:',
+      'وعلیکم السلام! 🌿\nمیں طارقی AI اسسٹنٹ ہوں۔ آپ مجھ سے اپنا مسئلہ بتائیں - میں آپ کو مناسب مصنوعات تجویز کروں گا۔\n\nیا نیچے سے کوئی آپشن منتخب کریں:',
       'وعلیکم السلام! خوش آمدید 🌿\nمیں آپ کی کیا مدد کر سکتا ہوں؟ اپنا مسئلہ بتائیں یا آپشنز میں سے منتخب کریں:',
     ],
     type: 'greeting',
@@ -257,22 +257,22 @@ const ROMAN_URDU_RESPONSES = {
   skin: [
     'Aap ki skin ke masle ke liye hamare khaas herbal products hain jo qudrati tor par aap ki jild ki dekh bhaal karein ge. Ye dekhein:',
     'Jild ke masail aam hain lekin qudrati ilaaj se behteri aa sakti hai. Hamare products dekhein:',
-    'Aap ki skin ke masle ke liye Hakeem sahab ke khaas formula tayyar kiye hain. Ye products dekhein:',
+    'Sahibzada Shariq Ahmed Tariqi sahab ke khaas formula aap ki skin ke liye tayyar kiye gaye hain. Ye products dekhein:',
   ],
   digestive: [
     'Hazme ke masail jari bootiyon se behtar ho sakte hain. Hamare products dekhein:',
     'Pet ke masail ke liye qudrati ilaaj behtareen hai. Ye products dekhein:',
-    'Hazme ki kharabi aam masla hai. Hakeem sahab ke formula azmain:',
+    'Hazme ki kharabi aam masla hai. Sahibzada sahab ke formula azmain:',
   ],
   spiritual: [
     'Rohani masail ke liye Sahibzada Shariq Ahmed Tariqi sahab khaas khidmaat faraham karte hain. Hamare products aur services dekhein:',
     'Allah Taala har masle ka hal rakhta hai. Hamare rohani ilaaj aur products haazir hain:',
-    'Rohani pareshaniyon ka hal mojood hai. Hakeem sahab se mashwara karein aur hamare products dekhein:',
+    'Rohani pareshaniyon ka hal mojood hai. Sahibzada Shariq Ahmed Tariqi sahab se appointment le kar baat karein:',
   ],
   pain: [
     'Dard ke liye hamare khaas oils aur herbal products bohat moassar hain:',
     'Joron aur jism ke dard ke liye qudrati ilaaj behtareen hai. Ye products azmain:',
-    'Dard se nijaat ke liye Hakeem sahab ke tajweez karda ilaaj dekhein:',
+    'Dard se nijaat ke liye Sahibzada sahab ke tajweez karda ilaaj dekhein:',
   ],
   hair: [
     'Baalon ke masail ke liye hamare khaas herbal oils aur products dekhein:',
@@ -286,12 +286,12 @@ const ROMAN_URDU_RESPONSES = {
   ],
   health_general: [
     'Aap ki sehat hamare liye ahem hai. Qudrati jari bootiyon se bani products aap ki madad kar sakti hain:',
-    'Bemari mein fikar na karein - Hakeem sahab ke tayyar karda formula dekhein:',
+    'Bemari mein fikar na karein - Sahibzada sahab ke tayyar karda formula dekhein:',
     'Sehat ke masail ke liye hamare qudrati herbal ilaaj moassar hain. Products dekhein:',
   ],
   mens_health: [
     'Mardana sehat ke liye hamare khaas qudrati formula mojood hain. Shadi ki tayyari ya aam sehat - sab ka hal hai:',
-    'Mardana masail ke liye fikar na karein - Hakeem sahab ke nuskhe dekhein:',
+    'Mardana masail ke liye fikar na karein - Sahibzada sahab se appointment le kar baat karein:',
   ],
   womens_health: [
     'Khawateen ki sehat ke liye hamare khaas herbal formula mojood hain:',
@@ -303,17 +303,17 @@ const ROMAN_URDU_RESPONSES = {
   ],
   kidney: [
     'Gurde aur peshab ke masail ke liye hamare qudrati jari bootiyon ke formula dekhein:',
-    'Gurde ki pathri ya degar masail ke liye Hakeem sahab se mashwara mufeed hoga:',
+    'Gurde ki pathri ya degar masail ke liye Sahibzada sahab se appointment le kar mashwara karein:',
   ],
   courses: [
     'Hamare courses mein aap rohaniyat, tib aur bohat kuch seekh sakte hain:',
   ],
   appointment: [
-    'Aap Hakeem Sahibzada Shariq Ahmed Tariqi sahab se appointment book kar sakte hain. Abhi book karein ya WhatsApp par rabta karein:',
-    'Mulaqat ka waqt muqarrar karne ke liye neeche Book Now dabain ya WhatsApp par paigham bhejein:',
+    'Aap Sahibzada Shariq Ahmed Tariqi sahab se appointment book kar ke baat kar sakte hain. Abhi book karein:',
+    'Mulaqat ka waqt muqarrar karne ke liye neeche Book Now dabain:',
   ],
   greeting: [
-    'Walaikum Assalam! 🌿\nMein Tariqi AI Assistant hoon. Aap mujhe apni sehat ka koi masla bataein - mein aap ko Hakeem sahab ki products tajweez karunga.\n\nYa neeche se koi option select karein:',
+    'Walaikum Assalam! 🌿\nMein Tariqi AI Assistant hoon. Aap mujhe apna masla bataein - mein aap ko munasib products tajweez karunga.\n\nYa neeche se koi option select karein:',
     'Walaikum Assalam! Khush aamdeed 🌿\nMein aap ki kya madad kar sakta hoon? Apna masla bataein ya options mein se select karein:',
   ],
   products: [
@@ -346,7 +346,7 @@ const ENGLISH_RESPONSES = {
   ],
   digestive: [
     'Natural herbal remedies are best for digestive issues. Check our products:',
-    'Digestive problems are common. Try our Hakeem sahab\'s herbal formulas:',
+    'Digestive problems are common. Try our specially prepared herbal formulas:',
   ],
   spiritual: [
     'Sahibzada Shariq Ahmed Tariqi provides special spiritual healing services. See our products and services:',
@@ -366,7 +366,7 @@ const ENGLISH_RESPONSES = {
   ],
   health_general: [
     'Your health is important to us. Our natural herbal products can help:',
-    'Don\'t worry - check out our Hakeem sahab\'s effective herbal formulas:',
+    'Don\'t worry - check out our effective herbal formulas by Sahibzada Shariq Ahmed Tariqi:',
   ],
   mens_health: [
     'We have special natural formulas for men\'s health and wellness:',
@@ -384,7 +384,7 @@ const ENGLISH_RESPONSES = {
     'Learn about spirituality, herbal medicine and more through our courses:',
   ],
   appointment: [
-    'You can book an appointment with Hakeem Sahibzada Shariq Ahmed Tariqi. Book now or contact via WhatsApp:',
+    'You can book an appointment with Sahibzada Shariq Ahmed Tariqi to discuss your concerns. Book now:',
   ],
   greeting: [
     'Hello! Welcome! 🌿\nI\'m Tariqi AI Assistant. Tell me about any health concern and I\'ll suggest suitable herbal products.\n\nOr select an option below:',
@@ -521,67 +521,42 @@ async function fetchCourses(limit = 4) {
 }
 
 // ============================================
-// AI FALLBACK CHAIN (6 FREE APIs)
-// HuggingFace → OpenRouter → Cohere → Groq → Gemini → OpenAI
+// AI FALLBACK CHAIN - SMART MULTI-MODEL
 // ============================================
+
+// Best free models on OpenRouter (VERIFIED available - ranked by quality)
+const FREE_MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',       // Llama 3.3 70B - best quality, strong multilingual
+  'nousresearch/hermes-3-llama-3.1-405b:free',     // 405B! Largest free model
+  'qwen/qwen3-next-80b-a3b-instruct:free',         // Qwen 3 80B - very strong at Urdu
+  'google/gemma-3-27b-it:free',                     // Gemma 3 27B - good multilingual
+  'mistralai/mistral-small-3.1-24b-instruct:free', // Mistral Small - decent
+  'nvidia/nemotron-3-nano-30b-a3b:free',            // CONFIRMED WORKING fallback
+];
+
 function buildSystemPrompt(products, services, language) {
-  const productList = products.map(p => `- ${p.name}: ${p.shortDescription || ''} (Rs. ${p.price})`).join('\n');
-  const serviceList = services.map(s => `- ${s.title}: ${s.shortDescription || ''}`).join('\n');
+  const topProducts = products.slice(0, 8).map(p => `${p.name} (Rs.${p.price})`).join(', ');
+  const topServices = services.slice(0, 5).map(s => s.title).join(', ');
 
-  let languageInstruction = '';
-  if (language === 'roman_urdu') {
-    languageInstruction = `
+  const langRules = {
+    roman_urdu: `REPLY ONLY IN ROMAN URDU (Latin letters). NEVER use Urdu/Arabic script like ا ب پ. Example: "Aap ki sehat ke liye hamare products bohat achay hain."`,
+    urdu: `REPLY ONLY IN URDU SCRIPT (Arabic/Urdu characters). NEVER use English/Latin letters. Example: "آپ کی صحت کے لیے ہماری مصنوعات بہت اچھی ہیں۔"`,
+    english: `REPLY ONLY IN ENGLISH. Do not use Urdu script or Roman Urdu.`,
+  };
 
-CRITICAL LANGUAGE RULE - YOU MUST FOLLOW THIS:
-The user is writing in Roman Urdu (Urdu language written in English/Latin letters).
-You MUST reply ENTIRELY in Roman Urdu using ONLY Latin/English letters.
-DO NOT use ANY Urdu/Arabic script characters (like ا ب پ ت ث ج چ ح خ د).
-DO NOT mix scripts. Every single word must be in Latin letters.
+  return `You are Tariqi AI Assistant for Sahibzada Shariq Ahmed Tariqi's website - a spiritual healer & herbal medicine expert in Karachi, Pakistan.
 
-GOOD example: "Aap ki sehat ke liye ye products bohat achay hain. Hakeem sahab se appointment zaroor book karein."
-BAD example: "آپ ki sehat کے لیے ye products hain" (NEVER mix like this!)
+LANGUAGE: ${langRules[language] || langRules.roman_urdu}
 
-Write natural, well-structured Roman Urdu sentences. Complete each thought before starting the next.`;
-  } else if (language === 'urdu') {
-    languageInstruction = `
+RULES:
+- Give 2-3 SHORT, helpful sentences. Be warm and caring.
+- Suggest relevant products/services from the list below.
+- For serious issues, recommend booking an appointment with Sahibzada Shariq Ahmed Tariqi.
+- NEVER diagnose diseases. NEVER mix languages/scripts.
 
-CRITICAL LANGUAGE RULE - YOU MUST FOLLOW THIS:
-The user is writing in Urdu script (Arabic/Urdu characters).
-You MUST reply ENTIRELY in Urdu script using ONLY Arabic/Urdu characters.
-DO NOT use ANY English or Roman Urdu words. Everything must be in Urdu script.
-
-GOOD example: "آپ کی صحت کے لیے یہ مصنوعات بہت اچھی ہیں۔ حکیم صاحب سے ملاقات ضرور کریں۔"
-BAD example: "آپ ki sehat ke liye products dekhein" (NEVER mix like this!)
-
-Write natural, well-structured Urdu sentences. Complete each thought before starting the next.`;
-  } else {
-    languageInstruction = `
-
-CRITICAL LANGUAGE RULE - YOU MUST FOLLOW THIS:
-The user is writing in English.
-You MUST reply ENTIRELY in English.
-DO NOT use Urdu script or Roman Urdu words.
-
-Write clear, professional English sentences. Complete each thought before starting the next.`;
-  }
-
-  return `You are "Tariqi AI Assistant" for Sahibzada Shariq Ahmed Tariqi - a spiritual healer & herbal medicine practitioner (Hakeem) in Karachi, Pakistan.
-${languageInstruction}
-
-RESPONSE RULES:
-1. Keep responses 2-4 well-structured sentences. Each sentence must be complete and clear.
-2. Never give medical diagnoses. Suggest relevant products/services instead.
-3. If the issue seems serious, recommend booking an appointment.
-4. NEVER mix different scripts in the same response. Use ONLY one language/script throughout.
-5. Structure sentences properly with proper flow - finish one thought before starting the next.
-
-Available Products:
-${productList || 'None'}
-
-Available Services:
-${serviceList || 'None'}
-
-Website: sahibzadashariqahmedtariqi.com | Appointments: /appointments | Products: /products`;
+Products: ${topProducts || 'Various herbal products'}
+Services: ${topServices || 'Spiritual healing, Istikhara, Consultation'}
+Appointments: sahibzadashariqahmedtariqi.com/appointments`;
 }
 
 // 1. HuggingFace Inference API (FREE - works globally, no credit card)
@@ -609,33 +584,47 @@ async function callHuggingFace(userMessage, systemPrompt) {
   return null;
 }
 
-// 2. OpenRouter (FREE models - works globally)
+// 2. OpenRouter - Try multiple free models (best first)
 async function callOpenRouter(userMessage, systemPrompt) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return null;
-  try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://www.sahibzadashariqahmedtariqi.com',
-        'X-Title': 'Tariqi AI Assistant',
-      },
-      body: JSON.stringify({
-        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
-        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }],
-        max_tokens: 300, temperature: 0.7,
-      }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const text = data?.choices?.[0]?.message?.content;
-      if (text) { console.log('OpenRouter AI: success'); return text; }
-    } else {
-      console.error('OpenRouter error:', res.status, await res.text().catch(() => ''));
+
+  for (const model of FREE_MODELS) {
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': 'https://www.sahibzadashariqahmedtariqi.com',
+          'X-Title': 'Tariqi AI Assistant',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          max_tokens: 350,
+          temperature: 0.6,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content;
+        if (text && text.trim().length > 10) {
+          console.log(`OpenRouter AI (${model}): success`);
+          return text.trim();
+        }
+      } else {
+        const errText = await res.text().catch(() => '');
+        console.log(`OpenRouter (${model}): ${res.status} - trying next model...`);
+      }
+    } catch (e) {
+      console.log(`OpenRouter (${model}): error - ${e.message} - trying next...`);
     }
-  } catch (e) { console.error('OpenRouter error:', e.message); }
+  }
+  console.error('OpenRouter: all models failed');
   return null;
 }
 
@@ -759,7 +748,7 @@ async function callAI(userMessage, products, services, language) {
 // ============================================
 export const chatbotMessage = async (req, res, next) => {
   try {
-    const { message } = req.body;
+    const { message, language: clientLanguage } = req.body;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return res.status(400).json({ success: false, message: 'Message is required' });
@@ -770,9 +759,10 @@ export const chatbotMessage = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid message' });
     }
 
-    // Detect user's language
-    const language = detectLanguage(sanitizedMessage);
-    console.log('Detected language:', language, 'for message:', sanitizedMessage.substring(0, 50));
+    // Use client-selected language if provided, otherwise auto-detect
+    const validLanguages = ['urdu', 'roman_urdu', 'english'];
+    const language = validLanguages.includes(clientLanguage) ? clientLanguage : detectLanguage(sanitizedMessage);
+    console.log('Language:', language, '(source:', validLanguages.includes(clientLanguage) ? 'client' : 'auto-detect', ') for:', sanitizedMessage.substring(0, 50));
 
     // Step 1: Smart scoring-based category matching
     const detected = detectCategory(sanitizedMessage);
@@ -933,14 +923,14 @@ export const chatbotMessage = async (req, res, next) => {
 
       if (rule.suggestAppointment) {
         const appointmentMsg = language === 'roman_urdu'
-          ? '\n\nAgar masla serious ho to Hakeem sahab se zaroor mashwara karein.'
+          ? '\n\nAgar masla serious ho to Sahibzada Shariq Ahmed Tariqi sahab se appointment le kar zaroor baat karein.'
           : language === 'english'
-          ? '\n\nIf the issue is serious, please consult with Hakeem sahab.'
-          : '\n\nاگر مسئلہ سنگین ہو تو حکیم صاحب سے ضرور مشورہ کریں۔';
+          ? '\n\nIf the issue is serious, please book an appointment with Sahibzada Shariq Ahmed Tariqi.'
+          : '\n\nاگر مسئلہ سنگین ہو تو صاحبزادہ شارق احمد طارقی صاحب سے اپائنٹمنٹ لے کر ضرور بات کریں۔';
         responseData.reply += appointmentMsg;
         responseData.quickReplies.unshift({ label: '📅 Book Appointment', value: 'appointment book' });
       } else {
-        responseData.quickReplies.push({ label: '📅 Consult Hakeem', value: 'appointment book' });
+        responseData.quickReplies.push({ label: '📅 Book Appointment', value: 'appointment book' });
       }
 
       return res.json({ success: true, data: responseData });
@@ -975,10 +965,10 @@ export const chatbotMessage = async (req, res, next) => {
       success: true,
       data: {
         reply: language === 'roman_urdu'
-          ? 'Aap ke sawal ka shukriya! 🌿\nMein aap ki behtar madad ke liye neeche diye gaye options mein se koi select karein, ya apna masla tafseel se bataein.\n\nAap Hakeem sahab se WhatsApp par bhi baat kar sakte hain.'
+          ? 'Aap ke sawal ka shukriya! 🌿\nBehtar madad ke liye neeche diye gaye options mein se koi select karein, ya apna masla tafseel se bataein.\n\nAap Sahibzada Shariq Ahmed Tariqi sahab se appointment le kar bhi baat kar sakte hain.'
           : language === 'english'
-          ? 'Thank you for your question! 🌿\nPlease select one of the options below for better help, or describe your issue in detail.\n\nYou can also chat with Hakeem sahab on WhatsApp.'
-          : 'آپ کے سوال کا شکریہ! 🌿\nمیں آپ کی بہتر مدد کے لیے نیچے دیے گئے آپشنز میں سے کوئی منتخب کریں، یا اپنا مسئلہ تفصیل سے بتائیں۔\n\nآپ حکیم صاحب سے واٹس ایپ پر بھی بات کر سکتے ہیں۔',
+          ? 'Thank you for your question! 🌿\nPlease select one of the options below for better help, or describe your issue in detail.\n\nYou can also book an appointment with Sahibzada Shariq Ahmed Tariqi.'
+          : 'آپ کے سوال کا شکریہ! 🌿\nبہتر مدد کے لیے نیچے دیے گئے آپشنز میں سے کوئی منتخب کریں، یا اپنا مسئلہ تفصیل سے بتائیں۔\n\nآپ صاحبزادہ شارق احمد طارقی صاحب سے اپائنٹمنٹ لے کر بھی بات کر سکتے ہیں۔',
         type: 'fallback',
         products: products.slice(0, 3),
         quickReplies: QUICK_REPLIES,

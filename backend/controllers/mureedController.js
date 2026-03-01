@@ -71,7 +71,6 @@ export const registerMureed = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to register mureed',
-      error: error.message,
     });
   }
 };
@@ -105,7 +104,6 @@ export const getMureedById = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch mureed',
-      error: error.message,
     });
   }
 };
@@ -151,7 +149,6 @@ export const getAllMureeds = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch mureeds',
-      error: error.message,
     });
   }
 };
@@ -196,7 +193,6 @@ export const updateMureedStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to update mureed status',
-      error: error.message,
     });
   }
 };
@@ -225,7 +221,6 @@ export const deleteMureed = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete mureed',
-      error: error.message,
     });
   }
 };
@@ -269,7 +264,6 @@ export const getMureedStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch stats',
-      error: error.message,
     });
   }
 };

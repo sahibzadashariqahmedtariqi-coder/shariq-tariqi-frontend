@@ -393,6 +393,16 @@ export const getOrder = async (req, res, next) => {
       });
     }
 
+    // Check ownership: user can only view their own orders (admins can view all)
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+    const isOwner = order.userId && order.userId._id && order.userId._id.toString() === req.user._id.toString();
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view this order',
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: order,

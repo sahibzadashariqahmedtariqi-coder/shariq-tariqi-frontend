@@ -191,6 +191,14 @@ export const changePassword = async (req, res, next) => {
       });
     }
 
+    // Validate new password
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters'
+      });
+    }
+
     // Update password
     user.password = newPassword;
     await user.save();

@@ -148,7 +148,6 @@ export const uploadPdf = async (req, res, next) => {
     res.status(500).json({
       success: false,
       message: 'Failed to upload PDF. Try using the URL option - upload to Google Drive and paste the link.',
-      error: error.message
     });
   }
 };

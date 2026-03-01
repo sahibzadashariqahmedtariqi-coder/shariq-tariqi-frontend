@@ -57,8 +57,8 @@ connectMureedDB();
 configureMureedCloudinary();
 
 // Middleware
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 🛡️ Security Middleware
 // Helmet - Sets various HTTP headers for security
@@ -77,10 +77,10 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Rate limit for auth routes (login, register)
+// Rate limit for auth routes (login, register) - strict to prevent brute force
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // 500 attempts per 15 minutes
+  max: 15, // 15 attempts per 15 minutes
   message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' }
 });
 app.use('/api/auth/login', authLimiter);
@@ -89,9 +89,23 @@ app.use('/api/auth/register', authLimiter);
 // MongoDB injection sanitization
 app.use(mongoSanitize());
 
-// CORS Configuration - Allow all origins to fix CORS issues
+// CORS Configuration - Whitelist trusted origins
+const allowedOrigins = [
+  'https://shariqahmedtariqi.com',
+  'https://www.shariqahmedtariqi.com',
+  'https://shariq-tariqi-frontend.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
 app.use(cors({
-  origin: true,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, server-to-server, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some(allowed => origin.startsWith(allowed) || origin.includes('vercel.app'))) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],

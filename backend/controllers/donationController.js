@@ -45,7 +45,6 @@ export const createDonation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to create donation',
-      error: error.message,
     });
   }
 };
@@ -86,7 +85,6 @@ export const uploadPaymentProof = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to upload payment proof',
-      error: error.message,
     });
   }
 };
@@ -125,7 +123,6 @@ export const getAllDonations = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch donations',
-      error: error.message,
     });
   }
 };
@@ -135,7 +132,8 @@ export const getAllDonations = async (req, res) => {
 // @access  Public
 export const getDonationById = async (req, res) => {
   try {
-    const donation = await Donation.findById(req.params.id);
+    const donation = await Donation.findById(req.params.id)
+      .select('-senderAccountNumber -transactionId -paymentProof');
 
     if (!donation) {
       return res.status(404).json({
@@ -153,7 +151,6 @@ export const getDonationById = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch donation',
-      error: error.message,
     });
   }
 };
@@ -194,7 +191,6 @@ export const verifyDonation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to verify donation',
-      error: error.message,
     });
   }
 };
@@ -236,7 +232,6 @@ export const rejectDonation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to reject donation',
-      error: error.message,
     });
   }
 };
@@ -292,7 +287,6 @@ export const getDonationStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch donation stats',
-      error: error.message,
     });
   }
 };
@@ -320,7 +314,6 @@ export const deleteDonation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete donation',
-      error: error.message,
     });
   }
 };
