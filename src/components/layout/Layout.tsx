@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import Header from './Header'
 import Footer from './Footer'
 import WhatsAppButton from '../ui/WhatsAppButton'
+import ChatBot from '../ui/ChatBot'
 
 function DynamicCanonical() {
   const { pathname } = useLocation()
@@ -26,6 +27,7 @@ export default function Layout() {
       </main>
       <Footer />
       <WhatsAppButton />
+      <ChatBot />
     </div>
   )
 }
