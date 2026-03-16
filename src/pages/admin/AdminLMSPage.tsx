@@ -4483,6 +4483,19 @@ const FeeManagementSection = ({
     studentName: string;
   }>({ isOpen: false, feeId: null, feeAmount: 0, studentName: '' });
 
+  // Add Individual Fee modal state
+  const [showAddFeeModal, setShowAddFeeModal] = useState(false);
+  const [addFeeData, setAddFeeData] = useState({
+    studentId: '',
+    month: new Date().toLocaleString('default', { month: 'long' }),
+    year: new Date().getFullYear(),
+    amount: 5000,
+    dueDate: new Date().toISOString().split('T')[0]
+  });
+  const [addFeeLoading, setAddFeeLoading] = useState(false);
+  const [addFeeStudentSearch, setAddFeeStudentSearch] = useState('');
+  const queryClient = useQueryClient();
+
   const summary = feesData?.summary || {
     total: 0, totalAmount: 0, paidAmount: 0, pendingAmount: 0,
     paidCount: 0, pendingCount: 0, overdueCount: 0
@@ -4541,7 +4554,7 @@ const FeeManagementSection = ({
                   <p className="font-medium text-amber-800">
                     {studentsWithoutFees} student(s) don't have fee records for {currentMonthName} {currentYearValue}
                   </p>
-                  <p className="text-sm text-amber-600">Click "Generate Monthly Fees" to create fee records for all students</p>
+                  <p className="text-sm text-amber-600">Use "Add Individual Fee" for specific students or "Generate Monthly Fees" for all</p>
                 </div>
               </div>
               <button
@@ -4667,6 +4680,13 @@ const FeeManagementSection = ({
               <span className="font-medium">{fees.length}</span> records / <span className="font-medium">{lmsStudents.length}</span> students
             </div>
           )}
+          <button
+            onClick={() => setShowAddFeeModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+          >
+            <UserPlus className="w-4 h-4" />
+            Add Individual Fee
+          </button>
           <button
             onClick={() => setShowGenerateModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -4929,6 +4949,174 @@ const FeeManagementSection = ({
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
                   Generate Fees
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Add Individual Fee Modal */}
+      {showAddFeeModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-emerald-600" />
+                Add Individual Fee Record
+              </h3>
+              <button onClick={() => { setShowAddFeeModal(false); setAddFeeStudentSearch(''); }} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              {/* Student Selector */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Select Student</label>
+                <input
+                  type="text"
+                  placeholder="Search student by name or ID..."
+                  value={addFeeStudentSearch}
+                  onChange={(e) => setAddFeeStudentSearch(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 mb-2"
+                />
+                <div className="max-h-40 overflow-y-auto border rounded-lg">
+                  {lmsStudents
+                    .filter(s => {
+                      if (!addFeeStudentSearch) return true;
+                      const term = addFeeStudentSearch.toLowerCase();
+                      return s.name.toLowerCase().includes(term) || s.lmsStudentId?.toLowerCase().includes(term);
+                    })
+                    .map(student => (
+                      <button
+                        key={student._id}
+                        onClick={() => { setAddFeeData({ ...addFeeData, studentId: student._id }); setAddFeeStudentSearch(student.name); }}
+                        className={`w-full text-left px-3 py-2 hover:bg-emerald-50 flex items-center justify-between ${addFeeData.studentId === student._id ? 'bg-emerald-50 border-l-4 border-emerald-500' : ''}`}
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{student.name}</p>
+                          <p className="text-xs text-gray-500">{student.lmsStudentId}</p>
+                        </div>
+                        {addFeeData.studentId === student._id && <Check className="w-4 h-4 text-emerald-600" />}
+                      </button>
+                    ))
+                  }
+                  {lmsStudents.filter(s => {
+                    if (!addFeeStudentSearch) return true;
+                    const term = addFeeStudentSearch.toLowerCase();
+                    return s.name.toLowerCase().includes(term) || s.lmsStudentId?.toLowerCase().includes(term);
+                  }).length === 0 && (
+                    <p className="text-sm text-gray-500 text-center py-3">No students found</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Month & Year */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                  <select
+                    value={addFeeData.month}
+                    onChange={(e) => setAddFeeData({ ...addFeeData, month: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {months.map(month => (
+                      <option key={month} value={month}>{month}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                  <select
+                    value={addFeeData.year}
+                    onChange={(e) => setAddFeeData({ ...addFeeData, year: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {[2024, 2025, 2026, 2027].map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Amount (Rs.)</label>
+                <input
+                  type="number"
+                  value={addFeeData.amount}
+                  onChange={(e) => setAddFeeData({ ...addFeeData, amount: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Due Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                <input
+                  type="date"
+                  value={addFeeData.dueDate}
+                  onChange={(e) => setAddFeeData({ ...addFeeData, dueDate: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Info */}
+              {addFeeData.studentId && (
+                <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                  This will create a fee record for <span className="font-semibold">{lmsStudents.find(s => s._id === addFeeData.studentId)?.name}</span> for {addFeeData.month} {addFeeData.year}.
+                </p>
+              )}
+
+              {/* Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => { setShowAddFeeModal(false); setAddFeeStudentSearch(''); }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={!addFeeData.studentId || addFeeLoading}
+                  onClick={async () => {
+                    if (!addFeeData.studentId) {
+                      toast.error('Please select a student');
+                      return;
+                    }
+                    setAddFeeLoading(true);
+                    try {
+                      await api.post('/lms/fees', {
+                        studentId: addFeeData.studentId,
+                        month: addFeeData.month,
+                        year: addFeeData.year,
+                        amount: addFeeData.amount,
+                        dueDate: addFeeData.dueDate
+                      });
+                      toast.success('Fee record added successfully');
+                      queryClient.invalidateQueries({ queryKey: ['lms-fees'] });
+                      queryClient.invalidateQueries({ queryKey: ['lms-fees-current-month'] });
+                      setShowAddFeeModal(false);
+                      setAddFeeStudentSearch('');
+                      setAddFeeData({
+                        studentId: '',
+                        month: new Date().toLocaleString('default', { month: 'long' }),
+                        year: new Date().getFullYear(),
+                        amount: 5000,
+                        dueDate: new Date().toISOString().split('T')[0]
+                      });
+                    } catch (error: any) {
+                      toast.error(error.response?.data?.message || 'Failed to add fee record');
+                    } finally {
+                      setAddFeeLoading(false);
+                    }
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg text-white ${!addFeeData.studentId || addFeeLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+                >
+                  {addFeeLoading ? 'Adding...' : 'Add Fee Record'}
                 </button>
               </div>
             </div>
