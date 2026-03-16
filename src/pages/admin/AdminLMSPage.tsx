@@ -8,7 +8,7 @@ import {
   BookOpen, Plus, Edit, Lock, Unlock,
   Users, Play, FileText, Video, Award, Search,
   ChevronDown, ChevronRight, X, Save, GripVertical,
-  AlertTriangle, ArrowLeft, UserPlus, Key, ToggleLeft, ToggleRight, GraduationCap, Trash2, BookPlus, Check, Clock,
+  AlertTriangle, ArrowLeft, UserPlus, UserMinus, Key, ToggleLeft, ToggleRight, GraduationCap, Trash2, BookPlus, Check, Clock,
   Wallet, Calendar, CreditCard, CheckCircle2, AlertCircle, Receipt, Eye, EyeOff, Sparkles, Download, BadgePercent
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
@@ -602,6 +602,23 @@ const AdminLMSPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lms-enrollments'] });
       toast.success('Access updated');
+    }
+  });
+
+  const removeEnrollmentMutation = useMutation({
+    mutationFn: async (enrollmentId: string) => {
+      const res = await api.delete(`/lms/enrollments/${enrollmentId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lms-enrollments'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-students'] });
+      queryClient.invalidateQueries({ queryKey: ['lms-courses'] });
+      toast.success('Student unenrolled successfully');
+      refetchEnrollments();
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to unenroll student');
     }
   });
 
@@ -1685,6 +1702,9 @@ const AdminLMSPage = () => {
           onToggleAccess={(enrollmentId, reason) => {
             toggleEnrollmentAccessMutation.mutate({ id: enrollmentId, reason });
           }}
+          onRemoveEnrollment={(enrollmentId) => {
+            removeEnrollmentMutation.mutate(enrollmentId);
+          }}
           onBlockDefaulters={() => {
             if (selectedCourse) {
               blockDefaultersMutation.mutate(selectedCourse);
@@ -1705,6 +1725,9 @@ const AdminLMSPage = () => {
             if (selectedStudentForEnroll) {
               bulkEnrollMutation.mutate({ userId: selectedStudentForEnroll._id, courseIds });
             }
+          }}
+          onUnenroll={(enrollmentId) => {
+            removeEnrollmentMutation.mutate(enrollmentId);
           }}
           isLoading={bulkEnrollMutation.isPending}
         />
@@ -2036,7 +2059,7 @@ const ClassModal = ({ isOpen, onClose, classItem, courseId: _courseId, onSave, i
 };
 
 // Enrollment Modal Component
-const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnroll, onToggleAccess, onBlockDefaulters, isLoadingEnrollments }: {
+const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnroll, onToggleAccess, onRemoveEnrollment, onBlockDefaulters, isLoadingEnrollments }: {
   isOpen: boolean;
   onClose: () => void;
   courseId: string | null;
@@ -2044,6 +2067,7 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
   users: any[];
   onEnroll: (userId: string) => void;
   onToggleAccess: (enrollmentId: string, reason?: string) => void;
+  onRemoveEnrollment: (enrollmentId: string) => void;
   onBlockDefaulters: () => void;
   isLoadingEnrollments?: boolean;
 }) => {
@@ -2317,6 +2341,18 @@ const EnrollmentModal = ({ isOpen, onClose, courseId, enrollments, users, onEnro
                       title={enrollment.accessBlocked ? 'Unblock Access' : 'Block Access'}
                     >
                       {enrollment.accessBlocked ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to unenroll ${enrollment.user?.name || 'this student'} from this course? This will also delete their progress.`)) {
+                          onRemoveEnrollment(enrollment._id);
+                        }
+                      }}
+                      className="p-2 rounded-lg text-red-500 hover:bg-red-50"
+                      title="Unenroll Student"
+                    >
+                      <UserMinus className="w-5 h-5" />
                     </button>
                   </div>
 
@@ -2988,6 +3024,7 @@ const StudentEnrollModal = ({
   student,
   courses,
   onEnroll,
+  onUnenroll,
   isLoading
 }: {
   isOpen: boolean;
@@ -2995,6 +3032,7 @@ const StudentEnrollModal = ({
   student: LMSStudent | null;
   courses: any[];
   onEnroll: (courseIds: string[]) => void;
+  onUnenroll: (enrollmentId: string) => void;
   isLoading: boolean;
 }) => {
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
@@ -3194,6 +3232,20 @@ const StudentEnrollModal = ({
                             <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded">
                               Already Enrolled
                             </span>
+                          )}
+                          {isEnrolled && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const enrollment = studentEnrollments?.find((en: any) => (en.course?._id || en.course) === course._id);
+                                if (enrollment && window.confirm(`Are you sure you want to unenroll ${student?.name} from "${course.title}"? This will also delete their progress.`)) {
+                                  onUnenroll(enrollment._id);
+                                }
+                              }}
+                              className="px-2 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
+                            >
+                              Unenroll
+                            </button>
                           )}
                         </div>
                       </div>
