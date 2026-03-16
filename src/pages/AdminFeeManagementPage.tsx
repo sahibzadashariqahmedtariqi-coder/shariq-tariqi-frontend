@@ -75,6 +75,7 @@ export default function AdminFeeManagementPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCourseFilter, setSelectedCourseFilter] = useState('')
   
   // Modals
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -98,7 +99,7 @@ export default function AdminFeeManagementPage() {
 
   useEffect(() => {
     fetchData()
-  }, [activeTab])
+  }, [activeTab, selectedCourseFilter])
 
   useEffect(() => {
     fetchCourses()
@@ -107,14 +108,15 @@ export default function AdminFeeManagementPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
+      const courseParam = selectedCourseFilter ? `?courseId=${selectedCourseFilter}` : ''
       if (activeTab === 'students') {
-        const response = await apiClient.get('/fee/students')
+        const response = await apiClient.get(`/fee/students${courseParam}`)
         setStudents(response.data?.data || [])
       } else if (activeTab === 'pending') {
-        const response = await apiClient.get('/fee/pending')
+        const response = await apiClient.get(`/fee/pending${courseParam}`)
         setPendingFees(response.data?.data || [])
       } else {
-        const response = await apiClient.get('/fee/all')
+        const response = await apiClient.get(`/fee/all${courseParam}`)
         setAllFees(response.data?.data || [])
       }
     } catch (error) {
@@ -203,10 +205,15 @@ export default function AdminFeeManagementPage() {
   }
 
   const handleGenerateMonthlyFees = async () => {
-    if (!window.confirm('Generate fee records for current month for all active paid students?')) return
+    const courseLabel = selectedCourseFilter
+      ? `selected course's active paid students`
+      : 'all active paid students'
+    if (!window.confirm(`Generate fee records for current month for ${courseLabel}?`)) return
 
     try {
-      const response = await apiClient.post('/fee/generate-monthly', {})
+      const body: any = {}
+      if (selectedCourseFilter) body.courseId = selectedCourseFilter
+      const response = await apiClient.post('/fee/generate-monthly', body)
       toast.success(response.data?.message || 'Monthly fees generated')
       fetchData()
     } catch (error: any) {
@@ -309,7 +316,7 @@ export default function AdminFeeManagementPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           <button
             onClick={() => setActiveTab('students')}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
@@ -318,7 +325,7 @@ export default function AdminFeeManagementPage() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
             }`}
           >
-            👨‍🎓 Paid Students
+            Paid Students
           </button>
           <button
             onClick={() => setActiveTab('pending')}
@@ -328,7 +335,7 @@ export default function AdminFeeManagementPage() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
             }`}
           >
-            ⏳ Pending Approvals
+            Pending Approvals
             {pendingFees.length > 0 && (
               <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
                 {pendingFees.length}
@@ -343,8 +350,20 @@ export default function AdminFeeManagementPage() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
             }`}
           >
-            📋 All Fee Records
+            All Fee Records
           </button>
+
+          {/* Course Filter Dropdown */}
+          <select
+            value={selectedCourseFilter}
+            onChange={(e) => setSelectedCourseFilter(e.target.value)}
+            className="ml-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 font-medium dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+          >
+            <option value="">All Courses</option>
+            {courses.map((course) => (
+              <option key={course._id} value={course._id}>{course.title}</option>
+            ))}
+          </select>
         </div>
 
         {/* Search */}

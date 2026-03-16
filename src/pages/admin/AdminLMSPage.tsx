@@ -148,6 +148,7 @@ const AdminLMSPage = () => {
   const [feeFilterMonth, setFeeFilterMonth] = useState('');
   const [feeFilterYear, setFeeFilterYear] = useState(new Date().getFullYear());
   const [feeFilterStatus, setFeeFilterStatus] = useState<string>('');
+  const [feeFilterCourse, setFeeFilterCourse] = useState<string>('');
   
   // Payment request review state
   const [reviewingRequest, setReviewingRequest] = useState<string | null>(null);
@@ -263,12 +264,13 @@ const AdminLMSPage = () => {
 
   // Fetch all fees
   const { data: feesData, isLoading: loadingFees } = useQuery({
-    queryKey: ['lms-fees', feeFilterMonth, feeFilterYear, feeFilterStatus],
+    queryKey: ['lms-fees', feeFilterMonth, feeFilterYear, feeFilterStatus, feeFilterCourse],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (feeFilterMonth) params.append('month', feeFilterMonth);
       if (feeFilterYear) params.append('year', feeFilterYear.toString());
       if (feeFilterStatus) params.append('status', feeFilterStatus);
+      if (feeFilterCourse) params.append('courseId', feeFilterCourse);
       const res = await api.get(`/lms/fees?${params.toString()}`);
       return res.data;
     },
@@ -432,7 +434,7 @@ const AdminLMSPage = () => {
   });
 
   const generateFeesMutation = useMutation({
-    mutationFn: async (data: { month: string; year: number; amount: number; dueDate: string }) => {
+    mutationFn: async (data: { month: string; year: number; amount: number; dueDate: string; courseId?: string }) => {
       const res = await api.post('/lms/fees/generate', data);
       return res.data;
     },
@@ -1165,12 +1167,15 @@ const AdminLMSPage = () => {
             feesData={feesData}
             loadingFees={loadingFees}
             students={studentsData || []}
+            courses={coursesData || []}
             feeFilterMonth={feeFilterMonth}
             feeFilterYear={feeFilterYear}
             feeFilterStatus={feeFilterStatus}
+            feeFilterCourse={feeFilterCourse}
             setFeeFilterMonth={setFeeFilterMonth}
             setFeeFilterYear={setFeeFilterYear}
             setFeeFilterStatus={setFeeFilterStatus}
+            setFeeFilterCourse={setFeeFilterCourse}
             onDeleteFee={(feeId, studentName) => {
               setConfirmModal({ isOpen: true, type: 'fee', id: feeId, name: studentName || 'this fee record' });
             }}
@@ -4383,12 +4388,15 @@ const FeeManagementSection = ({
   feesData,
   loadingFees,
   students,
+  courses,
   feeFilterMonth,
   feeFilterYear,
   feeFilterStatus,
+  feeFilterCourse,
   setFeeFilterMonth,
   setFeeFilterYear,
   setFeeFilterStatus,
+  setFeeFilterCourse,
   onDeleteFee,
   onGenerateFees,
   onUpdateFeeStatus
@@ -4396,12 +4404,15 @@ const FeeManagementSection = ({
   feesData: any;
   loadingFees: boolean;
   students: LMSStudent[];
+  courses: LMSCourse[];
   feeFilterMonth: string;
   feeFilterYear: number;
   feeFilterStatus: string;
+  feeFilterCourse: string;
   setFeeFilterMonth: (month: string) => void;
   setFeeFilterYear: (year: number) => void;
   setFeeFilterStatus: (status: string) => void;
+  setFeeFilterCourse: (courseId: string) => void;
   onDeleteFee: (feeId: string, studentName?: string) => void;
   onGenerateFees: (data: any) => void;
   onUpdateFeeStatus: (feeId: string, data: any) => void;
@@ -4431,7 +4442,8 @@ const FeeManagementSection = ({
     month: new Date().toLocaleString('default', { month: 'long' }),
     year: new Date().getFullYear(),
     amount: 5000,
-    dueDate: new Date().toISOString().split('T')[0]
+    dueDate: new Date().toISOString().split('T')[0],
+    courseId: ''
   });
   
   // Paid amount modal state
@@ -4607,6 +4619,16 @@ const FeeManagementSection = ({
       {/* Actions Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={feeFilterCourse}
+            onChange={(e) => setFeeFilterCourse(e.target.value)}
+            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 font-medium"
+          >
+            <option value="">All Courses</option>
+            {courses.map(course => (
+              <option key={course._id} value={course._id}>{course.title}</option>
+            ))}
+          </select>
           <select
             value={feeFilterMonth}
             onChange={(e) => setFeeFilterMonth(e.target.value)}
@@ -4873,8 +4895,24 @@ const FeeManagementSection = ({
                   className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Course (Optional)</label>
+                <select
+                  value={generateData.courseId}
+                  onChange={(e) => setGenerateData({ ...generateData, courseId: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Courses (All Students)</option>
+                  {courses.map(course => (
+                    <option key={course._id} value={course._id}>{course.title}</option>
+                  ))}
+                </select>
+              </div>
               <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                This will generate fee records for all {students.length} LMS students for {generateData.month} {generateData.year}.
+                {generateData.courseId
+                  ? `This will generate fee records for students enrolled in "${courses.find(c => c._id === generateData.courseId)?.title}" for ${generateData.month} ${generateData.year}.`
+                  : `This will generate fee records for all ${students.length} LMS students for ${generateData.month} ${generateData.year}.`
+                }
               </p>
               <div className="flex gap-3 pt-2">
                 <button
