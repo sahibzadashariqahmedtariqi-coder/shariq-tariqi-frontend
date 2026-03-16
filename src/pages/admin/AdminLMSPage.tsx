@@ -110,6 +110,10 @@ interface LMSFee {
     lmsStudentId: string;
     phone?: string;
   };
+  course?: {
+    _id: string;
+    title: string;
+  };
   month: string;
   year: number;
   amount: number;
@@ -4426,11 +4430,12 @@ const FeeManagementSection = ({
   const currentMonthName = months[new Date().getMonth()];
   const currentYearValue = new Date().getFullYear();
   const { data: currentMonthFeesData } = useQuery({
-    queryKey: ['lms-fees-current-month', currentMonthName, currentYearValue],
+    queryKey: ['lms-fees-current-month', currentMonthName, currentYearValue, feeFilterCourse],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append('month', currentMonthName);
       params.append('year', currentYearValue.toString());
+      if (feeFilterCourse) params.append('courseId', feeFilterCourse);
       const res = await api.get(`/lms/fees?${params.toString()}`);
       return res.data;
     },
@@ -4544,8 +4549,13 @@ const FeeManagementSection = ({
       {/* Alert Banner for missing fee records */}
       {lmsStudents && currentMonthFeesData && (() => {
         const currentMonthFeesCount = currentMonthFeesData?.data?.length || 0;
-        const studentsWithoutFees = lmsStudents.length - currentMonthFeesCount;
+        // When course filter is active, only count students enrolled in that course
+        const relevantStudents = feeFilterCourse
+          ? lmsStudents.filter(s => s.enrolledCoursesList?.some(c => c.courseId === feeFilterCourse))
+          : lmsStudents;
+        const studentsWithoutFees = relevantStudents.length - currentMonthFeesCount;
         if (studentsWithoutFees > 0) {
+          const courseTitle = feeFilterCourse ? courses.find(c => c._id === feeFilterCourse)?.title : '';
           return (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -4553,6 +4563,7 @@ const FeeManagementSection = ({
                 <div>
                   <p className="font-medium text-amber-800">
                     {studentsWithoutFees} student(s) don't have fee records for {currentMonthName} {currentYearValue}
+                    {courseTitle ? ` in "${courseTitle}"` : ''}
                   </p>
                   <p className="text-sm text-amber-600">Use "Add Individual Fee" for specific students or "Generate Monthly Fees" for all</p>
                 </div>
@@ -4677,7 +4688,7 @@ const FeeManagementSection = ({
           {/* Show info if total fee records != total students */}
           {lmsStudents && fees && (
             <div className="text-sm text-gray-600">
-              <span className="font-medium">{fees.length}</span> records / <span className="font-medium">{lmsStudents.length}</span> students
+              <span className="font-medium">{fees.length}</span> records / <span className="font-medium">{feeFilterCourse ? lmsStudents.filter(s => s.enrolledCoursesList?.some(c => c.courseId === feeFilterCourse)).length : lmsStudents.length}</span> students
             </div>
           )}
           <button
@@ -4714,6 +4725,7 @@ const FeeManagementSection = ({
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Student</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Course</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Month</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Amount</th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Paid</th>
@@ -4736,6 +4748,11 @@ const FeeManagementSection = ({
                         <p className="text-xs text-emerald-600">{fee.student?.lmsStudentId}</p>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-sm font-medium ${fee.course ? 'text-blue-700 bg-blue-50 px-2 py-1 rounded-lg' : 'text-gray-400'}`}>
+                      {fee.course?.title || '—'}
+                    </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">{fee.month} {fee.year}</td>
                   <td className="px-4 py-3 text-center">
