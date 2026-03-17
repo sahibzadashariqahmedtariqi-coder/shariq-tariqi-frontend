@@ -3036,23 +3036,22 @@ const StudentEnrollModal = ({
   isLoading: boolean;
 }) => {
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+  const [coursesToUnenroll, setCoursesToUnenroll] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Get enrollments for this student
-  const { data: studentEnrollments } = useQuery({
-    queryKey: ['student-enrollments', student?._id],
-    queryFn: async () => {
-      if (!student?._id) return [];
-      const res = await api.get(`/lms/enrollments?userId=${student._id}`);
-      return res.data.data;
-    },
-    enabled: !!student?._id && isOpen
-  });
-
-  // Get already enrolled course IDs
+  // Get already enrolled course IDs from student object directly
   const enrolledCourseIds = useMemo(() => {
-    return studentEnrollments?.map((e: any) => e.course?._id || e.course) || [];
-  }, [studentEnrollments]);
+    return student?.enrolledCoursesList?.map(e => e.courseId) || [];
+  }, [student?.enrolledCoursesList]);
+
+  // Map courseId to enrollmentId for unenroll
+  const enrollmentMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    student?.enrolledCoursesList?.forEach(e => {
+      map[e.courseId] = e.enrollmentId;
+    });
+    return map;
+  }, [student?.enrolledCoursesList]);
 
   // Show all courses - admin can enroll in any course (will auto-enable LMS if needed)
   const lmsCourses = useMemo(() => {
@@ -3073,39 +3072,76 @@ const StudentEnrollModal = ({
     );
   }, [lmsCourses, searchTerm]);
 
-  // Reset selection when modal opens
+  // Reset selection when modal opens - pre-select enrolled courses
   useEffect(() => {
     if (isOpen) {
-      setSelectedCourses([]);
+      setSelectedCourses(enrolledCourseIds);
+      setCoursesToUnenroll([]);
       setSearchTerm('');
     }
-  }, [isOpen]);
+  }, [isOpen, enrolledCourseIds]);
 
   const toggleCourse = (courseId: string) => {
-    if (enrolledCourseIds.includes(courseId)) return; // Already enrolled
-    setSelectedCourses(prev => 
-      prev.includes(courseId) 
-        ? prev.filter(id => id !== courseId)
-        : [...prev, courseId]
-    );
+    const isEnrolled = enrolledCourseIds.includes(courseId);
+
+    if (isEnrolled) {
+      // Unchecking an enrolled course = mark for unenroll
+      if (selectedCourses.includes(courseId)) {
+        if (window.confirm(`Are you sure you want to unenroll ${student?.name} from this course? This will also delete their progress.`)) {
+          setSelectedCourses(prev => prev.filter(id => id !== courseId));
+          setCoursesToUnenroll(prev => [...prev, courseId]);
+        }
+      } else {
+        // Re-checking = cancel unenroll
+        setSelectedCourses(prev => [...prev, courseId]);
+        setCoursesToUnenroll(prev => prev.filter(id => id !== courseId));
+      }
+    } else {
+      // Toggle new course selection
+      setSelectedCourses(prev =>
+        prev.includes(courseId)
+          ? prev.filter(id => id !== courseId)
+          : [...prev, courseId]
+      );
+    }
   };
 
   const selectAllUnenrolled = () => {
     const unenrolledIds = filteredCourses
       .filter(c => !enrolledCourseIds.includes(c._id))
       .map(c => c._id);
-    setSelectedCourses(unenrolledIds);
+    // Keep enrolled courses selected + add all unenrolled
+    setSelectedCourses([...enrolledCourseIds, ...unenrolledIds]);
   };
 
   const clearSelection = () => {
-    setSelectedCourses([]);
+    // Only clear newly selected courses, keep enrolled ones
+    setSelectedCourses(enrolledCourseIds);
+    setCoursesToUnenroll([]);
   };
 
   const handleSubmit = () => {
-    if (selectedCourses.length > 0) {
-      onEnroll(selectedCourses);
+    // Unenroll from unchecked enrolled courses
+    coursesToUnenroll.forEach(courseId => {
+      const enrollmentId = enrollmentMap[courseId];
+      if (enrollmentId) {
+        onUnenroll(enrollmentId);
+      }
+    });
+
+    // Enroll in newly selected courses (not already enrolled)
+    const newCourses = selectedCourses.filter(id => !enrolledCourseIds.includes(id));
+    if (newCourses.length > 0) {
+      onEnroll(newCourses);
+    }
+
+    // Close if only unenrolling (no new enrollments)
+    if (newCourses.length === 0 && coursesToUnenroll.length > 0) {
+      onClose();
     }
   };
+
+  const hasChanges = coursesToUnenroll.length > 0 || selectedCourses.some(id => !enrolledCourseIds.includes(id));
 
   if (!isOpen || !student) return null;
 
@@ -3163,7 +3199,8 @@ const StudentEnrollModal = ({
               </button>
             </div>
             <span className="text-gray-500">
-              {selectedCourses.length} selected
+              {selectedCourses.filter(id => !enrolledCourseIds.includes(id)).length} new selected
+              {coursesToUnenroll.length > 0 && <span className="text-red-500"> • {coursesToUnenroll.length} to remove</span>}
             </span>
           </div>
         </div>
@@ -3181,35 +3218,38 @@ const StudentEnrollModal = ({
               {filteredCourses.map((course) => {
                 const isEnrolled = enrolledCourseIds.includes(course._id);
                 const isSelected = selectedCourses.includes(course._id);
+                const isMarkedForUnenroll = coursesToUnenroll.includes(course._id);
                 const isLMSEnabled = course.isLMSEnabled;
-                
+
                 return (
                   <div
                     key={course._id}
                     onClick={() => toggleCourse(course._id)}
                     className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                      isEnrolled 
-                        ? 'bg-gray-100 border-gray-200 cursor-not-allowed opacity-60'
-                        : isSelected
+                      isMarkedForUnenroll
+                        ? 'bg-red-50 border-red-300 ring-2 ring-red-200'
+                        : isEnrolled && isSelected
                           ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200'
-                          : 'bg-white border-gray-200 hover:border-emerald-300 hover:shadow-sm'
+                          : isSelected
+                            ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200'
+                            : 'bg-white border-gray-200 hover:border-emerald-300 hover:shadow-sm'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${
-                        isEnrolled
-                          ? 'bg-gray-300 border-gray-400'
+                        isMarkedForUnenroll
+                          ? 'border-red-300 bg-white'
                           : isSelected
                             ? 'bg-emerald-600 border-emerald-600'
                             : 'border-gray-300'
                       }`}>
-                        {(isEnrolled || isSelected) && (
+                        {isSelected && !isMarkedForUnenroll && (
                           <Check className="w-3 h-3 text-white" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium text-gray-900">{course.title}</h4>
+                          <h4 className={`font-medium ${isMarkedForUnenroll ? 'text-red-600 line-through' : 'text-gray-900'}`}>{course.title}</h4>
                           {!isLMSEnabled && (
                             <span className="px-1.5 py-0.5 text-[10px] bg-yellow-100 text-yellow-700 rounded">
                               LMS will be enabled
@@ -3228,24 +3268,15 @@ const StudentEnrollModal = ({
                             <Users className="w-3 h-3" />
                             {course.level || 'All Levels'}
                           </span>
-                          {isEnrolled && (
+                          {isEnrolled && !isMarkedForUnenroll && (
                             <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded">
-                              Already Enrolled
+                              Enrolled
                             </span>
                           )}
-                          {isEnrolled && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const enrollment = studentEnrollments?.find((en: any) => (en.course?._id || en.course) === course._id);
-                                if (enrollment && window.confirm(`Are you sure you want to unenroll ${student?.name} from "${course.title}"? This will also delete their progress.`)) {
-                                  onUnenroll(enrollment._id);
-                                }
-                              }}
-                              className="px-2 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
-                            >
-                              Unenroll
-                            </button>
+                          {isMarkedForUnenroll && (
+                            <span className="px-2 py-0.5 bg-red-100 text-red-600 rounded">
+                              Will be unenrolled
+                            </span>
                           )}
                         </div>
                       </div>
@@ -3271,18 +3302,36 @@ const StudentEnrollModal = ({
             </button>
             <button
               onClick={handleSubmit}
-              disabled={selectedCourses.length === 0 || isLoading}
-              className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              disabled={!hasChanges || isLoading}
+              className={`px-6 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
+                coursesToUnenroll.length > 0 && !selectedCourses.some(id => !enrolledCourseIds.includes(id))
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-emerald-600 hover:bg-emerald-700'
+              }`}
             >
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                  Enrolling...
+                  Processing...
                 </>
               ) : (
                 <>
-                  <BookPlus className="w-4 h-4" />
-                  Enroll in {selectedCourses.length} Course{selectedCourses.length !== 1 ? 's' : ''}
+                  {coursesToUnenroll.length > 0 && selectedCourses.some(id => !enrolledCourseIds.includes(id)) ? (
+                    <>
+                      <BookPlus className="w-4 h-4" />
+                      Enroll {selectedCourses.filter(id => !enrolledCourseIds.includes(id)).length} & Unenroll {coursesToUnenroll.length}
+                    </>
+                  ) : coursesToUnenroll.length > 0 ? (
+                    <>
+                      <UserMinus className="w-4 h-4" />
+                      Unenroll from {coursesToUnenroll.length} Course{coursesToUnenroll.length !== 1 ? 's' : ''}
+                    </>
+                  ) : (
+                    <>
+                      <BookPlus className="w-4 h-4" />
+                      Enroll in {selectedCourses.filter(id => !enrolledCourseIds.includes(id)).length} Course{selectedCourses.filter(id => !enrolledCourseIds.includes(id)).length !== 1 ? 's' : ''}
+                    </>
+                  )}
                 </>
               )}
             </button>
