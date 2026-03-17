@@ -3038,6 +3038,7 @@ const StudentEnrollModal = ({
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
   const [coursesToUnenroll, setCoursesToUnenroll] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [confirmUnenrollCourse, setConfirmUnenrollCourse] = useState<{ id: string; title: string } | null>(null);
 
   // Get already enrolled course IDs from student object directly
   const enrolledCourseIds = useMemo(() => {
@@ -3085,12 +3086,10 @@ const StudentEnrollModal = ({
     const isEnrolled = enrolledCourseIds.includes(courseId);
 
     if (isEnrolled) {
-      // Unchecking an enrolled course = mark for unenroll
+      // Unchecking an enrolled course = show confirmation dialog
       if (selectedCourses.includes(courseId)) {
-        if (window.confirm(`Are you sure you want to unenroll ${student?.name} from this course? This will also delete their progress.`)) {
-          setSelectedCourses(prev => prev.filter(id => id !== courseId));
-          setCoursesToUnenroll(prev => [...prev, courseId]);
-        }
+        const course = courses.find(c => c._id === courseId);
+        setConfirmUnenrollCourse({ id: courseId, title: course?.title || 'this course' });
       } else {
         // Re-checking = cancel unenroll
         setSelectedCourses(prev => [...prev, courseId]);
@@ -3103,6 +3102,14 @@ const StudentEnrollModal = ({
           ? prev.filter(id => id !== courseId)
           : [...prev, courseId]
       );
+    }
+  };
+
+  const handleConfirmUnenroll = () => {
+    if (confirmUnenrollCourse) {
+      setSelectedCourses(prev => prev.filter(id => id !== confirmUnenrollCourse.id));
+      setCoursesToUnenroll(prev => [...prev, confirmUnenrollCourse.id]);
+      setConfirmUnenrollCourse(null);
     }
   };
 
@@ -3150,7 +3157,7 @@ const StudentEnrollModal = ({
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative"
       >
         {/* Header */}
         <div className="p-6 border-b bg-gradient-to-r from-emerald-50 to-teal-50">
@@ -3337,6 +3344,52 @@ const StudentEnrollModal = ({
             </button>
           </div>
         </div>
+
+        {/* Unenroll Confirmation Dialog */}
+        <AnimatePresence>
+          {confirmUnenrollCourse && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 flex items-center justify-center z-10 rounded-2xl"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: 'spring', duration: 0.3 }}
+                className="bg-white rounded-xl shadow-2xl p-6 mx-4 max-w-sm w-full"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-100 rounded-full">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Confirm Unenroll</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to unenroll <span className="font-semibold text-gray-900">{student?.name}</span> from{' '}
+                  <span className="font-semibold text-gray-900">{confirmUnenrollCourse.title}</span>? This will also delete their progress.
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setConfirmUnenrollCourse(null)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirmUnenroll}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                  >
+                    <UserMinus className="w-4 h-4" />
+                    Unenroll
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
